@@ -1,0 +1,9 @@
+README
+
+alias antlr4='java -jar /usr/local/lib/antlr-4.5.3-complete.jar'
+alias grun='java -cp /usr/local/lib/antlr-4.5.3-complete.jar org.antlr.v4.gui.TestRig'
+
+
+javac -cp ~/Downloads/antlr-4.5.3-complete.jar *.java
+
+java -cp ".:/Users/yueming.liu/Downloads/antlr-4.5.3-complete.jar" Hello test.txt
