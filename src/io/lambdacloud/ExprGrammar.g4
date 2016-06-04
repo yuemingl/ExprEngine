@@ -1,5 +1,9 @@
 grammar ExprGrammar;
 
+@header {
+package io.lambdacloud;
+}
+
 /* Lexical rules */
 
 AND : 'and' | '&&' ;

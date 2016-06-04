@@ -1,27 +1,39 @@
-// Generated from ExprGrammar.g4 by ANTLR 4.5.3
-
+package io.lambdacloud;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.objectweb.asm.*;
 
-/**
- * This class provides an empty implementation of {@link ExprGrammarListener},
- * which can be extended to create a listener which only needs to handle a subset
- * of the available methods.
- */
-public class ExprGrammarBaseListener implements ExprGrammarListener {
+
+public class ExprWalker extends ExprGrammarBaseListener {
+	CodeGenerator gg = new CodeGenerator();
+	
+	public CodeGenerator getCodeGenerator() {
+		return gg;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProg(ExprGrammarParser.ProgContext ctx) { }
+	@Override public void enterProg(ExprGrammarParser.ProgContext ctx) {
+		System.out.println("enter prog:");
+		gg.startClass("test");
+		gg.startMethod("eval", "()D");
+		gg.startCode();
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { }
+	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { 
+		gg.mv.visitInsn(Opcodes.DRETURN);
+		gg.mv.visitMaxs(10, 10);
+		gg.endCode();
+		gg.endClass();
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -147,13 +159,19 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { }
+	@Override public void enterArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { 
+		System.out.println(">*: "+ctx.getText());
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { }
+	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) {
+		System.out.println("<*: "+ctx.getText());
+		gg.getMV().visitInsn(Opcodes.DMUL);
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -207,13 +225,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { }
+	@Override public void enterArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { 
+		System.out.println(">+: "+ctx.getText());
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { }
+	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) {
+		System.out.println("<+: "+ctx.getText());
+		gg.getMV().visitInsn(Opcodes.DADD);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -261,7 +284,10 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) { }
+	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) {
+		System.out.println(ctx.getText());
+		gg.getMV().visitLdcInsn(Double.parseDouble(ctx.getText()));
+	}
 	/**
 	 * {@inheritDoc}
 	 *
