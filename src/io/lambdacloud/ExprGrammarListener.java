@@ -20,15 +20,51 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitProg(ExprGrammarParser.ProgContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ExprGrammarParser#expr}.
+	 * Enter a parse tree produced by {@link ExprGrammarParser#asign}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpr(ExprGrammarParser.ExprContext ctx);
+	void enterAsign(ExprGrammarParser.AsignContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ExprGrammarParser#expr}.
+	 * Exit a parse tree produced by {@link ExprGrammarParser#asign}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpr(ExprGrammarParser.ExprContext ctx);
+	void exitAsign(ExprGrammarParser.AsignContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprLogical}
+	 * labeled alternative in {@link ExprGrammarParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprLogical}
+	 * labeled alternative in {@link ExprGrammarParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprComparison}
+	 * labeled alternative in {@link ExprGrammarParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprComparison(ExprGrammarParser.ExprComparisonContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprComparison}
+	 * labeled alternative in {@link ExprGrammarParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprArithmetic}
+	 * labeled alternative in {@link ExprGrammarParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprArithmetic}
+	 * labeled alternative in {@link ExprGrammarParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code LogicalExpressionAnd}
 	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.

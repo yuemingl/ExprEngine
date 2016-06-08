@@ -21,7 +21,9 @@ GT : '>' ;
 GE : '>=' ;
 LT : '<' ;
 LE : '<=' ;
-EQ : '=' ;
+EQ : '==' ;
+
+ASIGN : '=' ;
 
 LPAREN : '(' ;
 RPAREN : ')' ;
@@ -44,13 +46,19 @@ WS : [ \r\t\u000C\n]+ -> skip ;
 
 /* Parser rules */
 
-prog : expr* EOF ;
+prog 
+ : (expr
+ | asign)* EOF
+ ;
 
+asign : IDENTIFIER ASIGN expr ;
+ 
 expr 
- : logical_expr SEMI 
- | comparison_expr SEMI
- | arithmetic_expr SEMI;
-
+ : logical_expr SEMI      #ExprLogical
+ | comparison_expr SEMI   #ExprComparison
+ | arithmetic_expr SEMI   #ExprArithmetic
+ ;
+ 
 logical_expr
  : logical_expr AND logical_expr # LogicalExpressionAnd
  | logical_expr OR logical_expr  # LogicalExpressionOr

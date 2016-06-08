@@ -1,103 +1,168 @@
 package io.lambdacloud;
+
+import java.io.FileOutputStream;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.Stack;
+import java.util.TreeMap;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.objectweb.asm.*;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
+import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
-public class ExprWalker extends ExprGrammarBaseListener {
-	CodeGenerator gg = new CodeGenerator();
+import io.lambdacloud.statement.AddNode;
+import io.lambdacloud.statement.ConstantNode;
+import io.lambdacloud.statement.ExprNode;
+import io.lambdacloud.statement.MultNode;
+import io.lambdacloud.statement.VariableNode;
+
+public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
+	public Stack<ExprNode> stack = new Stack<ExprNode>();
+	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
+	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
 	
-	public CodeGenerator getCodeGenerator() {
-		return gg;
+	Type[] getArgumentTypes() {
+		List<VariableNode> list = new ArrayList<VariableNode>();
+		list.addAll(paramMap.values());
+		Collections.sort(list, new Comparator<VariableNode>() {
+			@Override
+			public int compare(VariableNode o1, VariableNode o2) {
+				return o1.name.compareTo(o2.name);
+			}
+		});
+		Type[] retTypes = new Type[list.size()];
+		for(int i=0; i<list.size(); i++) {
+			retTypes[i] = Type.getType(double.class);//TODO different types
+		}
+		return retTypes;
 	}
 	
+	public void genCode() {
+		try {
+			// Class<?> c = mcl.defineClassForName("com.openx.asm_test.Test1",
+			// Test1Dump.dump());
+			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
+			
+			CodeGenerator gg = new CodeGenerator();
+			gg.startClass("myclass");
+			
+			gg.startMethod("eval",Type.getMethodDescriptor(
+					Type.DOUBLE_TYPE, //return type TODO
+					getArgumentTypes()
+				));
+			gg.startCode();
+			
+			MethodVisitor mv = gg.getMV();
+			ExprNode rootExpr = stack.pop();
+			
+			int index = 1;
+			for(String key : paramMap.keySet()) {
+				paramMap.get(key).idxLVT = index;
+				index += 2;
+			}
+			
+			rootExpr.genCode(mv);
+			
+			
+			mv.visitInsn(Opcodes.DRETURN);
+			mv.visitLocalVariable("this", "Lcom/openx/asm_test/Test1;", null, gg.l0, gg.l1, 0);
+			for(VariableNode var : paramMap.values()) {
+				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), null, gg.l0, gg.l1, var.idxLVT);
+			}
+			
+			mv.visitMaxs(-1, -1);
+			gg.endCode();
+			gg.endClass();
+			
+			byte[] bcode = gg.dump();
+			FileOutputStream fos = new FileOutputStream("test.class");
+			fos.write(bcode);
+			fos.close();
+
+			Class<?> c = mcl.defineClassForName(null, bcode);
+			for (Method m : c.getMethods()) {
+				System.out.println(m.getName());
+			}
+			Method m1 = c.getMethod("eval",double.class, double.class);
+			Object o = c.newInstance();
+			System.out.println(m1.invoke(o,3,4));
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProg(ExprGrammarParser.ProgContext ctx) {
-		System.out.println("enter prog:");
-		gg.startClass("test");
-		gg.startMethod("eval", "()D");
-		gg.startCode();
-	}
+	@Override public void enterProg(ExprGrammarParser.ProgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { 
-		//gg.mv.visitInsn(Opcodes.DRETURN);
-		gg.mv.visitMaxs(10, 10);
-		gg.endCode();
-		gg.endClass();
-	}
-	
+	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterAsign(ExprGrammarParser.AsignContext ctx) { }
-
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { 
-		System.out.println(ctx.getChild(0).getText());
-		System.out.println(ctx.getText());
-		
-	}
-
-	
+	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { }
 	/**
-	 * Enter a parse tree produced by the {@code ExprLogical}
-	 * labeled alternative in {@link ExprGrammarParser#expr}.
-	 * @param ctx the parse tree
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx) {}
+	@Override public void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
 	/**
-	 * Exit a parse tree produced by the {@code ExprLogical}
-	 * labeled alternative in {@link ExprGrammarParser#expr}.
-	 * @param ctx the parse tree
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx) {
-		gg.getMV().visitInsn(Opcodes.IRETURN);
-		
-	}
+	@Override public void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
 	/**
-	 * Enter a parse tree produced by the {@code ExprComparison}
-	 * labeled alternative in {@link ExprGrammarParser#expr}.
-	 * @param ctx the parse tree
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprComparison(ExprGrammarParser.ExprComparisonContext ctx) {}
+	@Override public void enterExprComparison(ExprGrammarParser.ExprComparisonContext ctx) { }
 	/**
-	 * Exit a parse tree produced by the {@code ExprComparison}
-	 * labeled alternative in {@link ExprGrammarParser#expr}.
-	 * @param ctx the parse tree
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx) {
-		gg.getMV().visitInsn(Opcodes.IRETURN);
-	}
+	@Override public void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx) { }
 	/**
-	 * Enter a parse tree produced by the {@code ExprArithmetic}
-	 * labeled alternative in {@link ExprGrammarParser#expr}.
-	 * @param ctx the parse tree
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {}
+	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
 	/**
-	 * Exit a parse tree produced by the {@code ExprArithmetic}
-	 * labeled alternative in {@link ExprGrammarParser#expr}.
-	 * @param ctx the parse tree
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
-		System.out.println("Arithmetric: "+ctx.getText());
-		gg.getMV().visitInsn(Opcodes.DRETURN);
-	}
+	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -211,17 +276,14 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { 
-		System.out.println(">*: "+ctx.getText());
-	}
+	@Override public void enterArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) {
-		System.out.println("<*: "+ctx.getText());
-		gg.getMV().visitInsn(Opcodes.DMUL);
+	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { 
+		stack.push(new MultNode(stack.pop(), stack.pop()));
 
 	}
 	/**
@@ -277,17 +339,15 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { 
-		System.out.println(">+: "+ctx.getText());
-	}
+	@Override public void enterArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) {
-		System.out.println("<+: "+ctx.getText());
-		gg.getMV().visitInsn(Opcodes.DADD);
+	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { 
+		stack.push(new AddNode(stack.pop(), stack.pop()));
+		
 	}
 	/**
 	 * {@inheritDoc}
@@ -324,9 +384,7 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) {
-		System.out.println(ctx.getText());
-	}
+	@Override public void exitLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -338,9 +396,8 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) {
-		System.out.println(ctx.getText());
-		gg.getMV().visitLdcInsn(Double.parseDouble(ctx.getText()));
+	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) { 
+		stack.push(new ConstantNode(ctx.getText()));
 	}
 	/**
 	 * {@inheritDoc}
@@ -353,7 +410,19 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { }
+	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { 
+		String varName = ctx.getText();
+		VariableNode val = localVarMap.get(varName);
+		if(null == val) {
+			val = paramMap.get(varName);
+			if(null == val) {
+				val = new VariableNode(varName);
+			}
+			paramMap.put(varName, val);
+		}
+		//TODO define a local variable?
+		stack.push(val);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -379,4 +448,5 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void visitErrorNode(ErrorNode node) { }
+
 }

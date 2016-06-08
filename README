@@ -7,3 +7,12 @@ alias grun='java -cp /usr/local/lib/antlr-4.5.3-complete.jar org.antlr.v4.gui.Te
 javac -cp ~/Downloads/antlr-4.5.3-complete.jar *.java
 
 java -cp ".:/Users/yueming.liu/Downloads/antlr-4.5.3-complete.jar" Hello test.txt
+
+
+Using interface for generated class instead of reflection
+Method declaration
+setMaxs()
+number of variables and their index?
+return type?
+
+
