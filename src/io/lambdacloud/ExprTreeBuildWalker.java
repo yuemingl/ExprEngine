@@ -5,7 +5,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -21,13 +23,14 @@ import org.objectweb.asm.Type;
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.statement.AddNode;
+import io.lambdacloud.statement.AssignNode;
 import io.lambdacloud.statement.ConstantNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.VariableNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
-	public Stack<ExprNode> stack = new Stack<ExprNode>();
+	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
 	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
 	
@@ -63,20 +66,29 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			gg.startCode();
 			
 			MethodVisitor mv = gg.getMV();
-			ExprNode rootExpr = stack.pop();
 			
 			int index = 1;
 			for(String key : paramMap.keySet()) {
 				paramMap.get(key).idxLVT = index;
 				index += 2;
 			}
+			for(String key : localVarMap.keySet()) {
+				localVarMap.get(key).idxLVT = index;
+				index += 2;
+			}
 			
-			rootExpr.genCode(mv);
+			while(!stack.isEmpty()) {
+				ExprNode expr = stack.pollLast();
+				expr.genCode(mv);
+			}
 			
 			
 			mv.visitInsn(Opcodes.DRETURN);
 			mv.visitLocalVariable("this", "Lcom/openx/asm_test/Test1;", null, gg.l0, gg.l1, 0);
 			for(VariableNode var : paramMap.values()) {
+				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), null, gg.l0, gg.l1, var.idxLVT);
+			}
+			for(VariableNode var : localVarMap.values()) {
 				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), null, gg.l0, gg.l1, var.idxLVT);
 			}
 			
@@ -90,10 +102,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			fos.close();
 
 			Class<?> c = mcl.defineClassForName(null, bcode);
-			for (Method m : c.getMethods()) {
-				System.out.println(m.getName());
-			}
-			Method m1 = c.getMethod("eval",double.class, double.class);
+//			for (Method m : c.getMethods()) {
+//				System.out.println(m.getName());
+//			}
+			Method m1 = c.getMethod("eval",double.class, double.class);//TODO types
 			Object o = c.newInstance();
 			System.out.println(m1.invoke(o,3,4));
 			
@@ -126,7 +138,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { }
+	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { 
+		System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
+		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText());
+		var.value = this.stack.pop();
+		this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
+		this.stack.push(new AssignNode(var, var.value));
+	}
 	/**
 	 * {@inheritDoc}
 	 *
