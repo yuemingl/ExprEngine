@@ -22,6 +22,7 @@ GE : '>=' ;
 LT : '<' ;
 LE : '<=' ;
 EQ : '==' ;
+NEQ : '!=' ;
 
 ASIGN : '=' ;
 
@@ -80,6 +81,7 @@ comp_operator : GT
               | LT
               | LE
               | EQ
+              | NEQ
               ;
 
 arithmetic_expr

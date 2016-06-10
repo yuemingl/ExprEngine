@@ -6,7 +6,7 @@ import org.objectweb.asm.Type;
 public abstract class ExprNode {
 	protected Type type;
 	public abstract void genCode(MethodVisitor mv);
-	Type getType() {
+	public Type getType() {
 		return type;
 	}
 }

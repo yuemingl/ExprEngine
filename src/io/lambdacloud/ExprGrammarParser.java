@@ -20,8 +20,8 @@ public class ExprGrammarParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		AND=1, OR=2, TRUE=3, FALSE=4, MULT=5, DIV=6, PLUS=7, MINUS=8, GT=9, GE=10, 
-		LT=11, LE=12, EQ=13, ASIGN=14, LPAREN=15, RPAREN=16, DECIMAL=17, IDENTIFIER=18, 
-		SEMI=19, COMMENT=20, WS=21;
+		LT=11, LE=12, EQ=13, NEQ=14, ASIGN=15, LPAREN=16, RPAREN=17, DECIMAL=18, 
+		IDENTIFIER=19, SEMI=20, COMMENT=21, WS=22;
 	public static final int
 		RULE_prog = 0, RULE_asign = 1, RULE_expr = 2, RULE_logical_expr = 3, RULE_comparison_expr = 4, 
 		RULE_comparison_operand = 5, RULE_comp_operator = 6, RULE_arithmetic_expr = 7, 
@@ -33,12 +33,13 @@ public class ExprGrammarParser extends Parser {
 
 	private static final String[] _LITERAL_NAMES = {
 		null, null, null, "'true'", "'false'", "'*'", "'/'", "'+'", "'-'", "'>'", 
-		"'>='", "'<'", "'<='", "'=='", "'='", "'('", "')'", null, null, "';'"
+		"'>='", "'<'", "'<='", "'=='", "'!='", "'='", "'('", "')'", null, null, 
+		"';'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "AND", "OR", "TRUE", "FALSE", "MULT", "DIV", "PLUS", "MINUS", "GT", 
-		"GE", "LT", "LE", "EQ", "ASIGN", "LPAREN", "RPAREN", "DECIMAL", "IDENTIFIER", 
-		"SEMI", "COMMENT", "WS"
+		"GE", "LT", "LE", "EQ", "NEQ", "ASIGN", "LPAREN", "RPAREN", "DECIMAL", 
+		"IDENTIFIER", "SEMI", "COMMENT", "WS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -653,6 +654,7 @@ public class ExprGrammarParser extends Parser {
 		public TerminalNode LT() { return getToken(ExprGrammarParser.LT, 0); }
 		public TerminalNode LE() { return getToken(ExprGrammarParser.LE, 0); }
 		public TerminalNode EQ() { return getToken(ExprGrammarParser.EQ, 0); }
+		public TerminalNode NEQ() { return getToken(ExprGrammarParser.NEQ, 0); }
 		public Comp_operatorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -676,7 +678,7 @@ public class ExprGrammarParser extends Parser {
 			{
 			setState(76);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << GT) | (1L << GE) | (1L << LT) | (1L << LE) | (1L << EQ))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << GT) | (1L << GE) | (1L << LT) | (1L << LE) | (1L << EQ) | (1L << NEQ))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			} else {
 				consume();
@@ -1145,7 +1147,7 @@ public class ExprGrammarParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\27t\4\2\t\2\4\3\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\30t\4\2\t\2\4\3\t"+
 		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\3"+
 		"\2\3\2\7\2\31\n\2\f\2\16\2\34\13\2\3\2\3\2\3\3\3\3\3\3\3\3\3\4\3\4\3\4"+
 		"\3\4\3\4\3\4\3\4\3\4\3\4\5\4-\n\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\5\5\66\n"+
@@ -1153,26 +1155,26 @@ public class ExprGrammarParser extends Parser {
 		"\3\6\3\6\3\6\5\6K\n\6\3\7\3\7\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t"+
 		"\5\tY\n\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\7\tg\n\t\f\t"+
 		"\16\tj\13\t\3\n\3\n\5\nn\n\n\3\13\3\13\5\13r\n\13\3\13\2\4\b\20\f\2\4"+
-		"\6\b\n\f\16\20\22\24\2\4\3\2\13\17\3\2\5\6z\2\32\3\2\2\2\4\37\3\2\2\2"+
+		"\6\b\n\f\16\20\22\24\2\4\3\2\13\20\3\2\5\6z\2\32\3\2\2\2\4\37\3\2\2\2"+
 		"\6,\3\2\2\2\b\65\3\2\2\2\nJ\3\2\2\2\fL\3\2\2\2\16N\3\2\2\2\20X\3\2\2\2"+
 		"\22m\3\2\2\2\24q\3\2\2\2\26\31\5\6\4\2\27\31\5\4\3\2\30\26\3\2\2\2\30"+
 		"\27\3\2\2\2\31\34\3\2\2\2\32\30\3\2\2\2\32\33\3\2\2\2\33\35\3\2\2\2\34"+
-		"\32\3\2\2\2\35\36\7\2\2\3\36\3\3\2\2\2\37 \7\24\2\2 !\7\20\2\2!\"\5\6"+
-		"\4\2\"\5\3\2\2\2#$\5\b\5\2$%\7\25\2\2%-\3\2\2\2&\'\5\n\6\2\'(\7\25\2\2"+
-		"(-\3\2\2\2)*\5\20\t\2*+\7\25\2\2+-\3\2\2\2,#\3\2\2\2,&\3\2\2\2,)\3\2\2"+
-		"\2-\7\3\2\2\2./\b\5\1\2/\66\5\n\6\2\60\61\7\21\2\2\61\62\5\b\5\2\62\63"+
-		"\7\22\2\2\63\66\3\2\2\2\64\66\5\22\n\2\65.\3\2\2\2\65\60\3\2\2\2\65\64"+
+		"\32\3\2\2\2\35\36\7\2\2\3\36\3\3\2\2\2\37 \7\25\2\2 !\7\21\2\2!\"\5\6"+
+		"\4\2\"\5\3\2\2\2#$\5\b\5\2$%\7\26\2\2%-\3\2\2\2&\'\5\n\6\2\'(\7\26\2\2"+
+		"(-\3\2\2\2)*\5\20\t\2*+\7\26\2\2+-\3\2\2\2,#\3\2\2\2,&\3\2\2\2,)\3\2\2"+
+		"\2-\7\3\2\2\2./\b\5\1\2/\66\5\n\6\2\60\61\7\22\2\2\61\62\5\b\5\2\62\63"+
+		"\7\23\2\2\63\66\3\2\2\2\64\66\5\22\n\2\65.\3\2\2\2\65\60\3\2\2\2\65\64"+
 		"\3\2\2\2\66?\3\2\2\2\678\f\7\2\289\7\3\2\29>\5\b\5\b:;\f\6\2\2;<\7\4\2"+
 		"\2<>\5\b\5\7=\67\3\2\2\2=:\3\2\2\2>A\3\2\2\2?=\3\2\2\2?@\3\2\2\2@\t\3"+
-		"\2\2\2A?\3\2\2\2BC\5\f\7\2CD\5\16\b\2DE\5\f\7\2EK\3\2\2\2FG\7\21\2\2G"+
-		"H\5\n\6\2HI\7\22\2\2IK\3\2\2\2JB\3\2\2\2JF\3\2\2\2K\13\3\2\2\2LM\5\20"+
+		"\2\2\2A?\3\2\2\2BC\5\f\7\2CD\5\16\b\2DE\5\f\7\2EK\3\2\2\2FG\7\22\2\2G"+
+		"H\5\n\6\2HI\7\23\2\2IK\3\2\2\2JB\3\2\2\2JF\3\2\2\2K\13\3\2\2\2LM\5\20"+
 		"\t\2M\r\3\2\2\2NO\t\2\2\2O\17\3\2\2\2PQ\b\t\1\2QR\7\n\2\2RY\5\20\t\5S"+
-		"T\7\21\2\2TU\5\20\t\2UV\7\22\2\2VY\3\2\2\2WY\5\24\13\2XP\3\2\2\2XS\3\2"+
+		"T\7\22\2\2TU\5\20\t\2UV\7\23\2\2VY\3\2\2\2WY\5\24\13\2XP\3\2\2\2XS\3\2"+
 		"\2\2XW\3\2\2\2Yh\3\2\2\2Z[\f\t\2\2[\\\7\7\2\2\\g\5\20\t\n]^\f\b\2\2^_"+
 		"\7\b\2\2_g\5\20\t\t`a\f\7\2\2ab\7\t\2\2bg\5\20\t\bcd\f\6\2\2de\7\n\2\2"+
 		"eg\5\20\t\7fZ\3\2\2\2f]\3\2\2\2f`\3\2\2\2fc\3\2\2\2gj\3\2\2\2hf\3\2\2"+
-		"\2hi\3\2\2\2i\21\3\2\2\2jh\3\2\2\2kn\t\3\2\2ln\7\24\2\2mk\3\2\2\2ml\3"+
-		"\2\2\2n\23\3\2\2\2or\7\23\2\2pr\7\24\2\2qo\3\2\2\2qp\3\2\2\2r\25\3\2\2"+
+		"\2hi\3\2\2\2i\21\3\2\2\2jh\3\2\2\2kn\t\3\2\2ln\7\25\2\2mk\3\2\2\2ml\3"+
+		"\2\2\2n\23\3\2\2\2or\7\24\2\2pr\7\25\2\2qo\3\2\2\2qp\3\2\2\2r\25\3\2\2"+
 		"\2\16\30\32,\65=?JXfhmq";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());

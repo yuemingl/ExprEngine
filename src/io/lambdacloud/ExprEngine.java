@@ -1,10 +1,8 @@
 package io.lambdacloud;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-import org.objectweb.asm.MethodVisitor;
 
 public class ExprEngine {
 	public static void main(String[] args) throws Exception {
@@ -18,8 +16,14 @@ public class ExprEngine {
 		walker.walk(ew, tree);
 		ew.stack.size();
 		
-		ew.genCode();
-
+		Class<?> c = ew.genCode("MyClass", "eval");
+		Method m1 = c.getMethod("eval",double.class, double.class);//TODO types
+		Object o = c.newInstance();
+		System.out.println(m1.invoke(o,3,4));
+		
+//		Method m1 = c.getMethod("eval");//TODO types
+//		Object o = c.newInstance();
+//		System.out.println(m1.invoke(o));
 //		CodeGenerator cg = ew.getCodeGenerator();
 //
 //		ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());

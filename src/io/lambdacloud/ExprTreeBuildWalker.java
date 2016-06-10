@@ -25,8 +25,14 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AssignNode;
 import io.lambdacloud.statement.ConstantNode;
+import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
+import io.lambdacloud.statement.GENode;
+import io.lambdacloud.statement.GTNode;
+import io.lambdacloud.statement.LENode;
+import io.lambdacloud.statement.LTNode;
 import io.lambdacloud.statement.MultNode;
+import io.lambdacloud.statement.NEQNode;
 import io.lambdacloud.statement.VariableNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
@@ -50,17 +56,23 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		return retTypes;
 	}
 	
-	public void genCode() {
+	public Class<?> genCode(String className, String methodName) {
+		return genCode(className, methodName, true);
+	}
+	
+	public Class<?> genCode(String className, String methodName, boolean wirteFile) {
 		try {
 			// Class<?> c = mcl.defineClassForName("com.openx.asm_test.Test1",
 			// Test1Dump.dump());
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			
 			CodeGenerator gg = new CodeGenerator();
-			gg.startClass("myclass");
-			
-			gg.startMethod("eval",Type.getMethodDescriptor(
-					Type.DOUBLE_TYPE, //return type TODO
+			//Define class
+			gg.startClass(className);
+			//Define method
+			Type retType = stack.peek().getType();
+			gg.startMethod(methodName,Type.getMethodDescriptor(
+					retType, //return type of the last expression
 					getArgumentTypes()
 				));
 			gg.startCode();
@@ -77,43 +89,43 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				index += 2;
 			}
 			
+			//Generate code for all the expressions
 			while(!stack.isEmpty()) {
 				ExprNode expr = stack.pollLast();
 				expr.genCode(mv);
 			}
 			
-			
-			mv.visitInsn(Opcodes.DRETURN);
-			mv.visitLocalVariable("this", "Lcom/openx/asm_test/Test1;", null, gg.l0, gg.l1, 0);
+			mv.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+			mv.visitLocalVariable("this", "L"+className+";", null, gg.l0, gg.l1, 0);
 			for(VariableNode var : paramMap.values()) {
-				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), null, gg.l0, gg.l1, var.idxLVT);
+				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), //TODO Assume all parameters are double?
+						null, gg.l0, gg.l1, var.idxLVT);
 			}
 			for(VariableNode var : localVarMap.values()) {
-				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), null, gg.l0, gg.l1, var.idxLVT);
+				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), 
+						null, gg.l0, gg.l1, var.idxLVT);
 			}
 			
-			mv.visitMaxs(-1, -1);
+			mv.visitMaxs(-1, -1); //Auto generated
 			gg.endCode();
 			gg.endClass();
 			
 			byte[] bcode = gg.dump();
-			FileOutputStream fos = new FileOutputStream("test.class");
-			fos.write(bcode);
-			fos.close();
+			if(wirteFile) {
+				FileOutputStream fos = new FileOutputStream(className+".class");
+				fos.write(bcode);
+				fos.close();
+			}
 
 			Class<?> c = mcl.defineClassForName(null, bcode);
 //			for (Method m : c.getMethods()) {
 //				System.out.println(m.getName());
 //			}
-			Method m1 = c.getMethod("eval",double.class, double.class);//TODO types
-			Object o = c.newInstance();
-			System.out.println(m1.invoke(o,3,4));
-			
-
+			return c;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		return null;
 	}
 	/**
 	 * {@inheritDoc}
@@ -180,7 +192,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
-		System.out.println(ctx.getText());
+		//System.out.println(ctx.getText());
 	}
 	/**
 	 * {@inheritDoc}
@@ -241,7 +253,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparisonExpression(ExprGrammarParser.ComparisonExpressionContext ctx) { }
+	@Override public void exitComparisonExpression(ExprGrammarParser.ComparisonExpressionContext ctx) { 
+		//System.out.println(ctx.getText());
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -253,7 +267,25 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx) { }
+	@Override public void exitComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx) {
+		//System.out.println(ctx.getText()+"   "+ctx.comp_operator().getText());
+		String op = ctx.comp_operator().getText();
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		if(op.equals(">")) {
+			stack.push(new GTNode(v1, v2));
+		} else if(op.equals(">=")) {
+			stack.push(new GENode(v1, v2));
+		} else if(op.equals("<")) {
+			stack.push(new LTNode(v1, v2));
+		} else if(op.equals("<=")) {
+			stack.push(new LENode(v1, v2));
+		} else if(op.equals("==")) {
+			stack.push(new EQNode(v1, v2));
+		} else if(op.equals("!=")) {
+			stack.push(new NEQNode(v1, v2));
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -302,8 +334,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { 
-		stack.push(new MultNode(stack.pop(), stack.pop()));
-
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new MultNode(v1, v2));
 	}
 	/**
 	 * {@inheritDoc}
@@ -366,8 +399,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { 
-		stack.push(new AddNode(stack.pop(), stack.pop()));
+	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new AddNode(v1, v2));
 		
 	}
 	/**

@@ -1,21 +1,21 @@
 package io.lambdacloud.statement;
 
+import static org.objectweb.asm.Opcodes.DCMPL;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFEQ;
+
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import static org.objectweb.asm.Opcodes.*;
 
-import org.objectweb.asm.Label;
-
-/**
- * Greater than expression
- * left > right
- */
-public class GTNode extends ExprNode {
+public class NEQNode extends ExprNode {
 	public ExprNode left;
 	public ExprNode right;
 	
-	public GTNode(ExprNode left, ExprNode right) {
+	public NEQNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
 		this.type = Type.BOOLEAN_TYPE;
@@ -27,7 +27,7 @@ public class GTNode extends ExprNode {
 		right.genCode(mv);
 		mv.visitInsn(DCMPL);
 		Label l1 = new Label();
-		mv.visitJumpInsn(IFLE, l1);
+		mv.visitJumpInsn(IFEQ, l1);
 		mv.visitInsn(ICONST_1);
 		Label l2 = new Label();
 		mv.visitJumpInsn(GOTO, l2);
@@ -39,7 +39,7 @@ public class GTNode extends ExprNode {
 	}
 	
 	public boolean test(double a, double b) {
-		boolean c =  a > b;
+		boolean c =  a != b;
 		return c;
 	}
 }

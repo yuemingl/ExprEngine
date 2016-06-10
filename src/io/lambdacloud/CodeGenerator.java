@@ -17,7 +17,7 @@ public class CodeGenerator implements Opcodes {
 	//
 	public void startClass(String clsName) {
 		//"com/openx/asm_test/Test1"
-		cw.visit(52, ACC_PUBLIC + ACC_SUPER, clsName, null, "java/lang/Object",
+		cw.visit(Opcodes.V1_8, ACC_PUBLIC + ACC_SUPER, clsName, null, "java/lang/Object",
 				new String[] {});
 		
 		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
