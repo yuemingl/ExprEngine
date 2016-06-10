@@ -140,8 +140,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 */
 	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { 
 		System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
-		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText());
-		var.value = this.stack.pop();
+		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText(), this.stack.pop());
 		this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
 		this.stack.push(new AssignNode(var, var.value));
 	}
@@ -180,7 +179,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
+	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
+		System.out.println(ctx.getText());
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -309,7 +310,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) { }
+	@Override public void enterArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) { 
+		//System.out.println(ctx.getText());
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -434,7 +437,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(null == val) {
 			val = paramMap.get(varName);
 			if(null == val) {
-				val = new VariableNode(varName);
+				val = new VariableNode(varName, Type.DOUBLE_TYPE);
 			}
 			paramMap.put(varName, val);
 		}
