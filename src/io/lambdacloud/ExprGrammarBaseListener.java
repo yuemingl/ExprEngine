@@ -30,25 +30,13 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAsign(ExprGrammarParser.AsignContext ctx) { }
+	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
+	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -66,13 +54,37 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
+	@Override public void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
+	@Override public void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExprAssign(ExprGrammarParser.ExprAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprAssign(ExprGrammarParser.ExprAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

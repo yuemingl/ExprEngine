@@ -40,14 +40,14 @@ public class ExprWalker extends ExprGrammarBaseListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAsign(ExprGrammarParser.AsignContext ctx) { }
+	@Override public void enterAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { 
+	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
 		System.out.println(ctx.getChild(0).getText());
 		System.out.println(ctx.getText());
 		

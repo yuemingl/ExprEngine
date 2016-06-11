@@ -42,24 +42,23 @@ SEMI : ';' ;
 
 COMMENT : '//' .+? ('\n'|EOF) -> skip ;
 
-WS : [ \r\t\u000C\n]+ -> skip ;
+WS : [ \r\t\u000C]+ -> skip ;
 
+END_EXPR : [;\n]+ ;
 
 /* Parser rules */
 
-prog 
- : (expr
- | asign)* EOF
+prog : expr* EOF ;
+
+expr
+ : arithmetic_expr END_EXPR   #ExprArithmetic
+ | comparison_expr END_EXPR   #ExprComparison
+ | logical_expr    END_EXPR   #ExprLogical
+ | asign_expr                 #ExprAssign
  ;
 
-asign : IDENTIFIER ASIGN expr ;
- 
-expr 
- : logical_expr SEMI      #ExprLogical
- | comparison_expr SEMI   #ExprComparison
- | arithmetic_expr SEMI   #ExprArithmetic
- ;
- 
+asign_expr : IDENTIFIER ASIGN expr ;
+
 logical_expr
  : logical_expr AND logical_expr # LogicalExpressionAnd
  | logical_expr OR logical_expr  # LogicalExpressionOr

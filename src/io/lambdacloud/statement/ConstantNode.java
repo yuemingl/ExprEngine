@@ -5,9 +5,9 @@ import org.objectweb.asm.Type;
 
 public class ConstantNode extends ExprNode {
 	String value;
-	public ConstantNode(String value) {
+	public ConstantNode(String value, Type type) {
 		this.value = value;
-		this.type = Type.DOUBLE_TYPE; //TODO
+		this.type = type;
 	}
 	
 	public Double getDouble() {
@@ -28,6 +28,12 @@ public class ConstantNode extends ExprNode {
 	}
 	
 	public void genCode(MethodVisitor mv) {
-		mv.visitLdcInsn(Double.parseDouble(value));
+		if(type.getSort() == Type.DOUBLE) {
+			mv.visitLdcInsn(Double.parseDouble(value));
+		} else if(type.getSort() == Type.BOOLEAN) {
+			mv.visitLdcInsn(getBoolean());
+		} else {
+			throw new RuntimeException("Nothing to generate!");
+		}
 	}
 }

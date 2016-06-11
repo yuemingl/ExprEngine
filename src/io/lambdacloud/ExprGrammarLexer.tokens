@@ -20,6 +20,7 @@ IDENTIFIER=19
 SEMI=20
 COMMENT=21
 WS=22
+END_EXPR=23
 'true'=3
 'false'=4
 '*'=5

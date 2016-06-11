@@ -1,4 +1,4 @@
-a=x*x + y*y;
-b=a*a;
-b+2.0 > 625.0;
-//d = a and b and c;
+a=x+y
+b=x-y
+c=a+b
+-c

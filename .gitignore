@@ -1,2 +1,5 @@
 .project
+.idea
+out
 *.class
+*.iml

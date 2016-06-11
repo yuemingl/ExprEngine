@@ -1,30 +1,25 @@
 package io.lambdacloud;
 
 import java.io.FileOutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
-import java.util.Stack;
 import java.util.TreeMap;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.statement.AddNode;
+import io.lambdacloud.statement.AndNode;
 import io.lambdacloud.statement.AssignNode;
 import io.lambdacloud.statement.ConstantNode;
+import io.lambdacloud.statement.DivNode;
 import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.GENode;
@@ -33,6 +28,9 @@ import io.lambdacloud.statement.LENode;
 import io.lambdacloud.statement.LTNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.NEQNode;
+import io.lambdacloud.statement.NegateNode;
+import io.lambdacloud.statement.OrNode;
+import io.lambdacloud.statement.SubNode;
 import io.lambdacloud.statement.VariableNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
@@ -71,6 +69,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			gg.startClass(className);
 			//Define method
 			Type retType = stack.peek().getType();
+			if(null == retType) throw new RuntimeException("Stack is empty!");
 			gg.startMethod(methodName,Type.getMethodDescriptor(
 					retType, //return type of the last expression
 					getArgumentTypes()
@@ -127,146 +126,26 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		return null;
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterProg(ExprGrammarParser.ProgContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAsign(ExprGrammarParser.AsignContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAsign(ExprGrammarParser.AsignContext ctx) { 
-		System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
+
+	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
+		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
 		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText(), this.stack.pop());
 		this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
 		this.stack.push(new AssignNode(var, var.value));
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExprComparison(ExprGrammarParser.ExprComparisonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
-		//System.out.println(ctx.getText());
+
+	@Override public void exitLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { 
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new AndNode(v1, v2));
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogicalExpressionOr(ExprGrammarParser.LogicalExpressionOrContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogicalExpressionOr(ExprGrammarParser.LogicalExpressionOrContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogicalEntity(ExprGrammarParser.LogicalEntityContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogicalEntity(ExprGrammarParser.LogicalEntityContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogicalExpressionInParen(ExprGrammarParser.LogicalExpressionInParenContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogicalExpressionInParen(ExprGrammarParser.LogicalExpressionInParenContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterComparisonExpression(ExprGrammarParser.ComparisonExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComparisonExpression(ExprGrammarParser.ComparisonExpressionContext ctx) { 
-		//System.out.println(ctx.getText());
+
+	@Override public void exitLogicalExpressionOr(ExprGrammarParser.LogicalExpressionOrContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new OrNode(v1, v2));
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
+
 	@Override public void exitComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx) {
 		//System.out.println(ctx.getText()+"   "+ctx.comp_operator().getText());
 		String op = ctx.comp_operator().getText();
@@ -286,186 +165,27 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			stack.push(new NEQNode(v1, v2));
 		}
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterComparisonExpressionParens(ExprGrammarParser.ComparisonExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComparisonExpressionParens(ExprGrammarParser.ComparisonExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterComparison_operand(ExprGrammarParser.Comparison_operandContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComparison_operand(ExprGrammarParser.Comparison_operandContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterComp_operator(ExprGrammarParser.Comp_operatorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComp_operator(ExprGrammarParser.Comp_operatorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
+	
 	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { 
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new MultNode(v1, v2));
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) { 
-		//System.out.println(ctx.getText());
-	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionMinus(ExprGrammarParser.ArithmeticExpressionMinusContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionMinus(ExprGrammarParser.ArithmeticExpressionMinusContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionParens(ExprGrammarParser.ArithmeticExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionParens(ExprGrammarParser.ArithmeticExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
+
 	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new AddNode(v1, v2));
-		
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogicalConst(ExprGrammarParser.LogicalConstContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogicalConst(ExprGrammarParser.LogicalConstContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNumericConst(ExprGrammarParser.NumericConstContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) { 
-		stack.push(new ConstantNode(ctx.getText()));
+
+	@Override public void exitLogicalConst(ExprGrammarParser.LogicalConstContext ctx) {
+		stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
 	}
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
+
+	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) {
+		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
+	}
+
 	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { 
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
@@ -479,30 +199,25 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//TODO define a local variable?
 		stack.push(val);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEveryRule(ParserRuleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEveryRule(ParserRuleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void visitTerminal(TerminalNode node) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void visitErrorNode(ErrorNode node) { }
-
+	
+	@Override public void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) {
+		stack.push(new NegateNode(stack.pop()));
+	}
+	@Override public void exitArithmeticExpressionMinus(ExprGrammarParser.ArithmeticExpressionMinusContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new SubNode(v1, v2));
+	}
+	@Override public void enterArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new DivNode(v1, v2));
+	}
+	
+//	@Override public void exitArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) {
+//		System.out.println("ArithmeticExpressionNumericEntity:"+ctx.getText());
+//	}
+//	@Override public void exitLogicalEntity(ExprGrammarParser.LogicalEntityContext ctx) {
+//		System.out.println("LogicalEntity:"+ctx.getText());
+//	}
 }
