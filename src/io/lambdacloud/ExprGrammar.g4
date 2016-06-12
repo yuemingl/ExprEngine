@@ -44,7 +44,7 @@ COMMENT : '//' .+? ('\n'|EOF) -> skip ;
 
 WS : [ \r\t\u000C]+ -> skip ;
 
-END_EXPR : [;\n]+ ;
+END_EXPR : (';' | '\n')+;
 
 /* Parser rules */
 
