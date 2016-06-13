@@ -78,6 +78,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code LogicalExpressionNot}
+	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalExpressionNot(ExprGrammarParser.LogicalExpressionNotContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LogicalExpressionNot}
+	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalExpressionNot(ExprGrammarParser.LogicalExpressionNotContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code LogicalExpressionAnd}
 	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.
 	 * @param ctx the parse tree
@@ -102,17 +114,17 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitLogicalExpressionOr(ExprGrammarParser.LogicalExpressionOrContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code LogicalEntity}
+	 * Enter a parse tree produced by the {@code LogicalExpressionEntity}
 	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterLogicalEntity(ExprGrammarParser.LogicalEntityContext ctx);
+	void enterLogicalExpressionEntity(ExprGrammarParser.LogicalExpressionEntityContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code LogicalEntity}
+	 * Exit a parse tree produced by the {@code LogicalExpressionEntity}
 	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitLogicalEntity(ExprGrammarParser.LogicalEntityContext ctx);
+	void exitLogicalExpressionEntity(ExprGrammarParser.LogicalExpressionEntityContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code LogicalExpressionInParen}
 	 * labeled alternative in {@link ExprGrammarParser#logical_expr}.
@@ -182,17 +194,17 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitComp_operator(ExprGrammarParser.Comp_operatorContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionMult}
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionRem}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx);
+	void enterArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionMult}
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionRem}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx);
+	void exitArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionNumericEntity}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
@@ -206,17 +218,17 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionMinus}
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionSub}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterArithmeticExpressionMinus(ExprGrammarParser.ArithmeticExpressionMinusContext ctx);
+	void enterArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionMinus}
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionSub}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitArithmeticExpressionMinus(ExprGrammarParser.ArithmeticExpressionMinusContext ctx);
+	void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionParens}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
@@ -242,18 +254,6 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionPlus}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionPlus}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionDiv}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -265,6 +265,30 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionMul}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionMul}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionAdd}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionAdd(ExprGrammarParser.ArithmeticExpressionAddContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionAdd}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionAdd(ExprGrammarParser.ArithmeticExpressionAddContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code LogicalConst}
 	 * labeled alternative in {@link ExprGrammarParser#logical_entity}.

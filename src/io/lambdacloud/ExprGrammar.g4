@@ -6,17 +6,18 @@ package io.lambdacloud;
 
 /* Lexical rules */
 
+ADD : '+' ;
+SUB : '-' ;
+MUL : '*' ;
+DIV : '/' ;
+REM : '%' ;
+
 AND : 'and' | '&&' ;
 OR  : 'or' | '||' ;
+NOT : 'not' | '!';
 
 TRUE  : 'true' ;
 FALSE : 'false' ;
-
-MULT  : '*' ;
-DIV   : '/' ;
-PLUS  : '+' ;
-MINUS : '-' ;
-REM   " '%' ;
 
 GT : '>' ;
 GE : '>=' ;
@@ -24,6 +25,11 @@ LT : '<' ;
 LE : '<=' ;
 EQ : '==' ;
 NEQ : '!=' ;
+
+BAND : '&' ;
+BOR  : '|' ;
+BXOR : '^' ;
+BNOT : '~' ;
 
 ASIGN : '=' ;
 
@@ -48,13 +54,16 @@ WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 
 /* Parser rules */
 
-prog : expr* EOF ;
+prog : (expr END_EXPR)* EOF ;
 
 expr
- : arithmetic_expr END_EXPR   #ExprArithmetic
- | comparison_expr END_EXPR   #ExprComparison
- | logical_expr    END_EXPR   #ExprLogical
- | asign_expr                 #ExprAssign
+ : arithmetic_expr                 #ExprArithmetic
+ | comparison_expr                 #ExprComparison
+ | logical_expr                    #ExprLogical
+ | asign_expr                      #ExprAssign
+// | IDENTIFIER ('++' | '--')        #ExprUnaryPostfix
+// | ('+'|'-'|'++'|'--') IDENTIFIER  #ExprUnaryPrefix
+// | ('~'|'!') IDENTIFIER            #ExprUnaryNot
  ;
 
 asign_expr : IDENTIFIER ASIGN expr ;
@@ -62,14 +71,14 @@ asign_expr : IDENTIFIER ASIGN expr ;
 logical_expr
  : logical_expr AND logical_expr # LogicalExpressionAnd
  | logical_expr OR logical_expr  # LogicalExpressionOr
+ | NOT logical_expr              # LogicalExpressionNot
  | comparison_expr               # ComparisonExpression
  | LPAREN logical_expr RPAREN    # LogicalExpressionInParen
- | logical_entity                # LogicalEntity
+ | logical_entity                # LogicalExpressionEntity
  ;
 
-comparison_expr : comparison_operand comp_operator comparison_operand
-                    # ComparisonExpressionWithOperator
-                | LPAREN comparison_expr RPAREN # ComparisonExpressionParens
+comparison_expr : comparison_operand comp_operator comparison_operand # ComparisonExpressionWithOperator
+                | LPAREN comparison_expr RPAREN                       # ComparisonExpressionParens
                 ;
 
 comparison_operand : arithmetic_expr
@@ -84,11 +93,12 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : arithmetic_expr MULT arithmetic_expr  # ArithmeticExpressionMult
+ : arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
  | arithmetic_expr DIV arithmetic_expr   # ArithmeticExpressionDiv
- | arithmetic_expr PLUS arithmetic_expr  # ArithmeticExpressionPlus
- | arithmetic_expr MINUS arithmetic_expr # ArithmeticExpressionMinus
- | MINUS arithmetic_expr                 # ArithmeticExpressionNegation
+ | arithmetic_expr REM arithmetic_expr   # ArithmeticExpressionRem
+ | arithmetic_expr ADD arithmetic_expr   # ArithmeticExpressionAdd
+ | arithmetic_expr SUB arithmetic_expr   # ArithmeticExpressionSub
+ | SUB arithmetic_expr                   # ArithmeticExpressionNegation
  | LPAREN arithmetic_expr RPAREN         # ArithmeticExpressionParens
  | numeric_entity                        # ArithmeticExpressionNumericEntity
  ;

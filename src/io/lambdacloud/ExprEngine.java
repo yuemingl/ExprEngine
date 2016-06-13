@@ -6,8 +6,11 @@ import org.antlr.v4.runtime.tree.*;
 
 public class ExprEngine {
 	public static void main(String[] args) throws Exception {
+		System.out.println(8/4%3);
 		//ANTLRInputStream input = new ANTLRInputStream("x+y;1+2;d=a=b=c=x-y;b;");
-		ANTLRInputStream input = new ANTLRInputStream("x+y;1+2;d=a=b=c=x-y;b<0;");
+		ANTLRInputStream input = new ANTLRInputStream("x+y;not (x <= y);");
+		//ANTLRInputStream input = new ANTLRInputStream("x+y;8/4%3;");
+		//ANTLRInputStream input = new ANTLRInputStream("x+y;8/(4%3);");
 		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
 		//ExprGrammarLexer lexer = new ExprGrammarLexer(new ANTLRFileStream(args[0]));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);

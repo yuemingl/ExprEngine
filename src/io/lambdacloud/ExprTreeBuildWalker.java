@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -29,7 +30,9 @@ import io.lambdacloud.statement.LTNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.NEQNode;
 import io.lambdacloud.statement.NegateNode;
+import io.lambdacloud.statement.NotNode;
 import io.lambdacloud.statement.OrNode;
+import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.SubNode;
 import io.lambdacloud.statement.VariableNode;
 
@@ -146,6 +149,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new OrNode(v1, v2));
 	}
 
+	@Override public void exitLogicalExpressionNot(ExprGrammarParser.LogicalExpressionNotContext ctx) {
+		stack.push(new NotNode(stack.pop()));
+	}
+
 	@Override public void exitComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx) {
 		//System.out.println(ctx.getText()+"   "+ctx.comp_operator().getText());
 		String op = ctx.comp_operator().getText();
@@ -166,13 +173,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 	}
 	
-	@Override public void exitArithmeticExpressionMult(ExprGrammarParser.ArithmeticExpressionMultContext ctx) { 
+	@Override public void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx) { 
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new MultNode(v1, v2));
 	}
 
-	@Override public void exitArithmeticExpressionPlus(ExprGrammarParser.ArithmeticExpressionPlusContext ctx) {
+	@Override public void exitArithmeticExpressionAdd(ExprGrammarParser.ArithmeticExpressionAddContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new AddNode(v1, v2));
@@ -186,7 +193,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 
-	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { 
+	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) {
+		System.out.println(ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
@@ -203,17 +211,26 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) {
 		stack.push(new NegateNode(stack.pop()));
 	}
-	@Override public void exitArithmeticExpressionMinus(ExprGrammarParser.ArithmeticExpressionMinusContext ctx) {
+	@Override public void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new SubNode(v1, v2));
 	}
-	@Override public void enterArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) {
+	@Override public void exitArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new DivNode(v1, v2));
 	}
+	@Override public void exitArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new RemNode(v1, v2));
+	}
 	
+//	@Override public void exitEveryRule(ParserRuleContext ctx) { 
+//		System.out.println(ctx.getText());
+//	}
+
 //	@Override public void exitArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) {
 //		System.out.println("ArithmeticExpressionNumericEntity:"+ctx.getText());
 //	}
