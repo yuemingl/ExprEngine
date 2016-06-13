@@ -6,7 +6,10 @@ import org.antlr.v4.runtime.tree.*;
 
 public class ExprEngine {
 	public static void main(String[] args) throws Exception {
-		ExprGrammarLexer lexer = new ExprGrammarLexer(new ANTLRFileStream(args[0]));
+		//ANTLRInputStream input = new ANTLRInputStream("x+y;1+2;d=a=b=c=x-y;b;");
+		ANTLRInputStream input = new ANTLRInputStream("x+y;1+2;d=a=b=c=x-y;b<0;");
+		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
+		//ExprGrammarLexer lexer = new ExprGrammarLexer(new ANTLRFileStream(args[0]));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		ExprGrammarParser parser = new ExprGrammarParser(tokens);
 		ParseTree tree = parser.prog();

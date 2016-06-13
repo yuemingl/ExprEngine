@@ -16,6 +16,7 @@ MULT  : '*' ;
 DIV   : '/' ;
 PLUS  : '+' ;
 MINUS : '-' ;
+REM   " '%' ;
 
 GT : '>' ;
 GE : '>=' ;
@@ -35,16 +36,15 @@ DECIMAL : '-'?[0-9]+('.'[0-9]+)? ;
 
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
-SEMI : ';' ;
+//SEMI : ';' ; //we can only have one lexical rule for a ';'
+END_EXPR : (';' | '\n')+ ;
 
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
 
 COMMENT : '//' .+? ('\n'|EOF) -> skip ;
 
-WS : [ \r\t\u000C]+ -> skip ;
-
-END_EXPR : (';' | '\n')+;
+WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 
 /* Parser rules */
 

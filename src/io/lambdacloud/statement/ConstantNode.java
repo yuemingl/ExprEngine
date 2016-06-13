@@ -29,7 +29,7 @@ public class ConstantNode extends ExprNode {
 	
 	public void genCode(MethodVisitor mv) {
 		if(type.getSort() == Type.DOUBLE) {
-			mv.visitLdcInsn(Double.parseDouble(value));
+			mv.visitLdcInsn(getDouble());
 		} else if(type.getSort() == Type.BOOLEAN) {
 			mv.visitLdcInsn(getBoolean());
 		} else {

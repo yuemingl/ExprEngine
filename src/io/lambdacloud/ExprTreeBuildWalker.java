@@ -128,7 +128,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
-		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
+		System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
 		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText(), this.stack.pop());
 		this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
 		this.stack.push(new AssignNode(var, var.value));

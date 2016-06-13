@@ -19,6 +19,10 @@ public class AssignNode extends ExprNode {
 	
 	public void genCode(MethodVisitor mv) {
 		right.genCode(mv);
+		if(right instanceof AssignNode) {
+			AssignNode r = (AssignNode)right;
+			mv.visitIntInsn(this.type.getOpcode(Opcodes.ILOAD), r.left.idxLVT);
+		}
 		mv.visitIntInsn(this.type.getOpcode(Opcodes.ISTORE), left.idxLVT);
 	}
 	

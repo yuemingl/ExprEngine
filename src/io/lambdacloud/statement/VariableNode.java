@@ -28,7 +28,10 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public String toString() {
-		return this.name;
+		if(null == this.value)
+			return this.name;
+		else
+			return "var "+this.name+"="+this.value;
 	}
 	
 	public void genCode(MethodVisitor mv) {
