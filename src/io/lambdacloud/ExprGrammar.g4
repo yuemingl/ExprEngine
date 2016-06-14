@@ -35,6 +35,15 @@ SHL  : '<<'  ;
 SHR  : '>>'  ;
 USHR : '>>>' ;
 
+INC  : '++' ;
+DESC : '--' ;
+
+ADD_ASIGN : '+=' ;
+SUB_ASIGN : '-=' ;
+MUL_ASIGN : '*=' ;
+DIV_ASIGN : '/=' ;
+REM_ASIGN : '%=' ;
+
 ASIGN : '=' ;
 
 LPAREN : '(' ;
@@ -94,21 +103,27 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : BNOT arithmetic_expr                  # BitExpressionNot
- | SUB arithmetic_expr                   # ArithmeticExpressionNegationEntity
- | arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
- | arithmetic_expr DIV arithmetic_expr   # ArithmeticExpressionDiv
- | arithmetic_expr REM arithmetic_expr   # ArithmeticExpressionRem
- | arithmetic_expr ADD arithmetic_expr   # ArithmeticExpressionAdd
- | arithmetic_expr SUB arithmetic_expr   # ArithmeticExpressionSub
- | arithmetic_expr SHL arithmetic_expr   # BitExpressionShl
- | arithmetic_expr SHR arithmetic_expr   # BitExpressionShr
- | arithmetic_expr USHR arithmetic_expr  # BitExpressionUshr
- | arithmetic_expr BAND arithmetic_expr  # BitExpressionAnd
- | arithmetic_expr BOR arithmetic_expr   # BitExpressionOr
- | arithmetic_expr BXOR arithmetic_expr  # BitExpressionXor
- | LPAREN arithmetic_expr RPAREN         # ArithmeticExpressionParens
- | numeric_entity                        # ArithmeticExpressionEntity
+ : variable_entity (INC | DESC)              # ArithmeticExpressionIncDec
+ | BNOT arithmetic_expr                      # BitExpressionNot
+ | SUB arithmetic_expr                       # ArithmeticExpressionNegationEntity
+ | arithmetic_expr MUL arithmetic_expr       # ArithmeticExpressionMul
+ | arithmetic_expr DIV arithmetic_expr       # ArithmeticExpressionDiv
+ | arithmetic_expr REM arithmetic_expr       # ArithmeticExpressionRem
+ | arithmetic_expr ADD arithmetic_expr       # ArithmeticExpressionAdd
+ | arithmetic_expr SUB arithmetic_expr       # ArithmeticExpressionSub
+ | arithmetic_expr SHL arithmetic_expr       # BitExpressionShl
+ | arithmetic_expr SHR arithmetic_expr       # BitExpressionShr
+ | arithmetic_expr USHR arithmetic_expr      # BitExpressionUshr
+ | arithmetic_expr BAND arithmetic_expr      # BitExpressionAnd
+ | arithmetic_expr BOR arithmetic_expr       # BitExpressionOr
+ | arithmetic_expr BXOR arithmetic_expr      # BitExpressionXor
+ | variable_entity MUL_ASIGN arithmetic_expr # ExprMulAsign
+ | variable_entity DIV_ASIGN arithmetic_expr # ExprDivAsign
+ | variable_entity REM_ASIGN arithmetic_expr # ExprRemAsign
+ | variable_entity ADD_ASIGN arithmetic_expr # ExprAddAsign
+ | variable_entity SUB_ASIGN arithmetic_expr # ExprSubAsign
+ | LPAREN arithmetic_expr RPAREN             # ArithmeticExpressionParens
+ | numeric_entity                            # ArithmeticExpressionEntity
  ;
 
 numeric_entity : integer_entity

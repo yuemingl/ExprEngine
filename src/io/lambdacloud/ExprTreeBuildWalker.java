@@ -15,6 +15,7 @@ import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
+import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
 import io.lambdacloud.statement.AssignNode;
@@ -23,21 +24,27 @@ import io.lambdacloud.statement.BNotNode;
 import io.lambdacloud.statement.BOrNode;
 import io.lambdacloud.statement.BXorNode;
 import io.lambdacloud.statement.ConstantNode;
+import io.lambdacloud.statement.DescNode;
+import io.lambdacloud.statement.DivAsignNode;
 import io.lambdacloud.statement.DivNode;
 import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.GENode;
 import io.lambdacloud.statement.GTNode;
+import io.lambdacloud.statement.IncNode;
 import io.lambdacloud.statement.LENode;
 import io.lambdacloud.statement.LTNode;
+import io.lambdacloud.statement.MulAsignNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.NEQNode;
 import io.lambdacloud.statement.NegateNode;
 import io.lambdacloud.statement.NotNode;
 import io.lambdacloud.statement.OrNode;
+import io.lambdacloud.statement.RemAsignNode;
 import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.SHLNode;
 import io.lambdacloud.statement.SHRNode;
+import io.lambdacloud.statement.SubAsignNode;
 import io.lambdacloud.statement.SubNode;
 import io.lambdacloud.statement.USHRNode;
 import io.lambdacloud.statement.VariableNode;
@@ -305,4 +312,36 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //		System.out.println("enterBitExpressionConst:"+ctx.getText());
 //		//Do nothing
 //	}
+	@Override public void exitArithmeticExpressionIncDec(ExprGrammarParser.ArithmeticExpressionIncDecContext ctx) {
+		if(null != ctx.INC())
+			stack.push(new IncNode((VariableNode)stack.pop()));
+		else if(null != ctx.DESC())
+			stack.push(new DescNode((VariableNode)stack.pop()));
+	}
+	@Override public void exitExprAddAsign(ExprGrammarParser.ExprAddAsignContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new AddAsignNode((VariableNode)v1,v2));
+	}
+	@Override public void exitExprSubAsign(ExprGrammarParser.ExprSubAsignContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new SubAsignNode((VariableNode)v1,v2));
+	}
+	@Override public void exitExprMulAsign(ExprGrammarParser.ExprMulAsignContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new MulAsignNode((VariableNode)v1,v2));
+	}
+	@Override public void exitExprDivAsign(ExprGrammarParser.ExprDivAsignContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new DivAsignNode((VariableNode)v1,v2));
+	}
+	@Override public void exitExprRemAsign(ExprGrammarParser.ExprRemAsignContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new RemAsignNode((VariableNode)v1,v2));
+	}
+
 }

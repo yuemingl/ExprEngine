@@ -54,7 +54,36 @@ public class ExprEngine {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static Object eval(String str, long[] args) {
+		ANTLRInputStream input = new ANTLRInputStream(str);
+		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		ExprGrammarParser parser = new ExprGrammarParser(tokens);
+		ParseTree tree = parser.prog();
+		ParseTreeWalker walker = new ParseTreeWalker();
+		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
+		walker.walk(ew, tree);
+
+		Class<?>[] cls = new Class[args.length];
+		for(int i=0; i<args.length; i++)
+			cls[i] = long.class;
+		Class<?> c = ew.genCode("MyClass", true, "eval", cls);
+		Method m1;
+		try {
+			m1 = c.getMethod("eval",cls);
+			Object o = c.newInstance();
+			Object[] params = new Object[args.length];
+			for(int i=0; i<args.length; i++)
+				params[i] = args[i];
+			return m1.invoke(o, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}	
+
 	
 	public static Object eval(String str, double[] args) {
 		ANTLRInputStream input = new ANTLRInputStream(str);
@@ -92,6 +121,22 @@ public class ExprEngine {
 	
 	public static void main(String[] args){
 		//assertEqual(eval("2.0 > 1;", new int[]{}), true); //TODO auto type conversion
+
+		assertEqual(eval("x+=2;", new int[]{3}), 5);
+		assertEqual(eval("x-=2;", new int[]{3}), 1);
+		assertEqual(eval("x*=2;", new int[]{3}), 6);
+		assertEqual(eval("x/=2;", new int[]{6}), 3);
+		assertEqual(eval("x%=2;", new int[]{3}), 1);
+		
+		assertEqual(eval("y+(x+=2);", new int[]{3,1}), 6);
+		
+		assertEqual(eval("x++;", new long[]{3}), 4L);
+		assertEqual(eval("x--;", new long[]{3}), 2L);
+		assertEqual(eval("x++;", new int[]{3}), 4);
+		assertEqual(eval("x--;", new int[]{3}), 2);
+		
+		assertEqual(eval("-x--;", new int[]{3}), -2); //?3
+		assertEqual(eval("-x++;", new int[]{3}), -4); //?3
 		
 		assertEqual(eval("7>>2;"), 1);
 		assertEqual(eval("1<<2;"), 4);
