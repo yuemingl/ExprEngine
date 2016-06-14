@@ -38,9 +38,9 @@ RPAREN : ')' ;
 
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
-INTEGER : [0-9]+ ;
+INTEGER : '-'?[0-9]+ ;
 
-FLOAT : [0-9]?'.'[0-9]+ ;
+FLOAT : '-'?[0-9]?'.'[0-9]+ ;
 
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
@@ -70,10 +70,10 @@ expr
 asign_expr : IDENTIFIER ASIGN expr ;
 
 logical_expr
- : logical_expr AND logical_expr # LogicalExpressionAnd
+ : comparison_expr               # ComparisonExpression
+ | logical_expr AND logical_expr # LogicalExpressionAnd
  | logical_expr OR logical_expr  # LogicalExpressionOr
  | NOT logical_expr              # LogicalExpressionNot
- | comparison_expr               # ComparisonExpression
  | LPAREN logical_expr RPAREN    # LogicalExpressionInParen
  | logical_entity                # LogicalExpressionEntity
  ;
@@ -90,13 +90,14 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : bit_expr                              # BitExpression
+ : SUB numeric_entity                    # ArithmeticExpressionNegationEntity
  | arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
  | arithmetic_expr DIV arithmetic_expr   # ArithmeticExpressionDiv
  | arithmetic_expr REM arithmetic_expr   # ArithmeticExpressionRem
  | arithmetic_expr ADD arithmetic_expr   # ArithmeticExpressionAdd
  | arithmetic_expr SUB arithmetic_expr   # ArithmeticExpressionSub
- | SUB arithmetic_expr                   # ArithmeticExpressionNegation
+ | SUB arithmetic_expr                   # ArithmeticExpressionNegationExpr
+ | bit_expr                              # BitExpression
  | LPAREN arithmetic_expr RPAREN         # ArithmeticExpressionParens
  | numeric_entity                        # ArithmeticExpressionEntity
  ;
@@ -107,6 +108,7 @@ bit_expr
  | bit_expr BXOR bit_expr    # BitExpressionXor
  | BNOT bit_expr             # BitExpressionNot
  | integer_entity            # BitExpressionConst
+ | variable_entity           # BitExpressionVariable
  ;
 
 numeric_entity : integer_entity

@@ -198,6 +198,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -222,18 +234,6 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -241,6 +241,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -337,6 +349,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBitExpressionNot(ExprGrammarParser.BitExpressionNotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -184,6 +184,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionSub}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -208,18 +220,6 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionParens(ExprGrammarParser.ArithmeticExpressionParensContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegation}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionNegation}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionDiv}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -231,6 +231,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegationExpr}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionNegationExpr}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionMul}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
@@ -327,6 +339,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBitExpressionNot(ExprGrammarParser.BitExpressionNotContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code BitExpressionVariable}
+	 * labeled alternative in {@link ExprGrammarParser#bit_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code BitExpressionVariable}
+	 * labeled alternative in {@link ExprGrammarParser#bit_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprGrammarParser#numeric_entity}.
 	 * @param ctx the parse tree

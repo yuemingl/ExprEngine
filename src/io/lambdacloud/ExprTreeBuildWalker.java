@@ -194,9 +194,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new AddNode(v1, v2));
 	}
 	
-	@Override public void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) {
+	@Override public void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx) {
 		stack.push(new NegateNode(stack.pop()));
 	}
+	@Override public void exitArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx) {
+		stack.push(new NegateNode(stack.pop()));
+	}
+	
 	@Override public void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
@@ -230,41 +234,56 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v1 = stack.pop();
 		stack.push(new BXorNode(v1, v2));
 	}
-	
+		
 	@Override public void exitEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) {
-		//System.out.println("exitConstInteger"+ctx.getText());
+		System.out.println("exitConstInteger"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
 	}
-	
-	@Override public void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx) {
-		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
-		//Do nothing
-	}
-	
 	@Override public void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { 
-		//System.out.println("exitEntityConstFloat:"+ctx.getText());
+		System.out.println("exitEntityConstFloat:"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
-	
 	@Override public void enterEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		//System.out.println(ctx.getText());
+		System.out.println("enterEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
 			val = paramMap.get(varName);
 			if(null == val) {
-				val = new VariableNode(varName, Type.DOUBLE_TYPE); //TODO type?
+				val = new VariableNode(varName, Type.DOUBLE_TYPE); //default to double
 			}
 			paramMap.put(varName, val);
 		}
 		stack.push(val);
 	}
-	
 	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) {
+		System.out.println("exitEntityLogicalConst:"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
 	}
+	
+	@Override public void exitLogicalExpressionEntity(ExprGrammarParser.LogicalExpressionEntityContext ctx) {
+		System.out.println("exitLogicalExpressionEntity:"+ctx.getText());
+		//Do nothing
+	}
+
+	@Override public void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx) {
+		System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
+		//Do nothing
+	}
+
+	@Override public void exitBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx) {
+		//Change type from double to int
+		System.out.println("exitBitExpressionVariable:"+ctx.getText());
+		String varName = ctx.getText();
+		VariableNode val = localVarMap.get(varName);
+		if(null == val) {
+			val = paramMap.get(varName);
+		}
+		if(null != val) val.setType(Type.INT_TYPE);
+	}
+
 	@Override public void enterBitExpressionConst(ExprGrammarParser.BitExpressionConstContext ctx) {
-		//System.out.println("enterBitExpressionConst:"+ctx.getText());
+		System.out.println("enterBitExpressionConst:"+ctx.getText());
 		//Do nothing
 	}
 }
