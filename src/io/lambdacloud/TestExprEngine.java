@@ -12,8 +12,10 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		
 		//line 1:1 extraneous input '-1' expecting {'+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '>>>', END_EXPR}
-		//assertEqual(parseAndEval("x-1;", new double[]{2}), 1.0);
+		assertEqual(parseAndEval("1-1;"), 0);
+		assertEqual(parseAndEval("x-1.0;", new double[]{2}), 1.0);
 		
 		//Type conversion
 
@@ -37,8 +39,6 @@ public class TestExprEngine {
 		assertEqual(parseAndEval("x/1;", new double[]{2}), 2.0);
 		assertEqual(parseAndEval("x%3;", new double[]{2}), 2.0);
 		
-
-
 		assertEqual(parseAndEval("x+=2;", new int[]{3}), 5);
 		assertEqual(parseAndEval("x-=2;", new int[]{3}), 1);
 		assertEqual(parseAndEval("x*=2;", new int[]{3}), 6);
