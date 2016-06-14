@@ -19,7 +19,11 @@ public class AndNode extends ExprNode {
 		this.right = right;
 		this.type = Type.BOOLEAN_TYPE;
 	}
-
+	
+	public String toString() {
+		return left + " && " + right;
+	}
+	
 	@Override
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
@@ -35,7 +39,7 @@ public class AndNode extends ExprNode {
 		mv.visitInsn(ICONST_0);
 		mv.visitLabel(l2);
 	}
-
+	
 	public boolean test(boolean a, boolean b) {
 		boolean c = a && b;
 		return c;

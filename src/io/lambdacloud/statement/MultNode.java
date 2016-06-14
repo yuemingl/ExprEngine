@@ -1,6 +1,7 @@
 package io.lambdacloud.statement;
 
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
@@ -10,7 +11,7 @@ public class MultNode extends ExprNode {
 	public MultNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = Utils.typeConversion(left.getType(), right.getType());
+		this.type = getType();
 	}
 
 	public String toString() {
@@ -20,7 +21,11 @@ public class MultNode extends ExprNode {
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
 		right.genCode(mv);
-		mv.visitInsn(this.type.getOpcode(Opcodes.IMUL));
+		mv.visitInsn(getType().getOpcode(Opcodes.IMUL));
 	}
-
+	
+	@Override
+	public Type getType() {
+		return Utils.typeConversion(left.getType(), right.getType());
+	}
 }

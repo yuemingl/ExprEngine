@@ -5,27 +5,27 @@ import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
-public class SubNode extends ExprNode {
+public class BXorNode extends ExprNode {
 	ExprNode left;
 	ExprNode right;
-	public SubNode(ExprNode left, ExprNode right) {
+	public BXorNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = getType();
+		this.type = Type.INT_TYPE;
 	}
 	
 	public String toString() {
-		return left + " - " + right;
+		return left + "^" + right;
 	}
 	
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
 		right.genCode(mv);
-		mv.visitInsn(getType().getOpcode(Opcodes.ISUB));
+		mv.visitInsn(this.type.getOpcode(Opcodes.IXOR));
 	}
 	
-	@Override
-	public Type getType() {
-		return Utils.typeConversion(left.getType(), right.getType());
-	}	
+	public int test(int a, int b) {
+		int c = a ^ b;
+		return c;
+	}
 }

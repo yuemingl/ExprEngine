@@ -35,6 +35,6 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public void genCode(MethodVisitor mv) {
-		mv.visitIntInsn(Opcodes.DLOAD, this.idxLVT);
+		mv.visitIntInsn(this.type.getOpcode(Opcodes.ILOAD), this.idxLVT);
 	}
 }

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -19,6 +18,10 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
 import io.lambdacloud.statement.AssignNode;
+import io.lambdacloud.statement.BAndNode;
+import io.lambdacloud.statement.BNotNode;
+import io.lambdacloud.statement.BOrNode;
+import io.lambdacloud.statement.BXorNode;
 import io.lambdacloud.statement.ConstantNode;
 import io.lambdacloud.statement.DivNode;
 import io.lambdacloud.statement.EQNode;
@@ -41,7 +44,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
 	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
 	
-	Type[] getArgumentTypes() {
+	Type[] getAndFixArgumentTypes(Class<?> ...parameterTypes) {
 		List<VariableNode> list = new ArrayList<VariableNode>();
 		list.addAll(paramMap.values());
 		Collections.sort(list, new Comparator<VariableNode>() {
@@ -52,43 +55,49 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		});
 		Type[] retTypes = new Type[list.size()];
 		for(int i=0; i<list.size(); i++) {
-			retTypes[i] = Type.getType(double.class);//TODO different types
+			list.get(i).setType(Type.getType(parameterTypes[i])); //Fix types
+			retTypes[i] = Type.getType(parameterTypes[i]);
 		}
 		return retTypes;
 	}
 	
-	public Class<?> genCode(String className, String methodName) {
-		return genCode(className, methodName, true);
-	}
-	
-	public Class<?> genCode(String className, String methodName, boolean wirteFile) {
+	public Class<?> genCode(String className, boolean wirteFile, String methodName, Class<?> ...parameterTypes) {
 		try {
-			// Class<?> c = mcl.defineClassForName("com.openx.asm_test.Test1",
-			// Test1Dump.dump());
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
+			CodeGenerator cgen = new CodeGenerator();
 			
-			CodeGenerator gg = new CodeGenerator();
 			//Define class
-			gg.startClass(className);
+			cgen.startClass(className);
+			
 			//Define method
+			Type[] argTypes = getAndFixArgumentTypes(parameterTypes);
+			
 			Type retType = stack.peek().getType();
 			if(null == retType) throw new RuntimeException("Stack is empty!");
-			gg.startMethod(methodName,Type.getMethodDescriptor(
+			cgen.startMethod(methodName,Type.getMethodDescriptor(
 					retType, //return type of the last expression
-					getArgumentTypes()
+					argTypes
 				));
-			gg.startCode();
+			cgen.startCode();
 			
-			MethodVisitor mv = gg.getMV();
+			MethodVisitor mv = cgen.getMV();
 			
 			int index = 1;
 			for(String key : paramMap.keySet()) {
-				paramMap.get(key).idxLVT = index;
-				index += 2;
+				VariableNode var = paramMap.get(key);
+				var.idxLVT = index;
+				if(var.getType().getSort() == Type.DOUBLE)
+					index += 2;
+				else
+					index++;
 			}
 			for(String key : localVarMap.keySet()) {
-				localVarMap.get(key).idxLVT = index;
-				index += 2;
+				VariableNode var = localVarMap.get(key);
+				var.idxLVT = index;
+				if(var.getType().getSort() == Type.DOUBLE)
+					index += 2;
+				else
+					index++;
 			}
 			
 			//Generate code for all the expressions
@@ -98,21 +107,21 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 			
 			mv.visitInsn(retType.getOpcode(Opcodes.IRETURN));
-			mv.visitLocalVariable("this", "L"+className+";", null, gg.l0, gg.l1, 0);
+			mv.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
 			for(VariableNode var : paramMap.values()) {
-				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), //TODO Assume all parameters are double?
-						null, gg.l0, gg.l1, var.idxLVT);
+				mv.visitLocalVariable(var.name, var.getType().getDescriptor(),
+						null, cgen.l0, cgen.l1, var.idxLVT);
 			}
 			for(VariableNode var : localVarMap.values()) {
-				mv.visitLocalVariable(var.name, Type.getDescriptor(double.class), 
-						null, gg.l0, gg.l1, var.idxLVT);
+				mv.visitLocalVariable(var.name, var.getType().getDescriptor(), 
+						null, cgen.l0, cgen.l1, var.idxLVT);
 			}
 			
 			mv.visitMaxs(-1, -1); //Auto generated
-			gg.endCode();
-			gg.endClass();
+			cgen.endCode();
+			cgen.endClass();
 			
-			byte[] bcode = gg.dump();
+			byte[] bcode = cgen.dump();
 			if(wirteFile) {
 				FileOutputStream fos = new FileOutputStream(className+".class");
 				fos.write(bcode);
@@ -131,7 +140,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
-		System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
+		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
 		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText(), this.stack.pop());
 		this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
 		this.stack.push(new AssignNode(var, var.value));
@@ -184,29 +193,6 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v1 = stack.pop();
 		stack.push(new AddNode(v1, v2));
 	}
-
-	@Override public void exitLogicalConst(ExprGrammarParser.LogicalConstContext ctx) {
-		stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
-	}
-
-	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) {
-		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
-	}
-
-	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) {
-		System.out.println(ctx.getText());
-		String varName = ctx.getText();
-		VariableNode val = localVarMap.get(varName);
-		if(null == val) {
-			val = paramMap.get(varName);
-			if(null == val) {
-				val = new VariableNode(varName, Type.DOUBLE_TYPE);
-			}
-			paramMap.put(varName, val);
-		}
-		//TODO define a local variable?
-		stack.push(val);
-	}
 	
 	@Override public void exitArithmeticExpressionNegation(ExprGrammarParser.ArithmeticExpressionNegationContext ctx) {
 		stack.push(new NegateNode(stack.pop()));
@@ -226,15 +212,59 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v1 = stack.pop();
 		stack.push(new RemNode(v1, v2));
 	}
+	@Override public void exitBitExpressionAnd(ExprGrammarParser.BitExpressionAndContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new BAndNode(v1, v2));
+	}
+	@Override public void exitBitExpressionOr(ExprGrammarParser.BitExpressionOrContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new BOrNode(v1, v2));
+	}
+	@Override public void exitBitExpressionNot(ExprGrammarParser.BitExpressionNotContext ctx) {
+		stack.push(new BNotNode(stack.pop()));
+	}
+	@Override public void exitBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new BXorNode(v1, v2));
+	}
 	
-//	@Override public void exitEveryRule(ParserRuleContext ctx) { 
-//		System.out.println(ctx.getText());
-//	}
-
-//	@Override public void exitArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) {
-//		System.out.println("ArithmeticExpressionNumericEntity:"+ctx.getText());
-//	}
-//	@Override public void exitLogicalEntity(ExprGrammarParser.LogicalEntityContext ctx) {
-//		System.out.println("LogicalEntity:"+ctx.getText());
-//	}
+	@Override public void exitEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) {
+		//System.out.println("exitConstInteger"+ctx.getText());
+		stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
+	}
+	
+	@Override public void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx) {
+		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
+		//Do nothing
+	}
+	
+	@Override public void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { 
+		//System.out.println("exitEntityConstFloat:"+ctx.getText());
+		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
+	}
+	
+	@Override public void enterEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
+		//System.out.println(ctx.getText());
+		String varName = ctx.getText();
+		VariableNode val = localVarMap.get(varName);
+		if(null == val) {
+			val = paramMap.get(varName);
+			if(null == val) {
+				val = new VariableNode(varName, Type.DOUBLE_TYPE); //TODO type?
+			}
+			paramMap.put(varName, val);
+		}
+		stack.push(val);
+	}
+	
+	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) {
+		stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
+	}
+	@Override public void enterBitExpressionConst(ExprGrammarParser.BitExpressionConstContext ctx) {
+		//System.out.println("enterBitExpressionConst:"+ctx.getText());
+		//Do nothing
+	}
 }

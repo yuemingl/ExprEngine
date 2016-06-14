@@ -18,6 +18,10 @@ public class NotNode extends ExprNode {
 		this.type = Type.BOOLEAN_TYPE;
 	}
 	
+	public String toString() {
+		return " ! " + expr;
+	}
+	
 	@Override
 	public void genCode(MethodVisitor mv) {
 		expr.genCode(mv);

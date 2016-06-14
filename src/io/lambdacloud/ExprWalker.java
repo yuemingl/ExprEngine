@@ -29,9 +29,9 @@ public class ExprWalker extends ExprGrammarBaseListener {
 		gg.getMV().visitInsn(Opcodes.IRETURN);
 		
 	}
-	@Override public void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx) {
-		gg.getMV().visitInsn(Opcodes.IRETURN);
-	}
+//	@Override public void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx) {
+//		gg.getMV().visitInsn(Opcodes.IRETURN);
+//	}
 	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
 		System.out.println("Arithmetric: "+ctx.getText());
 		gg.getMV().visitInsn(Opcodes.DRETURN);
@@ -53,11 +53,11 @@ public class ExprWalker extends ExprGrammarBaseListener {
 		gg.getMV().visitInsn(Opcodes.DADD);
 	}
 
-	@Override public void exitLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) {
-		System.out.println(ctx.getText());
-	}
-	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) {
-		System.out.println(ctx.getText());
-		gg.getMV().visitLdcInsn(Double.parseDouble(ctx.getText()));
-	}
+//	@Override public void exitLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) {
+//		System.out.println(ctx.getText());
+//	}
+//	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) {
+//		System.out.println(ctx.getText());
+//		gg.getMV().visitLdcInsn(Double.parseDouble(ctx.getText()));
+//	}
 }

@@ -38,7 +38,9 @@ RPAREN : ')' ;
 
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
-DECIMAL : '-'?[0-9]+('.'[0-9]+)? ;
+INTEGER : [0-9]+ ;
+
+FLOAT : [0-9]?'.'[0-9]+ ;
 
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
@@ -57,10 +59,9 @@ WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 prog : (expr END_EXPR)* EOF ;
 
 expr
- : arithmetic_expr                 #ExprArithmetic
- | comparison_expr                 #ExprComparison
- | logical_expr                    #ExprLogical
- | asign_expr                      #ExprAssign
+ : arithmetic_expr                 # ExprArithmetic
+ | logical_expr                    # ExprLogical
+ | asign_expr                      # ExprAssign
 // | IDENTIFIER ('++' | '--')        #ExprUnaryPostfix
 // | ('+'|'-'|'++'|'--') IDENTIFIER  #ExprUnaryPrefix
 // | ('~'|'!') IDENTIFIER            #ExprUnaryNot
@@ -77,12 +78,8 @@ logical_expr
  | logical_entity                # LogicalExpressionEntity
  ;
 
-comparison_expr : comparison_operand comp_operator comparison_operand # ComparisonExpressionWithOperator
-                | LPAREN comparison_expr RPAREN                       # ComparisonExpressionParens
+comparison_expr : arithmetic_expr comp_operator arithmetic_expr # ComparisonExpressionWithOperator
                 ;
-
-comparison_operand : arithmetic_expr
-                   ;
 
 comp_operator : GT
               | GE
@@ -93,20 +90,31 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
+ : bit_expr                              # BitExpression
+ | arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
  | arithmetic_expr DIV arithmetic_expr   # ArithmeticExpressionDiv
  | arithmetic_expr REM arithmetic_expr   # ArithmeticExpressionRem
  | arithmetic_expr ADD arithmetic_expr   # ArithmeticExpressionAdd
  | arithmetic_expr SUB arithmetic_expr   # ArithmeticExpressionSub
  | SUB arithmetic_expr                   # ArithmeticExpressionNegation
  | LPAREN arithmetic_expr RPAREN         # ArithmeticExpressionParens
- | numeric_entity                        # ArithmeticExpressionNumericEntity
+ | numeric_entity                        # ArithmeticExpressionEntity
  ;
 
-logical_entity : (TRUE | FALSE) # LogicalConst
-               | IDENTIFIER     # LogicalVariable
+bit_expr
+ : bit_expr BAND bit_expr    # BitExpressionAnd
+ | bit_expr BOR bit_expr     # BitExpressionOr
+ | bit_expr BXOR bit_expr    # BitExpressionXor
+ | BNOT bit_expr             # BitExpressionNot
+ | integer_entity            # BitExpressionConst
+ ;
+
+numeric_entity : integer_entity
+               | float_entity
+               | variable_entity
                ;
 
-numeric_entity : DECIMAL              # NumericConst
-               | IDENTIFIER           # NumericVariable
-               ;
+integer_entity  : INTEGER        # EntityConstInteger ;
+float_entity    : FLOAT          # EntityConstFloat   ;
+variable_entity : IDENTIFIER     # EntityVariable     ;
+logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;

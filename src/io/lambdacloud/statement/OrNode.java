@@ -19,7 +19,9 @@ public class OrNode extends ExprNode {
 		this.right = right;
 		this.type = Type.BOOLEAN_TYPE;
 	}
-	
+	public String toString() {
+		return left + " || " + right;
+	}
 	@Override
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);

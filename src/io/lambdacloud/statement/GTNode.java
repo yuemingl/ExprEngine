@@ -21,24 +21,50 @@ public class GTNode extends ExprNode {
 		this.type = Type.BOOLEAN_TYPE;
 	}
 	
+	public String toString() {
+		return left + " > " + right;
+	}
+	
 	@Override
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
 		right.genCode(mv);
-		mv.visitInsn(DCMPL);
-		Label l1 = new Label();
-		mv.visitJumpInsn(IFLE, l1);
-		mv.visitInsn(ICONST_1);
-		Label l2 = new Label();
-		mv.visitJumpInsn(GOTO, l2);
-		mv.visitLabel(l1);
-		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-		mv.visitInsn(ICONST_0);
-		mv.visitLabel(l2);
-		//mv.visitInsn(Opcodes.NOP);
+		Type ty = Utils.typeConversion(left.getType(), right.getType());
+		if(ty.getSort() == Type.DOUBLE) {
+			mv.visitInsn(DCMPL);
+			Label l1 = new Label();
+			mv.visitJumpInsn(IFLE, l1);
+			mv.visitInsn(ICONST_1);
+			Label l2 = new Label();
+			mv.visitJumpInsn(GOTO, l2);
+			mv.visitLabel(l1);
+			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mv.visitInsn(ICONST_0);
+			mv.visitLabel(l2);
+			//mv.visitInsn(Opcodes.NOP);
+			
+		}
+		else if(ty.getSort() == Type.INT) {
+			Label l1 = new Label();
+			mv.visitJumpInsn(IF_ICMPLE, l1);
+			mv.visitInsn(ICONST_1);
+			Label l2 = new Label();
+			mv.visitJumpInsn(GOTO, l2);
+			mv.visitLabel(l1);
+			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mv.visitInsn(ICONST_0);
+			mv.visitLabel(l2);
+			//mv.visitInsn(Opcodes.NOP);
+		}
+		else
+			throw new RuntimeException();
 	}
 	
 	public boolean test(double a, double b) {
+		boolean c =  a > b;
+		return c;
+	}
+	public boolean test(int a, int b) {
 		boolean c =  a > b;
 		return c;
 	}

@@ -42,18 +42,6 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprComparison(ExprGrammarParser.ExprComparisonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExprComparison(ExprGrammarParser.ExprComparisonContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExprLogical(ExprGrammarParser.ExprLogicalContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -174,30 +162,6 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparisonExpressionParens(ExprGrammarParser.ComparisonExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComparisonExpressionParens(ExprGrammarParser.ComparisonExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterComparison_operand(ExprGrammarParser.Comparison_operandContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitComparison_operand(ExprGrammarParser.Comparison_operandContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterComp_operator(ExprGrammarParser.Comp_operatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -210,6 +174,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -217,18 +193,6 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArithmeticExpressionNumericEntity(ExprGrammarParser.ArithmeticExpressionNumericEntityContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -294,6 +258,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBitExpression(ExprGrammarParser.BitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBitExpression(ExprGrammarParser.BitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionAdd(ExprGrammarParser.ArithmeticExpressionAddContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -306,49 +282,121 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogicalConst(ExprGrammarParser.LogicalConstContext ctx) { }
+	@Override public void enterBitExpressionAnd(ExprGrammarParser.BitExpressionAndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalConst(ExprGrammarParser.LogicalConstContext ctx) { }
+	@Override public void exitBitExpressionAnd(ExprGrammarParser.BitExpressionAndContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) { }
+	@Override public void enterBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLogicalVariable(ExprGrammarParser.LogicalVariableContext ctx) { }
+	@Override public void exitBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumericConst(ExprGrammarParser.NumericConstContext ctx) { }
+	@Override public void enterBitExpressionConst(ExprGrammarParser.BitExpressionConstContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericConst(ExprGrammarParser.NumericConstContext ctx) { }
+	@Override public void exitBitExpressionConst(ExprGrammarParser.BitExpressionConstContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { }
+	@Override public void enterBitExpressionOr(ExprGrammarParser.BitExpressionOrContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericVariable(ExprGrammarParser.NumericVariableContext ctx) { }
+	@Override public void exitBitExpressionOr(ExprGrammarParser.BitExpressionOrContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBitExpressionNot(ExprGrammarParser.BitExpressionNotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBitExpressionNot(ExprGrammarParser.BitExpressionNotContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNumeric_entity(ExprGrammarParser.Numeric_entityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNumeric_entity(ExprGrammarParser.Numeric_entityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEntityVariable(ExprGrammarParser.EntityVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -1,22 +1,21 @@
 package io.lambdacloud;
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
-import java.util.*;
-import org.objectweb.asm.*;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 public class CodeGenerator implements Opcodes {
 
 	ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-	//ClassWriter cw = new ClassWriter(0);
 	MethodVisitor mv;
 
 	public CodeGenerator() {
-		
 	}
 	
-	//
 	public void startClass(String clsName) {
-		//"com/openx/asm_test/Test1"
 		cw.visit(Opcodes.V1_8, ACC_PUBLIC + ACC_SUPER, clsName, null, "java/lang/Object",
 				new String[] {});
 		
@@ -30,10 +29,9 @@ public class CodeGenerator implements Opcodes {
 		mv.visitInsn(RETURN);
 		Label l1 = new Label();
 		mv.visitLabel(l1);
-		mv.visitLocalVariable("this", "Lcom/openx/asm_test/Test1;", null, l0, l1, 0);
+		mv.visitLocalVariable("this", "L"+clsName+";", null, l0, l1, 0);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
-		
 	}
 	
 	public void endClass() {
@@ -41,9 +39,7 @@ public class CodeGenerator implements Opcodes {
 	}
 	
 	public void startMethod(String name, String type) {
-		//mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 		mv = cw.visitMethod(ACC_PUBLIC, name, type, null, null);
-		
 	}
 	
 	Label l0 = new Label();
@@ -51,7 +47,6 @@ public class CodeGenerator implements Opcodes {
 	
 	public void startCode() {
 		mv.visitCode();
-		//Label l0 = new Label();
 		mv.visitLabel(l0);
 	}
 	
@@ -60,15 +55,9 @@ public class CodeGenerator implements Opcodes {
 	}
 	
 	public void endCode() {
-		//Label l1 = new Label();
 		mv.visitLabel(l1);
-		//
-		//mv.visitLocalVariable("this", "Lcom/openx/asm_test/Test1;", null, l0, l1, 0);
-		//mv.visitMaxs(1, 1);
-		//
 		mv.visitEnd();
 	}
-	
 	
 	public byte[] dump() throws Exception {
 		return cw.toByteArray();
@@ -77,30 +66,27 @@ public class CodeGenerator implements Opcodes {
 	public static void main(String[] args) {
 		ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 		try {
-			// Class<?> c = mcl.defineClassForName("com.openx.asm_test.Test1",
-			// Test1Dump.dump());
+			CodeGenerator cgen = new CodeGenerator();
+			String clsName = "Test";
+			cgen.startClass(clsName);
+			cgen.startMethod("eval","(DD)D");
+			cgen.startCode();
 			
-			CodeGenerator gg = new CodeGenerator();
-			gg.startClass("myclass");
-			gg.startMethod("eval","(DD)D");
-			gg.startCode();
-			
-			MethodVisitor mv = gg.getMV();
+			MethodVisitor mv = cgen.getMV();
 			mv.visitLdcInsn(10.0);
 			mv.visitLdcInsn(2.0);
 			mv.visitInsn(DADD);
 			mv.visitInsn(DRETURN);
 			
-			mv.visitLocalVariable("this", "Lcom/openx/asm_test/Test1;", null, gg.l0, gg.l1, 0);
-			mv.visitLocalVariable("a", "D", null, gg.l0, gg.l1, 1);
-			mv.visitLocalVariable("b", "D", null, gg.l0, gg.l1, 3);
+			mv.visitLocalVariable("this", "L"+clsName+";", null, cgen.l0, cgen.l1, 0);
+			mv.visitLocalVariable("a", "D", null, cgen.l0, cgen.l1, 1);
+			mv.visitLocalVariable("b", "D", null, cgen.l0, cgen.l1, 3);
 			mv.visitMaxs(4, 5);
 			
+			cgen.endCode();
+			cgen.endClass();
 			
-			gg.endCode();
-			gg.endClass();
-			
-			byte[] bcode = gg.dump();
+			byte[] bcode = cgen.dump();
 			Class<?> c = mcl.defineClassForName(null, bcode);
 			for (Method m : c.getMethods()) {
 				System.out.println(m.getName());
@@ -109,7 +95,7 @@ public class CodeGenerator implements Opcodes {
 			Object o = c.newInstance();
 			System.out.println(m1.invoke(o, 1, 2));
 			
-			FileOutputStream fos = new FileOutputStream("test.class");
+			FileOutputStream fos = new FileOutputStream(clsName+".class");
 			fos.write(bcode);
 			fos.close();
 
