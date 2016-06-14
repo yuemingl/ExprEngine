@@ -75,3 +75,5 @@ public class Examples {
 }
 
 ```
+
+see https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/TestExprEngine.java for more examples
