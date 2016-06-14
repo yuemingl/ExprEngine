@@ -15,6 +15,7 @@ public class Examples {
 	 * Warning: the bytecode will be generated each time of the call of parseAndEval().
 	 */
 	public static void ex1() {
+		System.out.println(parseAndEval("-x;", new int[]{3}));
 		System.out.println(parseAndEval("x + y;", new int[]{3,4}));
 		System.out.println(parseAndEval("x > y;", new int[]{3,4}));
 		System.out.println(parseAndEval("x <= y and x > 0;", new int[]{3,4}));
