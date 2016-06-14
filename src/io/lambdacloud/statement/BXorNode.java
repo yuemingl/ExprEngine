@@ -11,7 +11,7 @@ public class BXorNode extends ExprNode {
 	public BXorNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = Type.INT_TYPE;
+		this.type = getType();
 	}
 	
 	public String toString() {
@@ -21,7 +21,12 @@ public class BXorNode extends ExprNode {
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
 		right.genCode(mv);
-		mv.visitInsn(this.type.getOpcode(Opcodes.IXOR));
+		mv.visitInsn(getType().getOpcode(Opcodes.IXOR));
+	}
+	
+	@Override
+	public Type getType() {
+		return Utils.typeConversion(left.getType(), right.getType());
 	}
 	
 	public int test(int a, int b) {

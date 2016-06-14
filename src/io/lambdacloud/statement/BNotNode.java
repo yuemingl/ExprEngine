@@ -11,7 +11,7 @@ public class BNotNode extends ExprNode {
 	
 	public BNotNode(ExprNode expr) {
 		this.expr = expr;
-		this.type = Type.INT_TYPE;
+		this.type = expr.getType();
 	}
 	
 	public String toString() {
@@ -21,12 +21,29 @@ public class BNotNode extends ExprNode {
 	@Override
 	public void genCode(MethodVisitor mv) {
 		expr.genCode(mv);
-		mv.visitInsn(ICONST_M1);
-		mv.visitInsn(IXOR);
+		if(getType().getSort() == Type.LONG)
+			mv.visitLdcInsn(new Long(-1L));
+		else
+			mv.visitInsn(ICONST_M1);
+		mv.visitInsn(getType().getOpcode(IXOR));
 	}
 	
-	public int test(int a, int b) {
-		int c =  ~b;
+	@Override
+	public Type getType() {
+		return this.expr.getType();
+	}
+	
+	public int test(int a) {
+		int c =  ~a;
 		return c;
 	}
+	public long test(long a) {
+		long c =  ~a;
+		return c;
+	}
+	public short test(short a) {
+		short c =  (short) ~a; //I2S
+		return c;
+	}
+	
 }

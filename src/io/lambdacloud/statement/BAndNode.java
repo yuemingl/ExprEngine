@@ -11,7 +11,7 @@ public class BAndNode extends ExprNode {
 	public BAndNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = Type.INT_TYPE;
+		this.type = getType();
 	}
 	
 	public String toString() {
@@ -21,7 +21,12 @@ public class BAndNode extends ExprNode {
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
 		right.genCode(mv);
-		mv.visitInsn(this.type.getOpcode(Opcodes.IAND));
+		mv.visitInsn(getType().getOpcode(Opcodes.IAND));
+	}
+	
+	@Override
+	public Type getType() {
+		return Utils.typeConversion(left.getType(), right.getType());
 	}
 	
 	public int test(int a, int b) {
