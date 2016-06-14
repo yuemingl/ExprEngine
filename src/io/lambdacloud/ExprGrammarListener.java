@@ -172,17 +172,17 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitBitExpressionAnd(ExprGrammarParser.BitExpressionAndContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionEntity}
+	 * Enter a parse tree produced by the {@code BitExpressionUshr}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx);
+	void enterBitExpressionUshr(ExprGrammarParser.BitExpressionUshrContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionEntity}
+	 * Exit a parse tree produced by the {@code BitExpressionUshr}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx);
+	void exitBitExpressionUshr(ExprGrammarParser.BitExpressionUshrContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionRem}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
@@ -195,42 +195,6 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code BitExpressionXor}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code BitExpressionXor}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionSub}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionSub}
-	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionParens}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
@@ -291,6 +255,78 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code BitExpressionShl}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitExpressionShl(ExprGrammarParser.BitExpressionShlContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code BitExpressionShl}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitExpressionShl(ExprGrammarParser.BitExpressionShlContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionEntity}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionEntity}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code BitExpressionXor}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code BitExpressionXor}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionSub}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionSub}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code BitExpressionShr}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitExpressionShr(ExprGrammarParser.BitExpressionShrContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code BitExpressionShr}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitExpressionShr(ExprGrammarParser.BitExpressionShrContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionAdd}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.

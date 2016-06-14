@@ -92,12 +92,15 @@ public class ExprEngine {
 	
 	public static void main(String[] args){
 		//assertEqual(eval("2.0 > 1;", new int[]{}), true); //TODO auto type conversion
-		int a = -1;
-		int b = 7;
-		System.out.println(1^-7);
-		System.out.println(-1^7);
-		System.out.println(-a&b);
 		
+		assertEqual(eval("7>>2;"), 1);
+		assertEqual(eval("1<<2;"), 4);
+		assertEqual(eval("-1>>>30;"), 3);
+
+		assertEqual(eval("x>>y;", new int[]{7,2}), 1);
+		assertEqual(eval("x<<y;", new int[]{1,2}), 4);
+		assertEqual(eval("x>>>y;", new int[]{-1,30}), 3);
+
 		assertEqual(eval("-x-y;", new int[]{1,2}), -3);
 		assertEqual(eval("-x+y;", new int[]{1,2}), 1);
 		assertEqual(eval("-(x-y);", new int[]{-1,7}), 8);

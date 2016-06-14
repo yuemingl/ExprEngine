@@ -36,7 +36,10 @@ import io.lambdacloud.statement.NegateNode;
 import io.lambdacloud.statement.NotNode;
 import io.lambdacloud.statement.OrNode;
 import io.lambdacloud.statement.RemNode;
+import io.lambdacloud.statement.SHLNode;
+import io.lambdacloud.statement.SHRNode;
 import io.lambdacloud.statement.SubNode;
+import io.lambdacloud.statement.USHRNode;
 import io.lambdacloud.statement.VariableNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
@@ -234,17 +237,33 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v1 = stack.pop();
 		stack.push(new BXorNode(v1, v2));
 	}
+	@Override public void exitBitExpressionShl(ExprGrammarParser.BitExpressionShlContext ctx) { 
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new SHLNode(v1, v2));
+	}
+	@Override public void exitBitExpressionShr(ExprGrammarParser.BitExpressionShrContext ctx) { 
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new SHRNode(v1, v2));
 		
+	}
+	@Override public void exitBitExpressionUshr(ExprGrammarParser.BitExpressionUshrContext ctx) { 
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new USHRNode(v1, v2));
+	}
+
 	@Override public void exitEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) {
-		System.out.println("exitConstInteger"+ctx.getText());
+		//System.out.println("exitConstInteger"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
 	}
 	@Override public void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { 
-		System.out.println("exitEntityConstFloat:"+ctx.getText());
+		//System.out.println("exitEntityConstFloat:"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		System.out.println("enterEntityVariable:"+ctx.getText());
+		//System.out.println("enterEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
@@ -257,17 +276,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(val);
 	}
 	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) {
-		System.out.println("exitEntityLogicalConst:"+ctx.getText());
+		//System.out.println("exitEntityLogicalConst:"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
 	}
 	
 	@Override public void exitLogicalExpressionEntity(ExprGrammarParser.LogicalExpressionEntityContext ctx) {
-		System.out.println("exitLogicalExpressionEntity:"+ctx.getText());
+		//System.out.println("exitLogicalExpressionEntity:"+ctx.getText());
 		//Do nothing
 	}
 
 	@Override public void exitArithmeticExpressionEntity(ExprGrammarParser.ArithmeticExpressionEntityContext ctx) {
-		System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
+		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
 		//Do nothing
 	}
 

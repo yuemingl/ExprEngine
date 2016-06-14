@@ -31,6 +31,10 @@ BOR  : '|' ;
 BXOR : '^' ;
 BNOT : '~' ;
 
+SHL  : '<<'  ;
+SHR  : '>>'  ;
+USHR : '>>>' ;
+
 ASIGN : '=' ;
 
 LPAREN : '(' ;
@@ -91,12 +95,15 @@ comp_operator : GT
 
 arithmetic_expr
  : BNOT arithmetic_expr                  # BitExpressionNot
+ | SUB arithmetic_expr                   # ArithmeticExpressionNegationEntity
  | arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
  | arithmetic_expr DIV arithmetic_expr   # ArithmeticExpressionDiv
  | arithmetic_expr REM arithmetic_expr   # ArithmeticExpressionRem
  | arithmetic_expr ADD arithmetic_expr   # ArithmeticExpressionAdd
  | arithmetic_expr SUB arithmetic_expr   # ArithmeticExpressionSub
- | SUB arithmetic_expr                   # ArithmeticExpressionNegationEntity
+ | arithmetic_expr SHL arithmetic_expr   # BitExpressionShl
+ | arithmetic_expr SHR arithmetic_expr   # BitExpressionShr
+ | arithmetic_expr USHR arithmetic_expr  # BitExpressionUshr
  | arithmetic_expr BAND arithmetic_expr  # BitExpressionAnd
  | arithmetic_expr BOR arithmetic_expr   # BitExpressionOr
  | arithmetic_expr BXOR arithmetic_expr  # BitExpressionXor
