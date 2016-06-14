@@ -1,6 +1,7 @@
 package io.lambdacloud.statement;
 
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
@@ -17,13 +18,18 @@ public class AssignNode extends ExprNode {
 		return left + "=" + right;
 	}
 	
+	@Override
+	public Type getType() {
+		return right.getType();
+	}
+	
 	public void genCode(MethodVisitor mv) {
 		right.genCode(mv);
 		if(right instanceof AssignNode) {
 			AssignNode r = (AssignNode)right;
-			mv.visitIntInsn(this.type.getOpcode(Opcodes.ILOAD), r.left.idxLVT);
+			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), r.left.idxLVT);
 		}
-		mv.visitIntInsn(this.type.getOpcode(Opcodes.ISTORE), left.idxLVT);
+		mv.visitIntInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
 	}
 	
 }

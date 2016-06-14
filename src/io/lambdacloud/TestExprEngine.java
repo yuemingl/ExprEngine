@@ -12,6 +12,9 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		assertEqual(parseAndEval("a=x+y; a+2;", new int[]{3,4}), 9);
+		assertEqual(parseAndEval("a=x+y; a/2.0;", new int[]{3,4}), 3.5);
+
 		
 		//line 1:1 extraneous input '-1' expecting {'+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '>>>', END_EXPR}
 		assertEqual(parseAndEval("1-1;"), 0);

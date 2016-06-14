@@ -12,10 +12,14 @@ public class Examples {
 
 	/**
 	 * A quick example: parse and evaluate. 
-	 * Warning: the bytecode will be generated each time of the call to parseAndEval.
+	 * Warning: the bytecode will be generated each time of the call of parseAndEval().
 	 */
 	public static void ex1() {
-		System.out.println(parseAndEval("x+y;", new int[]{3,4}));
+		System.out.println(parseAndEval("x + y;", new int[]{3,4}));
+		System.out.println(parseAndEval("x > y;", new int[]{3,4}));
+		System.out.println(parseAndEval("x <= y and x > 0;", new int[]{3,4}));
+		System.out.println(parseAndEval("a=x+y; a+2;", new double[]{3.0,4.0}));
+		System.out.println(parseAndEval("(7^3) == (1<<2);"));
 	}
 	
 	/**

@@ -35,6 +35,14 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public void genCode(MethodVisitor mv) {
-		mv.visitIntInsn(this.type.getOpcode(Opcodes.ILOAD), this.idxLVT);
+		mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), this.idxLVT);
 	}
+	
+	@Override
+	public Type getType() {
+		if(null != this.value)
+			return this.value.getType();
+		else
+			return this.type;
+	}	
 }
