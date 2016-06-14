@@ -55,4 +55,8 @@ System.out.println(f.apply(3,4));
 ```
 
 #### More examples
+###### Test cases
 https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/TestExprEngine.java
+###### Grammar
+https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/ExprGrammar.g4
+
