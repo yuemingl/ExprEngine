@@ -81,7 +81,7 @@ public class ExprEngine {
 	
 	public static Object parseAndEval(String str) {
 		ExprTreeBuildWalker ew = parse(str);
-		Method m1 = genStaticMethod(ew, "MyClass", true, "eval");
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			return m1.invoke(null);
 		} catch (Exception e) {
@@ -95,7 +95,7 @@ public class ExprEngine {
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = int.class;
-		Method m1 = genStaticMethod(ew, "MyClass", true, "eval", cls);
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", cls);
 		try {
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)
@@ -112,7 +112,7 @@ public class ExprEngine {
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = long.class;
-		Method m1 = genStaticMethod(ew, "MyClass", true, "eval", cls);
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", cls);
 		try {
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)
@@ -129,7 +129,7 @@ public class ExprEngine {
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = double.class;
-		Method m1 = genStaticMethod(ew, "MyClass", true, "eval", cls);
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", cls);
 		try {
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)

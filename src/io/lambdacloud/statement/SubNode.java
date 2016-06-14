@@ -20,7 +20,9 @@ public class SubNode extends ExprNode {
 	
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
+		Utils.insertConversionCode(mv, left.getType(), getType());
 		right.genCode(mv);
+		Utils.insertConversionCode(mv, right.getType(), getType());
 		mv.visitInsn(getType().getOpcode(Opcodes.ISUB));
 	}
 	

@@ -59,7 +59,7 @@ public class Examples {
 	}
 	public static void ex4() {
 		ExprTreeBuildWalker ew = parse("x*y;");
-		Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", Fun2.class);
+		Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", Fun2.class, true);
 		System.out.println(f.apply(3,4));
 	}
 	

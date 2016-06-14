@@ -12,7 +12,32 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
-		//assertEqual(eval("2.0 > 1;", new int[]{}), true); //TODO auto type conversion
+		//line 1:1 extraneous input '-1' expecting {'+', '-', '*', '/', '%', '&', '|', '^', '<<', '>>', '>>>', END_EXPR}
+		//assertEqual(parseAndEval("x-1;", new double[]{2}), 1.0);
+		
+		//Type conversion
+
+		assertEqual(parseAndEval("2.0 >  1;", new int[]{}), true);
+		assertEqual(parseAndEval("2.0 >= 1;", new int[]{}), true);
+		assertEqual(parseAndEval("2.0 <  1;", new int[]{}), false);
+		assertEqual(parseAndEval("2.0 <= 1;", new int[]{}), false);
+		assertEqual(parseAndEval("2.0 == 1;", new int[]{}), false);
+		assertEqual(parseAndEval("2.0 != 1;", new int[]{}), true);
+		
+		assertEqual(parseAndEval("2 >  1.0;", new int[]{}), true);
+		assertEqual(parseAndEval("2 >= 1.0;", new int[]{}), true);
+		assertEqual(parseAndEval("2 <  1.0;", new int[]{}), false);
+		assertEqual(parseAndEval("2 <= 1.0;", new int[]{}), false);
+		assertEqual(parseAndEval("2 == 1.0;", new int[]{}), false);
+		assertEqual(parseAndEval("2 != 1.0;", new int[]{}), true);
+
+		assertEqual(parseAndEval("x + 1;", new double[]{2}), 3.0);
+		assertEqual(parseAndEval("x - 1;", new double[]{2}), 1.0);
+		assertEqual(parseAndEval("x*1;", new double[]{2}), 2.0);
+		assertEqual(parseAndEval("x/1;", new double[]{2}), 2.0);
+		assertEqual(parseAndEval("x%3;", new double[]{2}), 2.0);
+		
+
 
 		assertEqual(parseAndEval("x+=2;", new int[]{3}), 5);
 		assertEqual(parseAndEval("x-=2;", new int[]{3}), 1);
