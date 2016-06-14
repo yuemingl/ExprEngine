@@ -90,25 +90,18 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : SUB numeric_entity                    # ArithmeticExpressionNegationEntity
+ : BNOT arithmetic_expr                  # BitExpressionNot
  | arithmetic_expr MUL arithmetic_expr   # ArithmeticExpressionMul
  | arithmetic_expr DIV arithmetic_expr   # ArithmeticExpressionDiv
  | arithmetic_expr REM arithmetic_expr   # ArithmeticExpressionRem
  | arithmetic_expr ADD arithmetic_expr   # ArithmeticExpressionAdd
  | arithmetic_expr SUB arithmetic_expr   # ArithmeticExpressionSub
- | SUB arithmetic_expr                   # ArithmeticExpressionNegationExpr
- | bit_expr                              # BitExpression
+ | SUB arithmetic_expr                   # ArithmeticExpressionNegationEntity
+ | arithmetic_expr BAND arithmetic_expr  # BitExpressionAnd
+ | arithmetic_expr BOR arithmetic_expr   # BitExpressionOr
+ | arithmetic_expr BXOR arithmetic_expr  # BitExpressionXor
  | LPAREN arithmetic_expr RPAREN         # ArithmeticExpressionParens
  | numeric_entity                        # ArithmeticExpressionEntity
- ;
-
-bit_expr
- : bit_expr BAND bit_expr    # BitExpressionAnd
- | bit_expr BOR bit_expr     # BitExpressionOr
- | bit_expr BXOR bit_expr    # BitExpressionXor
- | BNOT bit_expr             # BitExpressionNot
- | integer_entity            # BitExpressionConst
- | variable_entity           # BitExpressionVariable
  ;
 
 numeric_entity : integer_entity

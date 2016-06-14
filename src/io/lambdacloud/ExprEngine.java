@@ -94,92 +94,105 @@ public class ExprEngine {
 		//assertEqual(eval("2.0 > 1;", new int[]{}), true); //TODO auto type conversion
 		int a = -1;
 		int b = 7;
+		System.out.println(1^-7);
 		System.out.println(-1^7);
 		System.out.println(-a&b);
-	//	assertEqual(eval("-x&y;", new int[]{-1,7}), -8);
-	//	assertEqual(eval("(x+y)^1;", new int[]{-1,7}), -8);
-	//	assertEqual(eval("(x^1)^(y^1);", new int[]{-1,7}), -8);
-		assertEqual(eval("x^1;", new int[]{2}), 3);
 		
-//		assertEqual(eval("0 & 0;"), 0);
-//		assertEqual(eval("0 & 1;"), 0);
-//		assertEqual(eval("1 & 0;"), 0);
-//		assertEqual(eval("1 & 1;"), 1);
-//
-//		assertEqual(eval("0 | 0;"), 0);
-//		assertEqual(eval("0 | 1;"), 1);
-//		assertEqual(eval("1 | 0;"), 1);
-//		assertEqual(eval("1 | 1;"), 1);
-//
-//		assertEqual(eval("0 ^ 0;"), 0);
-//		assertEqual(eval("0 ^ 1;"), 1);
-//		assertEqual(eval("1 ^ 0;"), 1);
-//		assertEqual(eval("1 ^ 1;"), 0);
-//
-//		assertEqual(eval("~0;"), -1);
-//		assertEqual(eval("~1;"), -2);
-//		
-//		assertEqual(eval("-1^7;"), eval("~7;"));
-//		assertEqual(eval("7^-1;"), eval("~7;"));
+		assertEqual(eval("-x-y;", new int[]{1,2}), -3);
+		assertEqual(eval("-x+y;", new int[]{1,2}), 1);
+		assertEqual(eval("-(x-y);", new int[]{-1,7}), 8);
+		
+		assertEqual(eval("x&y;", new int[]{-1,5}), 5);
+		assertEqual(eval("-x&y;", new int[]{1,5}), 5);
+		assertEqual(eval("x&-y;", new int[]{-1,-5}), 5);
+		assertEqual(eval("-x&-y;", new int[]{1,-5}), 5);
 
-//		assertEqual(eval("1+2;", new int[]{}), 3);
-//		assertEqual(eval("x+y;", new int[]{3,4}), 7);
-//		assertEqual(eval("x+y;", new double[]{3,4}), 7.0);
-//
-//		assertEqual(eval("x+y;", new double[]{3,4}), 7.0);
-//		assertEqual(eval("x-y;", new double[]{3,4}), -1.0);
-//		assertEqual(eval("x*y;", new double[]{3,4}), 12.0);
-//		assertEqual(eval("x/y;", new double[]{3,4}), 0.75);
-//		assertEqual(eval("x%y;", new double[]{3,4}), 3.0);
-//
-//		assertEqual(eval("x+y;", new int[]{3,4}), 7);
-//		assertEqual(eval("x-y;", new int[]{3,4}), -1);
-//		assertEqual(eval("x*y;", new int[]{3,4}), 12);
-//		assertEqual(eval("x/y;", new int[]{3,4}), 0);
-//		assertEqual(eval("x%y;", new int[]{3,4}), 3);
-//
-//		assertEqual(eval("x > y;", new double[]{3,4}), false);
-//		assertEqual(eval("x >= y;", new double[]{3,4}), false);
-//		assertEqual(eval("x < y;", new double[]{3,4}), true);
-//		assertEqual(eval("x <= y;", new double[]{3,4}), true);
-//		assertEqual(eval("x == y;", new double[]{3,4}), false);
-//		assertEqual(eval("x != y;", new double[]{3,4}), true);
-//
-//		assertEqual(eval("2 > 1;", new double[]{}), true);
-//		assertEqual(eval("2 >= 1;", new double[]{}), true);
-//		assertEqual(eval("3 >= 3;", new double[]{}), true);
-//		assertEqual(eval("2 < 1;", new double[]{}), false);
-//		assertEqual(eval("2 <= 1;", new double[]{}), false);
-//		assertEqual(eval("2 == 1;", new double[]{}), false);
-//		assertEqual(eval("2 == 2;", new double[]{}), true);
-//		assertEqual(eval("2 != 2;", new double[]{}), false);
-//		assertEqual(eval("1 != 2;", new double[]{}), true);
-//		
-//		assertEqual(eval("2.0 > 1.0;", new double[]{}), true);
-//		assertEqual(eval("2.0 >= 1.0;", new double[]{}), true);
-//		assertEqual(eval("3.0 >= 3.0;", new double[]{}), true);
-//		assertEqual(eval("2.0 < 1.0;", new double[]{}), false);
-//		assertEqual(eval("2.0 <= 1.0;", new double[]{}), false);
-//		assertEqual(eval("2.0 == 1.0;", new double[]{}), false);
-//		assertEqual(eval("2.0 == 2.0;", new double[]{}), true);
-//		assertEqual(eval("2.0 != 2.0;", new double[]{}), false);
-//		assertEqual(eval("1.0 != 2.0;", new double[]{}), true);
-//		
-//		assertEqual(eval("2 > 1 &&  3 > 2;", new double[]{}), true);
-//		assertEqual(eval("2 > 1 and 3 > 2;", new double[]{}), true);
-//		assertEqual(eval("2 < 1 ||  3 > 2;", new double[]{}), true);
-//		assertEqual(eval("2 < 1 or  3 > 2;", new double[]{}), true);
-//		assertEqual(eval("!   3 > 2;", new double[]{}), false);
-//		assertEqual(eval("not 3 > 2;", new double[]{}), false);
-//
-//		assertEqual(eval("a=x+y;a;", new double[]{3,4}), 7.0);
-//		assertEqual(eval("c=b=a=x+y;c;", new double[]{3,4}), 7.0);
-//		
-//		assertEqual(eval("2*(2+1);", new double[]{}), 6);
-//		assertEqual(eval("2+2*3;", new double[]{}), 8);
-//		
-//		assertEqual(eval("8/4%3;", new double[]{}), 2);
-//		assertEqual(eval("8/(4%3);", new double[]{}), 8);
+		assertEqual(eval("x^y;", new int[]{4,7}), 3);
+		assertEqual(eval("x|y;", new int[]{3,4}), 7);
+		assertEqual(eval("~x;", new int[]{0}), -1);
+		
+		assertEqual(eval("(x+y)&2;", new int[]{2,3}), 0);
+		assertEqual(eval("(x^1)^(y^1);", new int[]{1,2}), 3);
+		
+		assertEqual(eval("0 & 0;"), 0);
+		assertEqual(eval("0 & 1;"), 0);
+		assertEqual(eval("1 & 0;"), 0);
+		assertEqual(eval("1 & 1;"), 1);
+
+		assertEqual(eval("0 | 0;"), 0);
+		assertEqual(eval("0 | 1;"), 1);
+		assertEqual(eval("1 | 0;"), 1);
+		assertEqual(eval("1 | 1;"), 1);
+
+		assertEqual(eval("0 ^ 0;"), 0);
+		assertEqual(eval("0 ^ 1;"), 1);
+		assertEqual(eval("1 ^ 0;"), 1);
+		assertEqual(eval("1 ^ 1;"), 0);
+
+		assertEqual(eval("~0;"), -1);
+		assertEqual(eval("~1;"), -2);
+		
+		assertEqual(eval("-1^7;"), eval("~7;"));
+		assertEqual(eval("7^-1;"), eval("~7;"));
+
+		assertEqual(eval("1+2;", new int[]{}), 3);
+		assertEqual(eval("x+y;", new int[]{3,4}), 7);
+		assertEqual(eval("x+y;", new double[]{3,4}), 7.0);
+
+		assertEqual(eval("x+y;", new double[]{3,4}), 7.0);
+		assertEqual(eval("x-y;", new double[]{3,4}), -1.0);
+		assertEqual(eval("x*y;", new double[]{3,4}), 12.0);
+		assertEqual(eval("x/y;", new double[]{3,4}), 0.75);
+		assertEqual(eval("x%y;", new double[]{3,4}), 3.0);
+
+		assertEqual(eval("x+y;", new int[]{3,4}), 7);
+		assertEqual(eval("x-y;", new int[]{3,4}), -1);
+		assertEqual(eval("x*y;", new int[]{3,4}), 12);
+		assertEqual(eval("x/y;", new int[]{3,4}), 0);
+		assertEqual(eval("x%y;", new int[]{3,4}), 3);
+
+		assertEqual(eval("x > y;", new double[]{3,4}), false);
+		assertEqual(eval("x >= y;", new double[]{3,4}), false);
+		assertEqual(eval("x < y;", new double[]{3,4}), true);
+		assertEqual(eval("x <= y;", new double[]{3,4}), true);
+		assertEqual(eval("x == y;", new double[]{3,4}), false);
+		assertEqual(eval("x != y;", new double[]{3,4}), true);
+
+		assertEqual(eval("2 > 1;", new double[]{}), true);
+		assertEqual(eval("2 >= 1;", new double[]{}), true);
+		assertEqual(eval("3 >= 3;", new double[]{}), true);
+		assertEqual(eval("2 < 1;", new double[]{}), false);
+		assertEqual(eval("2 <= 1;", new double[]{}), false);
+		assertEqual(eval("2 == 1;", new double[]{}), false);
+		assertEqual(eval("2 == 2;", new double[]{}), true);
+		assertEqual(eval("2 != 2;", new double[]{}), false);
+		assertEqual(eval("1 != 2;", new double[]{}), true);
+		
+		assertEqual(eval("2.0 > 1.0;", new double[]{}), true);
+		assertEqual(eval("2.0 >= 1.0;", new double[]{}), true);
+		assertEqual(eval("3.0 >= 3.0;", new double[]{}), true);
+		assertEqual(eval("2.0 < 1.0;", new double[]{}), false);
+		assertEqual(eval("2.0 <= 1.0;", new double[]{}), false);
+		assertEqual(eval("2.0 == 1.0;", new double[]{}), false);
+		assertEqual(eval("2.0 == 2.0;", new double[]{}), true);
+		assertEqual(eval("2.0 != 2.0;", new double[]{}), false);
+		assertEqual(eval("1.0 != 2.0;", new double[]{}), true);
+		
+		assertEqual(eval("2 > 1 &&  3 > 2;", new double[]{}), true);
+		assertEqual(eval("2 > 1 and 3 > 2;", new double[]{}), true);
+		assertEqual(eval("2 < 1 ||  3 > 2;", new double[]{}), true);
+		assertEqual(eval("2 < 1 or  3 > 2;", new double[]{}), true);
+		assertEqual(eval("!   3 > 2;", new double[]{}), false);
+		assertEqual(eval("not 3 > 2;", new double[]{}), false);
+
+		assertEqual(eval("a=x+y;a;", new double[]{3,4}), 7.0);
+		assertEqual(eval("c=b=a=x+y;c;", new double[]{3,4}), 7.0);
+		
+		assertEqual(eval("2*(2+1);", new double[]{}), 6);
+		assertEqual(eval("2+2*3;", new double[]{}), 8);
+		
+		assertEqual(eval("8/4%3;", new double[]{}), 2);
+		assertEqual(eval("8/(4%3);", new double[]{}), 8);
 		
 		System.out.println("Test done!");
 		

@@ -197,9 +197,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx) {
 		stack.push(new NegateNode(stack.pop()));
 	}
-	@Override public void exitArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx) {
-		stack.push(new NegateNode(stack.pop()));
-	}
+//	@Override public void exitArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx) {
+//		stack.push(new NegateNode(stack.pop()));
+//	}
 	
 	@Override public void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx) {
 		ExprNode v2 = stack.pop();
@@ -243,7 +243,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		System.out.println("exitEntityConstFloat:"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
-	@Override public void enterEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
+	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
 		System.out.println("enterEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
@@ -271,19 +271,19 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//Do nothing
 	}
 
-	@Override public void exitBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx) {
-		//Change type from double to int
-		System.out.println("exitBitExpressionVariable:"+ctx.getText());
-		String varName = ctx.getText();
-		VariableNode val = localVarMap.get(varName);
-		if(null == val) {
-			val = paramMap.get(varName);
-		}
-		if(null != val) val.setType(Type.INT_TYPE);
-	}
-
-	@Override public void enterBitExpressionConst(ExprGrammarParser.BitExpressionConstContext ctx) {
-		System.out.println("enterBitExpressionConst:"+ctx.getText());
-		//Do nothing
-	}
+//	@Override public void exitBitExpressionVariable(ExprGrammarParser.BitExpressionVariableContext ctx) {
+//		//Change type from double to int
+//		System.out.println("exitBitExpressionVariable:"+ctx.getText());
+//		String varName = ctx.getText();
+//		VariableNode val = localVarMap.get(varName);
+//		if(null == val) {
+//			val = paramMap.get(varName);
+//		}
+//		if(null != val) val.setType(Type.INT_TYPE);
+//	}
+//
+//	@Override public void exitBitExpressionConst(ExprGrammarParser.BitExpressionConstContext ctx) {
+//		System.out.println("enterBitExpressionConst:"+ctx.getText());
+//		//Do nothing
+//	}
 }
