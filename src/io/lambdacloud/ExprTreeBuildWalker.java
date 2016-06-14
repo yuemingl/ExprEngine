@@ -71,28 +71,33 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		return retTypes;
 	}
 	
-	public Class<?> genCode(String className, boolean wirteFile, String methodName, Class<?> ...parameterTypes) {
+	public Class<?> genClass(String className, String[] interfaces, boolean wirteFile, 
+			String methodName, boolean isStatic, Class<?> ...parameterTypes) {
 		try {
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			CodeGenerator cgen = new CodeGenerator();
 			
 			//Define class
-			cgen.startClass(className);
+			cgen.startClass(className, interfaces);
 			
 			//Define method
 			Type[] argTypes = getAndFixArgumentTypes(parameterTypes);
 			
 			Type retType = stack.peek().getType();
 			if(null == retType) throw new RuntimeException("Stack is empty!");
-			cgen.startMethod(methodName,Type.getMethodDescriptor(
-					retType, //return type of the last expression
-					argTypes
+			int access =  Opcodes.ACC_PUBLIC;
+			if(isStatic) access |= Opcodes.ACC_STATIC;
+			cgen.startMethod(access,
+					methodName,Type.getMethodDescriptor(
+							retType, //return type of the last expression
+							argTypes
 				));
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
 			
 			int index = 1;
+			if(isStatic) index = 0;
 			for(String key : paramMap.keySet()) {
 				VariableNode var = paramMap.get(key);
 				var.idxLVT = index;
@@ -117,7 +122,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 			
 			mv.visitInsn(retType.getOpcode(Opcodes.IRETURN));
-			mv.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
+			if(!isStatic)
+				mv.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
 			for(VariableNode var : paramMap.values()) {
 				mv.visitLocalVariable(var.name, var.getType().getDescriptor(),
 						null, cgen.l0, cgen.l1, var.idxLVT);

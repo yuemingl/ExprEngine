@@ -11,8 +11,8 @@ public class ExprWalker extends ExprGrammarBaseListener {
 
 	@Override public void enterProg(ExprGrammarParser.ProgContext ctx) {
 		System.out.println("enter prog:");
-		gg.startClass("test");
-		gg.startMethod("eval", "()D");
+		gg.startClass("test", null);
+		gg.startMethod(Opcodes.ACC_PUBLIC, "eval", "()D");
 		gg.startCode();
 	}
 	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { 

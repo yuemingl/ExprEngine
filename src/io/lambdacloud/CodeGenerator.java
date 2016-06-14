@@ -15,9 +15,9 @@ public class CodeGenerator implements Opcodes {
 	public CodeGenerator() {
 	}
 	
-	public void startClass(String clsName) {
+	public void startClass(String clsName, String[] interfaces) {
 		cw.visit(Opcodes.V1_8, ACC_PUBLIC + ACC_SUPER, clsName, null, "java/lang/Object",
-				new String[] {});
+				interfaces);
 		
 		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 		mv.visitCode();
@@ -38,8 +38,8 @@ public class CodeGenerator implements Opcodes {
 		cw.visitEnd();
 	}
 	
-	public void startMethod(String name, String type) {
-		mv = cw.visitMethod(ACC_PUBLIC, name, type, null, null);
+	public void startMethod(int access, String name, String type) {
+		mv = cw.visitMethod(access, name, type, null, null);
 	}
 	
 	Label l0 = new Label();
@@ -68,8 +68,8 @@ public class CodeGenerator implements Opcodes {
 		try {
 			CodeGenerator cgen = new CodeGenerator();
 			String clsName = "Test";
-			cgen.startClass(clsName);
-			cgen.startMethod("eval","(DD)D");
+			cgen.startClass(clsName, null);
+			cgen.startMethod(Opcodes.ACC_PUBLIC, "eval","(DD)D");
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();

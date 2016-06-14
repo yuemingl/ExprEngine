@@ -1,11 +1,17 @@
 package io.lambdacloud;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
+import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class ExprEngine {
-	public static Object eval(String str) {
+	public static ExprTreeBuildWalker parse(String str) {
 		ANTLRInputStream input = new ANTLRInputStream(str);
 		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -14,283 +20,134 @@ public class ExprEngine {
 		ParseTreeWalker walker = new ParseTreeWalker();
 		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
 		walker.walk(ew, tree);
-
-		Class<?> c = ew.genCode("MyClass", true, "eval");
-		Method m1;
+		return ew;
+	}
+	
+	/**
+	 * Create an instance in memory (without writing bytecode to a class file)
+	 * @param ew
+	 * @param className
+	 * @param _interface
+	 * @return
+	 */
+	public static Object newInstance(ExprTreeBuildWalker ew, 
+			String className, Class<?> _interface) {
+		return newInstance(ew, className, _interface, false);
+	}
+	
+	public static Object newInstance(ExprTreeBuildWalker ew, 
+			String className, Class<?> _interface, boolean wirteFile) {
+		Method m = _interface.getDeclaredMethods()[0];
+		//m.getReturnType();
+		Class<?> c = ew.genClass(className, new String[]{Type.getInternalName(_interface)}, wirteFile, 
+				m.getName(), false, m.getParameterTypes());
+		Object o = null;
 		try {
-			m1 = c.getMethod("eval");
-			Object o = c.newInstance();
-			return m1.invoke(o);
+			o = c.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return o;
+	}
+		
+	public static Method genStaticMethod(ExprTreeBuildWalker ew, 
+			String className, boolean wirteFile, String methodName, Class<?> ...parameterTypes) {
+		Class<?> c = ew.genClass(className, null, wirteFile, methodName, true, parameterTypes);
+		Method m1 = null;
+		try {
+			m1 = c.getMethod(methodName,parameterTypes);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return m1;
+	}
+	
+	public static MethodHandle genMethodHandle(ExprTreeBuildWalker ew, 
+			String className, boolean wirteFile, String methodName, Class<?> retType, Class<?> ...parameterTypes) {
+		Class<?> c = ew.genClass(className, null, wirteFile, methodName, true, parameterTypes);
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
+		MethodHandle mh = null;
+		try {
+			mh = lookup.findStatic(c, methodName, java.lang.invoke.MethodType.methodType(retType, parameterTypes));
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return mh;
+	}
+	
+	public static Object parseAndEval(String str) {
+		ExprTreeBuildWalker ew = parse(str);
+		Method m1 = genStaticMethod(ew, "MyClass", true, "eval");
+		try {
+			return m1.invoke(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-
 	}
 	
-	public static Object eval(String str, int[] args) {
-		ANTLRInputStream input = new ANTLRInputStream(str);
-		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		ExprGrammarParser parser = new ExprGrammarParser(tokens);
-		ParseTree tree = parser.prog();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
-		walker.walk(ew, tree);
-
+	public static Object parseAndEval(String str, int[] args) {
+		ExprTreeBuildWalker ew = parse(str);
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = int.class;
-		Class<?> c = ew.genCode("MyClass", true, "eval", cls);
-		Method m1;
+		Method m1 = genStaticMethod(ew, "MyClass", true, "eval", cls);
 		try {
-			m1 = c.getMethod("eval",cls);
-			Object o = c.newInstance();
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)
 				params[i] = args[i];
-			return m1.invoke(o, params);
+			return m1.invoke(null, params);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
-	public static Object eval(String str, long[] args) {
-		ANTLRInputStream input = new ANTLRInputStream(str);
-		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		ExprGrammarParser parser = new ExprGrammarParser(tokens);
-		ParseTree tree = parser.prog();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
-		walker.walk(ew, tree);
-
+	public static Object parseAndEval(String str, long[] args) {
+		ExprTreeBuildWalker ew = parse(str);
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = long.class;
-		Class<?> c = ew.genCode("MyClass", true, "eval", cls);
-		Method m1;
+		Method m1 = genStaticMethod(ew, "MyClass", true, "eval", cls);
 		try {
-			m1 = c.getMethod("eval",cls);
-			Object o = c.newInstance();
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)
 				params[i] = args[i];
-			return m1.invoke(o, params);
+			return m1.invoke(null, params);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-	}	
-
+	}
 	
-	public static Object eval(String str, double[] args) {
-		ANTLRInputStream input = new ANTLRInputStream(str);
-		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		ExprGrammarParser parser = new ExprGrammarParser(tokens);
-		ParseTree tree = parser.prog();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
-		walker.walk(ew, tree);
+	public static Object parseAndEval(String str, double[] args) {
+		ExprTreeBuildWalker ew = parse(str);
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = double.class;
-		Class<?> c = ew.genCode("MyClass", true, "eval", cls);
-		Method m1;
+		Method m1 = genStaticMethod(ew, "MyClass", true, "eval", cls);
 		try {
-			m1 = c.getMethod("eval",cls);
-			Object o = c.newInstance();
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)
 				params[i] = args[i];
-			return m1.invoke(o, params);
+			return m1.invoke(null, params);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
-	public static void assertEqual(Object o1, Object o2) {
-		if(!o1.equals(o2)) {
-			System.err.println(o1 + " != "+o2);
-			throw new RuntimeException("Assert fail!");
+	public static class A implements Runnable {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
 		}
-	}
-	
-	public static void main(String[] args){
-		//assertEqual(eval("2.0 > 1;", new int[]{}), true); //TODO auto type conversion
-
-		assertEqual(eval("x+=2;", new int[]{3}), 5);
-		assertEqual(eval("x-=2;", new int[]{3}), 1);
-		assertEqual(eval("x*=2;", new int[]{3}), 6);
-		assertEqual(eval("x/=2;", new int[]{6}), 3);
-		assertEqual(eval("x%=2;", new int[]{3}), 1);
 		
-		assertEqual(eval("y+(x+=2);", new int[]{3,1}), 6);
-		
-		assertEqual(eval("x++;", new long[]{3}), 4L);
-		assertEqual(eval("x--;", new long[]{3}), 2L);
-		assertEqual(eval("x++;", new int[]{3}), 4);
-		assertEqual(eval("x--;", new int[]{3}), 2);
-		
-		assertEqual(eval("-x--;", new int[]{3}), -2); //?3
-		assertEqual(eval("-x++;", new int[]{3}), -4); //?3
-		
-		assertEqual(eval("7>>2;"), 1);
-		assertEqual(eval("1<<2;"), 4);
-		assertEqual(eval("-1>>>30;"), 3);
-
-		assertEqual(eval("x>>y;", new int[]{7,2}), 1);
-		assertEqual(eval("x<<y;", new int[]{1,2}), 4);
-		assertEqual(eval("x>>>y;", new int[]{-1,30}), 3);
-
-		assertEqual(eval("-x-y;", new int[]{1,2}), -3);
-		assertEqual(eval("-x+y;", new int[]{1,2}), 1);
-		assertEqual(eval("-(x-y);", new int[]{-1,7}), 8);
-		
-		assertEqual(eval("x&y;", new int[]{-1,5}), 5);
-		assertEqual(eval("-x&y;", new int[]{1,5}), 5);
-		assertEqual(eval("x&-y;", new int[]{-1,-5}), 5);
-		assertEqual(eval("-x&-y;", new int[]{1,-5}), 5);
-
-		assertEqual(eval("x^y;", new int[]{4,7}), 3);
-		assertEqual(eval("x|y;", new int[]{3,4}), 7);
-		assertEqual(eval("~x;", new int[]{0}), -1);
-		
-		assertEqual(eval("(x+y)&2;", new int[]{2,3}), 0);
-		assertEqual(eval("(x^1)^(y^1);", new int[]{1,2}), 3);
-		
-		assertEqual(eval("0 & 0;"), 0);
-		assertEqual(eval("0 & 1;"), 0);
-		assertEqual(eval("1 & 0;"), 0);
-		assertEqual(eval("1 & 1;"), 1);
-
-		assertEqual(eval("0 | 0;"), 0);
-		assertEqual(eval("0 | 1;"), 1);
-		assertEqual(eval("1 | 0;"), 1);
-		assertEqual(eval("1 | 1;"), 1);
-
-		assertEqual(eval("0 ^ 0;"), 0);
-		assertEqual(eval("0 ^ 1;"), 1);
-		assertEqual(eval("1 ^ 0;"), 1);
-		assertEqual(eval("1 ^ 1;"), 0);
-
-		assertEqual(eval("~0;"), -1);
-		assertEqual(eval("~1;"), -2);
-		
-		assertEqual(eval("-1^7;"), eval("~7;"));
-		assertEqual(eval("7^-1;"), eval("~7;"));
-
-		assertEqual(eval("1+2;", new int[]{}), 3);
-		assertEqual(eval("x+y;", new int[]{3,4}), 7);
-		assertEqual(eval("x+y;", new double[]{3,4}), 7.0);
-
-		assertEqual(eval("x+y;", new double[]{3,4}), 7.0);
-		assertEqual(eval("x-y;", new double[]{3,4}), -1.0);
-		assertEqual(eval("x*y;", new double[]{3,4}), 12.0);
-		assertEqual(eval("x/y;", new double[]{3,4}), 0.75);
-		assertEqual(eval("x%y;", new double[]{3,4}), 3.0);
-
-		assertEqual(eval("x+y;", new int[]{3,4}), 7);
-		assertEqual(eval("x-y;", new int[]{3,4}), -1);
-		assertEqual(eval("x*y;", new int[]{3,4}), 12);
-		assertEqual(eval("x/y;", new int[]{3,4}), 0);
-		assertEqual(eval("x%y;", new int[]{3,4}), 3);
-
-		assertEqual(eval("x > y;", new double[]{3,4}), false);
-		assertEqual(eval("x >= y;", new double[]{3,4}), false);
-		assertEqual(eval("x < y;", new double[]{3,4}), true);
-		assertEqual(eval("x <= y;", new double[]{3,4}), true);
-		assertEqual(eval("x == y;", new double[]{3,4}), false);
-		assertEqual(eval("x != y;", new double[]{3,4}), true);
-
-		assertEqual(eval("2 > 1;", new double[]{}), true);
-		assertEqual(eval("2 >= 1;", new double[]{}), true);
-		assertEqual(eval("3 >= 3;", new double[]{}), true);
-		assertEqual(eval("2 < 1;", new double[]{}), false);
-		assertEqual(eval("2 <= 1;", new double[]{}), false);
-		assertEqual(eval("2 == 1;", new double[]{}), false);
-		assertEqual(eval("2 == 2;", new double[]{}), true);
-		assertEqual(eval("2 != 2;", new double[]{}), false);
-		assertEqual(eval("1 != 2;", new double[]{}), true);
-		
-		assertEqual(eval("2.0 > 1.0;", new double[]{}), true);
-		assertEqual(eval("2.0 >= 1.0;", new double[]{}), true);
-		assertEqual(eval("3.0 >= 3.0;", new double[]{}), true);
-		assertEqual(eval("2.0 < 1.0;", new double[]{}), false);
-		assertEqual(eval("2.0 <= 1.0;", new double[]{}), false);
-		assertEqual(eval("2.0 == 1.0;", new double[]{}), false);
-		assertEqual(eval("2.0 == 2.0;", new double[]{}), true);
-		assertEqual(eval("2.0 != 2.0;", new double[]{}), false);
-		assertEqual(eval("1.0 != 2.0;", new double[]{}), true);
-		
-		assertEqual(eval("2 > 1 &&  3 > 2;", new double[]{}), true);
-		assertEqual(eval("2 > 1 and 3 > 2;", new double[]{}), true);
-		assertEqual(eval("2 < 1 ||  3 > 2;", new double[]{}), true);
-		assertEqual(eval("2 < 1 or  3 > 2;", new double[]{}), true);
-		assertEqual(eval("!   3 > 2;", new double[]{}), false);
-		assertEqual(eval("not 3 > 2;", new double[]{}), false);
-
-		assertEqual(eval("a=x+y;a;", new double[]{3,4}), 7.0);
-		assertEqual(eval("c=b=a=x+y;c;", new double[]{3,4}), 7.0);
-		
-		assertEqual(eval("2*(2+1);", new double[]{}), 6);
-		assertEqual(eval("2+2*3;", new double[]{}), 8);
-		
-		assertEqual(eval("8/4%3;", new double[]{}), 2);
-		assertEqual(eval("8/(4%3);", new double[]{}), 8);
-		
-		System.out.println("Test done!");
-		
-	}
-	
-	public static void test(String file) throws Exception {
-		ANTLRInputStream input = new ANTLRInputStream("x+y;1+2;d=a=b=c=x-y;b;");
-		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
-		//ExprGrammarLexer lexer = new ExprGrammarLexer(new ANTLRFileStream(args[0]));
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		ExprGrammarParser parser = new ExprGrammarParser(tokens);
-		ParseTree tree = parser.prog();
-		ParseTreeWalker walker = new ParseTreeWalker();
-		//ExprWalker ew = new ExprWalker();
-		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
-		walker.walk(ew, tree);
-		ew.stack.size();
-		
-		Class<?> c = ew.genCode("MyClass", true, "eval", new Class<?>[]{double.class, double.class});
-		Method m1 = c.getMethod("eval",double.class, double.class);//TODO types
-		Object o = c.newInstance();
-		System.out.println(m1.invoke(o,3,4));
-		
-//		Method m1 = c.getMethod("eval");//TODO types
-//		Object o = c.newInstance();
-//		System.out.println(m1.invoke(o));
-		
-		
-//		CodeGenerator cg = ew.getCodeGenerator();
-//
-//		ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
-//		try {
-//			// Class<?> c = mcl.defineClassForName("com.openx.asm_test.Test1",
-//			// Test1Dump.dump());
-//
-//			byte[] bcode = cg.dump();
-//			FileOutputStream fos = new FileOutputStream("test2.class");
-//			fos.write(bcode);
-//			fos.close();
-//
-//			Class<?> c = mcl.defineClassForName(null, bcode);
-//			for (Method m : c.getMethods()) {
-//				System.out.println(m.getName());
-//			}
-//			Method m1 = c.getMethod("eval");
-//			Object o = c.newInstance();
-//			System.out.println(m1.invoke(o));
-
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 	}
 }
