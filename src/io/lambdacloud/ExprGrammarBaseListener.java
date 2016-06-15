@@ -30,6 +30,30 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpressions(ExprGrammarParser.ExpressionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpressions(ExprGrammarParser.ExpressionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExprIf(ExprGrammarParser.ExprIfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprIf(ExprGrammarParser.ExprIfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -481,6 +505,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

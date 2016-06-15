@@ -2,8 +2,7 @@ package io.lambdacloud.statement;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 
 public class AssignNode extends ExprNode {
 	VariableNode left;

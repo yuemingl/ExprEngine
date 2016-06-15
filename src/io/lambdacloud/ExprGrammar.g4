@@ -48,6 +48,9 @@ ASIGN : '=' ;
 
 LPAREN : '(' ;
 RPAREN : ')' ;
+LCB : '{' ;
+RCB : '}' ;
+
 
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
@@ -69,18 +72,20 @@ WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 
 /* Parser rules */
 
-prog : (expr END_EXPR)* EOF ;
+prog : statement* EOF ;
 
-expr
+statement 
+ : expression END_EXPR                                   # Expressions
+ | 'if' LPAREN logical_expr RPAREN block ('else' block)? # ExprIf
+ ;
+
+expression
  : arithmetic_expr                 # ExprArithmetic
  | logical_expr                    # ExprLogical
  | asign_expr                      # ExprAssign
-// | IDENTIFIER ('++' | '--')        #ExprUnaryPostfix
-// | ('+'|'-'|'++'|'--') IDENTIFIER  #ExprUnaryPrefix
-// | ('~'|'!') IDENTIFIER            #ExprUnaryNot
  ;
 
-asign_expr : IDENTIFIER ASIGN expr ;
+asign_expr : IDENTIFIER ASIGN expression ;
 
 logical_expr
  : comparison_expr               # ComparisonExpression
@@ -135,3 +140,5 @@ integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
 variable_entity : IDENTIFIER     # EntityVariable     ;
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
+
+block : LCB statement* RCB       # StatementBlock;

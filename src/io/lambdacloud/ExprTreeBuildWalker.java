@@ -31,6 +31,7 @@ import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.GENode;
 import io.lambdacloud.statement.GTNode;
+import io.lambdacloud.statement.IfNode;
 import io.lambdacloud.statement.IncNode;
 import io.lambdacloud.statement.LENode;
 import io.lambdacloud.statement.LTNode;
@@ -84,7 +85,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			Type[] argTypes = getAndFixArgumentTypes(parameterTypes);
 			
 			Type retType = stack.peek().getType();
-			if(null == retType) throw new RuntimeException("Stack is empty!");
+			if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 			int access =  Opcodes.ACC_PUBLIC;
 			if(isStatic) access |= Opcodes.ACC_STATIC;
 			cgen.startMethod(access,
@@ -348,6 +349,37 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new RemAsignNode((VariableNode)v1,v2));
+	}
+
+	@Override public void exitExprIf(ExprGrammarParser.ExprIfContext ctx) {
+		IfNode ifnode = new IfNode();
+		System.out.println(ctx.getText());
+		System.out.println(ctx.logical_expr().getText());
+		System.out.println(ctx.block().get(0).getText());
+		if(ctx.block().size() > 1) { //else branch
+			System.out.println(ctx.block().get(1).getText());
+			while(true) {
+				ExprNode n = stack.peek();
+				if(n.getTag()=="S") { n.setTag("SS"); break; }
+				ifnode.elseBlockExprs.add(stack.pop());
+			}
+		}
+		while(true) {
+			ExprNode n = stack.peek();
+			if(n.getTag()=="S") break;
+			ifnode.ifBlockExprs.add(stack.pop());
+		}
+		ifnode.condition = stack.pop();
+		stack.push(ifnode);
+	}
+	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) {
+		System.out.println("enterStatementBlock:"+ctx.getText());
+		stack.peek().setTag("S");
+	}
+	
+	@Override public void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { 
+		System.out.println("exitStatementBlock:"+ctx.getText());
+		stack.peek().setTag("E");
 	}
 
 }
