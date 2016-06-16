@@ -20,17 +20,39 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitProg(ExprGrammarParser.ProgContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code Expressions}
-	 * labeled alternative in {@link ExprGrammarParser#statement}.
+	 * Enter a parse tree produced by the {@code StatementBlock}
+	 * labeled alternative in {@link ExprGrammarParser#block}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpressions(ExprGrammarParser.ExpressionsContext ctx);
+	void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code Expressions}
+	 * Exit a parse tree produced by the {@code StatementBlock}
+	 * labeled alternative in {@link ExprGrammarParser#block}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#statements}.
+	 * @param ctx the parse tree
+	 */
+	void enterStatements(ExprGrammarParser.StatementsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#statements}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatements(ExprGrammarParser.StatementsContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprAsign}
 	 * labeled alternative in {@link ExprGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpressions(ExprGrammarParser.ExpressionsContext ctx);
+	void enterExprAsign(ExprGrammarParser.ExprAsignContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprAsign}
+	 * labeled alternative in {@link ExprGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprAsign(ExprGrammarParser.ExprAsignContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprIf}
 	 * labeled alternative in {@link ExprGrammarParser#statement}.
@@ -493,16 +515,4 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code StatementBlock}
-	 * labeled alternative in {@link ExprGrammarParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code StatementBlock}
-	 * labeled alternative in {@link ExprGrammarParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx);
 }

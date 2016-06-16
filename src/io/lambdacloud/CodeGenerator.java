@@ -10,6 +10,7 @@ import org.objectweb.asm.Opcodes;
 public class CodeGenerator implements Opcodes {
 
 	ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+	//ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 	MethodVisitor mv;
 
 	public CodeGenerator() {

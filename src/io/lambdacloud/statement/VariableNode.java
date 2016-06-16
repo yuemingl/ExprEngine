@@ -8,7 +8,7 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 public class VariableNode extends ExprNode {
 	public String name;
 	public int idxLVT; //index in local variable table
-	public ExprNode value;
+	protected ExprNode lastValue;
 	
 	public VariableNode(String name, Type type) {
 		this.name = name;
@@ -17,21 +17,21 @@ public class VariableNode extends ExprNode {
 	
 	public VariableNode(String name, ExprNode val) {
 		this.name = name;
-		this.value = val;
+		this.lastValue = val;
 		this.type = val.type;
 	}
 	
 	public VariableNode assign(ExprNode val) {
-		this.value = val;
+		this.lastValue = val;
 		this.type = val.getType();
 		return this;
 	}
 	
 	public String toString() {
-		if(null == this.value)
+		if(null == this.lastValue)
 			return this.name;
 		else
-			return "var "+this.name+"="+this.value;
+			return "var "+this.name+"="+this.lastValue;
 	}
 	
 	public void genCode(MethodVisitor mv) {
@@ -40,8 +40,8 @@ public class VariableNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		if(null != this.value)
-			return this.value.getType();
+		if(null != this.lastValue)
+			return this.lastValue.getType();
 		else
 			return this.type;
 	}	

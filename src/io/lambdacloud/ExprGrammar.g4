@@ -72,17 +72,24 @@ WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 
 /* Parser rules */
 
-prog : statement* EOF ;
+prog : statements EOF ;
+
+block : LCB statements RCB       # StatementBlock;
+
+statements
+ : statement* (expression END_EXPR?)?
+ | expression END_EXPR?
+ ;
 
 statement 
- : expression END_EXPR                                   # Expressions
+ : asign_expr END_EXPR                                   # ExprAsign
  | 'if' LPAREN logical_expr RPAREN block ('else' block)? # ExprIf
  ;
 
 expression
  : arithmetic_expr                 # ExprArithmetic
  | logical_expr                    # ExprLogical
- | asign_expr                      # ExprAssign
+ | asign_expr                      # ExprAssign 
  ;
 
 asign_expr : IDENTIFIER ASIGN expression ;
@@ -140,5 +147,3 @@ integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
 variable_entity : IDENTIFIER     # EntityVariable     ;
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
-
-block : LCB statement* RCB       # StatementBlock;

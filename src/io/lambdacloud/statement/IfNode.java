@@ -16,18 +16,27 @@ public class IfNode extends ExprNode {
 	@Override
 	public void genCode(MethodVisitor mv) {
 		this.condition.genCode(mv);
-		Label elseBranch = new Label();
-		mv.visitJumpInsn(Opcodes.IFEQ, elseBranch);
-		for(int i=ifBlockExprs.size()-1; i>=0; i--) {
-			ifBlockExprs.get(i).genCode(mv);
+		if(this.elseBlockExprs.size() > 0) {
+			Label elseBranch = new Label();
+			mv.visitJumpInsn(Opcodes.IFEQ, elseBranch);
+			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
+				ifBlockExprs.get(i).genCode(mv);
+			}
+			Label ifend = new Label();
+			mv.visitJumpInsn(Opcodes.GOTO, ifend);
+			mv.visitLabel(elseBranch);
+			for(int i=elseBlockExprs.size()-1; i>=0; i--) {
+				elseBlockExprs.get(i).genCode(mv);
+			}
+			mv.visitLabel(ifend);
+		} else {
+			Label ifend = new Label();
+			mv.visitJumpInsn(Opcodes.IFEQ, ifend);
+			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
+				ifBlockExprs.get(i).genCode(mv);
+			}
+			mv.visitLabel(ifend);
 		}
-		Label ifend = new Label();
-		mv.visitJumpInsn(Opcodes.GOTO, ifend);
-		mv.visitLabel(elseBranch);
-		for(int i=elseBlockExprs.size()-1; i>=0; i--) {
-			elseBlockExprs.get(i).genCode(mv);
-		}
-		mv.visitLabel(ifend);
 		
 	}
 	public int testIf(int a, int b) {

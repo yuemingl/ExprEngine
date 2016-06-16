@@ -158,9 +158,15 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 
 	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
 		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
-		VariableNode var = new VariableNode(ctx.IDENTIFIER().getText(), this.stack.pop());
-		this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
-		this.stack.push(new AssignNode(var, var.value));
+		ExprNode value = this.stack.pop();
+		VariableNode var = this.localVarMap.get(ctx.IDENTIFIER().getText());
+		if(null == var) {
+			var = new VariableNode(ctx.IDENTIFIER().getText(), value);
+			this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
+		} else {
+			var.assign(value); //update the last value of the variable for type inferring
+		}
+		this.stack.push(new AssignNode(var, value));
 	}
 
 	@Override public void exitLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { 
