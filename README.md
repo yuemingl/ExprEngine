@@ -3,18 +3,18 @@ ExprEngine converts a string of expression(s) to java bytecode in runtime. A sta
 
 #### A quick example: parse and evaluate. (Warning: the bytecode will be generated each time of the call of parseAndEval().)
 ```Java
-System.out.println(parseAndEval("x + y;", new int[]{3,4}));
-System.out.println(parseAndEval("x > y;", new int[]{3,4}));
-System.out.println(parseAndEval("x <= y and x > 0;", new int[]{3,4}));
-System.out.println(parseAndEval("a=x+y; a+2;", new double[]{3.0,4.0}));
-System.out.println(parseAndEval("(7^3) == (1<<2);"));
+System.out.println(parseAndEval("x + y", new int[]{3,4}));
+System.out.println(parseAndEval("x > y", new int[]{3,4}));
+System.out.println(parseAndEval("x <= y and x > 0", new int[]{3,4}));
+System.out.println(parseAndEval("a=x+y; a+2", new double[]{3.0,4.0}));
+System.out.println(parseAndEval("(7^3) == (1<<2)"));
 
 ```
 
 ####  Parse and generate bytecode once, call many times. Use reflection to invoke the generated statis method
 
 ```Java
-ExprTreeBuildWalker ew = parse("x+y;");
+ExprTreeBuildWalker ew = parse("x+y");
 Method m = genStaticMethod(ew, "myclass", false, "myfun", 
 		double.class, double.class);
 try {
@@ -27,7 +27,7 @@ try {
 	
 #### Parse and generate bytecode once, call many times. Use method handle to invoke the generated static method
 ```Java
-ExprTreeBuildWalker ew = parse("x*y;");
+ExprTreeBuildWalker ew = parse("x*y");
 MethodHandle mh = genMethodHandle(ew, "myclass", false, "myfun", 
 		double.class,  double.class, double.class);
 try {
@@ -46,7 +46,7 @@ public interface Fun2 {
 }
 
 ...
-ExprTreeBuildWalker ew = parse("x*y;");
+ExprTreeBuildWalker ew = parse("x*y");
 Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", Fun2.class);
 System.out.println(f.apply(3,4));
 

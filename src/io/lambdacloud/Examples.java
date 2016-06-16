@@ -15,12 +15,12 @@ public class Examples {
 	 * Warning: the bytecode will be generated each time of the call of parseAndEval().
 	 */
 	public static void ex1() {
-		System.out.println(parseAndEval("-x;", new int[]{3}));
-		System.out.println(parseAndEval("x + y;", new int[]{3,4}));
-		System.out.println(parseAndEval("x > y;", new int[]{3,4}));
-		System.out.println(parseAndEval("x <= y and x > 0;", new int[]{3,4}));
-		System.out.println(parseAndEval("a=x+y; a+2;", new double[]{3.0,4.0}));
-		System.out.println(parseAndEval("(7^3) == (1<<2);"));
+		System.out.println(parseAndEval("-x", new int[]{3}));
+		System.out.println(parseAndEval("x + y", new int[]{3,4}));
+		System.out.println(parseAndEval("x > y", new int[]{3,4}));
+		System.out.println(parseAndEval("x <= y and x > 0", new int[]{3,4}));
+		System.out.println(parseAndEval("a=x+y; a+2", new double[]{3.0,4.0}));
+		System.out.println(parseAndEval("(7^3) == (1<<2)"));
 	}
 	
 	/**
@@ -28,7 +28,7 @@ public class Examples {
 	 * Use reflection to invoke the generated statis method
 	 */
 	public static void ex2() {
-		ExprTreeBuildWalker ew = parse("x+y;");
+		ExprTreeBuildWalker ew = parse("x+y");
 		Method m = genStaticMethod(ew, "myclass", false, "myfun", 
 				double.class, double.class);
 		try {
@@ -44,7 +44,7 @@ public class Examples {
 	 * Use method handle to invoke the generated static method
 	 */
 	public static void ex3() {
-		ExprTreeBuildWalker ew = parse("x*y;");
+		ExprTreeBuildWalker ew = parse("x*y");
 		MethodHandle mh = genMethodHandle(ew, "myclass", false, "myfun", 
 				double.class,  double.class, double.class);
 		try {
@@ -63,7 +63,7 @@ public class Examples {
 		double apply(double x, double y);
 	}
 	public static void ex4() {
-		ExprTreeBuildWalker ew = parse("x*y;");
+		ExprTreeBuildWalker ew = parse("x*y");
 		Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", Fun2.class, true);
 		System.out.println(f.apply(3,4));
 	}
