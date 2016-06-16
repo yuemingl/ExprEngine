@@ -92,7 +92,7 @@ expression
  | asign_expr                      # ExprAssign 
  ;
 
-asign_expr : IDENTIFIER ASIGN expression ;
+asign_expr : IDENTIFIER ASIGN (expression | statement) ;
 
 logical_expr
  : comparison_expr               # ComparisonExpression

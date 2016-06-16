@@ -12,6 +12,10 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		
+		assertEqual(parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}), 4);
+		assertEqual(parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{5,4}), 5);
+		
 		//assertEqual(parseAndEval("if(x>y) {x+y;x-y; }", new int[]{3,4}), 7);
 //		assertEqual(parseAndEval("if(x>y) {x+y;x-y; } else { x*y; x/y; }", new double[]{3.0,4.0}), 0.75);
 //		assertEqual(parseAndEval("if(x>0) {x-1; } else {y; }", new int[]{3,4}), 2);
