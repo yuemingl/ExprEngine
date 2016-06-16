@@ -359,11 +359,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 
 	@Override public void exitExprIf(ExprGrammarParser.ExprIfContext ctx) {
 		IfNode ifnode = new IfNode();
-		System.out.println(ctx.getText());
-		System.out.println(ctx.logical_expr().getText());
-		System.out.println(ctx.block().get(0).getText());
+		//System.out.println(ctx.getText());
+		//System.out.println(ctx.logical_expr().getText());
+		//System.out.println(ctx.block().get(0).getText());
 		if(ctx.block().size() > 1) { //else branch
-			System.out.println(ctx.block().get(1).getText());
+			//System.out.println(ctx.block().get(1).getText());
 			while(true) {
 				ExprNode n = stack.peek();
 				if(n.getTag()=="S") { n.setTag("SS"); break; }
@@ -379,12 +379,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(ifnode);
 	}
 	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) {
-		System.out.println("enterStatementBlock:"+ctx.getText());
+		//System.out.println("enterStatementBlock:"+ctx.getText());
 		stack.peek().setTag("S");
 	}
 	
 	@Override public void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { 
-		System.out.println("exitStatementBlock:"+ctx.getText());
+		//System.out.println("exitStatementBlock:"+ctx.getText());
 		stack.peek().setTag("E");
 	}
 

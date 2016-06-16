@@ -39,7 +39,7 @@ public class TestExprEngine {
 		assertEqual(parseAndEval("if(x>0) {x-1; } else {y; }", new int[]{3,4}), 2);
 		assertEqual(parseAndEval("if(x<y) {  if(x<0) {x-1;} else {y;}  } else {y+1; }", new int[]{3,4}), 4);
 		assertEqual(parseAndEval("if(x>y) {x+y; } else { if(x<0) {x-1;} else {y;} }", new int[]{3,4}), 4);
-		assertEqual(parseAndEval("if(x>y) {a=x+y;a; } else {a=x*2;b=y*3; if(x<0) {x-1;} else {a+b;} }", new int[]{3,4}), 18);
+		assertEqual(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new int[]{3,4}), 18);
 
 		
 		//type conversion
