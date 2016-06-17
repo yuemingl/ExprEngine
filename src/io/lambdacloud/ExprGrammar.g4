@@ -38,13 +38,13 @@ USHR : '>>>' ;
 INC  : '++' ;
 DESC : '--' ;
 
-ADD_ASIGN : '+=' ;
-SUB_ASIGN : '-=' ;
-MUL_ASIGN : '*=' ;
-DIV_ASIGN : '/=' ;
-REM_ASIGN : '%=' ;
+ADD_ASSIGN : '+=' ;
+SUB_ASSIGN : '-=' ;
+MUL_ASSIGN : '*=' ;
+DIV_ASSIGN : '/=' ;
+REM_ASSIGN : '%=' ;
 
-ASIGN : '=' ;
+ASSIGN : '=' ;
 
 LPAREN : '(' ;
 RPAREN : ')' ;
@@ -60,8 +60,7 @@ FLOAT : [0-9]?'.'[0-9]+ ;
 
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
-//SEMI : ';' ; //we can only have one lexical rule for a ';'
-END_EXPR : (';' | '\n')+ ;
+SEMI : ';' ; //we can only have one lexical rule for ';'
 
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
@@ -77,23 +76,31 @@ prog : statements EOF ;
 block : LCB statements RCB       # StatementBlock;
 
 statements
- : statement* (expression END_EXPR?)?
- | expression END_EXPR?
+ : statement* (expression expr_end?)?
+ | expression expr_end?
  ;
 
-statement 
- : asign_expr END_EXPR                                   # ExprAsign
- | 'if' LPAREN logical_expr RPAREN block ('else' block)? # ExprIf
- | 'while' LPAREN logical_expr RPAREN block              # ExprWhile
+statement
+ : assign_expr expr_end                                       # ExprAssign2
+ | 'if' LPAREN logical_expr RPAREN block ('else' block)?      # ExprIf
+ | 'while' LPAREN logical_expr RPAREN block                   # ExprWhile
+ | 'for' LPAREN (assign_expr ',')* assign_expr? SEMI  logical_expr SEMI (expression ',')* expression? RPAREN block   # ExprFor
  ;
 
 expression
  : arithmetic_expr                 # ExprArithmetic
  | logical_expr                    # ExprLogical
- | asign_expr                      # ExprAssign 
+ | assign_expr                     # ExprAssign1
  ;
 
-asign_expr : IDENTIFIER ASIGN (expression | statement) ;
+assign_expr
+ : IDENTIFIER ASSIGN     (expression | statement) # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
+ | variable_entity MUL_ASSIGN (expression | statement) # ExprMulAssign
+ | variable_entity DIV_ASSIGN (expression | statement) # ExprDivAssign
+ | variable_entity REM_ASSIGN (expression | statement) # ExprRemAssign
+ | variable_entity ADD_ASSIGN (expression | statement) # ExprAddAssign
+ | variable_entity SUB_ASSIGN (expression | statement) # ExprSubAssign
+ ;
 
 logical_expr
  : comparison_expr               # ComparisonExpression
@@ -130,11 +137,6 @@ arithmetic_expr
  | arithmetic_expr BAND arithmetic_expr      # BitExpressionAnd
  | arithmetic_expr BOR arithmetic_expr       # BitExpressionOr
  | arithmetic_expr BXOR arithmetic_expr      # BitExpressionXor
- | variable_entity MUL_ASIGN arithmetic_expr # ExprMulAsign
- | variable_entity DIV_ASIGN arithmetic_expr # ExprDivAsign
- | variable_entity REM_ASIGN arithmetic_expr # ExprRemAsign
- | variable_entity ADD_ASIGN arithmetic_expr # ExprAddAsign
- | variable_entity SUB_ASIGN arithmetic_expr # ExprSubAsign
  | LPAREN arithmetic_expr RPAREN             # ArithmeticExpressionParens
  | numeric_entity                            # ArithmeticExpressionEntity
  ;
@@ -148,3 +150,6 @@ integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
 variable_entity : IDENTIFIER     # EntityVariable     ;
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
+
+expr_end : (SEMI | '\n')+ ;
+

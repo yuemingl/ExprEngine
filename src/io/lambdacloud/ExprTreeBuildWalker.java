@@ -156,8 +156,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		return null;
 	}
 
-	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
-		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.expr().getText());
+	@Override public void exitExprAssign(ExprGrammarParser.ExprAssignContext ctx) {
+		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.statement().getText());
 		ExprNode value = this.stack.pop();
 		VariableNode var = this.localVarMap.get(ctx.IDENTIFIER().getText());
 		if(null == var) {
@@ -283,7 +283,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		//System.out.println("enterEntityVariable:"+ctx.getText());
+		System.out.println("exitEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
@@ -331,27 +331,27 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		else if(null != ctx.DESC())
 			stack.push(new DescNode((VariableNode)stack.pop()));
 	}
-	@Override public void exitExprAddAsign(ExprGrammarParser.ExprAddAsignContext ctx) {
+	@Override public void exitExprAddAssign(ExprGrammarParser.ExprAddAssignContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new AddAsignNode((VariableNode)v1,v2));
 	}
-	@Override public void exitExprSubAsign(ExprGrammarParser.ExprSubAsignContext ctx) {
+	@Override public void exitExprSubAssign(ExprGrammarParser.ExprSubAssignContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new SubAsignNode((VariableNode)v1,v2));
 	}
-	@Override public void exitExprMulAsign(ExprGrammarParser.ExprMulAsignContext ctx) {
+	@Override public void exitExprMulAssign(ExprGrammarParser.ExprMulAssignContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new MulAsignNode((VariableNode)v1,v2));
 	}
-	@Override public void exitExprDivAsign(ExprGrammarParser.ExprDivAsignContext ctx) {
+	@Override public void exitExprDivAssign(ExprGrammarParser.ExprDivAssignContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new DivAsignNode((VariableNode)v1,v2));
 	}
-	@Override public void exitExprRemAsign(ExprGrammarParser.ExprRemAsignContext ctx) {
+	@Override public void exitExprRemAssign(ExprGrammarParser.ExprRemAssignContext ctx) {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new RemAsignNode((VariableNode)v1,v2));

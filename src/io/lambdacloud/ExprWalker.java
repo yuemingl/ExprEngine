@@ -21,7 +21,7 @@ public class ExprWalker extends ExprGrammarBaseListener {
 		gg.endCode();
 		gg.endClass();
 	}
-	@Override public void exitAsign_expr(ExprGrammarParser.Asign_exprContext ctx) { 
+	@Override public void exitExprAssign(ExprGrammarParser.ExprAssignContext ctx) {
 		System.out.println(ctx.getChild(0).getText());
 		System.out.println(ctx.getText());
 	}
