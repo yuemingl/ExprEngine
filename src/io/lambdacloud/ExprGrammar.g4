@@ -125,7 +125,7 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : IDENTIFIER (INC | DESC)              # ArithmeticExpressionIncDec
+ : IDENTIFIER (INC | DESC)                   # ArithmeticExpressionIncDec //Using 'IDENTIFIER', EntityVariable() will not be called
  | BNOT arithmetic_expr                      # BitExpressionNot
  | SUB arithmetic_expr                       # ArithmeticExpressionNegationEntity
  | arithmetic_expr MUL arithmetic_expr       # ArithmeticExpressionMul
