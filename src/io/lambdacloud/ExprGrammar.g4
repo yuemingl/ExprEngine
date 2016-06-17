@@ -90,13 +90,13 @@ statement
  ;
 
 expression
- : arithmetic_expr                 # ExprArithmetic
- | logical_expr                    # ExprLogical
- | assign_expr                     # ExprAssign1
+ : arithmetic_expr       # ExprArithmetic
+ | logical_expr          # ExprLogical
+ | assign_expr           # ExprAssign1
  ;
 
 assign_expr
- : IDENTIFIER ASSIGN     (expression | statement) # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
+ : IDENTIFIER ASSIGN     (expression | statement)      # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
  | variable_entity MUL_ASSIGN (expression | statement) # ExprMulAssign
  | variable_entity DIV_ASSIGN (expression | statement) # ExprDivAssign
  | variable_entity REM_ASSIGN (expression | statement) # ExprRemAssign
@@ -105,24 +105,20 @@ assign_expr
  ;
 
 logical_expr
- : comparison_expr               # ComparisonExpression
- | logical_expr AND logical_expr # LogicalExpressionAnd
- | logical_expr OR logical_expr  # LogicalExpressionOr
- | NOT logical_expr              # LogicalExpressionNot
- | LPAREN logical_expr RPAREN    # LogicalExpressionInParen
- | logical_entity                # LogicalExpressionEntity
+ : comparison_expr                   # ComparisonExpression
+ | logical_expr AND logical_expr     # LogicalExpressionAnd
+ | logical_expr OR logical_expr      # LogicalExpressionOr
+ | NOT logical_expr                  # LogicalExpressionNot
+ | LPAREN logical_expr RPAREN        # LogicalExpressionInParen
+ | logical_entity                    # LogicalExpressionEntity
  ;
 
-comparison_expr : arithmetic_expr comp_operator arithmetic_expr # ComparisonExpressionWithOperator
-                ;
+comparison_expr 
+ : arithmetic_expr comp_operator arithmetic_expr       # ComparisonExpressionWithOperator
+ ;
 
-comp_operator : GT
-              | GE
-              | LT
-              | LE
-              | EQ
-              | NEQ
-              ;
+comp_operator 
+ : GT | GE | LT | LE | EQ | NEQ ;
 
 arithmetic_expr
  : IDENTIFIER (INC | DESC)                   # ArithmeticExpressionIncDec //Using 'IDENTIFIER', EntityVariable() will not be called
@@ -143,10 +139,11 @@ arithmetic_expr
  | numeric_entity                            # ArithmeticExpressionEntity
  ;
 
-numeric_entity : integer_entity
-               | float_entity
-               | variable_entity
-               ;
+numeric_entity 
+ : integer_entity
+ | float_entity
+ | variable_entity
+ ;
 
 integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
