@@ -301,7 +301,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		System.out.println("exitEntityVariable:"+ctx.getText());
+		//System.out.println("exitEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
