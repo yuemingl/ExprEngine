@@ -22,7 +22,9 @@ public class MulAsignNode extends ExprNode {
 		right.genCode(mv);
 		mv.visitInsn(getType().getOpcode(Opcodes.IMUL));
 		mv.visitVarInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
-		//mv.visitVarInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+		if(genLoadInsn) {
+			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+		}
 	}
 	
 	@Override

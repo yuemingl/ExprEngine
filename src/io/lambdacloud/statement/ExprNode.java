@@ -6,6 +6,7 @@ import org.objectweb.asm.Type;
 public abstract class ExprNode {
 	protected Type type;
 	protected Object tag;
+	protected boolean genLoadInsn = false;
 	
 	public abstract void genCode(MethodVisitor mv);
 	public Type getType() {
@@ -22,5 +23,9 @@ public abstract class ExprNode {
 	}
 	public String toString() {
 		return type+":"+tag;
+	}
+	
+	public void genLoadInsn(boolean flag) {
+		this.genLoadInsn = flag;
 	}
 }

@@ -29,6 +29,9 @@ public class AssignNode extends ExprNode {
 			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), r.left.idxLVT);
 		}
 		mv.visitIntInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
+		if(genLoadInsn) {
+			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+		}
 	}
 	
 }

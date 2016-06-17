@@ -79,7 +79,6 @@ block : LCB statements RCB       # StatementBlock;
 
 statements
  : statement* (expression expr_end?)?
- | expression expr_end?
  ;
 
 statement

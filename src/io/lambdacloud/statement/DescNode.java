@@ -18,15 +18,17 @@ public class DescNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodVisitor mv) {
-		var.genCode(mv);
 		if(getType().getSort() == Type.LONG) {
+			var.genCode(mv);
 			mv.visitInsn(Opcodes.DUP2);
 			mv.visitInsn(Opcodes.LCONST_1);
 			mv.visitInsn(Opcodes.LSUB);
 			mv.visitVarInsn(Opcodes.LSTORE, var.idxLVT);
 		} else
 			mv.visitIincInsn(var.idxLVT, -1);
-		mv.visitVarInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
+		if(genLoadInsn) {
+			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
+		}
 	}
 	
 	@Override

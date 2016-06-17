@@ -344,6 +344,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //		//Do nothing
 //	}
 	@Override public void exitArithmeticExpressionIncDec(ExprGrammarParser.ArithmeticExpressionIncDecContext ctx) {
+		String varName = ctx.IDENTIFIER().getText();
+		VariableNode var = getVariableNode(varName);
+		if(null == var) {
+			var = new VariableNode(varName, Type.getType(this.defaultParameterType)); //default to double
+			paramMap.put(varName, var);
+		}
 		if(null != ctx.INC())
 			stack.push(new IncNode(getVariableNode(ctx.IDENTIFIER().getText())));
 		else if(null != ctx.DESC())
@@ -428,18 +434,39 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 			fn.block.add(stack.pop());
 		}
-		if(null != ctx.assign_expr()) {
+		if(ctx.assign_expr().size() > 0) {
 			for(int i=ctx.assign_expr().size()-1; i>=0; i--) {
 				fn.inc.add(stack.pop());
 			}
 		}
 		fn.cond = stack.pop();
-		if(null != ctx.assign_expr()) {
+		if(ctx.assign_expr().size() > 0) {
 			for(int i=ctx.assign_expr().size()-1; i>=0; i--) {
 				fn.init.add(stack.pop());
 			}
 		}
 		stack.push(fn);
+	}
+	@Override public void exitStatements(ExprGrammarParser.StatementsContext ctx) {
+
+	}
+	
+	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { 
+		if(ctx.statements().statement().size() == 0) { //Single expression case
+			//Add return value
+			ExprNode node = stack.peek();
+			if(node instanceof AddAsignNode ||
+			   node instanceof SubAsignNode ||
+			   node instanceof MulAsignNode ||
+			   node instanceof DivAsignNode ||
+			   node instanceof RemAsignNode ||
+			   node instanceof IncNode ||
+			   node instanceof DescNode ||
+			   node instanceof AssignNode
+			   ) {
+				node.genLoadInsn(true);
+			}
+		}
 	}
 
 }
