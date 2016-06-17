@@ -18,7 +18,7 @@ public class IncNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodVisitor mv) {
-		var.genCode(mv);
+		//var.genCode(mv);
 		if(getType().getSort() == Type.LONG) {
 			mv.visitInsn(Opcodes.DUP2);
 			mv.visitInsn(Opcodes.LCONST_1);
@@ -27,7 +27,8 @@ public class IncNode extends ExprNode {
 		} else {
 			mv.visitIincInsn(var.idxLVT, 1);
 		}
-		mv.visitVarInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
+		//TODO when to load?
+		//mv.visitVarInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
 	}
 	
 	@Override

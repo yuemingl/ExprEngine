@@ -60,6 +60,8 @@ FLOAT : [0-9]?'.'[0-9]+ ;
 
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
+COMMA : ',' ;
+
 SEMI : ';' ; //we can only have one lexical rule for ';'
 
 // COMMENT and WS are stripped from the output token stream by sending
@@ -84,7 +86,7 @@ statement
  : assign_expr expr_end                                       # ExprAssign2
  | 'if' LPAREN logical_expr RPAREN block ('else' block)?      # ExprIf
  | 'while' LPAREN logical_expr RPAREN block                   # ExprWhile
- | 'for' LPAREN (assign_expr ',')* assign_expr? SEMI  logical_expr SEMI (expression ',')* expression? RPAREN block   # ExprFor
+ | 'for' LPAREN (assign_expr COMMA)* assign_expr? SEMI  logical_expr SEMI (expression COMMA)* expression? RPAREN (SEMI | block?)   # ExprFor
  ;
 
 expression
@@ -123,7 +125,7 @@ comp_operator : GT
               ;
 
 arithmetic_expr
- : variable_entity (INC | DESC)              # ArithmeticExpressionIncDec
+ : IDENTIFIER (INC | DESC)              # ArithmeticExpressionIncDec
  | BNOT arithmetic_expr                      # BitExpressionNot
  | SUB arithmetic_expr                       # ArithmeticExpressionNegationEntity
  | arithmetic_expr MUL arithmetic_expr       # ArithmeticExpressionMul

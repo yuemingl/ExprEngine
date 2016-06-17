@@ -22,7 +22,7 @@ public class AddAsignNode extends ExprNode {
 		right.genCode(mv);
 		mv.visitInsn(getType().getOpcode(Opcodes.IADD));
 		mv.visitVarInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
-		mv.visitVarInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+		//mv.visitVarInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
 	}
 	
 	@Override

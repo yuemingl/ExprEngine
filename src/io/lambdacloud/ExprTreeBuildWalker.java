@@ -29,6 +29,7 @@ import io.lambdacloud.statement.DivAsignNode;
 import io.lambdacloud.statement.DivNode;
 import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
+import io.lambdacloud.statement.ForNode;
 import io.lambdacloud.statement.GENode;
 import io.lambdacloud.statement.GTNode;
 import io.lambdacloud.statement.IfNode;
@@ -59,6 +60,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public ExprTreeBuildWalker(Class<?> defaultParameterType) {
 		this.defaultParameterType = defaultParameterType;
+	}
+	
+	private VariableNode getVariableNode(String varName) {
+		VariableNode var = localVarMap.get(varName);
+		if(null == var) {
+			var = paramMap.get(varName);
+		}
+		return var;
 	}
 	
 	Type[] getAndFixArgumentTypes(Class<?> ...parameterTypes) {
@@ -290,8 +299,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//System.out.println("exitEntityConstFloat:"+ctx.getText());
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
+
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		//System.out.println("exitEntityVariable:"+ctx.getText());
+		System.out.println("exitEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
@@ -335,9 +345,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //	}
 	@Override public void exitArithmeticExpressionIncDec(ExprGrammarParser.ArithmeticExpressionIncDecContext ctx) {
 		if(null != ctx.INC())
-			stack.push(new IncNode((VariableNode)stack.pop()));
+			stack.push(new IncNode(getVariableNode(ctx.IDENTIFIER().getText())));
 		else if(null != ctx.DESC())
-			stack.push(new DescNode((VariableNode)stack.pop()));
+			stack.push(new DescNode(getVariableNode(ctx.IDENTIFIER().getText())));
 	}
 	@Override public void exitExprAddAssign(ExprGrammarParser.ExprAddAssignContext ctx) {
 		ExprNode v2 = stack.pop();
@@ -399,11 +409,37 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		WhileNode wn = new WhileNode();
 		while(true) {
 			ExprNode n = stack.peek();
-			if(n.getTag()=="S") { n.setTag("SS"); break; }
+			if(n.getTag()=="S") { 
+				n.setTag("SS"); 
+				break; 
+			}
 			wn.block.add(stack.pop());
 		}
 		wn.condition = stack.pop();
 		stack.push(wn);
+	}
+	@Override public void exitExprFor(ExprGrammarParser.ExprForContext ctx) { 
+		ForNode fn = new ForNode();
+		while(true) {
+			ExprNode n = stack.peek();
+			if(n.getTag()=="S") { 
+				n.setTag("SS"); 
+				break; 
+			}
+			fn.block.add(stack.pop());
+		}
+		if(null != ctx.assign_expr()) {
+			for(int i=ctx.assign_expr().size()-1; i>=0; i--) {
+				fn.inc.add(stack.pop());
+			}
+		}
+		fn.cond = stack.pop();
+		if(null != ctx.assign_expr()) {
+			for(int i=ctx.assign_expr().size()-1; i>=0; i--) {
+				fn.init.add(stack.pop());
+			}
+		}
+		stack.push(fn);
 	}
 
 }
