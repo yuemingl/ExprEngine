@@ -13,6 +13,8 @@ public class TestExprEngine {
 	
 	public static void main(String[] args){
 		
+		assertEqual(parseAndEval("while(x>y) {x=x+y}", new int[]{3,4}), 4);
+		
 		assertEqual(parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}), 4);
 		assertEqual(parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{5,4}), 5);
 		

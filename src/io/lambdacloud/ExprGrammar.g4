@@ -84,6 +84,7 @@ statements
 statement 
  : asign_expr END_EXPR                                   # ExprAsign
  | 'if' LPAREN logical_expr RPAREN block ('else' block)? # ExprIf
+ | 'while' LPAREN logical_expr RPAREN block              # ExprWhile
  ;
 
 expression

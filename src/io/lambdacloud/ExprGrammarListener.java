@@ -66,6 +66,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprIf(ExprGrammarParser.ExprIfContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprWhile}
+	 * labeled alternative in {@link ExprGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprWhile(ExprGrammarParser.ExprWhileContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprWhile}
+	 * labeled alternative in {@link ExprGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprWhile(ExprGrammarParser.ExprWhileContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprArithmetic}
 	 * labeled alternative in {@link ExprGrammarParser#expression}.
 	 * @param ctx the parse tree

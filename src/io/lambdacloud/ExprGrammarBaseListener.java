@@ -78,6 +78,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprWhile(ExprGrammarParser.ExprWhileContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprWhile(ExprGrammarParser.ExprWhileContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
