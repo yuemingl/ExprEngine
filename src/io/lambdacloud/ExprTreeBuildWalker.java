@@ -49,11 +49,17 @@ import io.lambdacloud.statement.SubAsignNode;
 import io.lambdacloud.statement.SubNode;
 import io.lambdacloud.statement.USHRNode;
 import io.lambdacloud.statement.VariableNode;
+import io.lambdacloud.statement.WhileNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
 	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
+	protected Class<?> defaultParameterType;
+	
+	public ExprTreeBuildWalker(Class<?> defaultParameterType) {
+		this.defaultParameterType = defaultParameterType;
+	}
 	
 	Type[] getAndFixArgumentTypes(Class<?> ...parameterTypes) {
 		List<VariableNode> list = new ArrayList<VariableNode>();
@@ -158,13 +164,15 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 
 	@Override public void exitExprAssign(ExprGrammarParser.ExprAssignContext ctx) {
 		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.statement().getText());
+		String varName = ctx.IDENTIFIER().getText();
 		ExprNode value = this.stack.pop();
-		VariableNode var = this.localVarMap.get(ctx.IDENTIFIER().getText());
+		VariableNode var = this.localVarMap.get(varName);
 		if(null == var) {
-			var = new VariableNode(ctx.IDENTIFIER().getText(), value);
-			this.localVarMap.put(ctx.IDENTIFIER().getText(), var);
-		} else {
-			var.assign(value); //update the last value of the variable for type inferring
+			var = this.paramMap.get(varName);
+			if(null == var) {
+				var = new VariableNode(varName, value.getType());
+				this.localVarMap.put(varName, var);
+			}
 		}
 		this.stack.push(new AssignNode(var, value));
 	}
@@ -283,13 +291,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		System.out.println("exitEntityVariable:"+ctx.getText());
+		//System.out.println("exitEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
 			val = paramMap.get(varName);
 			if(null == val) {
-				val = new VariableNode(varName, Type.DOUBLE_TYPE); //default to double
+				val = new VariableNode(varName, Type.getType(this.defaultParameterType)); //default to double
 			}
 			paramMap.put(varName, val);
 		}
@@ -372,7 +380,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		while(true) {
 			ExprNode n = stack.peek();
-			if(n.getTag()=="S") break;
+			if(n.getTag()=="S") { n.setTag("SS"); break; }
 			ifnode.ifBlockExprs.add(stack.pop());
 		}
 		ifnode.condition = stack.pop();
@@ -386,6 +394,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { 
 		//System.out.println("exitStatementBlock:"+ctx.getText());
 		stack.peek().setTag("E");
+	}
+	@Override public void exitExprWhile(ExprGrammarParser.ExprWhileContext ctx) { 
+		WhileNode wn = new WhileNode();
+		while(true) {
+			ExprNode n = stack.peek();
+			if(n.getTag()=="S") { n.setTag("SS"); break; }
+			wn.block.add(stack.pop());
+		}
+		wn.condition = stack.pop();
+		stack.push(wn);
 	}
 
 }

@@ -11,14 +11,14 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class ExprEngine {
-	public static ExprTreeBuildWalker parse(String str) {
+	public static ExprTreeBuildWalker parse(String str, Class<?> defaultParameterType) {
 		ANTLRInputStream input = new ANTLRInputStream(str);
 		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		ExprGrammarParser parser = new ExprGrammarParser(tokens);
 		ParseTree tree = parser.prog();
 		ParseTreeWalker walker = new ParseTreeWalker();
-		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
+		ExprTreeBuildWalker ew = new ExprTreeBuildWalker(defaultParameterType);
 		walker.walk(ew, tree);
 		return ew;
 	}
@@ -80,7 +80,7 @@ public class ExprEngine {
 	}
 	
 	public static Object parseAndEval(String str) {
-		ExprTreeBuildWalker ew = parse(str);
+		ExprTreeBuildWalker ew = parse(str, null);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			return m1.invoke(null);
@@ -91,7 +91,7 @@ public class ExprEngine {
 	}
 	
 	public static Object parseAndEval(String str, int[] args) {
-		ExprTreeBuildWalker ew = parse(str);
+		ExprTreeBuildWalker ew = parse(str, int.class);
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = int.class;
@@ -108,7 +108,7 @@ public class ExprEngine {
 	}
 	
 	public static Object parseAndEval(String str, long[] args) {
-		ExprTreeBuildWalker ew = parse(str);
+		ExprTreeBuildWalker ew = parse(str, long.class);
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = long.class;
@@ -125,7 +125,7 @@ public class ExprEngine {
 	}
 	
 	public static Object parseAndEval(String str, double[] args) {
-		ExprTreeBuildWalker ew = parse(str);
+		ExprTreeBuildWalker ew = parse(str, double.class);
 		Class<?>[] cls = new Class[args.length];
 		for(int i=0; i<args.length; i++)
 			cls[i] = double.class;

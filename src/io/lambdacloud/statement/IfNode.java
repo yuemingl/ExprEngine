@@ -88,4 +88,12 @@ mv.visitInsn(IRETURN);
 	public Type getType() {
 		return ifBlockExprs.get(0).getType();
 	}
+	
+	@Override
+	public String toString() {
+		if(this.elseBlockExprs.size() == 0)
+			return "if("+this.condition+") {"+this.ifBlockExprs+"}";
+		else
+			return "if("+this.condition+") {"+this.ifBlockExprs+"} else {"+this.elseBlockExprs+"}";
+	}	
 }

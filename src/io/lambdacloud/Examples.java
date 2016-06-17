@@ -30,7 +30,7 @@ public class Examples {
 	 * Use reflection to invoke the generated statis method
 	 */
 	public static void ex2() {
-		ExprTreeBuildWalker ew = parse("x+y");
+		ExprTreeBuildWalker ew = parse("x+y", double.class);
 		Method m = genStaticMethod(ew, "myclass", false, "myfun", 
 				double.class, double.class);
 		try {
@@ -46,7 +46,7 @@ public class Examples {
 	 * Use method handle to invoke the generated static method
 	 */
 	public static void ex3() {
-		ExprTreeBuildWalker ew = parse("x*y");
+		ExprTreeBuildWalker ew = parse("x*y", double.class);
 		MethodHandle mh = genMethodHandle(ew, "myclass", false, "myfun", 
 				double.class,  double.class, double.class);
 		try {
@@ -65,7 +65,7 @@ public class Examples {
 		double apply(double x, double y);
 	}
 	public static void ex4() {
-		ExprTreeBuildWalker ew = parse("x*y");
+		ExprTreeBuildWalker ew = parse("x*y", double.class);
 		Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", Fun2.class, true);
 		System.out.println(f.apply(3,4));
 	}

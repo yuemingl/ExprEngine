@@ -13,9 +13,9 @@ public class TestExprEngine {
 	
 	public static void main(String[] args){
 		
-		//assertEqual(parseAndEval("while(x>y) {x=x+y}", new int[]{3,4}), 4);
+		assertEqual(parseAndEval("while(x<y) {x=x+1} x", new int[]{1,4}), 4);
 		//assertEqual(parseAndEval("for(i=0;i<10;i++) {x+=y}", new int[]{3,4}), 4);
-		assertEqual(parseAndEval("for(i=0,j=0;i<10;i++,j++) {x+=y; x+=j; x}", new int[]{3,4}), 4);
+		//assertEqual(parseAndEval("for(i=0,j=0;i<10;i++,j++) {x+=y; x+=j; x}", new int[]{3,4}), 4);
 		//assertEqual(parseAndEval("while(x>y) {x=x+y}", new int[]{3,4}), 4);
 		
 		assertEqual(parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}), 4);
