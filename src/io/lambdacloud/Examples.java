@@ -24,7 +24,7 @@ public class Examples {
 		System.out.println(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));
 		System.out.println("max(3,4)="+parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}));
 		System.out.println(parseAndEval("while(x<y) {x=x+1} x", new int[]{1,4}));
-		System.out.println(parseAndEval("for(i=0;i<=3;i++) {x+=i} x", new int[]{2}));
+		System.out.println(parseAndEval("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
 	}
 	
 	/**
