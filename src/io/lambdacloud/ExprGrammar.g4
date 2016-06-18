@@ -48,6 +48,8 @@ ASSIGN : '=' ;
 
 LPAREN : '(' ;
 RPAREN : ')' ;
+LBRK : '[' ;
+RBRK : ']' ;
 LCB : '{' ;
 RCB : '}' ;
 
@@ -55,20 +57,16 @@ RCB : '}' ;
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
 INTEGER : [0-9]+ ;
-
 FLOAT : [0-9]?'.'[0-9]+ ;
-
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
 COMMA : ',' ;
-
+COLON : ':' ;
 SEMI : ';' ; //we can only have one lexical rule for ';'
 
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
-
 COMMENT : '//' .+? ('\n'|EOF) -> skip ;
-
 WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 
 /* Parser rules */
@@ -146,7 +144,12 @@ numeric_entity
 
 integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
-variable_entity : IDENTIFIER     # EntityVariable     ;
+
+variable_entity 
+ : IDENTIFIER                                # EntityVariable
+ | IDENTIFIER (LBRK integer_entity (COLON integer_entity)? RBRK)+    # EntityArray
+ ;
+
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
 
 expr_end : (SEMI | '\n')+ ;

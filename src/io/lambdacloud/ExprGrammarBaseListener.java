@@ -546,6 +546,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterEntityArray(ExprGrammarParser.EntityArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntityArray(ExprGrammarParser.EntityArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) { }
 	/**
 	 * {@inheritDoc}
