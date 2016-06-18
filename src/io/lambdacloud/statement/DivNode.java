@@ -9,7 +9,9 @@ public class DivNode extends ExprNode {
 	ExprNode right;
 	public DivNode(ExprNode left, ExprNode right) {
 		this.left = left;
+		this.left.genLoadInsn(true);
 		this.right = right;
+		this.right.genLoadInsn(true);
 		this.type = getType();
 	}
 	

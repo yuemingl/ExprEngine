@@ -8,6 +8,7 @@ public class NegateNode extends ExprNode {
 	ExprNode expr;
 	public NegateNode(ExprNode expr) {
 		this.expr = expr;
+		expr.genLoadInsn(true);
 		this.type = getType();
 	}
 	
@@ -18,6 +19,7 @@ public class NegateNode extends ExprNode {
 	public void genCode(MethodVisitor mv) {
 		expr.genCode(mv);
 		mv.visitInsn(getType().getOpcode(Opcodes.INEG));
+		
 	}
 	
 	@Override

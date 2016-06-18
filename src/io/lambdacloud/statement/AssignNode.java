@@ -9,7 +9,9 @@ public class AssignNode extends ExprNode {
 	ExprNode right;
 	public AssignNode(VariableNode left, ExprNode right) {
 		this.left = left;
+		this.left.genLoadInsn(true);
 		this.right = right;
+		this.right.genLoadInsn(true);
 		this.type = right.getType();
 	}
 	

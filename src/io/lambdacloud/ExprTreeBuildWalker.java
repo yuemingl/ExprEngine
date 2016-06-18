@@ -453,20 +453,32 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { 
 		if(ctx.statements().statement().size() == 0) { //Single expression case
-			//Add return value
+			//Add return value by generating load instruction
 			ExprNode node = stack.peek();
-			if(node instanceof AddAsignNode ||
-			   node instanceof SubAsignNode ||
-			   node instanceof MulAsignNode ||
-			   node instanceof DivAsignNode ||
-			   node instanceof RemAsignNode ||
-			   node instanceof IncNode ||
-			   node instanceof DescNode ||
-			   node instanceof AssignNode
-			   ) {
-				node.genLoadInsn(true);
-			}
+			node.genLoadInsn(true);
+//			if(node instanceof AddAsignNode ||
+//			   node instanceof SubAsignNode ||
+//			   node instanceof MulAsignNode ||
+//			   node instanceof DivAsignNode ||
+//			   node instanceof RemAsignNode ||
+//			   node instanceof IncNode ||
+//			   node instanceof DescNode ||
+//			   node instanceof AssignNode
+//			   ) {
+//				node.genLoadInsn(true);
+//			}
 		}
+	}
+	
+	@Override public void exitEntityArray(ExprGrammarParser.EntityArrayContext ctx) {
+		System.out.println(ctx.getText());
+	
+	}
+	
+	//Set genLoadInsn here?
+	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
+		//System.out.println(ctx.getText());
+		//System.out.println(ctx.arithmetic_expr().getText());
 	}
 
 }

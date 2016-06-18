@@ -17,7 +17,9 @@ public class GTNode extends ExprNode {
 	
 	public GTNode(ExprNode left, ExprNode right) {
 		this.left = left;
+		this.left.genLoadInsn(true);
 		this.right = right;
+		this.right.genLoadInsn(true);
 		this.type = Type.BOOLEAN_TYPE;
 	}
 	

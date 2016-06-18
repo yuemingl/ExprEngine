@@ -25,6 +25,12 @@ public abstract class ExprNode {
 		return type+":"+tag;
 	}
 	
+	/**
+	 * Generate LOAD instruction for assign like operators
+	 * =, +=, -=, *=, /=, %=, ++, --
+	 * 
+	 * @param flag
+	 */
 	public void genLoadInsn(boolean flag) {
 		this.genLoadInsn = flag;
 	}

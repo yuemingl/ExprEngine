@@ -12,8 +12,10 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
-		assertEqual(parseAndEval("x[0]", new int[]{}), 0);
-		assertEqual(parseAndEval("x[0:3]", new int[]{}), 3);
+		//assertEqual(parseAndEval("x[0]", new int[]{}), 0);
+		//assertEqual(parseAndEval("x[0:3]", new int[]{}), 3);
+		
+		assertEqual(parseAndEval("-x--", new int[]{3}), -2);
 		
 		
 		
@@ -98,8 +100,24 @@ public class TestExprEngine {
 		assertEqual(parseAndEval("x++", new int[]{3}), 4);
 		assertEqual(parseAndEval("x--", new int[]{3}), 2);
 		
-		//assertEqual(parseAndEval("-x--", new int[]{3}), -2); //?3
-		//assertEqual(parseAndEval("-x++", new int[]{3}), -4); //?3
+		//int x = 3;
+		//System.out.println(-x--);//-3
+		//System.out.println((-x)--);//error
+		//System.out.println(-(x--));//-3
+		assertEqual(parseAndEval("-x--", new int[]{3}), -2); //different from java
+		assertEqual(parseAndEval("-x++", new int[]{3}), -4); //defferent from java
+
+		assertEqual(parseAndEval("x++ + 2", new int[]{3}), 6);
+		assertEqual(parseAndEval("x++ - 2", new int[]{3}), 2);
+		assertEqual(parseAndEval("x++ * 2", new int[]{3}), 8);
+		assertEqual(parseAndEval("x++ / 2", new int[]{3}), 2);
+		assertEqual(parseAndEval("x++ % 2", new int[]{3}), 0);
+		assertEqual(parseAndEval("x++ > 0", new int[]{3}), true);
+		assertEqual(parseAndEval("x++ >= 0", new int[]{3}), true);
+		assertEqual(parseAndEval("x++ < 0", new int[]{3}), false);
+		assertEqual(parseAndEval("x++ <= 0", new int[]{3}), false);
+		assertEqual(parseAndEval("x++ == 4", new int[]{3}), true);
+		assertEqual(parseAndEval("x++ != 4", new int[]{3}), false);
 		
 		assertEqual(parseAndEval("7>>2"), 1);
 		assertEqual(parseAndEval("1<<2"), 4);

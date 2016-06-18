@@ -9,7 +9,9 @@ public class BOrNode extends ExprNode {
 	ExprNode right;
 	public BOrNode(ExprNode left, ExprNode right) {
 		this.left = left;
+		this.left.genLoadInsn(true);
 		this.right = right;
+		this.right.genLoadInsn(true);
 		this.type = getType();
 	}
 	

@@ -146,7 +146,7 @@ integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
 
 variable_entity 
- : IDENTIFIER                                # EntityVariable
+ : IDENTIFIER                                                        # EntityVariable
  | IDENTIFIER (LBRK integer_entity (COLON integer_entity)? RBRK)+    # EntityArray
  ;
 
