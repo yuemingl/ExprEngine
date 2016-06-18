@@ -17,7 +17,7 @@ public class Utils {
 		return Type.getType(boolean.class);
 	}
 	
-	public static void insertConversionCode(MethodVisitor mv, Type from, Type to) {
+	public static void insertConversionInsn(MethodVisitor mv, Type from, Type to) {
 		if(from.getSort() == to.getSort())
 			return;
 		int f = from.getSort();

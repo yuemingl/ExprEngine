@@ -21,9 +21,9 @@ public class AddNode extends ExprNode {
 	
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
-		Utils.insertConversionCode(mv, left.getType(), getType());
+		Utils.insertConversionInsn(mv, left.getType(), getType());
 		right.genCode(mv);
-		Utils.insertConversionCode(mv, right.getType(), getType());
+		Utils.insertConversionInsn(mv, right.getType(), getType());
 		mv.visitInsn(getType().getOpcode(Opcodes.IADD));
 	}
 	

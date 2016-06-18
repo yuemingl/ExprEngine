@@ -31,9 +31,9 @@ public class GTNode extends ExprNode {
 	public void genCode(MethodVisitor mv) {
 		Type ty = Utils.typeConversion(left.getType(), right.getType());
 		left.genCode(mv);
-		Utils.insertConversionCode(mv, left.getType(), ty);
+		Utils.insertConversionInsn(mv, left.getType(), ty);
 		right.genCode(mv);
-		Utils.insertConversionCode(mv, right.getType(), ty);
+		Utils.insertConversionInsn(mv, right.getType(), ty);
 		if(ty.getSort() == Type.DOUBLE) {
 			mv.visitInsn(DCMPL);
 			Label l1 = new Label();
