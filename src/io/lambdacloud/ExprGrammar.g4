@@ -65,7 +65,7 @@ COLON : ':' ;
 SEMI : ';' ; //we can only have one lexical rule for ';'
 
 SQUOTE : '\'' ;
-//DQUOTE : '"' ; 
+DQUOTE : '"' ; 
 
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
@@ -85,7 +85,6 @@ statement
  | 'if' LPAREN logical_expr RPAREN block ('else' block)?      # ExprIf
  | 'while' LPAREN logical_expr RPAREN block                   # ExprWhile
  | 'for' LPAREN (assign_expr COMMA)* assign_expr? SEMI  logical_expr SEMI (expression COMMA)* expression? RPAREN (SEMI | block?)   # ExprFor
- | StringLiteral expr_end # StringLiteral
  ;
 
 block : LCB statements RCB       # StatementBlock;
@@ -94,6 +93,7 @@ expression
  : arithmetic_expr       # ExprArithmetic
  | logical_expr          # ExprLogical
  | assign_expr           # ExprAssign1
+ | string_expr           # ExprString
  ;
 
 assign_expr
@@ -115,7 +115,8 @@ logical_expr
  ;
 
 comparison_expr 
- : arithmetic_expr comp_operator arithmetic_expr       # ComparisonExpressionWithOperator
+ : arithmetic_expr comp_operator arithmetic_expr       # ComparisonArithmeticExpression
+ | string_expr (EQ | NEQ) string_expr                  # ComparisonStringExpression
  ;
 
 comp_operator 
@@ -140,6 +141,11 @@ arithmetic_expr
  | numeric_entity                            # ArithmeticExpressionEntity
  ;
 
+string_expr
+ : string_entity ADD string_entity # StringConcat
+ | string_entity                   # StringEntity
+ ;
+
 numeric_entity 
  : integer_entity
  | float_entity
@@ -158,7 +164,12 @@ logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
 
 expr_end : (SEMI | '\n')+ ;
 
-StringLiteral : '"' Characters? '"' ;
+string_entity
+ : StringLiteral     # StringConst
+ | variable_entity   # StringVariable
+ ;
+
+StringLiteral : DQUOTE Characters? DQUOTE;
 
 fragment
 Characters : Character+ ;

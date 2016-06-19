@@ -47,6 +47,7 @@ import io.lambdacloud.statement.RemAsignNode;
 import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.SHLNode;
 import io.lambdacloud.statement.SHRNode;
+import io.lambdacloud.statement.StringConcatNode;
 import io.lambdacloud.statement.StringNode;
 import io.lambdacloud.statement.SubAsignNode;
 import io.lambdacloud.statement.SubNode;
@@ -204,7 +205,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new NotNode(stack.pop()));
 	}
 
-	@Override public void exitComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx) {
+	@Override public void exitComparisonArithmeticExpression(ExprGrammarParser.ComparisonArithmeticExpressionContext ctx) { 
 		//System.out.println(ctx.getText()+"   "+ctx.comp_operator().getText());
 		String op = ctx.comp_operator().getText();
 		ExprNode v2 = stack.pop();
@@ -222,8 +223,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		} else if(op.equals("!=")) {
 			stack.push(new NEQNode(v1, v2));
 		}
+		
 	}
-	
+
+	@Override public void exitComparisonStringExpression(ExprGrammarParser.ComparisonStringExpressionContext ctx) { 
+		System.out.println(ctx.getText());
+		
+	}
+
 	@Override public void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx) { 
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
@@ -303,7 +310,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		//System.out.println("exitEntityVariable:"+ctx.getText());
+		System.out.println("exitEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
@@ -477,21 +484,31 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	}
 	
-	//Set genLoadInsn here?
+	//Set genLoadInsn here? (No, so far we set genLoadInsn(true) in each XXXNode calss instead)
 	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
 		//System.out.println(ctx.getText());
 		//System.out.println(ctx.arithmetic_expr().getText());
 	}
-	@Override public void exitStringLiteral(ExprGrammarParser.StringLiteralContext ctx) {
+	
+	@Override public void exitExprString(ExprGrammarParser.ExprStringContext ctx) {
+		//System.out.println(ctx.getText());
+	}
+	
+	@Override public void exitStringConst(ExprGrammarParser.StringConstContext ctx) {
+		System.out.println("exitStringConst"+ctx.getText());
 		String s = ctx.getText();
 		System.out.println(s);
 		stack.push(new StringNode(s.substring(1, s.length()-1)));
-
-	}
-	
-	@Override public void exitEveryRule(ParserRuleContext ctx) { 
-		//System.out.println(ctx.getText());
 		
 	}
 
+	@Override public void exitStringEntity(ExprGrammarParser.StringEntityContext ctx) { 
+		//System.out.println("exitStringEntity"+ctx.getText());
+	}
+	
+	@Override public void exitStringConcat(ExprGrammarParser.StringConcatContext ctx) {
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new StringConcatNode(v1,v2));
+	}
 }

@@ -78,18 +78,6 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprFor(ExprGrammarParser.ExprForContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code StringLiteral}
-	 * labeled alternative in {@link ExprGrammarParser#statement}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringLiteral(ExprGrammarParser.StringLiteralContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code StringLiteral}
-	 * labeled alternative in {@link ExprGrammarParser#statement}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringLiteral(ExprGrammarParser.StringLiteralContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code StatementBlock}
 	 * labeled alternative in {@link ExprGrammarParser#block}.
 	 * @param ctx the parse tree
@@ -137,6 +125,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExprAssign1(ExprGrammarParser.ExprAssign1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprString}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprString(ExprGrammarParser.ExprStringContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprString}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprString(ExprGrammarParser.ExprStringContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
@@ -282,17 +282,29 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitComparisonExpression(ExprGrammarParser.ComparisonExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ComparisonExpressionWithOperator}
+	 * Enter a parse tree produced by the {@code ComparisonArithmeticExpression}
 	 * labeled alternative in {@link ExprGrammarParser#comparison_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx);
+	void enterComparisonArithmeticExpression(ExprGrammarParser.ComparisonArithmeticExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ComparisonExpressionWithOperator}
+	 * Exit a parse tree produced by the {@code ComparisonArithmeticExpression}
 	 * labeled alternative in {@link ExprGrammarParser#comparison_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitComparisonExpressionWithOperator(ExprGrammarParser.ComparisonExpressionWithOperatorContext ctx);
+	void exitComparisonArithmeticExpression(ExprGrammarParser.ComparisonArithmeticExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ComparisonStringExpression}
+	 * labeled alternative in {@link ExprGrammarParser#comparison_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterComparisonStringExpression(ExprGrammarParser.ComparisonStringExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ComparisonStringExpression}
+	 * labeled alternative in {@link ExprGrammarParser#comparison_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitComparisonStringExpression(ExprGrammarParser.ComparisonStringExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprGrammarParser#comp_operator}.
 	 * @param ctx the parse tree
@@ -496,6 +508,30 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionAdd(ExprGrammarParser.ArithmeticExpressionAddContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code StringConcat}
+	 * labeled alternative in {@link ExprGrammarParser#string_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringConcat(ExprGrammarParser.StringConcatContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringConcat}
+	 * labeled alternative in {@link ExprGrammarParser#string_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringConcat(ExprGrammarParser.StringConcatContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StringEntity}
+	 * labeled alternative in {@link ExprGrammarParser#string_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringEntity(ExprGrammarParser.StringEntityContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringEntity}
+	 * labeled alternative in {@link ExprGrammarParser#string_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringEntity(ExprGrammarParser.StringEntityContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ExprGrammarParser#numeric_entity}.
 	 * @param ctx the parse tree
 	 */
@@ -575,4 +611,28 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr_end(ExprGrammarParser.Expr_endContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StringConst}
+	 * labeled alternative in {@link ExprGrammarParser#string_entity}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringConst(ExprGrammarParser.StringConstContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringConst}
+	 * labeled alternative in {@link ExprGrammarParser#string_entity}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringConst(ExprGrammarParser.StringConstContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code StringVariable}
+	 * labeled alternative in {@link ExprGrammarParser#string_entity}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringVariable(ExprGrammarParser.StringVariableContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code StringVariable}
+	 * labeled alternative in {@link ExprGrammarParser#string_entity}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringVariable(ExprGrammarParser.StringVariableContext ctx);
 }

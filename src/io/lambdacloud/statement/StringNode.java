@@ -4,13 +4,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 public class StringNode extends ExprNode {
-	String str;
+	public String strVal;
 	public StringNode(String s) {
-		this.str = s;
+		this.strVal = s;
 	}
+	
 	@Override
 	public void genCode(MethodVisitor mv) {
-		mv.visitLdcInsn(str);
+		mv.visitLdcInsn(strVal);
 	}
 	
 	public static String test() {
@@ -20,5 +21,10 @@ public class StringNode extends ExprNode {
 	@Override
 	public Type getType() {
 		return Type.getType(String.class);
-	}	
+	}
+	
+	@Override
+	public String toString() {
+		return this.strVal;
+	}
 }

@@ -12,8 +12,12 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
-		//assertEqual(parseAndEval("\"abc\" ", new int[]{}), "abc");
-		//assertEqual(parseAndEval("\"\\\"\" ", new int[]{}), "abc");
+		assertEqual(parseAndEval("\"\"", new int[]{}), "");
+		assertEqual(parseAndEval("\"abc\"", new int[]{}), "abc");
+		assertEqual(parseAndEval("\"abc\" + \"def\"", new int[]{}), "abcdef");
+		assertEqual(parseAndEval("\"\\\"\"", new int[]{}), "\\\"");
+		assertEqual(parseAndEval("\"abc\" + x", new String[]{"def"}), "abcdef");
+		assertEqual(parseAndEval("x + \"abc\"", new String[]{"def"}), "defabc");
 		
 		//assertEqual(parseAndEval("x[0]", new int[]{}), 0);
 		//assertEqual(parseAndEval("x[0:3]", new int[]{}), 3);
