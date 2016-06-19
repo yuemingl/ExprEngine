@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -46,6 +47,7 @@ import io.lambdacloud.statement.RemAsignNode;
 import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.SHLNode;
 import io.lambdacloud.statement.SHRNode;
+import io.lambdacloud.statement.StringNode;
 import io.lambdacloud.statement.SubAsignNode;
 import io.lambdacloud.statement.SubNode;
 import io.lambdacloud.statement.USHRNode;
@@ -479,6 +481,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitExprArithmetic(ExprGrammarParser.ExprArithmeticContext ctx) {
 		//System.out.println(ctx.getText());
 		//System.out.println(ctx.arithmetic_expr().getText());
+	}
+	@Override public void exitStringLiteral(ExprGrammarParser.StringLiteralContext ctx) {
+		String s = ctx.getText();
+		System.out.println(s);
+		stack.push(new StringNode(s.substring(1, s.length()-1)));
+
+	}
+	
+	@Override public void exitEveryRule(ParserRuleContext ctx) { 
+		//System.out.println(ctx.getText());
+		
 	}
 
 }

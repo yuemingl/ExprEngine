@@ -64,6 +64,9 @@ COMMA : ',' ;
 COLON : ':' ;
 SEMI : ';' ; //we can only have one lexical rule for ';'
 
+SQUOTE : '\'' ;
+//DQUOTE : '"' ; 
+
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
 COMMENT : '//' .+? ('\n'|EOF) -> skip ;
@@ -72,8 +75,6 @@ WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 /* Parser rules */
 
 prog : statements EOF ;
-
-block : LCB statements RCB       # StatementBlock;
 
 statements
  : statement* (expression expr_end?)?
@@ -84,7 +85,10 @@ statement
  | 'if' LPAREN logical_expr RPAREN block ('else' block)?      # ExprIf
  | 'while' LPAREN logical_expr RPAREN block                   # ExprWhile
  | 'for' LPAREN (assign_expr COMMA)* assign_expr? SEMI  logical_expr SEMI (expression COMMA)* expression? RPAREN (SEMI | block?)   # ExprFor
+ | StringLiteral expr_end # StringLiteral
  ;
+
+block : LCB statements RCB       # StatementBlock;
 
 expression
  : arithmetic_expr       # ExprArithmetic
@@ -154,3 +158,19 @@ logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
 
 expr_end : (SEMI | '\n')+ ;
 
+StringLiteral : '"' Characters? '"' ;
+
+fragment
+Characters : Character+ ;
+
+fragment
+Character
+ : ~["\\]
+ | EscapeSeq
+ ;
+
+fragment
+EscapeSeq
+ : '\\' [btnfr"'\\]
+ ;
+ 
