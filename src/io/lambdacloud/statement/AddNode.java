@@ -24,7 +24,11 @@ public class AddNode extends ExprNode {
 		Utils.insertConversionInsn(mv, left.getType(), getType());
 		right.genCode(mv);
 		Utils.insertConversionInsn(mv, right.getType(), getType());
-		mv.visitInsn(getType().getOpcode(Opcodes.IADD));
+		if(this.getType().getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
+			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
+		} else {
+			mv.visitInsn(getType().getOpcode(Opcodes.IADD));
+		}
 	}
 	
 	@Override

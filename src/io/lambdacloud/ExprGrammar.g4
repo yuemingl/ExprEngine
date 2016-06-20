@@ -92,8 +92,8 @@ block : LCB statements RCB       # StatementBlock;
 expression
  : arithmetic_expr       # ExprArithmetic
  | logical_expr          # ExprLogical
- | assign_expr           # ExprAssign1
  | string_expr           # ExprString
+ | assign_expr           # ExprAssign1
  ;
 
 assign_expr

@@ -12,12 +12,23 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		assertEqual(parseAndEval("x + y", new String[]{"abc","def"}), "abcdef");
+		assertEqual(parseAndEval("a= \"abc\"; a != str", new String[]{"def"}), true);
+		assertEqual(parseAndEval("a= \"abc\"; a == str", new String[]{"abc"}), true);
+
 		assertEqual(parseAndEval("\"\"", new int[]{}), "");
 		assertEqual(parseAndEval("\"abc\"", new int[]{}), "abc");
 		assertEqual(parseAndEval("\"abc\" + \"def\"", new int[]{}), "abcdef");
 		assertEqual(parseAndEval("\"\\\"\"", new int[]{}), "\\\"");
-		assertEqual(parseAndEval("\"abc\" + x", new String[]{"def"}), "abcdef");
-		assertEqual(parseAndEval("x + \"abc\"", new String[]{"def"}), "defabc");
+		assertEqual(parseAndEval("\"abc\" + str", new String[]{"def"}), "abcdef");
+		assertEqual(parseAndEval("str + \"abc\"", new String[]{"def"}), "defabc");
+		//AddNode? StringConcatNode?
+		assertEqual(parseAndEval("\"def\" == \"abc\"", new String[]{}), false);
+		assertEqual(parseAndEval("\"def\" != \"abc\"", new String[]{}), true);
+		assertEqual(parseAndEval("\"abc\" == str", new String[]{"def"}), false);
+		assertEqual(parseAndEval("str == \"abc\"", new String[]{"def"}), false);
+		assertEqual(parseAndEval("str != \"abc\"", new String[]{"def"}), true);
+		assertEqual(parseAndEval("\"abc\" != str", new String[]{"def"}), true);
 		
 		//assertEqual(parseAndEval("x[0]", new int[]{}), 0);
 		//assertEqual(parseAndEval("x[0:3]", new int[]{}), 3);

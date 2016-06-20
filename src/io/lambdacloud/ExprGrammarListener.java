@@ -114,18 +114,6 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprLogical(ExprGrammarParser.ExprLogicalContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprAssign1}
-	 * labeled alternative in {@link ExprGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterExprAssign1(ExprGrammarParser.ExprAssign1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExprAssign1}
-	 * labeled alternative in {@link ExprGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitExprAssign1(ExprGrammarParser.ExprAssign1Context ctx);
-	/**
 	 * Enter a parse tree produced by the {@code ExprString}
 	 * labeled alternative in {@link ExprGrammarParser#expression}.
 	 * @param ctx the parse tree
@@ -137,6 +125,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExprString(ExprGrammarParser.ExprStringContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprAssign1}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprAssign1(ExprGrammarParser.ExprAssign1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprAssign1}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprAssign1(ExprGrammarParser.ExprAssign1Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.

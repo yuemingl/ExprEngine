@@ -59,8 +59,9 @@ public class EQNode extends ExprNode {
 			mv.visitInsn(ICONST_0);
 			mv.visitLabel(l2);
 			//mv.visitInsn(Opcodes.NOP);
-		}
-		else
+		} else if(ty.getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
+			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+		} else
 			throw new RuntimeException();
 	}
 	

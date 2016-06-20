@@ -47,6 +47,7 @@ import io.lambdacloud.statement.RemAsignNode;
 import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.SHLNode;
 import io.lambdacloud.statement.SHRNode;
+import io.lambdacloud.statement.StringCompareNode;
 import io.lambdacloud.statement.StringConcatNode;
 import io.lambdacloud.statement.StringNode;
 import io.lambdacloud.statement.SubAsignNode;
@@ -223,12 +224,6 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		} else if(op.equals("!=")) {
 			stack.push(new NEQNode(v1, v2));
 		}
-		
-	}
-
-	@Override public void exitComparisonStringExpression(ExprGrammarParser.ComparisonStringExpressionContext ctx) { 
-		System.out.println(ctx.getText());
-		
 	}
 
 	@Override public void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx) { 
@@ -511,4 +506,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v1 = stack.pop();
 		stack.push(new StringConcatNode(v1,v2));
 	}
+	
+	@Override public void exitComparisonStringExpression(ExprGrammarParser.ComparisonStringExpressionContext ctx) { 
+		String op = (null==ctx.EQ()) ? ctx.NEQ().getText() : ctx.EQ().getText();
+		ExprNode v2 = stack.pop();
+		ExprNode v1 = stack.pop();
+		stack.push(new StringCompareNode(v1, v2, op));
+	}
+
 }

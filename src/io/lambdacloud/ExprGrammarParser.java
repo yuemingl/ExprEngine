@@ -655,19 +655,19 @@ public class ExprGrammarParser extends Parser {
 				}
 				break;
 			case 3:
-				_localctx = new ExprAssign1Context(_localctx);
+				_localctx = new ExprStringContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(111);
-				assign_expr();
+				string_expr();
 				}
 				break;
 			case 4:
-				_localctx = new ExprStringContext(_localctx);
+				_localctx = new ExprAssign1Context(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(112);
-				string_expr();
+				assign_expr();
 				}
 				break;
 			}
@@ -2546,8 +2546,8 @@ public class ExprGrammarParser extends Parser {
 		"\2\2]`\3\2\2\2^\\\3\2\2\2_a\5\n\6\2`_\3\2\2\2`a\3\2\2\2ab\3\2\2\2bg\7"+
 		"(\2\2ch\7\62\2\2df\5\b\5\2ed\3\2\2\2ef\3\2\2\2fh\3\2\2\2gc\3\2\2\2ge\3"+
 		"\2\2\2hj\3\2\2\2i\65\3\2\2\2i8\3\2\2\2iA\3\2\2\2iG\3\2\2\2j\7\3\2\2\2"+
-		"kl\7+\2\2lm\5\4\3\2mn\7,\2\2n\t\3\2\2\2ot\5\24\13\2pt\5\16\b\2qt\5\f\7"+
-		"\2rt\5\26\f\2so\3\2\2\2sp\3\2\2\2sq\3\2\2\2sr\3\2\2\2t\13\3\2\2\2uv\7"+
+		"kl\7+\2\2lm\5\4\3\2mn\7,\2\2n\t\3\2\2\2ot\5\24\13\2pt\5\16\b\2qt\5\26"+
+		"\f\2rt\5\f\7\2so\3\2\2\2sp\3\2\2\2sq\3\2\2\2sr\3\2\2\2t\13\3\2\2\2uv\7"+
 		"/\2\2vy\7&\2\2wz\5\n\6\2xz\5\6\4\2yw\3\2\2\2yx\3\2\2\2z\u009a\3\2\2\2"+
 		"{|\5\36\20\2|\177\7#\2\2}\u0080\5\n\6\2~\u0080\5\6\4\2\177}\3\2\2\2\177"+
 		"~\3\2\2\2\u0080\u009a\3\2\2\2\u0081\u0082\5\36\20\2\u0082\u0085\7$\2\2"+

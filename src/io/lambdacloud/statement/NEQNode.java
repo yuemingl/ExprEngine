@@ -34,6 +34,9 @@ public class NEQNode extends ExprNode {
 		Utils.insertConversionInsn(mv, left.getType(), ty);
 		right.genCode(mv);
 		Utils.insertConversionInsn(mv, right.getType(), ty);
+		System.out.println(ty.getDescriptor());
+		System.out.println(Type.getType(String.class).getDescriptor());
+		
 		if(ty.getSort() == Type.DOUBLE) {
 			mv.visitInsn(DCMPL);
 			Label l1 = new Label();
@@ -58,6 +61,18 @@ public class NEQNode extends ExprNode {
 			mv.visitInsn(ICONST_0);
 			mv.visitLabel(l2);
 			//mv.visitInsn(Opcodes.NOP);
+		} else if(ty.getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
+			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+			Label l1 = new Label();
+			mv.visitJumpInsn(Opcodes.IFEQ, l1);
+			mv.visitInsn(Opcodes.ICONST_0);
+			Label l2 = new Label();
+			mv.visitJumpInsn(Opcodes.GOTO, l2);
+			mv.visitLabel(l1);
+			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mv.visitInsn(Opcodes.ICONST_1);
+			mv.visitLabel(l2);
+
 		}
 		else
 			throw new RuntimeException();		
