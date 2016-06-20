@@ -19,6 +19,7 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
+import io.lambdacloud.statement.ArrayNode;
 import io.lambdacloud.statement.AssignNode;
 import io.lambdacloud.statement.BAndNode;
 import io.lambdacloud.statement.BNotNode;
@@ -305,7 +306,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		System.out.println("exitEntityVariable:"+ctx.getText());
+		//System.out.println("exitEntityVariable:"+ctx.getText());
 		String varName = ctx.getText();
 		VariableNode val = localVarMap.get(varName);
 		if(null == val) {
@@ -490,9 +491,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void exitStringConst(ExprGrammarParser.StringConstContext ctx) {
-		System.out.println("exitStringConst"+ctx.getText());
+		//System.out.println("exitStringConst"+ctx.getText());
 		String s = ctx.getText();
-		System.out.println(s);
+		//System.out.println(s);
 		stack.push(new StringNode(s.substring(1, s.length()-1)));
 		
 	}
@@ -512,6 +513,15 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ExprNode v2 = stack.pop();
 		ExprNode v1 = stack.pop();
 		stack.push(new StringCompareNode(v1, v2, op));
+	}
+	@Override public void exitArray_init(ExprGrammarParser.Array_initContext ctx) {
+		System.out.println(ctx.getText());
+		int dim = ctx.numeric_entity().size();
+		ArrayNode node = new ArrayNode();
+		for(int i=0; i<dim; i++) {
+			node.addInitValues(stack.pop());
+		}
+		stack.push(node);
 	}
 
 }

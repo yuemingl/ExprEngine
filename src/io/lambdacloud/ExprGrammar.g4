@@ -94,10 +94,11 @@ expression
  | logical_expr          # ExprLogical
  | string_expr           # ExprString
  | assign_expr           # ExprAssign1
+ | array_init            # ExprArrayInit
  ;
 
 assign_expr
- : IDENTIFIER ASSIGN     (expression | statement)      # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
+ : IDENTIFIER ASSIGN     (expression | statement | array_init)      # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
  | variable_entity MUL_ASSIGN (expression | statement) # ExprMulAssign
  | variable_entity DIV_ASSIGN (expression | statement) # ExprDivAssign
  | variable_entity REM_ASSIGN (expression | statement) # ExprRemAssign
@@ -184,4 +185,6 @@ fragment
 EscapeSeq
  : '\\' [btnfr"'\\]
  ;
- 
+
+array_init : LBRK (numeric_entity COMMA)* numeric_entity? RBRK ;
+

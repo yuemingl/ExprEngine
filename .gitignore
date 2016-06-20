@@ -3,3 +3,4 @@
 out
 *.class
 *.iml
+/bin/

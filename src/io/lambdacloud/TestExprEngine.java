@@ -5,6 +5,17 @@ import static io.lambdacloud.ExprEngine.*;
 public class TestExprEngine {
 
 	public static void assertEqual(Object o1, Object o2) {
+		if(o1 instanceof int[] && o2 instanceof int[]) {
+			int[] a = (int[])o1;
+			int[] b = (int[])o2;
+			if(a.length != b.length)
+				throw new RuntimeException("Assert fail! Length: "+a.length+" != "+b.length);
+			for(int i=0; i<a.length; i++) {
+				if(a[i] != b[i])
+					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
+			}
+			return;
+		}
 		if(!o1.equals(o2)) {
 			System.err.println(o1 + " != "+o2);
 			throw new RuntimeException("Assert fail!");
@@ -12,6 +23,11 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		assertEqual(parseAndEval("[10,20,30]", new int[]{}), new int[]{10,20,30});
+		
+		assertEqual(parseAndEval("a=[10,20,30]", new int[]{}), new int[]{10,20,30});
+		assertEqual(parseAndEval("a=[10,20,30]; a", new int[]{}), new int[]{10,20,30});
+		
 		assertEqual(parseAndEval("x + y", new String[]{"abc","def"}), "abcdef");
 		assertEqual(parseAndEval("a= \"abc\"; a != str", new String[]{"def"}), true);
 		assertEqual(parseAndEval("a= \"abc\"; a == str", new String[]{"abc"}), true);

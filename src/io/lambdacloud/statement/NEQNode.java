@@ -34,8 +34,6 @@ public class NEQNode extends ExprNode {
 		Utils.insertConversionInsn(mv, left.getType(), ty);
 		right.genCode(mv);
 		Utils.insertConversionInsn(mv, right.getType(), ty);
-		System.out.println(ty.getDescriptor());
-		System.out.println(Type.getType(String.class).getDescriptor());
 		
 		if(ty.getSort() == Type.DOUBLE) {
 			mv.visitInsn(DCMPL);

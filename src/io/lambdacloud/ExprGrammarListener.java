@@ -138,6 +138,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprAssign1(ExprGrammarParser.ExprAssign1Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprArrayInit}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprArrayInit(ExprGrammarParser.ExprArrayInitContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprArrayInit}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprArrayInit(ExprGrammarParser.ExprArrayInitContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
 	 * @param ctx the parse tree
@@ -635,4 +647,14 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringVariable(ExprGrammarParser.StringVariableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#array_init}.
+	 * @param ctx the parse tree
+	 */
+	void enterArray_init(ExprGrammarParser.Array_initContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#array_init}.
+	 * @param ctx the parse tree
+	 */
+	void exitArray_init(ExprGrammarParser.Array_initContext ctx);
 }
