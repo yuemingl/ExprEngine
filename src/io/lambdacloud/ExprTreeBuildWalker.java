@@ -19,6 +19,7 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
+import io.lambdacloud.statement.ArrayAccessNode;
 import io.lambdacloud.statement.ArrayNode;
 import io.lambdacloud.statement.AssignNode;
 import io.lambdacloud.statement.BAndNode;
@@ -477,7 +478,28 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	@Override public void exitEntityArray(ExprGrammarParser.EntityArrayContext ctx) {
 		System.out.println(ctx.getText());
-	
+		String varName = ctx.IDENTIFIER().getText();
+		ExprNode idxS = this.stack.pop();
+		ExprNode idxE = null;
+		if(ctx.integer_entity().size() > 1) {
+			idxE = idxS;
+			idxS = this.stack.pop();
+		}
+		
+		VariableNode var = this.localVarMap.get(varName);
+		if(null == var) {
+			var = this.paramMap.get(varName);
+			if(null == var) {
+				throw new RuntimeException("Array "+varName+" is undefined!");
+			}
+		}
+		
+		VariableNode retAry = null;
+		if(ctx.integer_entity().size() > 1) {
+			retAry = new VariableNode(varName+"_ret", Type.getType(int[].class));
+			this.localVarMap.put(varName+"_ret", retAry);
+		}
+		this.stack.push(new ArrayAccessNode(var, idxS, idxE, retAry));
 	}
 	
 	//Set genLoadInsn here? (No, so far we set genLoadInsn(true) in each XXXNode calss instead)

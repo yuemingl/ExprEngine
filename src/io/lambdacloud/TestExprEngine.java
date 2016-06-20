@@ -23,6 +23,9 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		assertEqual(parseAndEval("a=[10,20,30]; a[2]", new int[]{}), 30);
+		assertEqual(parseAndEval("a=[10,20,30]; a[1:2]", new int[]{}), new int[]{20,30});
+
 		assertEqual(parseAndEval("[10,20,30]", new int[]{}), new int[]{10,20,30});
 		
 		assertEqual(parseAndEval("a=[10,20,30]", new int[]{}), new int[]{10,20,30});
