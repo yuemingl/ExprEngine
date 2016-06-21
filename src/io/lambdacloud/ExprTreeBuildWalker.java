@@ -314,8 +314,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			val = paramMap.get(varName);
 			if(null == val) {
 				val = new VariableNode(varName, Type.getType(this.defaultParameterType)); //default to double
+				paramMap.put(varName, val);
 			}
-			paramMap.put(varName, val);
 		}
 		stack.push(val);
 	}
@@ -490,7 +490,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(null == var) {
 			var = this.paramMap.get(varName);
 			if(null == var) {
-				throw new RuntimeException("Array "+varName+" is undefined!");
+				var = new VariableNode(varName, Type.getType(int[].class)); //default to double
+				paramMap.put(varName, var);
 			}
 		}
 		

@@ -157,7 +157,24 @@ public class ExprEngine {
 		}
 		return null;
 	}
-
+	
+	public static Object parseAndEval(String str, Object[] args) {
+		ExprTreeBuildWalker ew = parse(str, double.class);
+		Class<?>[] cls = new Class[args.length];
+		for(int i=0; i<args.length; i++)
+			cls[i] = args[i].getClass();
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", cls);
+		try {
+			Object[] params = new Object[args.length];
+			for(int i=0; i<args.length; i++)
+				params[i] = args[i];
+			return m1.invoke(null, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static class A implements Runnable {
 
 		@Override
