@@ -594,6 +594,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIndex_entity(ExprGrammarParser.Index_entityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIndex_entity(ExprGrammarParser.Index_entityContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterEntityVariable(ExprGrammarParser.EntityVariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -606,13 +618,13 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEntityArray(ExprGrammarParser.EntityArrayContext ctx) { }
+	@Override public void enterEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEntityArray(ExprGrammarParser.EntityArrayContext ctx) { }
+	@Override public void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

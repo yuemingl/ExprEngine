@@ -27,20 +27,21 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
-		testExprs();
+		//testExprs();
 		test();
 	}
 	
 	public static void test() {
 		HashMap<String, Class<?>> param = new HashMap<String, Class<?>>();
-		param.put("x", double.class);
-		param.put("y", double.class);
+		param.put("x", double[].class);
+		param.put("i", int.class);
 		
-		ExprTreeBuildWalker ew = parse("x+y", param);
-		Method m = ExprEngine.genStaticMethod(ew, "myclass", false, "myfun");
+		ExprTreeBuildWalker ew = parse("x[i]", param);
+		Method m = ExprEngine.genStaticMethod(ew, "myclass", true, "myfun");
 		try {
+			double[] ary = new double[]{1,2,3,4,5};
 			for(int i=0; i<5; i++)
-				System.out.println(m.invoke(null, i, 10.0));
+				System.out.println(m.invoke(null, i, ary)); //parameters order: i, x
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

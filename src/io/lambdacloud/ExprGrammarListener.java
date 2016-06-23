@@ -578,6 +578,16 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#index_entity}.
+	 * @param ctx the parse tree
+	 */
+	void enterIndex_entity(ExprGrammarParser.Index_entityContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#index_entity}.
+	 * @param ctx the parse tree
+	 */
+	void exitIndex_entity(ExprGrammarParser.Index_entityContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code EntityVariable}
 	 * labeled alternative in {@link ExprGrammarParser#variable_entity}.
 	 * @param ctx the parse tree
@@ -590,17 +600,17 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code EntityArray}
+	 * Enter a parse tree produced by the {@code EntityArrayAccess}
 	 * labeled alternative in {@link ExprGrammarParser#variable_entity}.
 	 * @param ctx the parse tree
 	 */
-	void enterEntityArray(ExprGrammarParser.EntityArrayContext ctx);
+	void enterEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code EntityArray}
+	 * Exit a parse tree produced by the {@code EntityArrayAccess}
 	 * labeled alternative in {@link ExprGrammarParser#variable_entity}.
 	 * @param ctx the parse tree
 	 */
-	void exitEntityArray(ExprGrammarParser.EntityArrayContext ctx);
+	void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code EntityLogicalConst}
 	 * labeled alternative in {@link ExprGrammarParser#logical_entity}.

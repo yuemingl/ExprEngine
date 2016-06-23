@@ -24,12 +24,18 @@ public class ArrayAccessNode extends ExprNode {
 		return var+"["+idxS+":"+idxE+"]";
 	}
 	
+	public static Type getElementType(Type arrayType) {
+		System.out.println(arrayType.getDescriptor().substring(1));
+		System.out.println(Type.getType("D"));
+		return arrayType;
+	}
+	
 	@Override
 	public Type getType() {
 		if(null == idxE)
-			return this.type;
+			return Type.getType(var.getType().getDescriptor().substring(1));
 		else
-			return Type.getType(int[].class);
+			return var.getType();
 	}
 	
 	public void genCode(MethodVisitor mv) {
@@ -63,6 +69,10 @@ public class ArrayAccessNode extends ExprNode {
 		int[] ret = new int[3];
 		System.arraycopy(a, 1, ret, 0, ret.length);
 		return ret;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(getElementType(Type.getType(double[].class)));
 	}
 	
 }

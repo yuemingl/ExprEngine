@@ -651,12 +651,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 	}
 	
-	@Override public void exitEntityArray(ExprGrammarParser.EntityArrayContext ctx) {
+	@Override public void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx) {
 		System.out.println(ctx.getText());
 		String varName = ctx.IDENTIFIER().getText();
 		ExprNode idxS = this.stack.pop();
 		ExprNode idxE = null;
-		if(ctx.integer_entity().size() > 1) {
+		if(ctx.index_entity().size() > 1) {
 			idxE = idxS;
 			idxS = this.stack.pop();
 		}
@@ -671,7 +671,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		
 		VariableNode retAry = null;
-		if(ctx.integer_entity().size() > 1) {
+		if(ctx.index_entity().size() > 1) {
 			retAry = new VariableNode(varName+"_ret", Type.getType(int[].class));
 			this.localVarMap.put(varName+"_ret", retAry);
 		}

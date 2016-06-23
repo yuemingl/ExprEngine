@@ -156,9 +156,14 @@ numeric_entity
 integer_entity  : INTEGER        # EntityConstInteger ;
 float_entity    : FLOAT          # EntityConstFloat   ;
 
+index_entity
+ : integer_entity
+ | variable_entity
+ ;
+
 variable_entity 
  : IDENTIFIER                                                        # EntityVariable
- | IDENTIFIER (LBRK integer_entity (COLON integer_entity)? RBRK)+    # EntityArray
+ | IDENTIFIER (LBRK index_entity (COLON index_entity)? RBRK)+        # EntityArrayAccess
  ;
 
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
