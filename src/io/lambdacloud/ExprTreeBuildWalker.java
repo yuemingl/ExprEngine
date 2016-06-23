@@ -656,7 +656,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		String varName = ctx.IDENTIFIER().getText();
 		ExprNode idxS = this.stack.pop();
 		ExprNode idxE = null;
-		if(ctx.index_entity().size() > 1) {
+		if(ctx.arithmetic_expr().size() > 1) {
 			idxE = idxS;
 			idxS = this.stack.pop();
 		}
@@ -671,7 +671,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		
 		VariableNode retAry = null;
-		if(ctx.index_entity().size() > 1) {
+		if(ctx.arithmetic_expr().size() > 1) {
 			retAry = new VariableNode(varName+"_ret", Type.getType(int[].class));
 			this.localVarMap.put(varName+"_ret", retAry);
 		}

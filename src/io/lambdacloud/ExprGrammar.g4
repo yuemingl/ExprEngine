@@ -163,7 +163,7 @@ index_entity
 
 variable_entity 
  : IDENTIFIER                                                        # EntityVariable
- | IDENTIFIER (LBRK index_entity (COLON index_entity)? RBRK)+        # EntityArrayAccess
+ | IDENTIFIER (LBRK arithmetic_expr (COLON arithmetic_expr)? RBRK)+        # EntityArrayAccess
  ;
 
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;

@@ -2256,11 +2256,11 @@ public class ExprGrammarParser extends Parser {
 		public TerminalNode LBRK(int i) {
 			return getToken(ExprGrammarParser.LBRK, i);
 		}
-		public List<Index_entityContext> index_entity() {
-			return getRuleContexts(Index_entityContext.class);
+		public List<Arithmetic_exprContext> arithmetic_expr() {
+			return getRuleContexts(Arithmetic_exprContext.class);
 		}
-		public Index_entityContext index_entity(int i) {
-			return getRuleContext(Index_entityContext.class,i);
+		public Arithmetic_exprContext arithmetic_expr(int i) {
+			return getRuleContext(Arithmetic_exprContext.class,i);
 		}
 		public List<TerminalNode> RBRK() { return getTokens(ExprGrammarParser.RBRK); }
 		public TerminalNode RBRK(int i) {
@@ -2315,7 +2315,7 @@ public class ExprGrammarParser extends Parser {
 						setState(267);
 						match(LBRK);
 						setState(268);
-						index_entity();
+						arithmetic_expr(0);
 						setState(271);
 						_la = _input.LA(1);
 						if (_la==COLON) {
@@ -2323,7 +2323,7 @@ public class ExprGrammarParser extends Parser {
 							setState(269);
 							match(COLON);
 							setState(270);
-							index_entity();
+							arithmetic_expr(0);
 							}
 						}
 
@@ -2768,8 +2768,8 @@ public class ExprGrammarParser extends Parser {
 		"\2\2\u0102\31\3\2\2\2\u0103\u0104\7-\2\2\u0104\33\3\2\2\2\u0105\u0106"+
 		"\7.\2\2\u0106\35\3\2\2\2\u0107\u010a\5\32\16\2\u0108\u010a\5 \21\2\u0109"+
 		"\u0107\3\2\2\2\u0109\u0108\3\2\2\2\u010a\37\3\2\2\2\u010b\u011a\7/\2\2"+
-		"\u010c\u0115\7/\2\2\u010d\u010e\7)\2\2\u010e\u0111\5\36\20\2\u010f\u0110"+
-		"\7\61\2\2\u0110\u0112\5\36\20\2\u0111\u010f\3\2\2\2\u0111\u0112\3\2\2"+
+		"\u010c\u0115\7/\2\2\u010d\u010e\7)\2\2\u010e\u0111\5\24\13\2\u010f\u0110"+
+		"\7\61\2\2\u0110\u0112\5\24\13\2\u0111\u010f\3\2\2\2\u0111\u0112\3\2\2"+
 		"\2\u0112\u0113\3\2\2\2\u0113\u0114\7*\2\2\u0114\u0116\3\2\2\2\u0115\u010d"+
 		"\3\2\2\2\u0116\u0117\3\2\2\2\u0117\u0115\3\2\2\2\u0117\u0118\3\2\2\2\u0118"+
 		"\u011a\3\2\2\2\u0119\u010b\3\2\2\2\u0119\u010c\3\2\2\2\u011a!\3\2\2\2"+

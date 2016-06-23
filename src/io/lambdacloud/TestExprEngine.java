@@ -49,17 +49,18 @@ public class TestExprEngine {
 		param.put("j", int.class);
 		
 		//ExprTreeBuildWalker ew = parse("x[i]", param);
-//		ExprTreeBuildWalker ew = parse("x[i+1]", param);
+		ExprTreeBuildWalker ew = parse("x[i+1]", param);
 //		ExprTreeBuildWalker ew = parse("x[1:3]", param);
 //		ExprTreeBuildWalker ew = parse("x[i:3]", param);
 //		ExprTreeBuildWalker ew = parse("x[1:j]", param);
-		ExprTreeBuildWalker ew = parse("x[i:j]", param);
+//		ExprTreeBuildWalker ew = parse("x[i:j]", param);
+//		ExprTreeBuildWalker ew = parse("x[i+1:j+1]", param);
 		Method m = ExprEngine.genStaticMethod(ew, "myclass", true, "myfun");
 		try {
 			double[] ary = new double[]{1,2,3,4,5};
-			for(int i=0; i<4; i++)
-				//myPrint(m.invoke(null, i, ary)); //parameters order: i, x
-				myPrint(m.invoke(null, i, 4, ary)); //parameters order: i, x
+			for(int i=0; i<3; i++)
+				myPrint(m.invoke(null, i, ary)); //parameters order: i, x
+				//myPrint(m.invoke(null, i, 3, ary)); //parameters order: i, x
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
