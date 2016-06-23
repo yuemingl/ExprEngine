@@ -31,17 +31,35 @@ public class TestExprEngine {
 		test();
 	}
 	
+	public static void myPrint(Object o) {
+		if(o instanceof double[]) {
+			double[] a = (double[])o;
+			System.out.print("[");
+			for(double d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
+		} else {
+			System.out.println(o);
+		}
+	}
 	public static void test() {
 		HashMap<String, Class<?>> param = new HashMap<String, Class<?>>();
 		param.put("x", double[].class);
 		param.put("i", int.class);
+		param.put("j", int.class);
 		
-		ExprTreeBuildWalker ew = parse("x[i]", param);
+		//ExprTreeBuildWalker ew = parse("x[i]", param);
+//		ExprTreeBuildWalker ew = parse("x[i+1]", param);
+//		ExprTreeBuildWalker ew = parse("x[1:3]", param);
+//		ExprTreeBuildWalker ew = parse("x[i:3]", param);
+//		ExprTreeBuildWalker ew = parse("x[1:j]", param);
+		ExprTreeBuildWalker ew = parse("x[i:j]", param);
 		Method m = ExprEngine.genStaticMethod(ew, "myclass", true, "myfun");
 		try {
 			double[] ary = new double[]{1,2,3,4,5};
-			for(int i=0; i<5; i++)
-				System.out.println(m.invoke(null, i, ary)); //parameters order: i, x
+			for(int i=0; i<4; i++)
+				//myPrint(m.invoke(null, i, ary)); //parameters order: i, x
+				myPrint(m.invoke(null, i, 4, ary)); //parameters order: i, x
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
