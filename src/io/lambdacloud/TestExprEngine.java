@@ -1,6 +1,10 @@
 package io.lambdacloud;
 
 import static io.lambdacloud.ExprEngine.*;
+import io.lambdacloud.ExprEngine;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class TestExprEngine {
 
@@ -23,6 +27,27 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
+		testExprs();
+		test();
+	}
+	
+	public static void test() {
+		HashMap<String, Class<?>> param = new HashMap<String, Class<?>>();
+		param.put("x", double.class);
+		param.put("y", double.class);
+		
+		ExprTreeBuildWalker ew = parse("x+y", param);
+		Method m = ExprEngine.genStaticMethod(ew, "myclass", false, "myfun");
+		try {
+			for(int i=0; i<5; i++)
+				System.out.println(m.invoke(null, i, 10.0));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testExprs() {
+	
 		assertEqual(parseAndEval("x[2]", new Object[]{
 				new int[]{1,2,3}
 		}), 3);

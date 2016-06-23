@@ -1,16 +1,17 @@
 package io.lambdacloud;
 
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -60,12 +61,34 @@ import io.lambdacloud.statement.WhileNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
+	//Generated after parsing
 	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
 	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
-	protected Class<?> defaultParameterType;
 	
-	public ExprTreeBuildWalker(Class<?> defaultParameterType) {
-		this.defaultParameterType = defaultParameterType;
+	//Passed in before parsing
+	protected Class<?> defaultParameterTypeOrInterface = null;
+	protected Map<String, Class<?>> mapParameterTypes = null;
+	
+	
+	public ExprTreeBuildWalker(Class<?> defaultParameterTypeOrInterface) {
+		this.defaultParameterTypeOrInterface = defaultParameterTypeOrInterface;
+	}
+	
+	public ExprTreeBuildWalker(Map<String, Class<?>> mapParameterTypes) {
+		this.mapParameterTypes = mapParameterTypes;
+	}
+	
+	public void printInfo() {
+		System.out.println("Parameters:");
+		for(VariableNode n : paramMap.values()) {
+			System.out.println(n.name+": "+n.getType().getDescriptor());
+			
+		}
+		System.out.println("Local Variables:");
+		for(VariableNode n : localVarMap.values()) {
+			System.out.println(n.name+": "+n.getType().getDescriptor());
+			
+		}
 	}
 	
 	private VariableNode getVariableNode(String varName) {
@@ -76,44 +99,184 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		return var;
 	}
 	
-	Type[] getAndFixArgumentTypes(Class<?> ...parameterTypes) {
-		List<VariableNode> list = new ArrayList<VariableNode>();
-		list.addAll(paramMap.values());
-		Collections.sort(list, new Comparator<VariableNode>() {
+	
+	public Type[] getAndFixParameterTypes(Map<String, Class<?>> mapParameterTypes) {
+		List<VariableNode> pList = new ArrayList<VariableNode>();
+		pList.addAll(this.paramMap.values());
+		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
 				return o1.name.compareTo(o2.name);
 			}
 		});
-		Type[] retTypes = new Type[list.size()];
-		for(int i=0; i<list.size(); i++) {
-			list.get(i).setType(Type.getType(parameterTypes[i])); //Fix types
-			retTypes[i] = Type.getType(parameterTypes[i]);
+		
+		Type[] ret = new Type[pList.size()];
+		int i = 0;
+		for(VariableNode node : pList) {
+			
+			//Fix parameter types according the passed in types
+			node.setType(Type.getType(mapParameterTypes.get(node.name)));
+			
+			ret[i] = Type.getType(mapParameterTypes.get(node.name));
+			
+			i++;
 		}
-		return retTypes;
+		return ret;
 	}
 	
-	public Class<?> genClass(String className, String[] interfaces, boolean wirteFile, 
-			String methodName, boolean isStatic, Class<?> ...parameterTypes) {
+	public Type[] getAndFixParameterTypes(Class<?>[] aryParameterTypes) {
+		List<VariableNode> pList = new ArrayList<VariableNode>();
+		pList.addAll(this.paramMap.values());
+		Collections.sort(pList, new Comparator<VariableNode>() {
+			@Override
+			public int compare(VariableNode o1, VariableNode o2) {
+				return o1.name.compareTo(o2.name);
+			}
+		});
+		
+		Type[] ret = new Type[pList.size()];
+		int i = 0;
+		for(VariableNode node : pList) {
+			
+			//Fix parameter types according the passed in types
+			node.setType(Type.getType(aryParameterTypes[i]));
+			
+			ret[i] = Type.getType(aryParameterTypes[i]);
+			
+			i++;
+		}
+		return ret;
+	}
+	
+	public Type[] getAndFixParameterTypes(Class<?> defaultParameterType) {
+		List<VariableNode> pList = new ArrayList<VariableNode>();
+		pList.addAll(this.paramMap.values());
+		Collections.sort(pList, new Comparator<VariableNode>() {
+			@Override
+			public int compare(VariableNode o1, VariableNode o2) {
+				return o1.name.compareTo(o2.name);
+			}
+		});
+		
+		Type[] ret = new Type[pList.size()];
+		int i = 0;
+		for(VariableNode node : pList) {
+			
+			//Fix parameter types according the passed in types
+			node.setType(Type.getType(defaultParameterType));
+			
+			ret[i] = Type.getType(defaultParameterType);
+			
+			i++;
+		}
+		return ret;
+	}
+
+	public Class<?>[] getParameterClassTypes() {
+		if(null != this.defaultParameterTypeOrInterface && this.defaultParameterTypeOrInterface.isInterface()) {
+			return this.defaultParameterTypeOrInterface.getMethods()[0].getParameterTypes();
+		}
+		
+		List<VariableNode> pList = new ArrayList<VariableNode>();
+		pList.addAll(this.paramMap.values());
+		Collections.sort(pList, new Comparator<VariableNode>() {
+			@Override
+			public int compare(VariableNode o1, VariableNode o2) {
+				return o1.name.compareTo(o2.name);
+			}
+		});
+		Class<?>[] ret = new Class<?>[pList.size()];
+		if(null != this.defaultParameterTypeOrInterface) {
+			for(int i=0; i<pList.size(); i++) {
+				ret[i] = this.defaultParameterTypeOrInterface;
+			}
+		} else {
+			int i = 0;
+			for(VariableNode node : pList) {
+				ret[i] = mapParameterTypes.get(node.name);
+				
+				i++;
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * Use mapParameterTypes to generate class
+	 * @param className
+	 * @param interfaces
+	 * @param wirteFile
+	 * @param methodName
+	 * @param isStatic
+	 * @return
+	 */
+	public Class<?> genClass(String className, boolean wirteFile, 
+			String methodName, boolean isStatic) {
+		return genClass(className, wirteFile, methodName,  isStatic, null);
+	}
+	
+	/**
+	 * Use defaultParameterTypesOrInterface to generate class
+	 * @param className
+	 * @param wirteFile
+	 * @param methodName
+	 * @param isStatic
+	 * @param aryParameterTypes
+	 * @return
+	 */
+	public Class<?> genClass(String className, boolean wirteFile, 
+			String methodName, boolean isStatic, Class<?>[] aryParameterTypes) {
 		try {
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			CodeGenerator cgen = new CodeGenerator();
 			
 			//Define class
-			cgen.startClass(className, interfaces);
+			if(null != this.defaultParameterTypeOrInterface && this.defaultParameterTypeOrInterface.isInterface()) {
+				cgen.startClass(className, new String[]{Type.getInternalName(this.defaultParameterTypeOrInterface)});
+			} else {
+				cgen.startClass(className, null);
+			}
 			
 			//Define method
-			Type[] argTypes = getAndFixArgumentTypes(parameterTypes);
-			
-			Type retType = stack.peek().getType();
-			if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+			Type retType = null;
+			Type[] paramTypes = null;
 			int access =  Opcodes.ACC_PUBLIC;
 			if(isStatic) access |= Opcodes.ACC_STATIC;
-			cgen.startMethod(access,
-					methodName,Type.getMethodDescriptor(
-							retType, //return type of the last expression
-							argTypes
-				));
+			
+			//There are two ways to specify parameter types of the generated method
+			if(null == aryParameterTypes) {
+				if(null != this.defaultParameterTypeOrInterface) {
+					if(this.defaultParameterTypeOrInterface.isInterface()) {
+						Method m = this.defaultParameterTypeOrInterface.getDeclaredMethods()[0];
+						paramTypes = getAndFixParameterTypes(m.getParameterTypes());
+						//Check m.getReturnType() == retType ? 
+						retType = stack.peek().getType(); //return type of the last expression
+						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+						cgen.startMethod(access, m.getName(),
+								Type.getMethodDescriptor(retType, paramTypes));
+					} else {
+						Class<?>[] pTypes = new Class<?>[this.paramMap.size()];
+						for(int i=0; i<pTypes.length; i++) pTypes[i] = this.defaultParameterTypeOrInterface; 
+						paramTypes = getAndFixParameterTypes(pTypes);
+						retType = stack.peek().getType(); //return type of the last expression
+						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+						cgen.startMethod(access, methodName,
+								Type.getMethodDescriptor(retType, paramTypes));
+					}
+				} else {
+					paramTypes = getAndFixParameterTypes(this.mapParameterTypes);
+					retType = stack.peek().getType(); //return type of the last expression
+					if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+					cgen.startMethod(access, methodName,
+							Type.getMethodDescriptor(retType, paramTypes));
+				}
+			} else {
+				paramTypes = getAndFixParameterTypes(aryParameterTypes);
+				retType = stack.peek().getType(); //return type of the last expression
+				if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+				cgen.startMethod(access, methodName,
+						Type.getMethodDescriptor(retType, paramTypes));
+			}
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
@@ -313,7 +476,19 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(null == val) {
 			val = paramMap.get(varName);
 			if(null == val) {
-				val = new VariableNode(varName, Type.getType(this.defaultParameterType)); //default to double
+				if(null != this.mapParameterTypes) {
+					val = new VariableNode(varName, Type.getType(this.mapParameterTypes.get(varName))); 
+				} else if(null != this.defaultParameterTypeOrInterface) {
+					//default to double
+					if(this.defaultParameterTypeOrInterface.isInterface()) {
+						//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+						val = new VariableNode(varName, Type.getType(double.class));
+					} else {
+						val = new VariableNode(varName, Type.getType(this.defaultParameterTypeOrInterface));
+					}
+				} else {
+					throw new RuntimeException();
+				}
 				paramMap.put(varName, val);
 			}
 		}
@@ -353,7 +528,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		String varName = ctx.IDENTIFIER().getText();
 		VariableNode var = getVariableNode(varName);
 		if(null == var) {
-			var = new VariableNode(varName, Type.getType(this.defaultParameterType)); //default to double
+			var = new VariableNode(varName, Type.getType(this.defaultParameterTypeOrInterface)); //default to double
 			paramMap.put(varName, var);
 		}
 		if(null != ctx.INC())
