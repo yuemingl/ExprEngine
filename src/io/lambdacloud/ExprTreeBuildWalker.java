@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	protected Class<?> defaultParameterTypeOrInterface = null;
 	protected Map<String, Class<?>> mapParameterTypes = null;
 	
+	public ExprTreeBuildWalker() {
+	}
 	
 	public ExprTreeBuildWalker(Class<?> defaultParameterTypeOrInterface) {
 		this.defaultParameterTypeOrInterface = defaultParameterTypeOrInterface;
@@ -135,6 +138,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		});
 		
 		Type[] ret = new Type[pList.size()];
+		this.mapParameterTypes = new HashMap<String, Class<?>>();
 		int i = 0;
 		for(VariableNode node : pList) {
 			
@@ -142,6 +146,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			node.setType(Type.getType(aryParameterTypes[i]));
 			
 			ret[i] = Type.getType(aryParameterTypes[i]);
+			
+			this.mapParameterTypes.put(node.name, aryParameterTypes[i]);
 			
 			i++;
 		}
@@ -487,7 +493,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 						val = new VariableNode(varName, Type.getType(this.defaultParameterTypeOrInterface));
 					}
 				} else {
-					throw new RuntimeException();
+					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+					val = new VariableNode(varName, Type.getType(double.class));
 				}
 				paramMap.put(varName, val);
 			}

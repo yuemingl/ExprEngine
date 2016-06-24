@@ -12,6 +12,18 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 public class ExprEngine {
+	public static ExprTreeBuildWalker parse(String str) {
+		ANTLRInputStream input = new ANTLRInputStream(str);
+		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		ExprGrammarParser parser = new ExprGrammarParser(tokens);
+		ParseTree tree = parser.prog();
+		ParseTreeWalker walker = new ParseTreeWalker();
+		ExprTreeBuildWalker ew = new ExprTreeBuildWalker();
+		walker.walk(ew, tree);
+		return ew;
+	}
+	
 	public static ExprTreeBuildWalker parse(String str, Class<?> defaultParameterTypeOrInterface) {
 		ANTLRInputStream input = new ANTLRInputStream(str);
 		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
@@ -66,6 +78,20 @@ public class ExprEngine {
 			String methodName) {
 		
 		Class<?> c = ew.genClass(className, wirteFile, methodName, true);
+		Method m1 = null;
+		try {
+			m1 = c.getMethod(methodName, ew.getParameterClassTypes());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return m1;
+	}
+	
+	public static Method genStaticMethod(ExprTreeBuildWalker ew,
+			String className, boolean wirteFile, 
+			String methodName, Class<?>[] aryParameterTypes) {
+		
+		Class<?> c = ew.genClass(className, wirteFile, methodName, true, aryParameterTypes);
 		Method m1 = null;
 		try {
 			m1 = c.getMethod(methodName, ew.getParameterClassTypes());
@@ -157,14 +183,37 @@ public class ExprEngine {
 		return null;
 	}
 	
+	public static void main(String[] args) {
+		System.out.println(getPrimitiveClass(Double.class));
+	}
+	
+	public static Class<?> getPrimitiveClass(Class<?> c) {
+		if(c == Double.class)
+			return double.class;
+		else if(c == Integer.class)
+			return int.class;
+		else if(c == Float.class)
+			return float.class;
+		else if(c == Short.class)
+			return short.class;
+		else if(c == Character.class)
+			return char.class;
+		else if(c == Long.class)
+			return long.class;
+		else if(c == Boolean.class)
+			return boolean.class;
+		
+		return c;
+	}
+	
 	public static Object parseAndEval(String str, Object[] args) {
 		Class<?>[] aryParamTypes = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
-			aryParamTypes[i] = args[i].getClass();
+			aryParamTypes[i] = getPrimitiveClass(args[i].getClass());
 		}
 		//ExprTreeBuildWalker ew = parse(str, aryParamTypes);
-		ExprTreeBuildWalker ew = parse(str, aryParamTypes[0]);
-		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
+		ExprTreeBuildWalker ew = parse(str);
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", aryParamTypes);
 		try {
 			Object[] params = new Object[args.length];
 			for(int i=0; i<args.length; i++)

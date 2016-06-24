@@ -27,8 +27,8 @@ public class TestExprEngine {
 	}
 	
 	public static void main(String[] args){
-		//testExprs();
-		test();
+		testExprs();
+		//test();
 	}
 	
 	public static void myPrint(Object o) {
@@ -42,6 +42,7 @@ public class TestExprEngine {
 			System.out.println(o);
 		}
 	}
+	
 	public static void test() {
 		HashMap<String, Class<?>> param = new HashMap<String, Class<?>>();
 		param.put("x", double[].class);
@@ -68,9 +69,8 @@ public class TestExprEngine {
 	
 	public static void testExprs() {
 	
-		assertEqual(parseAndEval("x[2]", new Object[]{
-				new int[]{1,2,3}
-		}), 3);
+		assertEqual(parseAndEval("x[i]", new Object[]{1,new double[]{1,2,3}}), 2.0);
+		assertEqual(parseAndEval("x[2]", new Object[]{new int[]{1,2,3}}), 3);
 		
 		assertEqual(parseAndEval("a=[10,20,30]; a[2]", new int[]{}), 30);
 		assertEqual(parseAndEval("a=[10,20,30]; a[1:2]", new int[]{}), new int[]{20,30});
