@@ -48,7 +48,7 @@ public class Examples {
 	 * Use method handle to invoke the generated static method
 	 */
 	public static void ex3() {
-		ExprTreeBuildWalker ew = parse("x*y", double.class);
+		ExprTreeBuildWalker ew = parse("x*y");
 		MethodHandle mh = genMethodHandle(ew, "myclass", false, "myfun", 
 				double.class,  double.class, double.class);
 		try {
