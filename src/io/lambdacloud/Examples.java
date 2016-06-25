@@ -25,6 +25,7 @@ public class Examples {
 		System.out.println("max(3,4)="+parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}));
 		System.out.println(parseAndEval("while(x<y) {x=x+1} x", new int[]{1,4}));
 		System.out.println(parseAndEval("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
+		System.out.println(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
 	}
 	
 	/**

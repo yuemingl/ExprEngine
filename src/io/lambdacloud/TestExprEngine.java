@@ -19,6 +19,16 @@ public class TestExprEngine {
 					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
 			}
 			return;
+		} else if(o1 instanceof double[] && o2 instanceof double[]) {
+			double[] a = (double[])o1;
+			double[] b = (double[])o2;
+			if(a.length != b.length)
+				throw new RuntimeException("Assert fail! Length: "+a.length+" != "+b.length);
+			for(int i=0; i<a.length; i++) {
+				if(a[i] != b[i])
+					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
+			}
+			return;
 		}
 		if(!o1.equals(o2)) {
 			System.err.println(o1 + " != "+o2);
@@ -28,7 +38,7 @@ public class TestExprEngine {
 	
 	public static void main(String[] args){
 		testExprs();
-		//test();
+		test();
 	}
 	
 	public static void myPrint(Object o) {
@@ -68,26 +78,29 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		assertEqual(parseAndEval("a=[10,20,30]; i=1; a[i*2]"), 30);
+		assertEqual(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"), 100);
 	
+		assertEqual(parseAndEval("x[i+1:j]", new Object[]{1,4,new double[]{1,2,3,4,5}}), new double[]{3.0,4.0,5.0});
 		assertEqual(parseAndEval("x[i]", new Object[]{1,new double[]{1,2,3}}), 2.0);
 		assertEqual(parseAndEval("x[2]", new Object[]{new int[]{1,2,3}}), 3);
 		
-		assertEqual(parseAndEval("a=[10,20,30]; a[2]", new int[]{}), 30);
-		assertEqual(parseAndEval("a=[10,20,30]; a[1:2]", new int[]{}), new int[]{20,30});
+		assertEqual(parseAndEval("a=[10,20,30]; a[2]"), 30);
+		assertEqual(parseAndEval("a=[10,20,30]; a[1:2]"), new int[]{20,30});
 
-		assertEqual(parseAndEval("[10,20,30]", new int[]{}), new int[]{10,20,30});
+		assertEqual(parseAndEval("[10,20,30]"), new int[]{10,20,30});
 		
-		assertEqual(parseAndEval("a=[10,20,30]", new int[]{}), new int[]{10,20,30});
-		assertEqual(parseAndEval("a=[10,20,30]; a", new int[]{}), new int[]{10,20,30});
+		assertEqual(parseAndEval("a=[10,20,30]"), new int[]{10,20,30});
+		assertEqual(parseAndEval("a=[10,20,30]; a"), new int[]{10,20,30});
 		
 		assertEqual(parseAndEval("x + y", new String[]{"abc","def"}), "abcdef");
 		assertEqual(parseAndEval("a= \"abc\"; a != str", new String[]{"def"}), true);
 		assertEqual(parseAndEval("a= \"abc\"; a == str", new String[]{"abc"}), true);
 
-		assertEqual(parseAndEval("\"\"", new int[]{}), "");
-		assertEqual(parseAndEval("\"abc\"", new int[]{}), "abc");
-		assertEqual(parseAndEval("\"abc\" + \"def\"", new int[]{}), "abcdef");
-		assertEqual(parseAndEval("\"\\\"\"", new int[]{}), "\\\"");
+		assertEqual(parseAndEval("\"\""), "");
+		assertEqual(parseAndEval("\"abc\""), "abc");
+		assertEqual(parseAndEval("\"abc\" + \"def\""), "abcdef");
+		assertEqual(parseAndEval("\"\\\"\""), "\\\"");
 		assertEqual(parseAndEval("\"abc\" + str", new String[]{"def"}), "abcdef");
 		assertEqual(parseAndEval("str + \"abc\"", new String[]{"def"}), "defabc");
 		//AddNode? StringConcatNode?
