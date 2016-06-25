@@ -1,7 +1,7 @@
 #ExprEngine
 ExprEngine converts a string of expression(s) to java bytecode in runtime. A static method or a class which implements a user provided interface is generted in memory (which can also be written to file). Some simple examples are shown in following codes.  
 
-#### A quick example: parse and evaluate. (Warning: the bytecode will be generated each time of the call of parseAndEval().)
+#### A quick example: parse and evaluate. (Warning: the bytecode will be generated each time when calling for parseAndEval().)
 ```Java
 import static io.lambdacloud.ExprEngine.parseAndEval;
 ...
@@ -14,7 +14,8 @@ System.out.println(parseAndEval("(7^3) == (1<<2)"));
 System.out.println(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));
 System.out.println("max(3,4)="+parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}));
 System.out.println(parseAndEval("while(x<y) {x=x+1} x", new int[]{1,4}));
-System.out.println(parseAndEval("for(i=0;i<=3;i++) {x+=i} x", new int[]{2}));
+System.out.println(parseAndEval("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
+System.out.println(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
 
 ```
 
@@ -23,15 +24,15 @@ System.out.println(parseAndEval("for(i=0;i<=3;i++) {x+=i} x", new int[]{2}));
 ```Java
 import static io.lambdacloud.ExprEngine.genStaticMethod;
 ...
-ExprTreeBuildWalker ew = parse("x+y");
-Method m = genStaticMethod(ew, "myclass", false, "myfun", 
-		double.class, double.class);
+ExprTreeBuildWalker ew = parse("x+y", double.class);
+Method m = genStaticMethod(ew, "myclass", false, "myfun");
 try {
 	for(int i=0; i<5; i++)
 		System.out.println(m.invoke(null, i, 10.0));
 } catch (Exception e) {
 	e.printStackTrace();
 }
+
 ```
 	
 #### Parse and generate bytecode once, call many times. Use method handle to invoke the generated static method
@@ -55,8 +56,8 @@ public interface Fun2 {
 	double apply(double x, double y);
 }
 ...
-ExprTreeBuildWalker ew = parse("x*y");
-Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", Fun2.class);
+ExprTreeBuildWalker ew = parse("x*y", Fun2.class);
+Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", true);
 System.out.println(f.apply(3,4));
 ...
 
