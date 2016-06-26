@@ -79,6 +79,7 @@ public class TestExprEngine {
 	
 	public static void testExprs() {
 		//Test array
+		assertEqual(parseAndEval("x[i+1:j]", new Object[]{1,4,new double[]{1,2,3,4,5}}), new double[]{3.0,4.0,5.0});
 		
 		assertEqual(parseAndEval("a=[10,20,30]; a[0]=1; a"), new int[]{1,20,30});
 

@@ -22,6 +22,7 @@ import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
 import io.lambdacloud.statement.ArrayAccessNode;
+import io.lambdacloud.statement.ArrayAssignNode;
 import io.lambdacloud.statement.ArrayNode;
 import io.lambdacloud.statement.AssignNode;
 import io.lambdacloud.statement.BAndNode;
@@ -359,6 +360,35 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 		}
 		this.stack.push(new AssignNode(var, value));
+	}
+	@Override public void exitExprArrayAssign(ExprGrammarParser.ExprArrayAssignContext ctx) { 
+		System.out.println(ctx.getText());
+		ExprNode val = this.stack.pop();
+		
+		String varName = ctx.IDENTIFIER().getText();
+		ExprNode idxS = this.stack.pop();
+		ExprNode idxE = null;
+		if(ctx.arithmetic_expr().size() > 1) {
+			idxE = idxS;
+			idxS = this.stack.pop();
+		}
+		
+		VariableNode var = this.localVarMap.get(varName);
+		if(null == var) {
+			var = this.paramMap.get(varName);
+			if(null == var) {
+				var = new VariableNode(varName, Type.getType(int[].class)); //default to double
+				paramMap.put(varName, var);
+			}
+		}
+		
+		VariableNode retAry = null;
+		if(ctx.arithmetic_expr().size() > 1) {
+			retAry = new VariableNode(varName+"_ret", Type.getType(int[].class));
+			this.localVarMap.put(varName+"_ret", retAry);
+		}
+		this.stack.push(new ArrayAssignNode(var, idxS, idxE, retAry, val));
+		
 	}
 
 	@Override public void exitLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { 

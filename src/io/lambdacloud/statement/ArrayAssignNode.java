@@ -5,24 +5,26 @@ import static org.objectweb.asm.Opcodes.*;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class ArrayAccessNode extends ExprNode {
+public class ArrayAssignNode extends ExprNode {
 	public VariableNode var;
 	public ExprNode idxS;
 	public ExprNode idxE;
 	public VariableNode retAry;
+	public ExprNode val;
 	
-	public ArrayAccessNode(VariableNode var, ExprNode idxS, ExprNode idxE, VariableNode retAry) {
+	public ArrayAssignNode(VariableNode var, ExprNode idxS, ExprNode idxE, VariableNode retAry, ExprNode val) {
 		this.var = var;
 		this.idxS = idxS;
 		this.idxE = idxE;
 		this.retAry = retAry;
 		this.type = Type.INT_TYPE;
+		this.val = val;
 	}
 	
 	public String toString() {
 		if(null == idxE)
-			return var+"["+idxS+"]";
-		return var+"["+idxS+":"+idxE+"]";
+			return var+"["+idxS+"]="+val;
+		return var+"["+idxS+":"+idxE+"]="+val;
 	}
 	
 	public static Type getElementType(Type arrayType) {
@@ -61,30 +63,33 @@ public class ArrayAccessNode extends ExprNode {
 	}
 	
 	public void genCode(MethodVisitor mv) {
-		var.genCode(mv);
+		var.genCode(mv); //ALOAD
 		if(null == idxE) {
 			idxS.genCode(mv);
-			mv.visitInsn(getType().getOpcode(IALOAD));
+			val.genCode(mv);
+			mv.visitInsn(getType().getOpcode(IASTORE));
 		} else {
-			SubNode sub = new SubNode(idxE, idxS);
-			sub.genCode(mv);
-			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
-			mv.visitIntInsn(NEWARRAY, getTypeForNEWARRAY(var.getType()));
-			mv.visitIntInsn(ASTORE, retAry.idxLVT);
-			mv.visitVarInsn(ALOAD, var.idxLVT);
-			idxS.genCode(mv);
-			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-			mv.visitInsn(ICONST_0);
-			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-			mv.visitInsn(ARRAYLENGTH);
-			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-			//mv.visitInsn(ARETURN);
+			//TODO a[1:3]=3
+			//TODO a[1:3]=[1,2,3]
+//			SubNode sub = new SubNode(idxE, idxS);
+//			sub.genCode(mv);
+//			mv.visitInsn(ICONST_1);
+//			mv.visitInsn(IADD);
+//			mv.visitIntInsn(NEWARRAY, getTypeForNEWARRAY(var.getType()));
+//			mv.visitIntInsn(ASTORE, retAry.idxLVT);
+//			mv.visitVarInsn(ALOAD, var.idxLVT);
+//			idxS.genCode(mv);
+//			mv.visitVarInsn(ALOAD, retAry.idxLVT);
+//			mv.visitInsn(ICONST_0);
+//			mv.visitVarInsn(ALOAD, retAry.idxLVT);
+//			mv.visitInsn(ARRAYLENGTH);
+//			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+//			mv.visitVarInsn(ALOAD, retAry.idxLVT);
 		}
 	}
 	
 	public int test(int[] a) {
+		a[2]=10;
 		return a[2];
 	}
 	public int[] test2(int[] a) {
