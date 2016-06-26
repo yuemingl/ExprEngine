@@ -99,6 +99,7 @@ expression
 
 assign_expr
  : IDENTIFIER ASSIGN     (expression | statement | array_init)      # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
+ | IDENTIFIER (LBRK arithmetic_expr (COLON arithmetic_expr)? RBRK)+ ASSIGN (expression | statement | array_init)      # ExprArrayAssign
  | variable_entity MUL_ASSIGN (expression | statement) # ExprMulAssign
  | variable_entity DIV_ASSIGN (expression | statement) # ExprDivAssign
  | variable_entity REM_ASSIGN (expression | statement) # ExprRemAssign

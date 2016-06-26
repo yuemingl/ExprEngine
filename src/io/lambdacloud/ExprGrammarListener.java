@@ -162,6 +162,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprAssign(ExprGrammarParser.ExprAssignContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprArrayAssign}
+	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprArrayAssign(ExprGrammarParser.ExprArrayAssignContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprArrayAssign}
+	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprArrayAssign(ExprGrammarParser.ExprArrayAssignContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprMulAssign}
 	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
 	 * @param ctx the parse tree

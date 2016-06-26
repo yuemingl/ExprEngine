@@ -78,6 +78,10 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		//Test array
+		
+		assertEqual(parseAndEval("a=[10,20,30]; a[0]=1; a"), new int[]{1,20,30});
+
 		assertEqual(parseAndEval("a=[10,20,30]; i=1; a[i*2]"), 30);
 		assertEqual(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"), 100);
 	
@@ -93,6 +97,7 @@ public class TestExprEngine {
 		assertEqual(parseAndEval("a=[10,20,30]"), new int[]{10,20,30});
 		assertEqual(parseAndEval("a=[10,20,30]; a"), new int[]{10,20,30});
 		
+		//Test string
 		assertEqual(parseAndEval("x + y", new String[]{"abc","def"}), "abcdef");
 		assertEqual(parseAndEval("a= \"abc\"; a != str", new String[]{"def"}), true);
 		assertEqual(parseAndEval("a= \"abc\"; a == str", new String[]{"abc"}), true);
@@ -114,6 +119,7 @@ public class TestExprEngine {
 		//assertEqual(parseAndEval("x[0]", new int[]{}), 0);
 		//assertEqual(parseAndEval("x[0:3]", new int[]{}), 3);
 		
+		//
 		assertEqual(parseAndEval("while (x<y) {x=x+1;} x", new int[]{1,4}), 4);
 		assertEqual(parseAndEval("for(i=0;i<=3;i++) {x+=i} x", new int[]{2}), 8);
 		assertEqual(parseAndEval("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}), 5050);
