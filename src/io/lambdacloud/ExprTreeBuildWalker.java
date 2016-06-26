@@ -362,7 +362,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		this.stack.push(new AssignNode(var, value));
 	}
 	@Override public void exitExprArrayAssign(ExprGrammarParser.ExprArrayAssignContext ctx) { 
-		System.out.println(ctx.getText());
+		//System.out.println(ctx.getText());
 		ExprNode val = this.stack.pop();
 		
 		String varName = ctx.IDENTIFIER().getText();
@@ -689,7 +689,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx) {
-		System.out.println(ctx.getText());
+		//System.out.println(ctx.getText());
 		String varName = ctx.IDENTIFIER().getText();
 		ExprNode idxS = this.stack.pop();
 		ExprNode idxE = null;
@@ -750,7 +750,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		stack.push(new StringCompareNode(v1, v2, op));
 	}
 	@Override public void exitArray_init(ExprGrammarParser.Array_initContext ctx) {
-		System.out.println(ctx.getText());
+		//System.out.println(ctx.getText());
 		int dim = ctx.numeric_entity().size();
 		ArrayNode node = new ArrayNode();
 		for(int i=0; i<dim; i++) {
