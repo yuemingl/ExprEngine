@@ -763,6 +763,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void exitFuncCall(ExprGrammarParser.FuncCallContext ctx) {
+		String methodName = ctx.IDENTIFIER(ctx.IDENTIFIER().size()-1).getText();
 		StringBuilder sb = new StringBuilder();
 		//for(int i= ctx.IDENTIFIER().size()-1; i>0; i--) {
 		for(int i=0; i<ctx.IDENTIFIER().size()-1; i++) {
@@ -771,8 +772,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		String className = sb.length()>0?sb.delete(0, 1).toString():"";
 		if(className.equalsIgnoreCase("math"))
-				className = "java.lang.Math";
-		String methodName = ctx.IDENTIFIER(ctx.IDENTIFIER().size()-1).getText();
+			className = "java.lang.Math";
+		if(methodName.equalsIgnoreCase("print"))
+			className = "io.lambdacloud.BytecodeSupport";
+		if(methodName.equalsIgnoreCase("println"))
+			className = "io.lambdacloud.BytecodeSupport";
 		FuncCallNode fnode = new FuncCallNode(className, methodName);
 		for(ExpressionContext expr : ctx.expression()) {
 			//System.out.println(expr.getText());

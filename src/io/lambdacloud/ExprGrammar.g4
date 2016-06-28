@@ -86,6 +86,7 @@ statement
  | 'if' LPAREN logical_expr RPAREN block ('else' block)?      # ExprIf
  | 'while' LPAREN logical_expr RPAREN block                   # ExprWhile
  | 'for' LPAREN (assign_expr COMMA)* assign_expr? SEMI  logical_expr SEMI (expression COMMA)* expression? RPAREN (SEMI | block?)   # ExprFor
+ | func_call expr_end                                         # FuncCall2
  ;
 
 block : LCB statements RCB       # StatementBlock;
@@ -178,7 +179,7 @@ string_entity
  | variable_entity   # StringVariable
  ;
 
-StringLiteral : DQUOTE Characters? DQUOTE;
+StringLiteral : (DQUOTE|SQUOTE) Characters? (DQUOTE|SQUOTE);
 
 fragment
 Characters : Character+ ;

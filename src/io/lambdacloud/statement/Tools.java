@@ -126,7 +126,7 @@ public class Tools {
 			return byte.class;
 		case Type.OBJECT:
 			try {
-				return Class.forName(t.getInternalName());
+				return Class.forName(t.getInternalName().replaceAll("/", "\\."));
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}

@@ -91,6 +91,10 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		
+		parseAndEval("println('Begin test:'); print(1); print(2.0); println(true)");
+		parseAndEval("println(\"hello world!\")");
+		
 		assertEqual(parseAndEval("i+io.lambdacloud.TestExprEngine.arrayArgFunc(ary)", 
 				getMap(
 						"i",10, 
