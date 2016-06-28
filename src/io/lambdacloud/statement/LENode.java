@@ -30,11 +30,11 @@ public class LENode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodVisitor mv) {
-		Type ty = Utils.typeConversion(left.getType(), right.getType());
+		Type ty = Tools.typeConversion(left.getType(), right.getType());
 		left.genCode(mv);
-		Utils.insertConversionInsn(mv, left.getType(), ty);
+		Tools.insertConversionInsn(mv, left.getType(), ty);
 		right.genCode(mv);
-		Utils.insertConversionInsn(mv, right.getType(), ty);
+		Tools.insertConversionInsn(mv, right.getType(), ty);
 		if(ty.getSort() == Type.DOUBLE) {
 			mv.visitInsn(DCMPG);
 			Label l1 = new Label();

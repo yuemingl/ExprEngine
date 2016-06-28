@@ -1,8 +1,8 @@
 package io.lambdacloud.statement;
 
+import static org.objectweb.asm.Opcodes.IASTORE;
+
 import org.objectweb.asm.MethodVisitor;
-import static org.objectweb.asm.Opcodes.*;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class ArrayAssignNode extends ExprNode {
@@ -27,37 +27,10 @@ public class ArrayAssignNode extends ExprNode {
 		return var+"["+idxS+":"+idxE+"]="+val;
 	}
 	
-	public static Type getElementType(Type arrayType) {
-		return Type.getType(arrayType.getDescriptor().substring(1));
-	}
-
-	public static int getTypeForNEWARRAY(Type arrayType) {
-		Type et = getElementType(arrayType);
-		switch(et.getSort()) {
-		case Type.DOUBLE:
-			return T_DOUBLE;
-		case Type.INT:
-			return T_INT;
-		case Type.LONG:
-			return T_LONG;
-		case Type.SHORT:
-			return T_SHORT;
-		case Type.BYTE:
-			return T_BYTE;
-		case Type.FLOAT:
-			return T_FLOAT;
-		case Type.CHAR:
-			return T_CHAR;
-		case Type.BOOLEAN:
-			return T_BOOLEAN;
-		}
-		throw new RuntimeException();
-	}
-	
 	@Override
 	public Type getType() {
 		if(null == idxE)
-			return getElementType(var.getType());
+			return Tools.getElementType(var.getType());
 		else
 			return var.getType();
 	}
@@ -99,7 +72,7 @@ public class ArrayAssignNode extends ExprNode {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(getElementType(Type.getType(double[].class)));
+		System.out.println(Tools.getElementType(Type.getType(double[].class)));
 	}
 	
 }

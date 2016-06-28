@@ -25,7 +25,7 @@ public class BXorNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		return Utils.typeConversion(left.getType(), right.getType());
+		return Tools.typeConversion(left.getType(), right.getType());
 	}
 	
 	public int test(int a, int b) {

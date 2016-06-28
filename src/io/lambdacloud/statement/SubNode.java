@@ -21,14 +21,14 @@ public class SubNode extends ExprNode {
 	
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
-		Utils.insertConversionInsn(mv, left.getType(), getType());
+		Tools.insertConversionInsn(mv, left.getType(), getType());
 		right.genCode(mv);
-		Utils.insertConversionInsn(mv, right.getType(), getType());
+		Tools.insertConversionInsn(mv, right.getType(), getType());
 		mv.visitInsn(getType().getOpcode(Opcodes.ISUB));
 	}
 	
 	@Override
 	public Type getType() {
-		return Utils.typeConversion(left.getType(), right.getType());
+		return Tools.typeConversion(left.getType(), right.getType());
 	}	
 }

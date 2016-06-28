@@ -1,8 +1,16 @@
 package io.lambdacloud.statement;
 
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.IADD;
+import static org.objectweb.asm.Opcodes.IALOAD;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.NEWARRAY;
+
 import org.objectweb.asm.MethodVisitor;
-import static org.objectweb.asm.Opcodes.*;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class ArrayAccessNode extends ExprNode {
@@ -25,37 +33,10 @@ public class ArrayAccessNode extends ExprNode {
 		return var+"["+idxS+":"+idxE+"]";
 	}
 	
-	public static Type getElementType(Type arrayType) {
-		return Type.getType(arrayType.getDescriptor().substring(1));
-	}
-
-	public static int getTypeForNEWARRAY(Type arrayType) {
-		Type et = getElementType(arrayType);
-		switch(et.getSort()) {
-		case Type.DOUBLE:
-			return T_DOUBLE;
-		case Type.INT:
-			return T_INT;
-		case Type.LONG:
-			return T_LONG;
-		case Type.SHORT:
-			return T_SHORT;
-		case Type.BYTE:
-			return T_BYTE;
-		case Type.FLOAT:
-			return T_FLOAT;
-		case Type.CHAR:
-			return T_CHAR;
-		case Type.BOOLEAN:
-			return T_BOOLEAN;
-		}
-		throw new RuntimeException();
-	}
-	
 	@Override
 	public Type getType() {
 		if(null == idxE)
-			return getElementType(var.getType());
+			return Tools.getElementType(var.getType());
 		else
 			return var.getType();
 	}
@@ -70,7 +51,7 @@ public class ArrayAccessNode extends ExprNode {
 			sub.genCode(mv);
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IADD);
-			mv.visitIntInsn(NEWARRAY, getTypeForNEWARRAY(var.getType()));
+			mv.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType()));
 			mv.visitIntInsn(ASTORE, retAry.idxLVT);
 			mv.visitVarInsn(ALOAD, var.idxLVT);
 			idxS.genCode(mv);
@@ -94,7 +75,7 @@ public class ArrayAccessNode extends ExprNode {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(getElementType(Type.getType(double[].class)));
+		System.out.println(Tools.getElementType(Type.getType(double[].class)));
 	}
 	
 }

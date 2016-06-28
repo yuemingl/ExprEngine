@@ -21,9 +21,9 @@ public class AddNode extends ExprNode {
 	
 	public void genCode(MethodVisitor mv) {
 		left.genCode(mv);
-		Utils.insertConversionInsn(mv, left.getType(), getType());
+		Tools.insertConversionInsn(mv, left.getType(), getType());
 		right.genCode(mv);
-		Utils.insertConversionInsn(mv, right.getType(), getType());
+		Tools.insertConversionInsn(mv, right.getType(), getType());
 		if(this.getType().getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
 			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
 		} else {
@@ -33,6 +33,6 @@ public class AddNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		return Utils.typeConversion(left.getType(), right.getType());
+		return Tools.typeConversion(left.getType(), right.getType());
 	}
 }
