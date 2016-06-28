@@ -38,6 +38,7 @@ import io.lambdacloud.statement.DivNode;
 import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.ForNode;
+import io.lambdacloud.statement.FuncCallNode;
 import io.lambdacloud.statement.GENode;
 import io.lambdacloud.statement.GTNode;
 import io.lambdacloud.statement.IfNode;
@@ -762,10 +763,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void exitFuncCall(ExprGrammarParser.FuncCallContext ctx) {
+		FuncCallNode fnode = new FuncCallNode("java.lang.Math", "abs");
 		for(TerminalNode node : ctx.IDENTIFIER())
 		System.out.println(node.getText());
-		for(ExpressionContext expr : ctx.expression())
+		for(ExpressionContext expr : ctx.expression()) {
 			System.out.println(expr.getText());
+			fnode.args.add(stack.pop());
+		}
+		stack.push(fnode);
 		
 	}
 
