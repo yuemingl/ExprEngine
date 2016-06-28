@@ -13,11 +13,13 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
+import io.lambdacloud.ExprGrammarParser.ExpressionContext;
 import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
@@ -757,6 +759,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			node.addInitValues(stack.pop());
 		}
 		stack.push(node);
+	}
+	
+	@Override public void exitFuncCall(ExprGrammarParser.FuncCallContext ctx) {
+		for(TerminalNode node : ctx.IDENTIFIER())
+		System.out.println(node.getText());
+		for(ExpressionContext expr : ctx.expression())
+			System.out.println(expr.getText());
+		
 	}
 
 }

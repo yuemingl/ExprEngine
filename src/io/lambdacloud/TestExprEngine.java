@@ -79,6 +79,8 @@ public class TestExprEngine {
 	
 	public static void testExprs() {
 		//Test array
+		assertEqual(parseAndEval("Math.abs(-10,i+j)",new Object[]{0,1}), new int[]{1,20,30});
+		
 		assertEqual(parseAndEval("a=[10,20,30]; a[i]=j; a",new Object[]{0,1}), new int[]{1,20,30});
 		
 		assertEqual(parseAndEval("a=[10,20,30]; a[0]=1; a"), new int[]{1,20,30});

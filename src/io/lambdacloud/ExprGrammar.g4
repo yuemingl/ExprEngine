@@ -63,6 +63,7 @@ IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 COMMA : ',' ;
 COLON : ':' ;
 SEMI : ';' ; //we can only have one lexical rule for ';'
+PERIOD : '.' ;
 
 SQUOTE : '\'' ;
 DQUOTE : '"' ; 
@@ -141,6 +142,7 @@ arithmetic_expr
  | arithmetic_expr BXOR arithmetic_expr      # BitExpressionXor
  | LPAREN arithmetic_expr RPAREN             # ArithmeticExpressionParens
  | numeric_entity                            # ArithmeticExpressionEntity
+ | func_call                                 # FuncCall1
  ;
 
 string_expr
@@ -194,3 +196,6 @@ EscapeSeq
 
 array_init : LBRK (numeric_entity COMMA)* numeric_entity? RBRK ;
 
+func_call 
+ : IDENTIFIER (PERIOD IDENTIFIER)* LPAREN (expression COMMA)* expression? RPAREN # FuncCall
+ ;

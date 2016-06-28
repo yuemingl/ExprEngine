@@ -496,6 +496,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code FuncCall1}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncCall1(ExprGrammarParser.FuncCall1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FuncCall1}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncCall1(ExprGrammarParser.FuncCall1Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code BitExpressionShr}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -679,4 +691,16 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArray_init(ExprGrammarParser.Array_initContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FuncCall}
+	 * labeled alternative in {@link ExprGrammarParser#func_call}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncCall(ExprGrammarParser.FuncCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FuncCall}
+	 * labeled alternative in {@link ExprGrammarParser#func_call}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncCall(ExprGrammarParser.FuncCallContext ctx);
 }
