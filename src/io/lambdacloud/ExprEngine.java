@@ -2,14 +2,19 @@ package io.lambdacloud;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Type;
+import io.lambdacloud.statement.Tools;
 
 public class ExprEngine {
 	public static ExprTreeBuildWalker parse(String str) {
@@ -184,34 +189,14 @@ public class ExprEngine {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(getPrimitiveClass(Double.class));
-	}
-	
-	public static Class<?> getPrimitiveClass(Class<?> c) {
-		if(c == Double.class)
-			return double.class;
-		else if(c == Integer.class)
-			return int.class;
-		else if(c == Float.class)
-			return float.class;
-		else if(c == Short.class)
-			return short.class;
-		else if(c == Character.class)
-			return char.class;
-		else if(c == Long.class)
-			return long.class;
-		else if(c == Boolean.class)
-			return boolean.class;
-		
-		return c;
+		System.out.println(Tools.getPrimitiveClass(Double.class));
 	}
 	
 	public static Object parseAndEval(String str, Object[] args) {
 		Class<?>[] aryParamTypes = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
-			aryParamTypes[i] = getPrimitiveClass(args[i].getClass());
+			aryParamTypes[i] = Tools.getPrimitiveClass(args[i].getClass());
 		}
-		//ExprTreeBuildWalker ew = parse(str, aryParamTypes);
 		ExprTreeBuildWalker ew = parse(str);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", aryParamTypes);
 		try {
@@ -224,4 +209,26 @@ public class ExprEngine {
 		}
 		return null;
 	}
+
+	public static Object parseAndEval(String str, Map<String, Object> args) {
+		Map<String, Class<?>> argTypes = new HashMap<String, Class<?>>();
+		for(Entry<String, Object> e : args.entrySet()) {
+			argTypes.put(e.getKey(), Tools.getPrimitiveClass(e.getValue().getClass()));
+		}
+		ExprTreeBuildWalker ew = parse(str, argTypes);
+		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
+		try {
+			List<String> argNames = new ArrayList<String>();
+			argNames.addAll(args.keySet());
+			Collections.sort(argNames);
+			Object[] params = new Object[argNames.size()];
+			for(int i=0; i<params.length; i++)
+				params[i] = args.get(argNames.get(i));
+			return m1.invoke(null, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }

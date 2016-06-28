@@ -5,6 +5,7 @@ import io.lambdacloud.ExprEngine;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TestExprEngine {
 
@@ -81,7 +82,21 @@ public class TestExprEngine {
 		return arg[0];
 	}
 	
+	public static Map<String, Object> getMap(Object ...args) {
+		Map<String, Object> ret = new HashMap<String, Object>();
+		for(int i=0; i<args.length; i+=2) {
+			ret.put(args[i].toString(), args[i+1]);
+		}
+		return ret;
+	}
+	
 	public static void testExprs() {
+		assertEqual(parseAndEval("i+io.lambdacloud.TestExprEngine.arrayArgFunc(ary)", 
+				getMap(
+						"i",10, 
+						"ary",new int[]{3,4,5}
+					)), 13);
+		
 		assertEqual(parseAndEval("io.lambdacloud.TestExprEngine.arrayArgFunc(ary)",new Object[]{ new int[]{3,4,5} }), 3);
 
 		assertEqual(parseAndEval("Math.abs(i+j)",new Object[]{-0.5,-0.7}), 1.2);
