@@ -39,8 +39,8 @@ public class FuncCallNode extends ExprNode {
 			for(int i=args.size()-1 ; i>=0; i--) {
 				args.get(i).genCode(mv);
 			}
-			mv.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName, Type.getMethodDescriptor(m), false);
-			
+			mv.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName, 
+					Type.getMethodDescriptor(m), false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -48,7 +48,15 @@ public class FuncCallNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		return Type.getType(double.class);
+		Class<?> c;
+		try {
+			c = Class.forName(fullClassName);
+			Method m = c.getMethod(methodName, this.getParameterTypes());
+			return Type.getType(m.getReturnType());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public double test(double x) {

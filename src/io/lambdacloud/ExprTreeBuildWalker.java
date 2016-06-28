@@ -765,18 +765,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitFuncCall(ExprGrammarParser.FuncCallContext ctx) {
 		StringBuilder sb = new StringBuilder();
 		//for(int i= ctx.IDENTIFIER().size()-1; i>0; i--) {
-		sb.append("/");
 		for(int i=0; i<ctx.IDENTIFIER().size()-1; i++) {
 			TerminalNode node = ctx.IDENTIFIER(i);
-			sb.append(node.getText());
+			sb.append(".").append(node.getText());
 		}
-		String className = sb.delete(0, 1).toString();
+		String className = sb.length()>0?sb.delete(0, 1).toString():"";
 		if(className.equalsIgnoreCase("math"))
 				className = "java.lang.Math";
 		String methodName = ctx.IDENTIFIER(ctx.IDENTIFIER().size()-1).getText();
 		FuncCallNode fnode = new FuncCallNode(className, methodName);
 		for(ExpressionContext expr : ctx.expression()) {
-			System.out.println(expr.getText());
+			//System.out.println(expr.getText());
 			fnode.args.add(stack.pop());
 		}
 		stack.push(fnode);

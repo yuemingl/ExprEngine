@@ -75,16 +75,49 @@ public class Tools {
 			mv.visitInsn(Opcodes.D2L);
 	}
 	
+	public static Class<?> getIntClass(int dim) {
+		if(dim == 0) return int.class;
+		else if(dim == 1) return int[].class;
+		else if(dim == 2) return int[][].class;
+		else if(dim == 3) return int[][][].class;
+		return null;
+	}
+	public static Class<?> getLongClass(int dim) {
+		if(dim == 0) return long.class;
+		else if(dim == 1) return long[].class;
+		else if(dim == 2) return long[][].class;
+		else if(dim == 3) return long[][][].class;
+		return null;
+	}
+	public static Class<?> getDoubleClass(int dim) {
+		if(dim == 0) return double.class;
+		else if(dim == 1) return double[].class;
+		else if(dim == 2) return double[][].class;
+		else if(dim == 3) return double[][][].class;
+		return null;
+	}
+	public static Class<?> getBooleanClass(int dim) {
+		if(dim == 0) return boolean.class;
+		else if(dim == 1) return boolean[].class;
+		else if(dim == 2) return boolean[][].class;
+		else if(dim == 3) return boolean[][][].class;
+		return null;
+	}
+	
 	public static Class<?> typeToClass(Type t) {
+		return typeToClass(t, 0);
+	}
+
+	public static Class<?> typeToClass(Type t, int dim) {
 		switch(t.getSort()) {
 		case Type.DOUBLE:
-			return double.class;
+			return getDoubleClass(dim);
 		case Type.INT:
-			return int.class;
+			return getIntClass(dim);
 		case Type.LONG:
-			return long.class;
+			return getLongClass(dim);
 		case Type.BOOLEAN:
-			return boolean.class;
+			return getBooleanClass(dim);
 		case Type.CHAR:
 			return char.class;
 		case Type.SHORT:
@@ -97,7 +130,12 @@ public class Tools {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+		case Type.ARRAY:
+			Type e = Tools.getElementType(t);
+			return typeToClass(e, dim+1);
 		}
 		return null;
 	}
+	
+	
 }

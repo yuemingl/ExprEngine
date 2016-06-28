@@ -77,10 +77,18 @@ public class TestExprEngine {
 		}
 	}
 	
+	public static int arrayArgFunc(int[] arg) {
+		return arg[0];
+	}
+	
 	public static void testExprs() {
-		//Test array
+		assertEqual(parseAndEval("io.lambdacloud.TestExprEngine.arrayArgFunc(ary)",new Object[]{ new int[]{3,4,5} }), 3);
+
 		assertEqual(parseAndEval("Math.abs(i+j)",new Object[]{-0.5,-0.7}), 1.2);
+		assertEqual(parseAndEval("Math.max(i,j)",new double[]{5.0,5.1}), 5.1);
+		assertEqual(parseAndEval("Math.round(i)",new double[]{5.4}), 5L);
 		
+		//Test array
 		assertEqual(parseAndEval("a=[10,20,30]; a[i]=j; a",new Object[]{0,1}), new int[]{1,20,30});
 		
 		assertEqual(parseAndEval("a=[10,20,30]; a[0]=1; a"), new int[]{1,20,30});
