@@ -137,5 +137,22 @@ public class Tools {
 		return null;
 	}
 	
-	
+	public static Class<?> getPrimitiveClass(Class<?> c) {
+		if(c == Double.class)
+			return double.class;
+		else if(c == Integer.class)
+			return int.class;
+		else if(c == Float.class)
+			return float.class;
+		else if(c == Short.class)
+			return short.class;
+		else if(c == Character.class)
+			return char.class;
+		else if(c == Long.class)
+			return long.class;
+		else if(c == Boolean.class)
+			return boolean.class;
+		
+		return c;
+	}	
 }
