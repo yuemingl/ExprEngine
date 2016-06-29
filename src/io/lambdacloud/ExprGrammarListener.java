@@ -162,6 +162,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprArrayInit(ExprGrammarParser.ExprArrayInitContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ListComprehension}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterListComprehension(ExprGrammarParser.ListComprehensionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ListComprehension}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitListComprehension(ExprGrammarParser.ListComprehensionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
 	 * @param ctx the parse tree
@@ -715,4 +727,44 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFuncCall(ExprGrammarParser.FuncCallContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#list_comp_for}.
+	 * @param ctx the parse tree
+	 */
+	void enterList_comp_for(ExprGrammarParser.List_comp_forContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#list_comp_for}.
+	 * @param ctx the parse tree
+	 */
+	void exitList_comp_for(ExprGrammarParser.List_comp_forContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#list_comp_if}.
+	 * @param ctx the parse tree
+	 */
+	void enterList_comp_if(ExprGrammarParser.List_comp_ifContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#list_comp_if}.
+	 * @param ctx the parse tree
+	 */
+	void exitList_comp_if(ExprGrammarParser.List_comp_ifContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#list_comp_for_if}.
+	 * @param ctx the parse tree
+	 */
+	void enterList_comp_for_if(ExprGrammarParser.List_comp_for_ifContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#list_comp_for_if}.
+	 * @param ctx the parse tree
+	 */
+	void exitList_comp_for_if(ExprGrammarParser.List_comp_for_ifContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#list_comprehension}.
+	 * @param ctx the parse tree
+	 */
+	void enterList_comprehension(ExprGrammarParser.List_comprehensionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#list_comprehension}.
+	 * @param ctx the parse tree
+	 */
+	void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx);
 }

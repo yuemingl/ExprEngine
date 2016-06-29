@@ -91,6 +91,11 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+//		assertEqual(parseAndEval("[ [x for x in A] for y in B ]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>0]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+//		assertEqual(parseAndEval("[x+y for x in A for y in B]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+//		assertEqual(parseAndEval("[x+1 for x in y if x>4]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+//		assertEqual(parseAndEval("[x+1 for x in y]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
 		
 		parseAndEval("println('Begin test:'); print(1); print(2.0); println(true)");
 		parseAndEval("println(\"hello world!\")");

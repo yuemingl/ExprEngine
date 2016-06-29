@@ -97,6 +97,7 @@ expression
  | string_expr           # ExprString
  | assign_expr           # ExprAssign1
  | array_init            # ExprArrayInit
+ | list_comprehension    # ListComprehension
  ;
 
 assign_expr
@@ -166,7 +167,7 @@ index_entity
  ;
 
 variable_entity 
- : IDENTIFIER                                                        # EntityVariable
+ : IDENTIFIER                                                              # EntityVariable
  | IDENTIFIER (LBRK arithmetic_expr (COLON arithmetic_expr)? RBRK)+        # EntityArrayAccess
  ;
 
@@ -200,3 +201,12 @@ array_init : LBRK (numeric_entity COMMA)* numeric_entity? RBRK ;
 func_call 
  : IDENTIFIER (PERIOD IDENTIFIER)* LPAREN (expression COMMA)* expression? RPAREN # FuncCall
  ;
+ 
+ list_comprehension
+ : LBRK expression list_comp_for_if+ RBRK
+ ;
+
+list_comp_for : 'for' IDENTIFIER 'in' expression ;
+list_comp_if : 'if' logical_expr ;
+list_comp_for_if : (list_comp_for)+ (list_comp_if)? ;
+ 

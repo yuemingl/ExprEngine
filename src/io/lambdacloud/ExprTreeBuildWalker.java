@@ -20,6 +20,7 @@ import org.objectweb.asm.Type;
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.ExprGrammarParser.ExpressionContext;
+import io.lambdacloud.ExprGrammarParser.List_comp_for_ifContext;
 import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
 import io.lambdacloud.statement.AndNode;
@@ -784,6 +785,19 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		stack.push(fnode);
 		
+	}
+	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
+		System.out.println(this.stack);
+		System.out.println(ctx.expression().getText());
+		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
+			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
+			if(null != for_if.list_comp_if())
+				System.out.println(for_if.list_comp_if().getText());
+			for(int j=0; j<for_if.list_comp_for().size(); j++) {
+				System.out.println(for_if.list_comp_for(j).IDENTIFIER().getText());
+				System.out.println(for_if.list_comp_for(j).expression().getText());
+			}
+		}
 	}
 
 }
