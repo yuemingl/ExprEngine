@@ -12,9 +12,10 @@ import static org.objectweb.asm.Opcodes.T_SHORT;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class Tools {
 //	public static Type getElementType(Type arrayType) {
@@ -60,23 +61,23 @@ public class Tools {
 		return Type.getType(boolean.class);
 	}
 	
-	public static void insertConversionInsn(MethodVisitor mv, Type from, Type to) {
+	public static void insertConversionInsn(MethodGenHelper mg, Type from, Type to) {
 		if(from.getSort() == to.getSort())
 			return;
 		int f = from.getSort();
 		int t = to.getSort();
 		if(f == Type.INT && t == Type.DOUBLE)
-			mv.visitInsn(Opcodes.I2D);
+			mg.visitInsn(Opcodes.I2D);
 		if(f == Type.LONG && t == Type.DOUBLE)
-			mv.visitInsn(Opcodes.L2D);
+			mg.visitInsn(Opcodes.L2D);
 		if(f == Type.LONG && t == Type.INT)
-			mv.visitInsn(Opcodes.L2I);
+			mg.visitInsn(Opcodes.L2I);
 		if(f == Type.DOUBLE && t == Type.INT)
-			mv.visitInsn(Opcodes.D2I);
+			mg.visitInsn(Opcodes.D2I);
 		if(f == Type.INT && t == Type.LONG)
-			mv.visitInsn(Opcodes.I2L);
+			mg.visitInsn(Opcodes.I2L);
 		if(f == Type.DOUBLE && t == Type.LONG)
-			mv.visitInsn(Opcodes.D2L);
+			mg.visitInsn(Opcodes.D2L);
 	}
 	
 	public static Class<?> getIntClass(int dim) {

@@ -7,10 +7,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Opcodes.*;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class ListComprehensionNode extends ExprNode {
 	public ExprNode expression;
@@ -37,7 +38,7 @@ public class ListComprehensionNode extends ExprNode {
 		}
 
 		@Override
-		public void genCode(MethodVisitor mv) {
+		public void genCode(MethodGenHelper mg) {
 			//define a local variable node for this.set
 			VariableNode tmpSet = new VariableNode("__tmpSet", set.getType());
 			int idx = Tools.getNextIndexLVT(localVarMap, paramMap, set.getType());
@@ -58,51 +59,51 @@ public class ListComprehensionNode extends ExprNode {
 
 			
 			//[x+1 for x in y]
-			set.genCode(mv);
+			set.genCode(mg);
 			
 			//set = y
-			mv.visitVarInsn(Opcodes.ASTORE, tmpSet.idxLVT);
+			mg.visitVarInsn(Opcodes.ASTORE, tmpSet.idxLVT);
 			
 			//ret = new double[set.length]
-			mv.visitVarInsn(ALOAD, tmpSet.idxLVT);
-			mv.visitInsn(ARRAYLENGTH);
-			mv.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(ret.getType()));
-			mv.visitVarInsn(ASTORE, ret.idxLVT);
+			mg.visitVarInsn(ALOAD, tmpSet.idxLVT);
+			mg.visitInsn(ARRAYLENGTH);
+			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(ret.getType()));
+			mg.visitVarInsn(ASTORE, ret.idxLVT);
 			
 			//i=0
-			mv.visitInsn(ICONST_0);
-			mv.visitVarInsn(ISTORE, i.idxLVT);
+			mg.visitInsn(ICONST_0);
+			mg.visitVarInsn(ISTORE, i.idxLVT);
 			Label forCond = new Label();
-			mv.visitJumpInsn(GOTO, forCond);
+			mg.visitJumpInsn(GOTO, forCond);
 			Label forBody = new Label();
-			mv.visitLabel(forBody);
+			mg.visitLabel(forBody);
 			
 			//x=set[i]
 			VariableNode x = this.localVarMap.get(varName);
-			mv.visitVarInsn(ALOAD, tmpSet.idxLVT);
-			mv.visitVarInsn(ILOAD, i.idxLVT);
-			mv.visitInsn(tmpSet.getType().getElementType().getOpcode(IALOAD));
-			Tools.insertConversionInsn(mv, tmpSet.getType().getElementType(), x.getType());
-			mv.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
+			mg.visitVarInsn(ALOAD, tmpSet.idxLVT);
+			mg.visitVarInsn(ILOAD, i.idxLVT);
+			mg.visitInsn(tmpSet.getType().getElementType().getOpcode(IALOAD));
+			Tools.insertConversionInsn(mg, tmpSet.getType().getElementType(), x.getType());
+			mg.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
 			
 			//ret[i] = x+1
-			mv.visitVarInsn(ALOAD, ret.idxLVT);
-			mv.visitVarInsn(ILOAD, i.idxLVT);
-			this.exprBody.genCode(mv);
-			mv.visitInsn(DASTORE); //type???
+			mg.visitVarInsn(ALOAD, ret.idxLVT);
+			mg.visitVarInsn(ILOAD, i.idxLVT);
+			this.exprBody.genCode(mg);
+			mg.visitInsn(DASTORE); //type???
 			
 			//i++
-			mv.visitIincInsn(i.idxLVT, 1);
+			mg.visitIincInsn(i.idxLVT, 1);
 			//i<set.length
-			mv.visitLabel(forCond);
-			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mv.visitVarInsn(ILOAD, i.idxLVT);
-			mv.visitVarInsn(ALOAD, tmpSet.idxLVT);
-			mv.visitInsn(ARRAYLENGTH);
-			mv.visitJumpInsn(IF_ICMPLT, forBody);
+			mg.visitLabel(forCond);
+			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mg.visitVarInsn(ILOAD, i.idxLVT);
+			mg.visitVarInsn(ALOAD, tmpSet.idxLVT);
+			mg.visitInsn(ARRAYLENGTH);
+			mg.visitJumpInsn(IF_ICMPLT, forBody);
 			
 			//return ret
-			mv.visitVarInsn(ALOAD, ret.idxLVT);
+			mg.visitVarInsn(ALOAD, ret.idxLVT);
 		}
 	}
 	
@@ -114,7 +115,7 @@ public class ListComprehensionNode extends ExprNode {
 	public static class LIfNode extends ExprNode {
 
 		@Override
-		public void genCode(MethodVisitor mv) {
+		public void genCode(MethodGenHelper mg) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -122,9 +123,9 @@ public class ListComprehensionNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
+	public void genCode(MethodGenHelper mg) {
 		forIf.get(0).exprBody = this.expression;
-		this.forIf.get(0).genCode(mv);
+		this.forIf.get(0).genCode(mg);
 	}
 
 	public static int[] test(int[] set) {

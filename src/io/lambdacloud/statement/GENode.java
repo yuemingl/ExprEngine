@@ -8,9 +8,10 @@ import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class GENode extends ExprNode {
 	public ExprNode left;
@@ -29,35 +30,35 @@ public class GENode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
+	public void genCode(MethodGenHelper mg) {
 		Type ty = Tools.typeConversion(left.getType(), right.getType());
-		left.genCode(mv);
-		Tools.insertConversionInsn(mv, left.getType(), ty);
-		right.genCode(mv);
-		Tools.insertConversionInsn(mv, right.getType(), ty);
+		left.genCode(mg);
+		Tools.insertConversionInsn(mg, left.getType(), ty);
+		right.genCode(mg);
+		Tools.insertConversionInsn(mg, right.getType(), ty);
 		if(ty.getSort() == Type.DOUBLE) {
-			mv.visitInsn(DCMPL);
+			mg.visitInsn(DCMPL);
 			Label l1 = new Label();
-			mv.visitJumpInsn(IFLT, l1);
-			mv.visitInsn(ICONST_1);
+			mg.visitJumpInsn(IFLT, l1);
+			mg.visitInsn(ICONST_1);
 			Label l2 = new Label();
-			mv.visitJumpInsn(GOTO, l2);
-			mv.visitLabel(l1);
-			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mv.visitInsn(ICONST_0);
-			mv.visitLabel(l2);
+			mg.visitJumpInsn(GOTO, l2);
+			mg.visitLabel(l1);
+			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mg.visitInsn(ICONST_0);
+			mg.visitLabel(l2);
 			//mv.visitInsn(Opcodes.NOP);
 		}
 		else if(ty.getSort() == Type.INT) {
 			Label l1 = new Label();
-			mv.visitJumpInsn(IF_ICMPLT, l1);
-			mv.visitInsn(ICONST_1);
+			mg.visitJumpInsn(IF_ICMPLT, l1);
+			mg.visitInsn(ICONST_1);
 			Label l2 = new Label();
-			mv.visitJumpInsn(GOTO, l2);
-			mv.visitLabel(l1);
-			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mv.visitInsn(ICONST_0);
-			mv.visitLabel(l2);
+			mg.visitJumpInsn(GOTO, l2);
+			mg.visitLabel(l1);
+			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mg.visitInsn(ICONST_0);
+			mg.visitLabel(l2);
 			//mv.visitInsn(Opcodes.NOP);
 		}
 		else

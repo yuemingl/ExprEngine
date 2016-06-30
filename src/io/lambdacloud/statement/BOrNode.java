@@ -1,7 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
+
 import org.objectweb.asm.Opcodes;
 
 public class BOrNode extends ExprNode {
@@ -19,10 +21,10 @@ public class BOrNode extends ExprNode {
 		return left + "|" + right;
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		left.genCode(mv);
-		right.genCode(mv);
-		mv.visitInsn(getType().getOpcode(Opcodes.IOR));
+	public void genCode(MethodGenHelper mg) {
+		left.genCode(mg);
+		right.genCode(mg);
+		mg.visitInsn(getType().getOpcode(Opcodes.IOR));
 	}
 	
 	@Override

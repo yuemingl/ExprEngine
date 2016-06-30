@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class IfNode extends ExprNode {
 	public ExprNode condition;
@@ -14,28 +15,28 @@ public class IfNode extends ExprNode {
 	public List<ExprNode> elseBlockExprs = new ArrayList<ExprNode>();
 
 	@Override
-	public void genCode(MethodVisitor mv) {
-		this.condition.genCode(mv);
+	public void genCode(MethodGenHelper mg) {
+		this.condition.genCode(mg);
 		if(this.elseBlockExprs.size() > 0) {
 			Label elseBranch = new Label();
-			mv.visitJumpInsn(Opcodes.IFEQ, elseBranch);
+			mg.visitJumpInsn(Opcodes.IFEQ, elseBranch);
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
-				ifBlockExprs.get(i).genCode(mv);
+				ifBlockExprs.get(i).genCode(mg);
 			}
 			Label ifend = new Label();
-			mv.visitJumpInsn(Opcodes.GOTO, ifend);
-			mv.visitLabel(elseBranch);
+			mg.visitJumpInsn(Opcodes.GOTO, ifend);
+			mg.visitLabel(elseBranch);
 			for(int i=elseBlockExprs.size()-1; i>=0; i--) {
-				elseBlockExprs.get(i).genCode(mv);
+				elseBlockExprs.get(i).genCode(mg);
 			}
-			mv.visitLabel(ifend);
+			mg.visitLabel(ifend);
 		} else {
 			Label ifend = new Label();
-			mv.visitJumpInsn(Opcodes.IFEQ, ifend);
+			mg.visitJumpInsn(Opcodes.IFEQ, ifend);
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
-				ifBlockExprs.get(i).genCode(mv);
+				ifBlockExprs.get(i).genCode(mg);
 			}
-			mv.visitLabel(ifend);
+			mg.visitLabel(ifend);
 		}
 		
 	}

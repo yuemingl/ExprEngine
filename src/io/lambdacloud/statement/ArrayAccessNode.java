@@ -10,8 +10,9 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class ArrayAccessNode extends ExprNode {
 	public VariableNode var;
@@ -41,26 +42,26 @@ public class ArrayAccessNode extends ExprNode {
 			return var.getType();
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		var.genCode(mv);
+	public void genCode(MethodGenHelper mg) {
+		var.genCode(mg);
 		if(null == idxE) {
-			idxS.genCode(mv);
-			mv.visitInsn(getType().getOpcode(IALOAD));
+			idxS.genCode(mg);
+			mg.visitInsn(getType().getOpcode(IALOAD));
 		} else {
 			SubNode sub = new SubNode(idxE, idxS);
-			sub.genCode(mv);
-			mv.visitInsn(ICONST_1);
-			mv.visitInsn(IADD);
-			mv.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType()));
-			mv.visitIntInsn(ASTORE, retAry.idxLVT);
-			mv.visitVarInsn(ALOAD, var.idxLVT);
-			idxS.genCode(mv);
-			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-			mv.visitInsn(ICONST_0);
-			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-			mv.visitInsn(ARRAYLENGTH);
-			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-			mv.visitVarInsn(ALOAD, retAry.idxLVT);
+			sub.genCode(mg);
+			mg.visitInsn(ICONST_1);
+			mg.visitInsn(IADD);
+			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType()));
+			mg.visitIntInsn(ASTORE, retAry.idxLVT);
+			mg.visitVarInsn(ALOAD, var.idxLVT);
+			idxS.genCode(mg);
+			mg.visitVarInsn(ALOAD, retAry.idxLVT);
+			mg.visitInsn(ICONST_0);
+			mg.visitVarInsn(ALOAD, retAry.idxLVT);
+			mg.visitInsn(ARRAYLENGTH);
+			mg.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+			mg.visitVarInsn(ALOAD, retAry.idxLVT);
 			//mv.visitInsn(ARETURN);
 		}
 	}

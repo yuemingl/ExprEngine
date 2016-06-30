@@ -1,7 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
+
 import org.objectweb.asm.Opcodes;
 
 public class MulAsignNode extends ExprNode {
@@ -17,13 +19,13 @@ public class MulAsignNode extends ExprNode {
 		return left + " *= " + right;
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		left.genCode(mv); //load
-		right.genCode(mv);
-		mv.visitInsn(getType().getOpcode(Opcodes.IMUL));
-		mv.visitVarInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
+	public void genCode(MethodGenHelper mg) {
+		left.genCode(mg); //load
+		right.genCode(mg);
+		mg.visitInsn(getType().getOpcode(Opcodes.IMUL));
+		mg.visitVarInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
 		if(genLoadInsn) {
-			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+			mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
 		}
 	}
 	

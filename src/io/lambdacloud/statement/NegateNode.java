@@ -1,7 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
+
 import org.objectweb.asm.Opcodes;
 
 public class NegateNode extends ExprNode {
@@ -16,9 +18,9 @@ public class NegateNode extends ExprNode {
 		return "-" + expr;
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		expr.genCode(mv);
-		mv.visitInsn(getType().getOpcode(Opcodes.INEG));
+	public void genCode(MethodGenHelper mg) {
+		expr.genCode(mg);
+		mg.visitInsn(getType().getOpcode(Opcodes.INEG));
 		
 	}
 	

@@ -1,7 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
+
 import org.objectweb.asm.Opcodes;
 
 public class AssignNode extends ExprNode {
@@ -24,15 +26,15 @@ public class AssignNode extends ExprNode {
 		return right.getType();
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		right.genCode(mv);
+	public void genCode(MethodGenHelper mg) {
+		right.genCode(mg);
 		if(right instanceof AssignNode) {
 			AssignNode r = (AssignNode)right;
-			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), r.left.idxLVT);
+			mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), r.left.idxLVT);
 		}
-		mv.visitIntInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
+		mg.visitIntInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
 		if(genLoadInsn) {
-			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+			mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
 		}
 	}
 	

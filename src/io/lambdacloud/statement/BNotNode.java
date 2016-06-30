@@ -3,8 +3,9 @@ package io.lambdacloud.statement;
 import static org.objectweb.asm.Opcodes.ICONST_M1;
 import static org.objectweb.asm.Opcodes.IXOR;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class BNotNode extends ExprNode {
 	public ExprNode expr;
@@ -20,13 +21,13 @@ public class BNotNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
-		expr.genCode(mv);
+	public void genCode(MethodGenHelper mg) {
+		expr.genCode(mg);
 		if(getType().getSort() == Type.LONG)
-			mv.visitLdcInsn(new Long(-1L));
+			mg.visitLdcInsn(new Long(-1L));
 		else
-			mv.visitInsn(ICONST_M1);
-		mv.visitInsn(getType().getOpcode(IXOR));
+			mg.visitInsn(ICONST_M1);
+		mg.visitInsn(getType().getOpcode(IXOR));
 	}
 	
 	@Override

@@ -1,8 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class USHRNode extends ExprNode {
 	public ExprNode left;
@@ -21,10 +22,10 @@ public class USHRNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
-		left.genCode(mv);
-		right.genCode(mv);
-		mv.visitInsn(getType().getOpcode(Opcodes.IUSHR));
+	public void genCode(MethodGenHelper mg) {
+		left.genCode(mg);
+		right.genCode(mg);
+		mg.visitInsn(getType().getOpcode(Opcodes.IUSHR));
 	}
 	
 	@Override

@@ -2,8 +2,9 @@ package io.lambdacloud.statement;
 
 import static org.objectweb.asm.Opcodes.IASTORE;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class ArrayAssignNode extends ExprNode {
 	public VariableNode var;
@@ -35,12 +36,12 @@ public class ArrayAssignNode extends ExprNode {
 			return var.getType();
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		var.genCode(mv); //ALOAD
+	public void genCode(MethodGenHelper mg) {
+		var.genCode(mg); //ALOAD
 		if(null == idxE) {
-			idxS.genCode(mv);
-			val.genCode(mv);
-			mv.visitInsn(getType().getOpcode(IASTORE));
+			idxS.genCode(mg);
+			val.genCode(mg);
+			mg.visitInsn(getType().getOpcode(IASTORE));
 		} else {
 			//TODO a[1:3]=3
 			//TODO a[1:3]=[1,2,3]

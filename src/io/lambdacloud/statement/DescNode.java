@@ -1,8 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class DescNode extends ExprNode {
 	public VariableNode var;
@@ -17,17 +18,17 @@ public class DescNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
+	public void genCode(MethodGenHelper mg) {
 		if(getType().getSort() == Type.LONG) {
-			var.genCode(mv);
-			mv.visitInsn(Opcodes.DUP2);
-			mv.visitInsn(Opcodes.LCONST_1);
-			mv.visitInsn(Opcodes.LSUB);
-			mv.visitVarInsn(Opcodes.LSTORE, var.idxLVT);
+			var.genCode(mg);
+			mg.visitInsn(Opcodes.DUP2);
+			mg.visitInsn(Opcodes.LCONST_1);
+			mg.visitInsn(Opcodes.LSUB);
+			mg.visitVarInsn(Opcodes.LSTORE, var.idxLVT);
 		} else
-			mv.visitIincInsn(var.idxLVT, -1);
+			mg.visitIincInsn(var.idxLVT, -1);
 		if(genLoadInsn) {
-			mv.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
+			mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
 	}
 	

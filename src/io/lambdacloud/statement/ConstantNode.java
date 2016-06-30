@@ -1,7 +1,8 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class ConstantNode extends ExprNode {
 	String value;
@@ -27,13 +28,13 @@ public class ConstantNode extends ExprNode {
 		return this.value;
 	}
 	
-	public void genCode(MethodVisitor mv) {
+	public void genCode(MethodGenHelper mg) {
 		if(type.getSort() == Type.DOUBLE) {
-			mv.visitLdcInsn(getDouble());
+			mg.visitLdcInsn(getDouble());
 		} else if(type.getSort() == Type.INT) {
-			mv.visitLdcInsn(getInt());
+			mg.visitLdcInsn(getInt());
 		} else if(type.getSort() == Type.BOOLEAN) {
-			mv.visitLdcInsn(getBoolean());
+			mg.visitLdcInsn(getBoolean());
 		} else {
 			throw new RuntimeException("Nothing to generate!");
 		}

@@ -292,6 +292,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
+			MethodGenHelper mg = new MethodGenHelper(mv);
 			
 			int index = 1;
 			if(isStatic) index = 0;
@@ -315,22 +316,22 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			//Generate code for all the expressions
 			while(!stack.isEmpty()) {
 				ExprNode expr = stack.pollLast();
-				expr.genCode(mv);
+				expr.genCode(mg);
 			}
 			
-			mv.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			if(!isStatic)
-				mv.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
+				mg.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
 			for(VariableNode var : paramMap.values()) {
-				mv.visitLocalVariable(var.name, var.getType().getDescriptor(),
+				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
 						null, cgen.l0, cgen.l1, var.idxLVT);
 			}
 			for(VariableNode var : localVarMap.values()) {
-				mv.visitLocalVariable(var.name, var.getType().getDescriptor(), 
+				mg.visitLocalVariable(var.name, var.getType().getDescriptor(), 
 						null, cgen.l0, cgen.l1, var.idxLVT);
 			}
 			
-			mv.visitMaxs(-1, -1); //Auto generated
+			mg.visitMaxs(-1, -1); //Auto generated
 			cgen.endCode();
 			cgen.endClass();
 			

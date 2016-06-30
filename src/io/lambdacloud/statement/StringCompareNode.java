@@ -1,9 +1,10 @@
 package io.lambdacloud.statement;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class StringCompareNode extends ExprNode {
 	ExprNode left;
@@ -18,24 +19,24 @@ public class StringCompareNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
+	public void genCode(MethodGenHelper mg) {
 		if("==".equals(opcode)) {
-			left.genCode(mv);
-			right.genCode(mv);
-			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+			left.genCode(mg);
+			right.genCode(mg);
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
 		} else if("!=".equals(opcode)){
-			left.genCode(mv);
-			right.genCode(mv);
-			mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+			left.genCode(mg);
+			right.genCode(mg);
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
 			Label l1 = new Label();
-			mv.visitJumpInsn(Opcodes.IFEQ, l1);
-			mv.visitInsn(Opcodes.ICONST_0);
+			mg.visitJumpInsn(Opcodes.IFEQ, l1);
+			mg.visitInsn(Opcodes.ICONST_0);
 			Label l2 = new Label();
-			mv.visitJumpInsn(Opcodes.GOTO, l2);
-			mv.visitLabel(l1);
-			mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mv.visitInsn(Opcodes.ICONST_1);
-			mv.visitLabel(l2);
+			mg.visitJumpInsn(Opcodes.GOTO, l2);
+			mg.visitLabel(l1);
+			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mg.visitInsn(Opcodes.ICONST_1);
+			mg.visitLabel(l2);
 		} else {
 			throw new RuntimeException("");
 		}

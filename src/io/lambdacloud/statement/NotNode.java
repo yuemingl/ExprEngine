@@ -6,9 +6,10 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class NotNode extends ExprNode {
 	public ExprNode expr;
@@ -23,17 +24,17 @@ public class NotNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
-		expr.genCode(mv);
+	public void genCode(MethodGenHelper mg) {
+		expr.genCode(mg);
 		Label l1 = new Label();
-		mv.visitJumpInsn(IFEQ, l1);
-		mv.visitInsn(ICONST_0);
+		mg.visitJumpInsn(IFEQ, l1);
+		mg.visitInsn(ICONST_0);
 		Label l2 = new Label();
-		mv.visitJumpInsn(GOTO, l2);
-		mv.visitLabel(l1);
-		mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-		mv.visitInsn(ICONST_1);
-		mv.visitLabel(l2);
+		mg.visitJumpInsn(GOTO, l2);
+		mg.visitLabel(l1);
+		mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+		mg.visitInsn(ICONST_1);
+		mg.visitLabel(l2);
 	}
 	
 	public boolean test(boolean a, boolean b) {

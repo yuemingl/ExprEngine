@@ -1,7 +1,9 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
+
 import org.objectweb.asm.Opcodes;
 
 public class RemNode extends ExprNode {
@@ -19,12 +21,12 @@ public class RemNode extends ExprNode {
 		return left + "%" + right;
 	}
 	
-	public void genCode(MethodVisitor mv) {
-		left.genCode(mv);
-		Tools.insertConversionInsn(mv, left.getType(), getType());
-		right.genCode(mv);
-		Tools.insertConversionInsn(mv, right.getType(), getType());
-		mv.visitInsn(getType().getOpcode(Opcodes.IREM));
+	public void genCode(MethodGenHelper mg) {
+		left.genCode(mg);
+		Tools.insertConversionInsn(mg, left.getType(), getType());
+		right.genCode(mg);
+		Tools.insertConversionInsn(mg, right.getType(), getType());
+		mg.visitInsn(getType().getOpcode(Opcodes.IREM));
 	}
 	
 	@Override

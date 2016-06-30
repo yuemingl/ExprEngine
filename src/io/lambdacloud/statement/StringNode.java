@@ -1,7 +1,8 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class StringNode extends ExprNode {
 	public String strVal;
@@ -10,8 +11,8 @@ public class StringNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodVisitor mv) {
-		mv.visitLdcInsn(strVal);
+	public void genCode(MethodGenHelper mg) {
+		mg.visitLdcInsn(strVal);
 	}
 	
 	public static String test() {

@@ -1,14 +1,16 @@
 package io.lambdacloud.statement;
 
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public abstract class ExprNode {
 	protected Type type;
 	protected Object tag;
 	protected boolean genLoadInsn = false;
 	
-	public abstract void genCode(MethodVisitor mv);
+	public abstract void genCode(MethodGenHelper mg);
+	
 	public Type getType() {
 		return type;
 	}

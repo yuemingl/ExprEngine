@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import io.lambdacloud.MethodGenHelper;
 
 public class ForNode extends ExprNode {
 	public List<ExprNode>  init = new ArrayList<ExprNode>();
@@ -15,26 +16,26 @@ public class ForNode extends ExprNode {
 	public List<ExprNode> block = new ArrayList<ExprNode>();
 
 	@Override
-	public void genCode(MethodVisitor mv) {
+	public void genCode(MethodGenHelper mg) {
 		for(int i=init.size()-1; i>=0; i--) {
-			init.get(i).genCode(mv);
+			init.get(i).genCode(mg);
 		}
 		
 		Label labelCondition = new Label();
-		mv.visitJumpInsn(Opcodes.GOTO, labelCondition);
+		mg.visitJumpInsn(Opcodes.GOTO, labelCondition);
 		
 		Label labelBlock = new Label();
-		mv.visitLabel(labelBlock);
+		mg.visitLabel(labelBlock);
 		for(int i=block.size()-1; i>=0; i--) {
-			block.get(i).genCode(mv);
+			block.get(i).genCode(mg);
 		}
 		
 		for(int i=inc.size()-1; i>=0; i--) {
-			inc.get(i).genCode(mv);
+			inc.get(i).genCode(mg);
 		}
-		mv.visitLabel(labelCondition);
-		cond.genCode(mv);
-		mv.visitJumpInsn(Opcodes.IFNE, labelBlock);
+		mg.visitLabel(labelCondition);
+		cond.genCode(mg);
+		mg.visitJumpInsn(Opcodes.IFNE, labelBlock);
 	}
 	
 	public static int testWhile(int x) {
