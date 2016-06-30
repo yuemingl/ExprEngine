@@ -40,19 +40,19 @@ public class ListComprehensionNode extends ExprNode {
 		@Override
 		public void genCode(MethodGenHelper mg) {
 			//define a local variable node for this.set
-			VariableNode tmpSet = new VariableNode("__tmpSet", set.getType());
+			VariableNode tmpSet = VariableNode.newLocalVar("__tmpSet", set.getType());
 			int idx = Tools.getNextIndexLVT(localVarMap, paramMap, set.getType());
 			//For double variable, we need 2 slot in LVT
 			//If x has index idx the coming variable should have index idx+2
 			tmpSet.idxLVT = idx+1; //????????????
 			localVarMap.put(tmpSet.name, tmpSet);
 
-			VariableNode i = new VariableNode("__i", Type.getType(int.class));
+			VariableNode i = VariableNode.newLocalVar("__i", Type.getType(int.class));
 			int idxI = Tools.getNextIndexLVT(localVarMap, paramMap, Type.getType(int.class));
 			i.idxLVT = idxI;
 			localVarMap.put(i.name, i);
 
-			VariableNode ret = new VariableNode("__ret", Type.getType(double[].class));
+			VariableNode ret = VariableNode.newLocalVar("__ret", Type.getType(double[].class));
 			int idxRet = Tools.getNextIndexLVT(localVarMap, paramMap, Type.getType(double[].class));
 			ret.idxLVT = idxRet;
 			localVarMap.put(ret.name, ret);

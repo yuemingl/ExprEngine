@@ -361,7 +361,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(null == var) {
 			var = this.paramMap.get(varName);
 			if(null == var) {
-				var = new VariableNode(varName, value.getType());
+				var = VariableNode.newLocalVar(varName, value.getType());
 				this.localVarMap.put(varName, var);
 			}
 		}
@@ -383,14 +383,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(null == var) {
 			var = this.paramMap.get(varName);
 			if(null == var) {
-				var = new VariableNode(varName, Type.getType(int[].class)); //default to double
+				var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
 				paramMap.put(varName, var);
 			}
 		}
 		
 		VariableNode retAry = null;
 		if(ctx.arithmetic_expr().size() > 1) {
-			retAry = new VariableNode(varName+"_ret", Type.getType(int[].class));
+			retAry = VariableNode.newLocalVar(varName+"_ret", Type.getType(int[].class));
 			this.localVarMap.put(varName+"_ret", retAry);
 		}
 		this.stack.push(new ArrayAssignNode(var, idxS, idxE, retAry, val));
@@ -519,18 +519,18 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			val = paramMap.get(varName);
 			if(null == val) {
 				if(null != this.mapParameterTypes) {
-					val = new VariableNode(varName, Type.getType(this.mapParameterTypes.get(varName))); 
+					val = VariableNode.newParameter(varName, Type.getType(this.mapParameterTypes.get(varName))); 
 				} else if(null != this.defaultParameterTypeOrInterface) {
 					//default to double
 					if(this.defaultParameterTypeOrInterface.isInterface()) {
 						//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-						val = new VariableNode(varName, Type.getType(double.class));
+						val = VariableNode.newParameter(varName, Type.getType(double.class));
 					} else {
-						val = new VariableNode(varName, Type.getType(this.defaultParameterTypeOrInterface));
+						val = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
 					}
 				} else {
 					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-					val = new VariableNode(varName, Type.getType(double.class));
+					val = VariableNode.newParameter(varName, Type.getType(double.class));
 				}
 				paramMap.put(varName, val);
 			}
@@ -571,7 +571,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		String varName = ctx.IDENTIFIER().getText();
 		VariableNode var = getVariableNode(varName);
 		if(null == var) {
-			var = new VariableNode(varName, Type.getType(this.defaultParameterTypeOrInterface)); //default to double
+			var = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface)); //default to double
 			paramMap.put(varName, var);
 		}
 		if(null != ctx.INC())
@@ -708,14 +708,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(null == var) {
 			var = this.paramMap.get(varName);
 			if(null == var) {
-				var = new VariableNode(varName, Type.getType(int[].class)); //default to double
+				var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
 				paramMap.put(varName, var);
 			}
 		}
 		
 		VariableNode retAry = null;
 		if(ctx.arithmetic_expr().size() > 1) {
-			retAry = new VariableNode(varName+"_ret", Type.getType(int[].class));
+			retAry = VariableNode.newLocalVar(varName+"_ret", Type.getType(int[].class));
 			this.localVarMap.put(varName+"_ret", retAry);
 		}
 		this.stack.push(new ArrayAccessNode(var, idxS, idxE, retAry));
@@ -815,7 +815,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 					val = localVarMap.get(varName);
 					if(null == val) {
 						
-						val = localVarMap.put(varName, new VariableNode(varName,Type.getType(double.class)));
+						val = localVarMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
 						throw new RuntimeException("shold not be here since all expr has been generated if we are here");
 					}
 				} else {
