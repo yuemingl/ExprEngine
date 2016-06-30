@@ -9,17 +9,21 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class Tools {
-	public static Type getElementType(Type arrayType) {
-		return Type.getType(arrayType.getDescriptor().substring(1));
-	}
+//	public static Type getElementType(Type arrayType) {
+//		return Type.getType(arrayType.getDescriptor().substring(1));
+//	}
 	
 	public static int getTypeForNEWARRAY(Type arrayType) {
-		Type et = getElementType(arrayType);
+		//Type et = getElementType(arrayType);
+		Type et = arrayType.getElementType();
 		switch(et.getSort()) {
 		case Type.DOUBLE:
 			return T_DOUBLE;
@@ -131,7 +135,8 @@ public class Tools {
 				e.printStackTrace();
 			}
 		case Type.ARRAY:
-			Type e = Tools.getElementType(t);
+			//Type e = Tools.getElementType(t);
+			Type e = t.getElementType();
 			return typeToClass(e, dim+1);
 		}
 		return null;
@@ -154,5 +159,20 @@ public class Tools {
 			return boolean.class;
 		
 		return c;
-	}	
+	}
+	
+	public static int getNextIndexLVT(Map<String, VariableNode> localVarMap, 
+			Map<String, VariableNode> paramMap, Type type) {
+		int idx = 0;
+		for(Entry<String, VariableNode> e : localVarMap.entrySet()) {
+			if(e.getValue().idxLVT > idx) idx = e.getValue().idxLVT;
+		}
+		for(Entry<String, VariableNode> e : paramMap.entrySet()) {
+			if(e.getValue().idxLVT > idx) idx = e.getValue().idxLVT;
+		}
+		if(type.getSort() == Type.DOUBLE)
+			return idx+2;
+		else
+			return idx+1;
+	}
 }
