@@ -19,6 +19,14 @@ public class VariableNode extends ExprNode {
 		return varLoc == 2;
 	}
 	
+	public void setAsParameter() {
+		this.varLoc = 1;
+	}
+	
+	public void setAsLocalVar() {
+		this.varLoc = 2;
+	}
+	
 	public static VariableNode newParameter(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
@@ -31,7 +39,7 @@ public class VariableNode extends ExprNode {
 		VariableNode node = new VariableNode();
 		node.name = name;
 		node.type = type;
-		node.varLoc = 1;
+		node.varLoc = 2;
 		return node;
 	}
 	

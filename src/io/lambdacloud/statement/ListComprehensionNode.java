@@ -20,19 +20,16 @@ public class ListComprehensionNode extends ExprNode {
 	
 	public static class LForNode extends ExprNode {
 		private Map<String, VariableNode> localVarMap;
-		private Map<String, VariableNode> paramMap;
 		public String varName;
 		public ExprNode set;
 		public ExprNode exprBody;
 		
 		public LForNode(String varName, ExprNode set, 
-				Map<String, VariableNode> localVarMap,
-				Map<String, VariableNode> paramMap) {
+				Map<String, VariableNode> localVarMap) {
 
 			this.type = Type.getType(double[].class);
 			
 			this.localVarMap = localVarMap;
-			this.paramMap = paramMap;
 			this.varName = varName;
 			this.set = set;
 		}
@@ -41,19 +38,19 @@ public class ListComprehensionNode extends ExprNode {
 		public void genCode(MethodGenHelper mg) {
 			//define a local variable node for this.set
 			VariableNode tmpSet = VariableNode.newLocalVar("__tmpSet", set.getType());
-			int idx = Tools.getNextIndexLVT(localVarMap, paramMap, set.getType());
+			int idx = Tools.getNextIndexLVT(localVarMap, localVarMap, set.getType());
 			//For double variable, we need 2 slot in LVT
 			//If x has index idx the coming variable should have index idx+2
 			tmpSet.idxLVT = idx+1; //????????????
 			localVarMap.put(tmpSet.name, tmpSet);
 
 			VariableNode i = VariableNode.newLocalVar("__i", Type.getType(int.class));
-			int idxI = Tools.getNextIndexLVT(localVarMap, paramMap, Type.getType(int.class));
+			int idxI = Tools.getNextIndexLVT(localVarMap, localVarMap, Type.getType(int.class));
 			i.idxLVT = idxI;
 			localVarMap.put(i.name, i);
 
 			VariableNode ret = VariableNode.newLocalVar("__ret", Type.getType(double[].class));
-			int idxRet = Tools.getNextIndexLVT(localVarMap, paramMap, Type.getType(double[].class));
+			int idxRet = Tools.getNextIndexLVT(localVarMap, localVarMap, Type.getType(double[].class));
 			ret.idxLVT = idxRet;
 			localVarMap.put(ret.name, ret);
 
@@ -107,8 +104,7 @@ public class ListComprehensionNode extends ExprNode {
 		}
 	}
 	
-	public ListComprehensionNode(Map<String, VariableNode> localVarMap,
-			Map<String, VariableNode> paramMap) {
+	public ListComprehensionNode(Map<String, VariableNode> localVarMap) {
 		this.type = Type.getType(double[].class);
 	}
 	

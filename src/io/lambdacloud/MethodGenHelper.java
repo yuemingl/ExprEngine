@@ -1,7 +1,6 @@
 package io.lambdacloud;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -14,10 +13,11 @@ import io.lambdacloud.statement.VariableNode;
 
 public class MethodGenHelper {
 	MethodVisitor mv;
-	public SortedMap<String, VariableNode> varMap = new TreeMap<String, VariableNode>();
+	public Map<String, VariableNode> varMap;
 
-	public MethodGenHelper(MethodVisitor mv) {
+	public MethodGenHelper(MethodVisitor mv, Map<String, VariableNode> varMap) {
 		this.mv = mv;
+		this.varMap = varMap;
 	}
 
 	

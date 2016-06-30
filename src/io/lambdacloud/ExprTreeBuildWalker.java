@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -69,8 +70,9 @@ import io.lambdacloud.statement.WhileNode;
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 	//Generated after parsing
-	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
-	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
+//	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
+//	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
+	public SortedMap<String, VariableNode> varMap = new TreeMap<String, VariableNode>();
 	
 	//Passed in before parsing
 	protected Class<?> defaultParameterTypeOrInterface = null;
@@ -89,29 +91,23 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public void printInfo() {
 		System.out.println("Parameters:");
-		for(VariableNode n : paramMap.values()) {
-			System.out.println(n.name+": "+n.getType().getDescriptor());
-			
+		for(VariableNode n : varMap.values()) {
+			if(n.isParameter())
+				System.out.println(n.name+": "+n.getType().getDescriptor());
 		}
 		System.out.println("Local Variables:");
-		for(VariableNode n : localVarMap.values()) {
-			System.out.println(n.name+": "+n.getType().getDescriptor());
-			
+		for(VariableNode n : varMap.values()) {
+			if(n.isLocalVar())
+				System.out.println(n.name+": "+n.getType().getDescriptor());
 		}
 	}
-	
-	private VariableNode getVariableNode(String varName) {
-		VariableNode var = localVarMap.get(varName);
-		if(null == var) {
-			var = paramMap.get(varName);
-		}
-		return var;
-	}
-	
 	
 	public Type[] getAndFixParameterTypes(Map<String, Class<?>> mapParameterTypes) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		pList.addAll(this.paramMap.values());
+		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+			if(e.getValue().isParameter())
+				pList.add(e.getValue());
+		}
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
@@ -135,7 +131,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public Type[] getAndFixParameterTypes(Class<?>[] aryParameterTypes) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		pList.addAll(this.paramMap.values());
+		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+			if(e.getValue().isParameter())
+				pList.add(e.getValue());
+		}
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
@@ -162,7 +161,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public Type[] getAndFixParameterTypes(Class<?> defaultParameterType) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		pList.addAll(this.paramMap.values());
+		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+			if(e.getValue().isParameter())
+				pList.add(e.getValue());
+		}
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
@@ -190,7 +192,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		pList.addAll(this.paramMap.values());
+		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+			if(e.getValue().isParameter())
+				pList.add(e.getValue());
+		}
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
@@ -267,7 +272,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 						cgen.startMethod(access, m.getName(),
 								Type.getMethodDescriptor(retType, paramTypes));
 					} else {
-						Class<?>[] pTypes = new Class<?>[this.paramMap.size()];
+						int nParam = 0;
+						for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+							if(e.getValue().isParameter()) nParam++;
+						}
+						Class<?>[] pTypes = new Class<?>[nParam];
 						for(int i=0; i<pTypes.length; i++) pTypes[i] = this.defaultParameterTypeOrInterface; 
 						paramTypes = getAndFixParameterTypes(pTypes);
 						retType = stack.peek().getType(); //return type of the last expression
@@ -292,26 +301,29 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv);
+			MethodGenHelper mg = new MethodGenHelper(mv, varMap);
 			
 			int index = 1;
 			if(isStatic) index = 0;
-			for(String key : paramMap.keySet()) {
-				VariableNode var = paramMap.get(key);
+			for(Entry<String, VariableNode> e : varMap.entrySet()) {
+				if(e.getValue().isLocalVar()) continue;
+				VariableNode var = e.getValue();
 				var.idxLVT = index;
 				if(var.getType().getSort() == Type.DOUBLE)
 					index += 2;
 				else
 					index++;
 			}
-			for(String key : localVarMap.keySet()) {
-				VariableNode var = localVarMap.get(key);
+			for(Entry<String, VariableNode> e : varMap.entrySet()) {
+				if(e.getValue().isParameter()) continue;
+				VariableNode var = e.getValue();
 				var.idxLVT = index;
 				if(var.getType().getSort() == Type.DOUBLE)
 					index += 2;
 				else
 					index++;
 			}
+
 			
 			//Generate code for all the expressions
 			while(!stack.isEmpty()) {
@@ -322,12 +334,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			if(!isStatic)
 				mg.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
-			for(VariableNode var : paramMap.values()) {
+			for(VariableNode var : varMap.values()) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
-						null, cgen.l0, cgen.l1, var.idxLVT);
-			}
-			for(VariableNode var : localVarMap.values()) {
-				mg.visitLocalVariable(var.name, var.getType().getDescriptor(), 
 						null, cgen.l0, cgen.l1, var.idxLVT);
 			}
 			
@@ -357,13 +365,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.statement().getText());
 		String varName = ctx.IDENTIFIER().getText();
 		ExprNode value = this.stack.pop();
-		VariableNode var = this.localVarMap.get(varName);
+		VariableNode var = this.varMap.get(varName);
 		if(null == var) {
-			var = this.paramMap.get(varName);
-			if(null == var) {
-				var = VariableNode.newLocalVar(varName, value.getType());
-				this.localVarMap.put(varName, var);
-			}
+			var = VariableNode.newLocalVar(varName, value.getType());
+			this.varMap.put(varName, var);
 		}
 		this.stack.push(new AssignNode(var, value));
 	}
@@ -379,19 +384,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			idxS = this.stack.pop();
 		}
 		
-		VariableNode var = this.localVarMap.get(varName);
+		VariableNode var = this.varMap.get(varName);
 		if(null == var) {
-			var = this.paramMap.get(varName);
-			if(null == var) {
-				var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
-				paramMap.put(varName, var);
-			}
+			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //TODO default to double ???
+			varMap.put(varName, var);
 		}
 		
 		VariableNode retAry = null;
 		if(ctx.arithmetic_expr().size() > 1) {
 			retAry = VariableNode.newLocalVar(varName+"_ret", Type.getType(int[].class));
-			this.localVarMap.put(varName+"_ret", retAry);
+			this.varMap.put(varName+"_ret", retAry);
 		}
 		this.stack.push(new ArrayAssignNode(var, idxS, idxE, retAry, val));
 		
@@ -512,28 +514,28 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
-		//System.out.println("exitEntityVariable:"+ctx.getText());
+		//System.out.println("exitEntityVariable: "+ctx.getText());
 		String varName = ctx.getText();
-		VariableNode val = localVarMap.get(varName);
+		VariableNode val = varMap.get(varName);
 		if(null == val) {
-			val = paramMap.get(varName);
-			if(null == val) {
-				if(null != this.mapParameterTypes) {
-					val = VariableNode.newParameter(varName, Type.getType(this.mapParameterTypes.get(varName))); 
-				} else if(null != this.defaultParameterTypeOrInterface) {
-					//default to double
-					if(this.defaultParameterTypeOrInterface.isInterface()) {
-						//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-						val = VariableNode.newParameter(varName, Type.getType(double.class));
-					} else {
-						val = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
-					}
-				} else {
+			if(null != this.mapParameterTypes) {
+				val = VariableNode.newParameter(varName, Type.getType(this.mapParameterTypes.get(varName)));
+				if(null == val) throw new RuntimeException("No type info provied for '"+varName+"'!");
+			} else if(null != this.defaultParameterTypeOrInterface) {
+				//default to double
+				if(this.defaultParameterTypeOrInterface.isInterface()) {
 					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+					//TODO need better solution
 					val = VariableNode.newParameter(varName, Type.getType(double.class));
+				} else {
+					val = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
 				}
-				paramMap.put(varName, val);
+			} else {
+				//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+				//TODO need better solution
+				val = VariableNode.newParameter(varName, Type.getType(double.class));
 			}
+			varMap.put(varName, val);
 		}
 		stack.push(val);
 	}
@@ -569,15 +571,15 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //	}
 	@Override public void exitArithmeticExpressionIncDec(ExprGrammarParser.ArithmeticExpressionIncDecContext ctx) {
 		String varName = ctx.IDENTIFIER().getText();
-		VariableNode var = getVariableNode(varName);
+		VariableNode var = varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface)); //default to double
-			paramMap.put(varName, var);
+			varMap.put(varName, var);
 		}
 		if(null != ctx.INC())
-			stack.push(new IncNode(getVariableNode(ctx.IDENTIFIER().getText())));
+			stack.push(new IncNode(var));
 		else if(null != ctx.DESC())
-			stack.push(new DescNode(getVariableNode(ctx.IDENTIFIER().getText())));
+			stack.push(new DescNode(var));
 	}
 	@Override public void exitExprAddAssign(ExprGrammarParser.ExprAddAssignContext ctx) {
 		ExprNode v2 = stack.pop();
@@ -704,19 +706,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			idxS = this.stack.pop();
 		}
 		
-		VariableNode var = this.localVarMap.get(varName);
+		VariableNode var = this.varMap.get(varName);
 		if(null == var) {
-			var = this.paramMap.get(varName);
-			if(null == var) {
-				var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
-				paramMap.put(varName, var);
-			}
+			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
+			varMap.put(varName, var);
 		}
 		
 		VariableNode retAry = null;
 		if(ctx.arithmetic_expr().size() > 1) {
 			retAry = VariableNode.newLocalVar(varName+"_ret", Type.getType(int[].class));
-			this.localVarMap.put(varName+"_ret", retAry);
+			this.varMap.put(varName+"_ret", retAry);
 		}
 		this.stack.push(new ArrayAccessNode(var, idxS, idxE, retAry));
 	}
@@ -800,31 +799,24 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				System.out.println(for_if.list_comp_for(j).expression().getText());
 			}
 		}
-		ListComprehensionNode node = new ListComprehensionNode(this.localVarMap, this.paramMap);
+		ListComprehensionNode node = new ListComprehensionNode(this.varMap);
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
 			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
 			if(null != for_if.list_comp_if()) {
-				
 				System.out.println(for_if.list_comp_if().getText());
 			}
 			for(int j=0; j<for_if.list_comp_for().size(); j++) {
 				String varName = for_if.list_comp_for(j).IDENTIFIER().getText();
-				//TODO check paramMap too
-				VariableNode val = this.paramMap.remove(varName);
+				VariableNode val = this.varMap.get(varName);
 				if(null == val) {
-					val = localVarMap.get(varName);
-					if(null == val) {
-						
-						val = localVarMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
-						throw new RuntimeException("shold not be here since all expr has been generated if we are here");
-					}
+					val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
+					throw new RuntimeException("shold not be here since all expr has been generated if we are here");
 				} else {
-					this.localVarMap.put(varName, val);
+					val.setAsLocalVar();
 				}
 				ListComprehensionNode.LForNode fNode = new ListComprehensionNode.LForNode(
 						varName, this.stack.pop(),
-						this.localVarMap,
-						this.paramMap
+						this.varMap
 						);
 				node.forIf.add(fNode);
 			}
