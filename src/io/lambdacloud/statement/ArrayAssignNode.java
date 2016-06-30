@@ -30,7 +30,7 @@ public class ArrayAssignNode extends ExprNode {
 	@Override
 	public Type getType() {
 		if(null == idxE)
-			return Tools.getElementType(var.getType());
+			return var.getType().getElementType();
 		else
 			return var.getType();
 	}
@@ -72,7 +72,7 @@ public class ArrayAssignNode extends ExprNode {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(Tools.getElementType(Type.getType(double[].class)));
+		System.out.println(Type.getType(double[].class).getElementType());
 	}
 	
 }

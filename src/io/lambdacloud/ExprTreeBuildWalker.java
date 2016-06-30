@@ -46,6 +46,7 @@ import io.lambdacloud.statement.IfNode;
 import io.lambdacloud.statement.IncNode;
 import io.lambdacloud.statement.LENode;
 import io.lambdacloud.statement.LTNode;
+import io.lambdacloud.statement.ListComprehensionNode;
 import io.lambdacloud.statement.MulAsignNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.NEQNode;
@@ -798,6 +799,37 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				System.out.println(for_if.list_comp_for(j).expression().getText());
 			}
 		}
+		ListComprehensionNode node = new ListComprehensionNode(this.localVarMap, this.paramMap);
+		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
+			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
+			if(null != for_if.list_comp_if()) {
+				
+				System.out.println(for_if.list_comp_if().getText());
+			}
+			for(int j=0; j<for_if.list_comp_for().size(); j++) {
+				String varName = for_if.list_comp_for(j).IDENTIFIER().getText();
+				//TODO check paramMap too
+				VariableNode val = this.paramMap.remove(varName);
+				if(null == val) {
+					val = localVarMap.get(varName);
+					if(null == val) {
+						
+						val = localVarMap.put(varName, new VariableNode(varName,Type.getType(double.class)));
+						throw new RuntimeException("shold not be here since all expr has been generated if we are here");
+					}
+				} else {
+					this.localVarMap.put(varName, val);
+				}
+				ListComprehensionNode.LForNode fNode = new ListComprehensionNode.LForNode(
+						varName, this.stack.pop(),
+						this.localVarMap,
+						this.paramMap
+						);
+				node.forIf.add(fNode);
+			}
+		}
+		node.expression = this.stack.pop();
+		this.stack.push(node);
 	}
 
 }

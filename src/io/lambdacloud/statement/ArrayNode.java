@@ -23,7 +23,7 @@ public class ArrayNode extends ExprNode {
 	@Override
 	public void genCode(MethodVisitor mv) {
 		mv.visitLdcInsn(init.size());
-		mv.visitIntInsn(NEWARRAY, T_INT);
+		mv.visitIntInsn(NEWARRAY, T_INT);//TODO type???
 		int idx = 0;
 		for(int i=init.size()-1; i>=0; i--) {
 			mv.visitInsn(DUP);
