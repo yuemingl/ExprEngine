@@ -58,15 +58,16 @@ public class ListComprehensionNode extends ExprNode {
 			//[x+1 for x in y]
 			set.genCode(mv);
 			
-			//
+			//set = y
 			mv.visitVarInsn(Opcodes.ASTORE, tmpSet.idxLVT);
 			
+			//ret = new double[set.length]
 			mv.visitVarInsn(ALOAD, tmpSet.idxLVT);
 			mv.visitInsn(ARRAYLENGTH);
 			mv.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(ret.getType()));
 			mv.visitVarInsn(ASTORE, ret.idxLVT);
 			
-			
+			//i=0
 			mv.visitInsn(ICONST_0);
 			mv.visitVarInsn(ISTORE, i.idxLVT);
 			Label forCond = new Label();
@@ -75,7 +76,6 @@ public class ListComprehensionNode extends ExprNode {
 			mv.visitLabel(forBody);
 			
 			//x=set[i]
-			//ret[i] = x+1
 			VariableNode x = this.localVarMap.get(varName);
 			mv.visitVarInsn(ALOAD, tmpSet.idxLVT);
 			mv.visitVarInsn(ILOAD, i.idxLVT);
@@ -83,14 +83,11 @@ public class ListComprehensionNode extends ExprNode {
 			Tools.insertConversionInsn(mv, tmpSet.getType().getElementType(), x.getType());
 			mv.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
 			
-			
+			//ret[i] = x+1
 			mv.visitVarInsn(ALOAD, ret.idxLVT);
 			mv.visitVarInsn(ILOAD, i.idxLVT);
 			this.exprBody.genCode(mv);
 			mv.visitInsn(DASTORE); //type???
-			
-			
-			
 			
 			//i++
 			mv.visitIincInsn(i.idxLVT, 1);
