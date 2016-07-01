@@ -162,6 +162,10 @@ public class Tools {
 		return c;
 	}
 	
+	public static Type getArrayType(Type element) {
+		return Type.getType("["+element.getDescriptor());
+	}
+	
 	public static int getNextIndexLVT(Map<String, VariableNode> localVarMap, 
 			Map<String, VariableNode> paramMap, Type type) {
 		int idx = 0;

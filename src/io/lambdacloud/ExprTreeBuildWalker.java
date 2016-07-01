@@ -800,12 +800,14 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				System.out.println(for_if.list_comp_for(j).expression().getText());
 			}
 		}
-		ListComprehensionNode node = new ListComprehensionNode(this.varMap);
+		ListComprehensionNode node = new ListComprehensionNode();
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
+			
 			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
 			if(null != for_if.list_comp_if()) {
 				System.out.println(for_if.list_comp_if().getText());
 			}
+			
 			for(int j=0; j<for_if.list_comp_for().size(); j++) {
 				String varName = for_if.list_comp_for(j).IDENTIFIER().getText();
 				VariableNode val = this.varMap.get(varName);
@@ -813,16 +815,24 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 					val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
 					throw new RuntimeException("shold not be here since all expr has been generated if we are here");
 				} else {
-					val.setAsLocalVar();
+					val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
 				}
+				
 				ListComprehensionNode.LForNode fNode = new ListComprehensionNode.LForNode(
 						varName, this.stack.pop(),
-						this.varMap
+						node.forIf
 						);
-				node.forIf.add(fNode);
+				node.forIf = fNode;
 			}
 		}
-		node.expression = this.stack.pop();
+
+		ListComprehensionNode.LForNode fi = node.forIf;
+		ExprNode expression = node.forIf.exprBody;
+		while(expression != null) {
+			fi = (ListComprehensionNode.LForNode)expression;
+			expression = fi.exprBody;
+		}
+		fi.exprBody = this.stack.pop(); //The last expression
 		this.stack.push(node);
 	}
 
