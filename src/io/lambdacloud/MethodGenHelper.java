@@ -1,12 +1,14 @@
 package io.lambdacloud;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
 
 import io.lambdacloud.statement.VariableNode;
@@ -14,13 +16,48 @@ import io.lambdacloud.statement.VariableNode;
 public class MethodGenHelper {
 	MethodVisitor mv;
 	public Map<String, VariableNode> varMap;
+	private int idxLVTGen = 0;
 
 	public MethodGenHelper(MethodVisitor mv, Map<String, VariableNode> varMap) {
 		this.mv = mv;
 		this.varMap = varMap;
 	}
 
+	public void updateLVTIndex(boolean isStatic) {
+		idxLVTGen = 1;
+		if(isStatic) idxLVTGen = 0;
+		for(Entry<String, VariableNode> e : varMap.entrySet()) {
+			if(e.getValue().isLocalVar()) continue;
+			VariableNode var = e.getValue();
+			var.idxLVT = idxLVTGen;
+			if(var.getType().getSort() == Type.DOUBLE)
+				idxLVTGen += 2;
+			else
+				idxLVTGen++;
+		}
+		for(Entry<String, VariableNode> e : varMap.entrySet()) {
+			if(e.getValue().isParameter()) continue;
+			VariableNode var = e.getValue();
+			var.idxLVT = idxLVTGen;
+			if(var.getType().getSort() == Type.DOUBLE)
+				idxLVTGen += 2;
+			else
+				idxLVTGen++;
+		}
+	}
 	
+	public VariableNode newLocalVariable(String varName, Type type) {
+		VariableNode node = VariableNode.newLocalVar(varName, type);
+		node.idxLVT = this.idxLVTGen;
+		if(node.getType().getSort() == Type.DOUBLE)
+			this.idxLVTGen += 2;
+		else
+			this.idxLVTGen++;
+		if(null != this.varMap.get(varName))
+			throw new RuntimeException("Local variable '"+varName+"' exist!");
+		this.varMap.put(varName, node);
+		return node;
+	}
 	
 	///////////////////////////////////////////////////////////////
 	

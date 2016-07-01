@@ -69,12 +69,12 @@ import io.lambdacloud.statement.WhileNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
-	//Generated after parsing
-//	public SortedMap<String, VariableNode> paramMap = new TreeMap<String, VariableNode>();
-//	public SortedMap<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
+	
+	//Variable map which is generated after parsing
+	//Another place is the phase of code generation
 	public SortedMap<String, VariableNode> varMap = new TreeMap<String, VariableNode>();
 	
-	//Passed in before parsing
+	//Parameter types which should be passed in before parsing
 	protected Class<?> defaultParameterTypeOrInterface = null;
 	protected Map<String, Class<?>> mapParameterTypes = null;
 	
@@ -303,26 +303,27 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			MethodVisitor mv = cgen.getMV();
 			MethodGenHelper mg = new MethodGenHelper(mv, varMap);
 			
-			int index = 1;
-			if(isStatic) index = 0;
-			for(Entry<String, VariableNode> e : varMap.entrySet()) {
-				if(e.getValue().isLocalVar()) continue;
-				VariableNode var = e.getValue();
-				var.idxLVT = index;
-				if(var.getType().getSort() == Type.DOUBLE)
-					index += 2;
-				else
-					index++;
-			}
-			for(Entry<String, VariableNode> e : varMap.entrySet()) {
-				if(e.getValue().isParameter()) continue;
-				VariableNode var = e.getValue();
-				var.idxLVT = index;
-				if(var.getType().getSort() == Type.DOUBLE)
-					index += 2;
-				else
-					index++;
-			}
+//			int index = 1;
+//			if(isStatic) index = 0;
+//			for(Entry<String, VariableNode> e : varMap.entrySet()) {
+//				if(e.getValue().isLocalVar()) continue;
+//				VariableNode var = e.getValue();
+//				var.idxLVT = index;
+//				if(var.getType().getSort() == Type.DOUBLE)
+//					index += 2;
+//				else
+//					index++;
+//			}
+//			for(Entry<String, VariableNode> e : varMap.entrySet()) {
+//				if(e.getValue().isParameter()) continue;
+//				VariableNode var = e.getValue();
+//				var.idxLVT = index;
+//				if(var.getType().getSort() == Type.DOUBLE)
+//					index += 2;
+//				else
+//					index++;
+//			}
+			mg.updateLVTIndex(isStatic);
 
 			
 			//Generate code for all the expressions

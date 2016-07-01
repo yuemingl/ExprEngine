@@ -37,22 +37,27 @@ public class ListComprehensionNode extends ExprNode {
 		@Override
 		public void genCode(MethodGenHelper mg) {
 			//define a local variable node for this.set
-			VariableNode tmpSet = VariableNode.newLocalVar("__tmpSet", set.getType());
-			int idx = Tools.getNextIndexLVT(localVarMap, localVarMap, set.getType());
-			//For double variable, we need 2 slot in LVT
-			//If x has index idx the coming variable should have index idx+2
-			tmpSet.idxLVT = idx+1; //????????????
-			localVarMap.put(tmpSet.name, tmpSet);
+			
+//			VariableNode tmpSet = VariableNode.newLocalVar("__tmpSet", set.getType());
+//			int idx = Tools.getNextIndexLVT(localVarMap, localVarMap, set.getType());
+//			//For double variable, we need 2 slot in LVT
+//			//If x has index idx the coming variable should have index idx+2
+//			tmpSet.idxLVT = idx+1; //????????????
+//			localVarMap.put(tmpSet.name, tmpSet);
 
-			VariableNode i = VariableNode.newLocalVar("__i", Type.getType(int.class));
-			int idxI = Tools.getNextIndexLVT(localVarMap, localVarMap, Type.getType(int.class));
-			i.idxLVT = idxI;
-			localVarMap.put(i.name, i);
+//			VariableNode i = VariableNode.newLocalVar("__i", Type.getType(int.class));
+//			int idxI = Tools.getNextIndexLVT(localVarMap, localVarMap, Type.getType(int.class));
+//			i.idxLVT = idxI;
+//			localVarMap.put(i.name, i);
+//
+//			VariableNode ret = VariableNode.newLocalVar("__ret", Type.getType(double[].class));
+//			int idxRet = Tools.getNextIndexLVT(localVarMap, localVarMap, Type.getType(double[].class));
+//			ret.idxLVT = idxRet;
+//			localVarMap.put(ret.name, ret);
 
-			VariableNode ret = VariableNode.newLocalVar("__ret", Type.getType(double[].class));
-			int idxRet = Tools.getNextIndexLVT(localVarMap, localVarMap, Type.getType(double[].class));
-			ret.idxLVT = idxRet;
-			localVarMap.put(ret.name, ret);
+			VariableNode tmpSet = mg.newLocalVariable("__set", set.getType());
+			VariableNode i = mg.newLocalVariable("__i", Type.getType(int.class));
+			VariableNode ret = mg.newLocalVariable("__ret", Type.getType(double[].class));
 
 			
 			//[x+1 for x in y]
