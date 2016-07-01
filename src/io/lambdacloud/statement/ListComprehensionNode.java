@@ -41,7 +41,11 @@ public class ListComprehensionNode extends ExprNode {
 
 		@Override
 		public Type getType() {
-			return this.type = Tools.getArrayType(this.exprBody.getType());
+			ExprNode bn = this.exprBody;
+			while(bn instanceof LForNode) {
+				bn = ((LForNode)bn).exprBody;
+			}
+			return bn.getType();
 		}
 
 		@Override
@@ -101,11 +105,9 @@ public class ListComprehensionNode extends ExprNode {
 	}
 	
 	public ListComprehensionNode() {
-		this.type = Type.getType(double[].class);
 	}
 	
 	public static class LIfNode extends ExprNode {
-
 		@Override
 		public void genCode(MethodGenHelper mg) {
 			// TODO Auto-generated method stub
@@ -116,7 +118,7 @@ public class ListComprehensionNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		return this.forIf.getType();
+		return Tools.getArrayType(this.forIf.getType());
 	}
 	
 	@Override

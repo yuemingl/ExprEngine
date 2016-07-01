@@ -813,7 +813,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				VariableNode val = this.varMap.get(varName);
 				if(null == val) {
 					val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
-					throw new RuntimeException("shold not be here since all expr has been generated if we are here");
+					//this is needed for 'y' in [ [x for x in A] for y in B ]
+					//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
 				} else {
 					val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
 				}
