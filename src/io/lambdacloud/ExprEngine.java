@@ -121,8 +121,13 @@ public class ExprEngine {
 		return mh;
 	}
 	
+	/**
+	 * Parse without parameters
+	 * @param str
+	 * @return
+	 */
 	public static Object parseAndEval(String str) {
-		ExprTreeBuildWalker ew = parse(str, void.class);
+		ExprTreeBuildWalker ew = parse(str);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			return m1.invoke(null);
@@ -132,6 +137,12 @@ public class ExprEngine {
 		return null;
 	}
 	
+	/**
+	 * Parse with all int type parameters
+	 * @param str
+	 * @param args
+	 * @return
+	 */
 	public static Object parseAndEval(String str, int[] args) {
 		ExprTreeBuildWalker ew = parse(str, int.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
@@ -146,6 +157,12 @@ public class ExprEngine {
 		return null;
 	}
 	
+	/**
+	 * Parse with all long type parameters
+	 * @param str
+	 * @param args
+	 * @return
+	 */
 	public static Object parseAndEval(String str, long[] args) {
 		ExprTreeBuildWalker ew = parse(str, long.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
@@ -160,6 +177,12 @@ public class ExprEngine {
 		return null;
 	}
 	
+	/**
+	 * Parse with all double type parameters
+	 * @param str
+	 * @param args
+	 * @return
+	 */
 	public static Object parseAndEval(String str, double[] args) {
 		ExprTreeBuildWalker ew = parse(str, double.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
@@ -174,6 +197,12 @@ public class ExprEngine {
 		return null;
 	}
 	
+	/**
+	 * Parse with all String type parameters
+	 * @param str
+	 * @param args
+	 * @return
+	 */
 	public static Object parseAndEval(String str, String[] args) {
 		ExprTreeBuildWalker ew = parse(str, String.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
@@ -188,10 +217,12 @@ public class ExprEngine {
 		return null;
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(Tools.getPrimitiveClass(Double.class));
-	}
-	
+	/**
+	 * Parse without type info
+	 * @param str
+	 * @param args
+	 * @return
+	 */
 	public static Object parseAndEval(String str, Object[] args) {
 		Class<?>[] aryParamTypes = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
@@ -210,6 +241,12 @@ public class ExprEngine {
 		return null;
 	}
 
+	/**
+	 * Parse with type info by passing a name->object map
+	 * @param str
+	 * @param args
+	 * @return
+	 */
 	public static Object parseAndEval(String str, Map<String, Object> args) {
 		Map<String, Class<?>> argTypes = new HashMap<String, Class<?>>();
 		for(Entry<String, Object> e : args.entrySet()) {
