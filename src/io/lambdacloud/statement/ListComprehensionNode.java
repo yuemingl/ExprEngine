@@ -47,9 +47,7 @@ public class ListComprehensionNode extends ExprNode {
 			
 			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), set.getType());
 			VariableNode i = mg.newLocalVariable("i"+seq.getAndIncrement(), Type.getType(int.class));
-			//VariableNode ret = mg.newLocalVariable("ret"+seq.getAndIncrement(), Type.getType(double[].class));
 			VariableNode x = mg.varMap.get(varName);
-
 			
 			//[x+1 for x in setA]
 			set.genCode(mg);
@@ -76,19 +74,26 @@ public class ListComprehensionNode extends ExprNode {
 			mg.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
 			
 			//ret.add(x+1);
-			mg.visitVarInsn(ALOAD, ret.idxLVT);
-			this.exprBody.genCode(mg);
-			if(this.getType().getSort() == Type.DOUBLE) {
-				mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-			} else if(this.getType().getSort() == Type.INT) {
-				mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-			} else if(this.getType().getSort() == Type.BOOLEAN) {
-				mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+			//Pass ret to inner loop
+			if(this.exprBody instanceof LForNode) {
+				LForNode fnBody = (LForNode)this.exprBody;
+				fnBody.ret = this.ret;
+				this.exprBody.genCode(mg);
 			} else {
-				//do nothing
+				mg.visitVarInsn(ALOAD, ret.idxLVT);
+				this.exprBody.genCode(mg);
+				if(this.getType().getSort() == Type.DOUBLE) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+				} else if(this.getType().getSort() == Type.INT) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+				} else if(this.getType().getSort() == Type.BOOLEAN) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+				} else {
+					//do nothing
+				}
+				mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
+				mg.visitInsn(POP);
 			}
-			mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
-			mg.visitInsn(POP);
 			
 			//i++
 			mg.visitIincInsn(i.idxLVT, 1);
@@ -100,10 +105,6 @@ public class ListComprehensionNode extends ExprNode {
 			mg.visitInsn(ARRAYLENGTH);
 			mg.visitJumpInsn(IF_ICMPLT, forBody);
 			
-			//return ret
-			mg.visitVarInsn(ALOAD, ret.idxLVT);
-			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray", "(Ljava/util/List;)[D", false);
-			//mg.visitInsn(POP);
 		}
 	}
 	
@@ -128,12 +129,27 @@ public class ListComprehensionNode extends ExprNode {
 	public void genCode(MethodGenHelper mg) {
 		//Define a local variable for the returned value of this list comprehension
 		VariableNode ret = mg.newLocalVariable("ret"+seq.getAndIncrement(), Type.getType(List.class));
+		
+		//List ret = new ArrayList();
 		mg.visitTypeInsn(NEW, "java/util/ArrayList");
 		mg.visitInsn(DUP);
 		mg.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false);
 		mg.visitVarInsn(ASTORE, ret.idxLVT);
+		
+		//Gen code for 'forIf' by providing the return list 'ret'
 		this.forIf.ret = ret;
 		this.forIf.genCode(mg);
+		
+		//return primitive array form ret
+		mg.visitVarInsn(ALOAD, ret.idxLVT);
+		if(getType().getElementType().getSort() == Type.DOUBLE)
+			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray", "(Ljava/util/List;)[D", false);
+		else if(getType().getElementType().getSort() == Type.BOOLEAN)
+			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToIntegrArray", "(Ljava/util/List;)[I", false);
+		else if(getType().getElementType().getSort() == Type.INT)
+			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToBooleanArray", "(Ljava/util/List;)[Z", false);
+		else
+			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToObjectArray", "(Ljava/util/List;)[A", false);
 	}
 
 	public static int[] test(int[] set) {

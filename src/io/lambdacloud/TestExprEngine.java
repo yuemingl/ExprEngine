@@ -94,7 +94,8 @@ public class TestExprEngine {
 //		assertEqual(parseAndEval("[[[x for x in A] for y in B] for z in C]",
 //				new Object[]{ new int[]{3,4,5}, new int[]{3,4,5}, new int[]{3,4,5} }), new int[]{4,5,6});
 //		assertEqual(parseAndEval("[ [x for x in A] for y in B ]",new Object[]{ new int[]{3,4,5}, new int[]{3,4,5} }), new int[]{4,5,6});
-//		assertEqual(parseAndEval("[x+y for x in A for y in B]", new Object[]{ new int[]{3,4,5}, new int[]{1,2,3} }), new int[]{4,5,6});
+		assertEqual(parseAndEval("[x+y for x in A for y in B]", new Object[]{ new int[]{3,4,5}, new int[]{1,2,3} }), 
+				new double[]{ 4.0, 5.0, 6.0, 5.0, 6.0, 7.0, 6.0, 7.0, 8.0 });
 //		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>0]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
 //		assertEqual(parseAndEval("[x+1 for x in y if x>4]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
 		assertEqual(parseAndEval("[x+1.0 for x in y]",new Object[]{ new int[]{3,4,5} }), new double[]{4,5,6});

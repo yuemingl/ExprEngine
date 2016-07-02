@@ -189,4 +189,21 @@ public class Tools {
 		}
 		return ret;
 	}
+	public static int[] listToIntegerArray(List<Integer> list) {
+		int[] ret = new int[list.size()];
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = (int)list.get(i);
+		}
+		return ret;
+	}
+	public static boolean[] listToBooleanArray(List<Boolean> list) {
+		boolean[] ret = new boolean[list.size()];
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = (boolean)list.get(i);
+		}
+		return ret;
+	}
+	public static Object[] listToObjectArray(List<Object> list) {
+		return list.toArray();
+	}
 }

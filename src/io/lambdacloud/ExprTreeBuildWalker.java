@@ -808,19 +808,24 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				System.out.println(for_if.list_comp_if().getText());
 			}
 			
+			//[x+y for x in setA for y in setB]
 			for(int j=0; j<for_if.list_comp_for().size(); j++) {
 				String varName = for_if.list_comp_for(j).IDENTIFIER().getText();
 				VariableNode val = this.varMap.get(varName);
+				ExprNode setA = this.stack.pop();
 				if(null == val) {
+					//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
 					val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
 					//this is needed for 'y' in [ [x for x in A] for y in B ]
 					//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
 				} else {
+					//val.setType(setA.getType().getElementType());
 					val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
 				}
 				
+				
 				ListComprehensionNode.LForNode fNode = new ListComprehensionNode.LForNode(
-						varName, this.stack.pop(),
+						varName, setA,
 						node.forIf
 						);
 				node.forIf = fNode;
