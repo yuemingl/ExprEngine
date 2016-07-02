@@ -53,33 +53,29 @@ public class ListComprehensionNode extends ExprNode {
 			
 			//[x+1 for x in setA]
 			set.genCode(mg);
-			
-			//Declare a local variable setA to keep the set
+			//Declare a local variable setA to keep the evaluation of the set
 			mg.visitVarInsn(Opcodes.ASTORE, setA.idxLVT);
-			
-			//ret = new double[set.length];
-//			mg.visitVarInsn(ALOAD, setA.idxLVT);
-//			mg.visitInsn(ARRAYLENGTH);
-//			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(ret.getType()));
-//			mg.visitVarInsn(ASTORE, ret.idxLVT);
 			
 			//i = 0;
 			mg.visitInsn(ICONST_0);
 			mg.visitVarInsn(ISTORE, i.idxLVT);
+			
+			//Label in for(;?HERE?;)
 			Label forCond = new Label();
 			mg.visitJumpInsn(GOTO, forCond);
+			
+			//Label in for(;;) { ?HERE? }
 			Label forBody = new Label();
 			mg.visitLabel(forBody);
 			
-			//x = set[i];
+			//x = setA[i];
 			mg.visitVarInsn(ALOAD, setA.idxLVT);
 			mg.visitVarInsn(ILOAD, i.idxLVT);
 			mg.visitInsn(setA.getType().getElementType().getOpcode(IALOAD));
 			Tools.insertConversionInsn(mg, setA.getType().getElementType(), x.getType());
 			mg.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
 			
-			//ret[i] = x+1;
-
+			//ret.add(x+1);
 			mg.visitVarInsn(ALOAD, ret.idxLVT);
 			this.exprBody.genCode(mg);
 			if(this.getType().getSort() == Type.DOUBLE) {
