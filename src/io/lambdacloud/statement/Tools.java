@@ -9,6 +9,7 @@ import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -179,5 +180,13 @@ public class Tools {
 			return idx+2;
 		else
 			return idx+1;
+	}
+	
+	public static double[] listToDoubleArray(List<Double> list) {
+		double[] ret = new double[list.size()];
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = (double)list.get(i);
+		}
+		return ret;
 	}
 }

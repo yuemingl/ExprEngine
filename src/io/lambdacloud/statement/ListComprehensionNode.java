@@ -1,17 +1,9 @@
 package io.lambdacloud.statement;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ARRAYLENGTH;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.DASTORE;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IALOAD;
-import static org.objectweb.asm.Opcodes.ICONST_0;
-import static org.objectweb.asm.Opcodes.IF_ICMPLT;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.NEWARRAY;
+import static org.objectweb.asm.Opcodes.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.Label;
@@ -32,6 +24,7 @@ public class ListComprehensionNode extends ExprNode {
 		public String varName;
 		public ExprNode set;
 		public ExprNode exprBody;
+		public VariableNode ret;
 		
 		public LForNode(String varName, ExprNode set, ExprNode exprBody) {
 			this.varName = varName;
@@ -50,23 +43,25 @@ public class ListComprehensionNode extends ExprNode {
 
 		@Override
 		public void genCode(MethodGenHelper mg) {
-			VariableNode setA = mg.newLocalVariable("set"+seq.getAndIncrement(), set.getType());
+			if(null == ret) throw new RuntimeException("The return value need to be set!");
+			
+			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), set.getType());
 			VariableNode i = mg.newLocalVariable("i"+seq.getAndIncrement(), Type.getType(int.class));
-			VariableNode ret = mg.newLocalVariable("ret"+seq.getAndIncrement(), Type.getType(double[].class));
+			//VariableNode ret = mg.newLocalVariable("ret"+seq.getAndIncrement(), Type.getType(double[].class));
 			VariableNode x = mg.varMap.get(varName);
 
 			
 			//[x+1 for x in setA]
 			set.genCode(mg);
 			
-			//set = setA;
+			//Declare a local variable setA to keep the set
 			mg.visitVarInsn(Opcodes.ASTORE, setA.idxLVT);
 			
 			//ret = new double[set.length];
-			mg.visitVarInsn(ALOAD, setA.idxLVT);
-			mg.visitInsn(ARRAYLENGTH);
-			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(ret.getType()));
-			mg.visitVarInsn(ASTORE, ret.idxLVT);
+//			mg.visitVarInsn(ALOAD, setA.idxLVT);
+//			mg.visitInsn(ARRAYLENGTH);
+//			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(ret.getType()));
+//			mg.visitVarInsn(ASTORE, ret.idxLVT);
 			
 			//i = 0;
 			mg.visitInsn(ICONST_0);
@@ -84,10 +79,20 @@ public class ListComprehensionNode extends ExprNode {
 			mg.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
 			
 			//ret[i] = x+1;
+
 			mg.visitVarInsn(ALOAD, ret.idxLVT);
-			mg.visitVarInsn(ILOAD, i.idxLVT);
 			this.exprBody.genCode(mg);
-			mg.visitInsn(DASTORE); //type???
+			if(this.getType().getSort() == Type.DOUBLE) {
+				mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+			} else if(this.getType().getSort() == Type.INT) {
+				mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+			} else if(this.getType().getSort() == Type.BOOLEAN) {
+				mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+			} else {
+				//do nothing
+			}
+			mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
+			mg.visitInsn(POP);
 			
 			//i++
 			mg.visitIincInsn(i.idxLVT, 1);
@@ -101,6 +106,8 @@ public class ListComprehensionNode extends ExprNode {
 			
 			//return ret
 			mg.visitVarInsn(ALOAD, ret.idxLVT);
+			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray", "(Ljava/util/List;)[D", false);
+			//mg.visitInsn(POP);
 		}
 	}
 	
@@ -123,6 +130,13 @@ public class ListComprehensionNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		//Define a local variable for the returned value of this list comprehension
+		VariableNode ret = mg.newLocalVariable("ret"+seq.getAndIncrement(), Type.getType(List.class));
+		mg.visitTypeInsn(NEW, "java/util/ArrayList");
+		mg.visitInsn(DUP);
+		mg.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false);
+		mg.visitVarInsn(ASTORE, ret.idxLVT);
+		this.forIf.ret = ret;
 		this.forIf.genCode(mg);
 	}
 
@@ -133,5 +147,13 @@ public class ListComprehensionNode extends ExprNode {
 			ret[i] = 100+set[i];
 		}
 		return null;
+	}
+	public static int[] test2(int[] set) {
+		int l = set.length;
+		List<Integer> ret = new ArrayList<Integer>();
+		for(int i=0; i<l; i++) {
+			ret.add(100+set[i]);
+		}
+		return null;//ret.toArray(new Integer[]{});
 	}
 }

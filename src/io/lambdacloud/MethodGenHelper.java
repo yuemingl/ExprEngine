@@ -14,7 +14,7 @@ import org.objectweb.asm.TypePath;
 import io.lambdacloud.statement.VariableNode;
 
 public class MethodGenHelper {
-	MethodVisitor mv;
+	private MethodVisitor mv;
 	public Map<String, VariableNode> varMap;
 	private int idxLVTGen = 0;
 
