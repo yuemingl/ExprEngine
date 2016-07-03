@@ -86,6 +86,8 @@ public class ListComprehensionNode extends ExprNode {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
 				} else if(this.getType().getSort() == Type.INT) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+				} else if(this.getType().getSort() == Type.LONG) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
 				} else if(this.getType().getSort() == Type.BOOLEAN) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
 				} else {
@@ -106,6 +108,10 @@ public class ListComprehensionNode extends ExprNode {
 			mg.visitJumpInsn(IF_ICMPLT, forBody);
 			
 		}
+		public String toString() {
+			return "[ "+this.exprBody+" for "+this.varName+" in "+this.set+" ]";
+		}
+
 	}
 	
 	public ListComprehensionNode() {
@@ -141,8 +147,9 @@ public class ListComprehensionNode extends ExprNode {
 		this.forIf.ret = ret;
 		this.forIf.genCode(mg);
 		
-		//return primitive array form ret
+		//return list directly (ret)
 		mg.visitVarInsn(ALOAD, ret.idxLVT);
+		//return primitive array from ret
 //		if(getType().getElementType().getSort() == Type.DOUBLE)
 //			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray2", "(Ljava/util/List;)[[D", false);
 //			//mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray", "(Ljava/util/List;)[D", false);
@@ -170,6 +177,11 @@ public class ListComprehensionNode extends ExprNode {
 		}
 		return null;//ret.toArray(new Integer[]{});
 	}
+	
+	public String toString() {
+		return this.forIf.toString();
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(Type.getType(double[][][].class).getElementType());
 	}

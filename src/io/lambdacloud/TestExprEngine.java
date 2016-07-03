@@ -100,10 +100,28 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
-		//this is works
-//		assertEqual(parseAndEval("[ [ [x+y+z for x in A] for y in B] z for z in C]",
-//				new Object[]{ new int[]{3,4,5}, new int[]{3,4,5}, new int[]{3,4,5} }), 
+		//test map for list comprehension
+		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
+				getMap("A", new int[]{3, 4, 5}, "B", new int[]{3, 4, 5})), 
+				getList(getList(6, 7, 8), getList(7, 8, 9), getList(8, 9, 10)));
+		
+		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
+				getMap("A", new double[]{3.0 ,4.0 ,5.0}, "B", new int[]{3, 4, 5})), 
+				getList(getList(6.0, 7.0, 8.0), getList(7.0, 8.0, 9.0), getList(8.0, 9.0, 10.0)));
+		
+//		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
+//				getMap("A", new int[]{3,4,5}, "B", new int[]{3,4,5}, "x", 0, "y", 0)), 
 //				getList(getList(6.0, 7.0, 8.0), getList(7.0, 8.0, 9.0), getList(8.0, 9.0, 10.0)));
+
+		
+		//Test three layer of loops: this works
+		assertEqual(parseAndEval("[ [ [x+y+z for x in A] for y in B] for z in C]",
+				new Object[]{ new int[]{1,2}, new int[]{3,4}, new int[]{5,6} }), 
+				getList(
+						getList(getList(9.0, 10.0), getList(10.0, 11.0)),
+						getList(getList(10.0, 11.0), getList(11.0, 12.0))
+				)
+				);
 		
 		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
 				new Object[]{ new int[]{3,4,5}, new int[]{3,4,5} }), 

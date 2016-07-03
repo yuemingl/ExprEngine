@@ -47,7 +47,9 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public String toString() {
-		return "var "+this.name;
+		String loc = "local";
+		if(this.varLoc == 1) loc = "param";
+		return "var(" + this.name + ":" + loc + ")";
 	}
 	
 	public void genCode(MethodGenHelper mg) {

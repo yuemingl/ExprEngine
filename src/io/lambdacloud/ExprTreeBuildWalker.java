@@ -520,8 +520,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		VariableNode val = varMap.get(varName);
 		if(null == val) {
 			if(null != this.mapParameterTypes) {
-				val = VariableNode.newParameter(varName, Type.getType(this.mapParameterTypes.get(varName)));
-				if(null == val) throw new RuntimeException("No type info provied for '"+varName+"'!");
+				Class<?> varCls = this.mapParameterTypes.get(varName);
+				if(null != varCls)
+					val = VariableNode.newParameter(varName, Type.getType(varCls));
+				else
+					val = VariableNode.newLocalVar(varName, Type.getType(double.class));
+					//throw new RuntimeException("No type info provied for '"+varName+"'!");
+				
 			} else if(null != this.defaultParameterTypeOrInterface) {
 				//default to double
 				if(this.defaultParameterTypeOrInterface.isInterface()) {
@@ -789,17 +794,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
-		System.out.println(this.stack);
-		System.out.println(ctx.expression().getText());
-		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
-			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
-			if(null != for_if.list_comp_if())
-				System.out.println(for_if.list_comp_if().getText());
-			for(int j=0; j<for_if.list_comp_for().size(); j++) {
-				System.out.println(for_if.list_comp_for(j).IDENTIFIER().getText());
-				System.out.println(for_if.list_comp_for(j).expression().getText());
-			}
-		}
+//		System.out.println(this.stack);
+//		System.out.println(ctx.expression().getText());
+//		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
+//			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
+//			if(null != for_if.list_comp_if())
+//				System.out.println(for_if.list_comp_if().getText());
+//			for(int j=0; j<for_if.list_comp_for().size(); j++) {
+//				System.out.println(for_if.list_comp_for(j).IDENTIFIER().getText());
+//				System.out.println(for_if.list_comp_for(j).expression().getText());
+//			}
+//		}
 		ListComprehensionNode node = new ListComprehensionNode();
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
 			
@@ -822,7 +827,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 					//val.setType(setA.getType().getElementType());
 					val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
 				}
-				
+				if(null != this.mapParameterTypes) {
+					val.setType(setA.getType().getElementType());
+				} else if(null != this.defaultParameterTypeOrInterface) {
+					//TODO
+				}
 				
 				ListComprehensionNode.LForNode fNode = new ListComprehensionNode.LForNode(
 						varName, setA,
