@@ -189,6 +189,17 @@ public class Tools {
 		}
 		return ret;
 	}
+	public static double[][] listToDoubleArray2(List<List<Double>> list) {
+		int m = list.size();
+		int n = list.get(0).size();
+		double[][] ret = new double[m][n];
+		for(int i=0; i<m; i++) {
+			for(int j=0; j<n; j++)
+				ret[i][j] = (double)list.get(i).get(j);
+		}
+		return ret;
+	}
+
 	public static int[] listToIntegerArray(List<Integer> list) {
 		int[] ret = new int[list.size()];
 		for(int i=0; i<ret.length; i++) {

@@ -122,7 +122,8 @@ public class ListComprehensionNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		return Tools.getArrayType(this.forIf.getType());
+		//return Tools.getArrayType(this.forIf.getType());
+		return Type.getType(List.class);
 	}
 	
 	@Override
@@ -142,14 +143,15 @@ public class ListComprehensionNode extends ExprNode {
 		
 		//return primitive array form ret
 		mg.visitVarInsn(ALOAD, ret.idxLVT);
-		if(getType().getElementType().getSort() == Type.DOUBLE)
-			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray", "(Ljava/util/List;)[D", false);
-		else if(getType().getElementType().getSort() == Type.BOOLEAN)
-			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToIntegrArray", "(Ljava/util/List;)[I", false);
-		else if(getType().getElementType().getSort() == Type.INT)
-			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToBooleanArray", "(Ljava/util/List;)[Z", false);
-		else
-			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToObjectArray", "(Ljava/util/List;)[A", false);
+//		if(getType().getElementType().getSort() == Type.DOUBLE)
+//			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray2", "(Ljava/util/List;)[[D", false);
+//			//mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToDoubleArray", "(Ljava/util/List;)[D", false);
+//		else if(getType().getElementType().getSort() == Type.BOOLEAN)
+//			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToIntegrArray", "(Ljava/util/List;)[I", false);
+//		else if(getType().getElementType().getSort() == Type.INT)
+//			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToBooleanArray", "(Ljava/util/List;)[Z", false);
+//		else
+//			mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/statement/Tools", "listToObjectArray", "(Ljava/util/List;)[A", false);
 	}
 
 	public static int[] test(int[] set) {
@@ -167,5 +169,8 @@ public class ListComprehensionNode extends ExprNode {
 			ret.add(100+set[i]);
 		}
 		return null;//ret.toArray(new Integer[]{});
+	}
+	public static void main(String[] args) {
+		System.out.println(Type.getType(double[][][].class).getElementType());
 	}
 }
