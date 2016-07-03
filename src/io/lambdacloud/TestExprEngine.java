@@ -100,6 +100,12 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		abcdefghjkmnqrstuvwxyz
+		
+		
+//		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>0]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+//		assertEqual(parseAndEval("[x+1 for x in y if x>4]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+
 		//test map for list comprehension
 		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
 				getMap("A", new int[]{3, 4, 5}, "B", new int[]{3, 4, 5})), 
@@ -136,8 +142,6 @@ public class TestExprEngine {
 		//type???
 		assertEqual(parseAndEval("[x+y for x in A for y in B]", new Object[]{ new int[]{3,4,5}, new int[]{1,2,3} }), 
 				getList( 4.0, 5.0, 6.0, 5.0, 6.0, 7.0, 6.0, 7.0, 8.0 ));
-//		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>0]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
-//		assertEqual(parseAndEval("[x+1 for x in y if x>4]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
 		assertEqual(parseAndEval("[x+1.0 for x in y]",new Object[]{ new int[]{3,4,5} }), getList(4.0 ,5.0, 6.0));
 		assertEqual(parseAndEval("[x+1 for x in y]",new Object[]{ new int[]{3,4,5} }), getList(4.0 ,5.0, 6.0));
 		
