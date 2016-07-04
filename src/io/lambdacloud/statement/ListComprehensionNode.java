@@ -25,7 +25,6 @@ public class ListComprehensionNode extends ExprNode {
 		public String varName;
 		public ExprNode setNode;
 		public ExprNode exprNode;
-		public VariableNode retListNode;
 		
 		public LForNode(String varName, ExprNode setNode, ExprNode exprBody) {
 			this.varName = varName;
@@ -44,7 +43,7 @@ public class ListComprehensionNode extends ExprNode {
 
 		@Override
 		public void genCode(MethodGenHelper mg) {
-			if(null == retListNode) 
+			if(null == mg.retNodeTag) 
 				throw new RuntimeException("The return node of list comprehension "+this.toString()+"is null!");
 			
 			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), setNode.getType());
@@ -79,29 +78,12 @@ public class ListComprehensionNode extends ExprNode {
 			//Pass ret to inner loop
 			Label iInc = new Label();
 			if(this.exprNode instanceof LForNode) {
-				LForNode fnBody = (LForNode)this.exprNode;
-				fnBody.retListNode = this.retListNode;
-				mg.labelTag = iInc;
 				this.exprNode.genCode(mg); //Generate code for exprNode
 			} else if(this.exprNode instanceof LIfNode){
-				mg.varNodeTag = this.retListNode;
-				mg.labelTag = iInc;
+				mg.labelForIncStackTag.push(iInc);
 				this.exprNode.genCode(mg); //Generate code for exprNode
-				if(this.getType().getSort() == Type.DOUBLE) {
-					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-				} else if(this.getType().getSort() == Type.INT) {
-					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-				} else if(this.getType().getSort() == Type.LONG) {
-					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-				} else if(this.getType().getSort() == Type.BOOLEAN) {
-					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-				} else {
-					//do nothing
-				}
-				mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
-				mg.visitInsn(POP);
 			} else {
-				mg.visitIntInsn(ALOAD, this.retListNode.idxLVT);
+				mg.visitIntInsn(ALOAD, mg.retNodeTag.idxLVT);
 				this.exprNode.genCode(mg); //Generate code for exprNode
 				if(this.getType().getSort() == Type.DOUBLE) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
@@ -152,14 +134,33 @@ public class ListComprehensionNode extends ExprNode {
 		public void genCode(MethodGenHelper mg) {
 			
 			this.condExpr.genCode(mg);
-			mg.visitJumpInsn(Opcodes.IFEQ, mg.labelTag);
+			mg.visitJumpInsn(Opcodes.IFEQ, mg.labelForIncStackTag.pop());
 			
-			mg.visitVarInsn(ALOAD, mg.varNodeTag.idxLVT);
-			this.bodyExpr.genCode(mg);
+			if(this.bodyExpr instanceof LForNode) {
+				this.bodyExpr.genCode(mg); //Generate code for exprNode
+			} else if(this.bodyExpr instanceof LIfNode){
+				throw new RuntimeException();
+			} else {
+				mg.visitIntInsn(ALOAD, mg.retNodeTag.idxLVT);
+				this.bodyExpr.genCode(mg); //Generate code for exprNode
+				if(this.getType().getSort() == Type.DOUBLE) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+				} else if(this.getType().getSort() == Type.INT) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+				} else if(this.getType().getSort() == Type.LONG) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+				} else if(this.getType().getSort() == Type.BOOLEAN) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+				} else {
+					//do nothing
+				}
+				mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
+				mg.visitInsn(POP);
+			}
 		}
 		
 		public String toString() {
-			return this.bodyExpr.toString();
+			return "if("+this.condExpr+") { "+this.bodyExpr+" }";
 		}
 		
 		@Override
@@ -188,7 +189,7 @@ public class ListComprehensionNode extends ExprNode {
 		mg.visitVarInsn(ASTORE, ret.idxLVT);
 		
 		//Gen code for 'forIf' by providing the return list 'ret'
-		this.forNode.retListNode = ret;
+		mg.retNodeTag = ret;
 		this.forNode.genCode(mg);
 		
 		//return list directly (ret)

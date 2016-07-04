@@ -797,16 +797,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
 		System.out.println(this.stack);
-		System.out.println(ctx.expression().getText());
+		
+		System.out.print("[ "+ctx.expression().getText());
 		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
 			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
-			if(null != for_if.list_comp_if())
-				System.out.println(for_if.list_comp_if().getText());
-			for(int j=0; j<for_if.list_comp_for().size(); j++) {
-				System.out.println(for_if.list_comp_for(j).IDENTIFIER().getText());
-				System.out.println(for_if.list_comp_for(j).expression().getText());
-			}
+				System.out.print(" for "+for_if.list_comp_for().IDENTIFIER().getText());
+				System.out.print(" in "+for_if.list_comp_for().expression().getText());
+				if(null != for_if.list_comp_if())
+					System.out.print(" "+for_if.list_comp_if().getText());
 		}
+		System.out.println(" ]");
+		
 		ListComprehensionNode listCompNode = new ListComprehensionNode();
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
 			
@@ -814,62 +815,50 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			LIfNode ifNode = null;
 			if(null != forIfNode.list_comp_if()) {
 				ifNode = new LIfNode(this.stack.pop(), null);
-				System.out.println(forIfNode.list_comp_if().getText());
 			}
 			
 			//[x+y for x in setA for y in setB]
-			for(int j=forIfNode.list_comp_for().size()-1; j>=0; j--) {
-				String varName = forIfNode.list_comp_for(j).IDENTIFIER().getText();
-				VariableNode val = this.varMap.get(varName);
-				ExprNode setA = this.stack.pop();
-				if(null == val) {
-					//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
-					val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
-					//this is needed for 'y' in [ [x for x in A] for y in B ]
-					//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
-				} else {
-					//val.setType(setA.getType().getElementType());
-					val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
-				}
-				if(null != this.mapParameterTypes) {
-					val.setType(setA.getType().getElementType());
-				} else if(null != this.defaultParameterTypeOrInterface) {
-					//TODO
-					throw new RuntimeException();
-				}
-				
-				LForNode forNode = null;
-				//Build a singly linked list from tail to head
-				//(TAIL) null <- forNode <- forNode <- ... <- listCompNode.forNode (HEAD)
-				if(null == listCompNode.forNode) {
-					//If we have ifNode, it should be processed here
-					//together with The first forNode
-					forNode = new LForNode(
-							varName, setA,
-							ifNode
-							);
-				} else {
-					forNode = new LForNode(
-							varName, setA,
-							listCompNode.forNode
-							);
-				}
-				
-//				ExprNode forNodeExpr = listCompNode.forNode;
-//				if(null != ifNode) {
-//					if(null != forNodeExpr) {
-//						forNodeExpr.exprNode = ifNode;
-//						ifNode.bodyExpr = listCompNode.forNode;
-//					} else {
-//						//listCompNode.forIf = ifNode;
-//					}
-//				}
-//				LForNode fNode = new LForNode(
-//						varName, setA,
-//						forNodeExpr
-//						);
-				listCompNode.forNode = forNode;
+			String varName = forIfNode.list_comp_for().IDENTIFIER().getText();
+			VariableNode val = this.varMap.get(varName);
+			ExprNode setA = this.stack.pop();
+			if(null == val) {
+				//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
+				val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
+				//this is needed for 'y' in [ [x for x in A] for y in B ]
+				//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
+			} else {
+				//val.setType(setA.getType().getElementType());
+				val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
 			}
+			if(null != this.mapParameterTypes) {
+				val.setType(setA.getType().getElementType());
+			} else if(null != this.defaultParameterTypeOrInterface) {
+				//TODO
+				throw new RuntimeException();
+			}
+			
+			LForNode forNode = null;
+			//Build a singly linked list from tail to head
+			//(TAIL) null <- forNode <- forNode <- ... <- listCompNode.forNode (HEAD)
+			if(null == listCompNode.forNode) {
+				//If we have ifNode, it should be processed here
+				//together with The first forNode
+				forNode = new LForNode(
+						varName, setA,
+						ifNode
+						);
+			} else {
+				ExprNode forNodeExpr = listCompNode.forNode;
+				if(null != ifNode) {
+					ifNode.bodyExpr = listCompNode.forNode;
+					forNodeExpr = ifNode;
+				}
+				forNode = new LForNode(
+						varName, setA,
+						forNodeExpr
+						);
+			}
+			listCompNode.forNode = forNode;
 		}
 
 		ExprNode forNode = listCompNode.forNode;

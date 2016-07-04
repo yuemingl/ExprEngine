@@ -2,6 +2,7 @@ package io.lambdacloud;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Stack;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -17,8 +18,11 @@ public class MethodGenHelper {
 	private MethodVisitor mv;
 	public Map<String, VariableNode> varMap;
 	private int idxLVTGen = 0;
-	public Label labelTag;
-	public VariableNode varNodeTag;
+	
+	
+	public Stack<Label> labelForIncStackTag = new Stack<Label>();
+	public VariableNode retNodeTag;
+	
 
 	public MethodGenHelper(MethodVisitor mv, Map<String, VariableNode> varMap) {
 		this.mv = mv;

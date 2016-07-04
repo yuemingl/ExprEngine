@@ -100,8 +100,9 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
-		assertEqual(parseAndEval("[x+y for x in A if x+y>=1000 for y in B]",
-				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(1001.0, 1002.0, 1003.0));
+		
+		assertEqual(parseAndEval("[x+y for x in A if x>=2 for y in B if y>=100]",
+				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(102.0, 1002.0, 103.0, 1003.0));
 
 		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
 				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(1001.0, 1002.0, 1003.0));
