@@ -23,9 +23,10 @@ public class Tools {
 //		return Type.getType(arrayType.getDescriptor().substring(1));
 //	}
 	
-	public static int getTypeForNEWARRAY(Type arrayType) {
-		//Type et = getElementType(arrayType);
-		Type et = arrayType.getElementType();
+	public static int getTypeForNEWARRAY(Type arrayType, boolean isArray) {
+		Type et = arrayType;
+		if(isArray)
+			et = arrayType.getElementType();
 		switch(et.getSort()) {
 		case Type.DOUBLE:
 			return T_DOUBLE;

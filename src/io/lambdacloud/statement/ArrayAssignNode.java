@@ -1,11 +1,16 @@
 package io.lambdacloud.statement;
 
-import static org.objectweb.asm.Opcodes.IASTORE;
+import static org.objectweb.asm.Opcodes.*;
 
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+/**
+ * x = a[1]
+ * y = a[5:10]
+ *
+ */
 public class ArrayAssignNode extends ExprNode {
 	public VariableNode var;
 	public ExprNode idxS;

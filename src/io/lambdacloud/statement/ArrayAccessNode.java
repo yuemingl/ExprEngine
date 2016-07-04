@@ -14,6 +14,11 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+/**
+ * a[0]
+ * a[1:5]
+ *
+ */
 public class ArrayAccessNode extends ExprNode {
 	public VariableNode var;
 	public ExprNode idxS;
@@ -52,7 +57,7 @@ public class ArrayAccessNode extends ExprNode {
 			sub.genCode(mg);
 			mg.visitInsn(ICONST_1);
 			mg.visitInsn(IADD);
-			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType()));
+			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType(), true));
 			mg.visitIntInsn(ASTORE, retAry.idxLVT);
 			mg.visitVarInsn(ALOAD, var.idxLVT);
 			idxS.genCode(mg);

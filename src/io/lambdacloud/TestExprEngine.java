@@ -32,6 +32,13 @@ public class TestExprEngine {
 					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
 			}
 			return;
+		} else if(o1 instanceof List && o2 instanceof List) {
+			List l1 = (List)o1;
+			List l2 = (List)o2;
+			for(int i=0; i<l1.size(); i++) {
+				assertEqual(l1.get(i), l2.get(i));
+			}
+			return;
 		}
 		if(!o1.equals(o2)) {
 			System.err.println(o1 + " != "+o2);
@@ -99,10 +106,10 @@ public class TestExprEngine {
 		return ret;
 	}
 	
-	public static void testExprs() {
-		//assertEqual(parseAndEval("[ [x,y] for x in A for y in B if x+y>=1000]",
-		//		new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(1001.0, 1002.0, 1003.0));
-		
+	public static void testExprs() {		
+		assertEqual(parseAndEval("[ [x, 1.0] for x in A]",
+				new Object[]{ new double[]{1,2,3} }), 
+				getList(new double[]{1.0,1.0}, new double[]{2.0,1.0}, new double[]{3.0,1.0}));
 		
 		//Loop for B first and the loop for A (The same as Python language)
 		assertEqual(parseAndEval("[x for x in A for y in B]",
