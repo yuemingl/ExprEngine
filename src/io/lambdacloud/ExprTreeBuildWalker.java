@@ -796,17 +796,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
-//		System.out.println(this.stack);
-//		System.out.println(ctx.expression().getText());
-//		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
-//			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
-//			if(null != for_if.list_comp_if())
-//				System.out.println(for_if.list_comp_if().getText());
-//			for(int j=0; j<for_if.list_comp_for().size(); j++) {
-//				System.out.println(for_if.list_comp_for(j).IDENTIFIER().getText());
-//				System.out.println(for_if.list_comp_for(j).expression().getText());
-//			}
-//		}
+		System.out.println(this.stack);
+		System.out.println(ctx.expression().getText());
+		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
+			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
+			if(null != for_if.list_comp_if())
+				System.out.println(for_if.list_comp_if().getText());
+			for(int j=0; j<for_if.list_comp_for().size(); j++) {
+				System.out.println(for_if.list_comp_for(j).IDENTIFIER().getText());
+				System.out.println(for_if.list_comp_for(j).expression().getText());
+			}
+		}
 		ListComprehensionNode listCompNode = new ListComprehensionNode();
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
 			
@@ -818,7 +818,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 			
 			//[x+y for x in setA for y in setB]
-			for(int j=0; j<forIfNode.list_comp_for().size(); j++) {
+			for(int j=forIfNode.list_comp_for().size()-1; j>=0; j--) {
 				String varName = forIfNode.list_comp_for(j).IDENTIFIER().getText();
 				VariableNode val = this.varMap.get(varName);
 				ExprNode setA = this.stack.pop();
@@ -842,20 +842,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				//Build a singly linked list from tail to head
 				//(TAIL) null <- forNode <- forNode <- ... <- listCompNode.forNode (HEAD)
 				if(null == listCompNode.forNode) {
-					//The first forNode need to be processed here
+					//If we have ifNode, it should be processed here
+					//together with The first forNode
 					forNode = new LForNode(
 							varName, setA,
 							ifNode
 							);
 				} else {
-					ExprNode forNodeExpr = listCompNode.forNode;
-					if(null != ifNode) {
-						forNodeExpr = ifNode;
-						ifNode.bodyExpr = listCompNode.forNode;
-					}
 					forNode = new LForNode(
 							varName, setA,
-							forNodeExpr
+							listCompNode.forNode
 							);
 				}
 				
