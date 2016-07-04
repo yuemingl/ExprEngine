@@ -38,6 +38,7 @@ public class ArrayNode extends ExprNode {
 			mg.visitInsn(DUP);
 			mg.visitLdcInsn(idx++);
 			init.get(i).genCode(mg);
+			Tools.insertConversionInsn(mg, init.get(i).getType(), eleType);
 			mg.visitInsn(eleType.getOpcode(IASTORE));
 		}
 	}
