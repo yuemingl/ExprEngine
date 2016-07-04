@@ -13,44 +13,46 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 
 public class ListComprehensionNode extends ExprNode {
-	public LForNode forIf;
+	public LForNode forNode;
 	public static AtomicInteger seq = new AtomicInteger(); 
 	{
 		seq.set(0);
 	}
 
-	//[x+1 for x in setA]
+	//For node in list comprehension: [exprNode for varName in setNode]
+	//for example: [x+1 for x in setA]
 	public static class LForNode extends ExprNode {
 		public String varName;
-		public ExprNode set;
-		public ExprNode exprBody;
-		public VariableNode ret;
+		public ExprNode setNode;
+		public ExprNode exprNode;
+		public VariableNode retListNode;
 		
-		public LForNode(String varName, ExprNode set, ExprNode exprBody) {
+		public LForNode(String varName, ExprNode setNode, ExprNode exprBody) {
 			this.varName = varName;
-			this.set = set;
-			this.exprBody = exprBody;
+			this.setNode = setNode;
+			this.exprNode = exprBody;
 		}
 
 		@Override
 		public Type getType() {
-			ExprNode bn = this.exprBody;
+			ExprNode bn = this.exprNode;
 			while(bn instanceof LForNode) {
-				bn = ((LForNode)bn).exprBody;
+				bn = ((LForNode)bn).exprNode;
 			}
 			return bn.getType();
 		}
 
 		@Override
 		public void genCode(MethodGenHelper mg) {
-			if(null == ret) throw new RuntimeException("The return value need to be set!");
+			if(null == retListNode) 
+				throw new RuntimeException("The return node of list comprehension "+this.toString()+"is null!");
 			
-			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), set.getType());
+			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), setNode.getType());
 			VariableNode i = mg.newLocalVariable("i"+seq.getAndIncrement(), Type.getType(int.class));
 			VariableNode x = mg.varMap.get(varName);
 			
 			//[x+1 for x in setA]
-			set.genCode(mg);
+			setNode.genCode(mg);
 			//Declare a local variable setA to keep the evaluation of the set
 			mg.visitVarInsn(Opcodes.ASTORE, setA.idxLVT);
 			
@@ -75,13 +77,32 @@ public class ListComprehensionNode extends ExprNode {
 			
 			//ret.add(x+1);
 			//Pass ret to inner loop
-			if(this.exprBody instanceof LForNode) {
-				LForNode fnBody = (LForNode)this.exprBody;
-				fnBody.ret = this.ret;
-				this.exprBody.genCode(mg);
+			Label iInc = new Label();
+			if(this.exprNode instanceof LForNode) {
+				LForNode fnBody = (LForNode)this.exprNode;
+				fnBody.retListNode = this.retListNode;
+				mg.labelTag = iInc;
+				this.exprNode.genCode(mg); //Generate code for exprNode
+			} else if(this.exprNode instanceof LIfNode){
+				mg.varNodeTag = this.retListNode;
+				mg.labelTag = iInc;
+				this.exprNode.genCode(mg); //Generate code for exprNode
+				if(this.getType().getSort() == Type.DOUBLE) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+				} else if(this.getType().getSort() == Type.INT) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+				} else if(this.getType().getSort() == Type.LONG) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+				} else if(this.getType().getSort() == Type.BOOLEAN) {
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+				} else {
+					//do nothing
+				}
+				mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
+				mg.visitInsn(POP);
 			} else {
-				mg.visitVarInsn(ALOAD, ret.idxLVT);
-				this.exprBody.genCode(mg);
+				mg.visitIntInsn(ALOAD, this.retListNode.idxLVT);
+				this.exprNode.genCode(mg); //Generate code for exprNode
 				if(this.getType().getSort() == Type.DOUBLE) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
 				} else if(this.getType().getSort() == Type.INT) {
@@ -98,6 +119,7 @@ public class ListComprehensionNode extends ExprNode {
 			}
 			
 			//i++
+			mg.visitLabel(iInc);
 			mg.visitIincInsn(i.idxLVT, 1);
 			//i<set.length
 			mg.visitLabel(forCond);
@@ -109,19 +131,41 @@ public class ListComprehensionNode extends ExprNode {
 			
 		}
 		public String toString() {
-			return "[ "+this.exprBody+" for "+this.varName+" in "+this.set+" ]";
+			return "[ "+this.exprNode+" for "+this.varName+" in "+this.setNode+" ]";
 		}
-
 	}
 	
 	public ListComprehensionNode() {
 	}
 	
+	//[expression for varName in set if logic_expression]
 	public static class LIfNode extends ExprNode {
+		public ExprNode condExpr;
+		public ExprNode bodyExpr;
+		
+		public LIfNode(ExprNode condExpr, ExprNode bodyExpr) {
+			this.condExpr = condExpr;
+			this.bodyExpr = bodyExpr;
+		}
+		
 		@Override
 		public void genCode(MethodGenHelper mg) {
-			// TODO Auto-generated method stub
 			
+			this.condExpr.genCode(mg);
+			mg.visitJumpInsn(Opcodes.IFEQ, mg.labelTag);
+			
+			mg.visitVarInsn(ALOAD, mg.varNodeTag.idxLVT);
+			this.bodyExpr.genCode(mg);
+		}
+		
+		public String toString() {
+			return this.bodyExpr.toString();
+		}
+		
+		@Override
+		public Type getType() {
+			//return Tools.getArrayType(this.forIf.getType());
+			return this.bodyExpr.getType();
 		}
 		
 	}
@@ -144,8 +188,8 @@ public class ListComprehensionNode extends ExprNode {
 		mg.visitVarInsn(ASTORE, ret.idxLVT);
 		
 		//Gen code for 'forIf' by providing the return list 'ret'
-		this.forIf.ret = ret;
-		this.forIf.genCode(mg);
+		this.forNode.retListNode = ret;
+		this.forNode.genCode(mg);
 		
 		//return list directly (ret)
 		mg.visitVarInsn(ALOAD, ret.idxLVT);
@@ -173,13 +217,14 @@ public class ListComprehensionNode extends ExprNode {
 		int l = set.length;
 		List<Integer> ret = new ArrayList<Integer>();
 		for(int i=0; i<l; i++) {
+			if(set[i] > 4.0)
 			ret.add(100+set[i]);
 		}
 		return null;//ret.toArray(new Integer[]{});
 	}
 	
 	public String toString() {
-		return this.forIf.toString();
+		return this.forNode.toString();
 	}
 	
 	public static void main(String[] args) {

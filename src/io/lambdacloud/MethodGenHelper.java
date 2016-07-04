@@ -17,6 +17,8 @@ public class MethodGenHelper {
 	private MethodVisitor mv;
 	public Map<String, VariableNode> varMap;
 	private int idxLVTGen = 0;
+	public Label labelTag;
+	public VariableNode varNodeTag;
 
 	public MethodGenHelper(MethodVisitor mv, Map<String, VariableNode> varMap) {
 		this.mv = mv;

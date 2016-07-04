@@ -48,6 +48,8 @@ import io.lambdacloud.statement.IncNode;
 import io.lambdacloud.statement.LENode;
 import io.lambdacloud.statement.LTNode;
 import io.lambdacloud.statement.ListComprehensionNode;
+import io.lambdacloud.statement.ListComprehensionNode.LForNode;
+import io.lambdacloud.statement.ListComprehensionNode.LIfNode;
 import io.lambdacloud.statement.MulAsignNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.NEQNode;
@@ -805,17 +807,19 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //				System.out.println(for_if.list_comp_for(j).expression().getText());
 //			}
 //		}
-		ListComprehensionNode node = new ListComprehensionNode();
+		ListComprehensionNode listCompNode = new ListComprehensionNode();
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
 			
-			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
-			if(null != for_if.list_comp_if()) {
-				System.out.println(for_if.list_comp_if().getText());
+			List_comp_for_ifContext forIfNode = ctx.list_comp_for_if(i);
+			LIfNode ifNode = null;
+			if(null != forIfNode.list_comp_if()) {
+				ifNode = new LIfNode(this.stack.pop(), null);
+				System.out.println(forIfNode.list_comp_if().getText());
 			}
 			
 			//[x+y for x in setA for y in setB]
-			for(int j=0; j<for_if.list_comp_for().size(); j++) {
-				String varName = for_if.list_comp_for(j).IDENTIFIER().getText();
+			for(int j=0; j<forIfNode.list_comp_for().size(); j++) {
+				String varName = forIfNode.list_comp_for(j).IDENTIFIER().getText();
 				VariableNode val = this.varMap.get(varName);
 				ExprNode setA = this.stack.pop();
 				if(null == val) {
@@ -831,24 +835,67 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 					val.setType(setA.getType().getElementType());
 				} else if(null != this.defaultParameterTypeOrInterface) {
 					//TODO
+					throw new RuntimeException();
 				}
 				
-				ListComprehensionNode.LForNode fNode = new ListComprehensionNode.LForNode(
-						varName, setA,
-						node.forIf
-						);
-				node.forIf = fNode;
+				LForNode forNode = null;
+				//Build a singly linked list from tail to head
+				//(TAIL) null <- forNode <- forNode <- ... <- listCompNode.forNode (HEAD)
+				if(null == listCompNode.forNode) {
+					//The first forNode need to be processed here
+					forNode = new LForNode(
+							varName, setA,
+							ifNode
+							);
+				} else {
+					ExprNode forNodeExpr = listCompNode.forNode;
+					if(null != ifNode) {
+						forNodeExpr = ifNode;
+						ifNode.bodyExpr = listCompNode.forNode;
+					}
+					forNode = new LForNode(
+							varName, setA,
+							forNodeExpr
+							);
+				}
+				
+//				ExprNode forNodeExpr = listCompNode.forNode;
+//				if(null != ifNode) {
+//					if(null != forNodeExpr) {
+//						forNodeExpr.exprNode = ifNode;
+//						ifNode.bodyExpr = listCompNode.forNode;
+//					} else {
+//						//listCompNode.forIf = ifNode;
+//					}
+//				}
+//				LForNode fNode = new LForNode(
+//						varName, setA,
+//						forNodeExpr
+//						);
+				listCompNode.forNode = forNode;
 			}
 		}
 
-		ListComprehensionNode.LForNode fi = node.forIf;
-		ExprNode expression = node.forIf.exprBody;
-		while(expression != null) {
-			fi = (ListComprehensionNode.LForNode)expression;
-			expression = fi.exprBody;
+		ExprNode forNode = listCompNode.forNode;
+		ExprNode forNodeExpr = listCompNode.forNode.exprNode;
+		while(null != forNodeExpr) {
+			if(forNodeExpr instanceof LForNode) {
+				forNode = forNodeExpr;
+				forNodeExpr = ((LForNode)forNodeExpr).exprNode;
+			} else if(forNodeExpr instanceof LIfNode) {
+				forNode = forNodeExpr;
+				forNodeExpr = ((LIfNode)forNodeExpr).bodyExpr;
+			} else {
+				throw new RuntimeException();
+			}
 		}
-		fi.exprBody = this.stack.pop(); //The last expression
-		this.stack.push(node);
+		if(forNode instanceof LForNode)
+			((LForNode)forNode).exprNode = this.stack.pop(); //The last expression
+		else if(forNode instanceof LIfNode)
+			((LIfNode)forNode).bodyExpr = this.stack.pop(); //The last expression
+		else
+			throw new RuntimeException();
+		this.stack.push(listCompNode);
 	}
 
 }

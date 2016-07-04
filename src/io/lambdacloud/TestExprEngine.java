@@ -100,11 +100,8 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
-		abcdefghjkmnqrstuvwxyz
-		
-		
 //		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>0]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
-//		assertEqual(parseAndEval("[x+1 for x in y if x>4]",new Object[]{ new int[]{3,4,5} }), new int[]{4,5,6});
+		assertEqual(parseAndEval("[x+1 for x in A if x>=4]",new Object[]{ new int[]{3,4,5} }), getList(5.0, 6.0) );
 
 		//test map for list comprehension
 		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",

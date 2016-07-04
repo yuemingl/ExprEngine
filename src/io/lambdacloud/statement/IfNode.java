@@ -17,6 +17,7 @@ public class IfNode extends ExprNode {
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		this.condition.genCode(mg);
+		//if(...){...} else{...}
 		if(this.elseBlockExprs.size() > 0) {
 			Label elseBranch = new Label();
 			mg.visitJumpInsn(Opcodes.IFEQ, elseBranch);
@@ -31,6 +32,7 @@ public class IfNode extends ExprNode {
 			}
 			mg.visitLabel(ifend);
 		} else {
+			//if(...){...}
 			Label ifend = new Label();
 			mg.visitJumpInsn(Opcodes.IFEQ, ifend);
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
