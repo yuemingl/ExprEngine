@@ -206,7 +206,7 @@ func_call
  : LBRK expression list_comp_for_if+ RBRK
  ;
 
-list_comp_for_if : (list_comp_for)+ (list_comp_if)? ;
+list_comp_for_if : list_comp_for list_comp_if? ;
 list_comp_for : 'for' IDENTIFIER 'in' expression ;
 list_comp_if : 'if' logical_expr ;
  
