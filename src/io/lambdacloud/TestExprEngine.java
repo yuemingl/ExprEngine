@@ -111,9 +111,9 @@ public class TestExprEngine {
 				new Object[]{ new double[]{1,2,3} }), 
 				getList(new double[]{1.0,1.0}, new double[]{1.0,2.0}, new double[]{1.0,3.0}));
 		
-//		assertEqual(parseAndEval("[ [x,1] for x in A]",
-//				new Object[]{ new double[]{1,2,3} }), 
-//				getList(new double[]{1.0,1.0}, new double[]{2.0,1.0}, new double[]{3.0,1.0}));
+		assertEqual(parseAndEval("[ [x,1] for x in A]",
+				new Object[]{ new double[]{1,2,3} }), 
+				getList(new double[]{1.0,1.0}, new double[]{2.0,1.0}, new double[]{3.0,1.0}));
 		
 		assertEqual(parseAndEval("[ [x,1.0] for x in A]",
 				new Object[]{ new double[]{1,2,3} }), 

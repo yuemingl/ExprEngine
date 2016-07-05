@@ -34,8 +34,7 @@ public class ArrayNode extends ExprNode {
 		Type eleType = init.get(0).getType();
 		if(init.size() > 1) {
 			for(int i=1; i<init.size(); i++)
-				System.out.println(">>>"+init.get(i));
-			rffrdghddydhdjdjhhejeurjfldkirewowksslslsidignbkfmfdkkffkorlgkgjbm,c,dbdddgitjjgkfhfurirfglfkgjhytitryerrffxcvbghfjfj
+				eleType = Tools.typeConversion(eleType, init.get(i).getType());
 		}
 		
 		mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(eleType, false));
