@@ -50,5 +50,9 @@ public class ArrayNode extends ExprNode {
 	@Override
 	public Type getType() {
 		return Type.getType(int[].class);
-	}	
+	}
+	
+	public String toString() {
+		return this.init.toString();
+	}
 }

@@ -796,17 +796,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
-		System.out.println(this.stack);
-		
-		System.out.print("[ "+ctx.expression().getText());
-		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
-			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
-				System.out.print(" for "+for_if.list_comp_for().IDENTIFIER().getText());
-				System.out.print(" in "+for_if.list_comp_for().expression().getText());
-				if(null != for_if.list_comp_if())
-					System.out.print(" "+for_if.list_comp_if().getText());
-		}
-		System.out.println(" ]");
+//		System.out.println(this.stack);
+//		
+//		System.out.print("[ "+ctx.expression().getText());
+//		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
+//			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
+//				System.out.print(" for "+for_if.list_comp_for().IDENTIFIER().getText());
+//				System.out.print(" in "+for_if.list_comp_for().expression().getText());
+//				if(null != for_if.list_comp_if())
+//					System.out.print(" "+for_if.list_comp_if().getText());
+//		}
+//		System.out.println(" ]");
 		
 		ListComprehensionNode listCompNode = new ListComprehensionNode();
 		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {

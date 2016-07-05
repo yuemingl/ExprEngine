@@ -106,7 +106,15 @@ public class TestExprEngine {
 		return ret;
 	}
 	
-	public static void testExprs() {		
+	public static void testExprs() {
+		assertEqual(parseAndEval("[ [x,x+1] for x in A]",
+				new Object[]{ new double[]{1,2,3} }), 
+				getList(new double[]{1.0,2.0}, new double[]{2.0,3.0}, new double[]{3.0,4.0}));
+
+		assertEqual(parseAndEval("[x,x+1,x+2]", new int[]{10}), new int[]{10,11,12});
+		
+		assertEqual(parseAndEval("[1+2,2*3]"), new int[]{3,6});
+		
 		assertEqual(parseAndEval("[ [1,x] for x in A]",
 				new Object[]{ new double[]{1,2,3} }), 
 				getList(new double[]{1.0,1.0}, new double[]{1.0,2.0}, new double[]{1.0,3.0}));
