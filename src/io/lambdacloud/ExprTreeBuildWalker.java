@@ -764,7 +764,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	@Override public void exitArray_init(ExprGrammarParser.Array_initContext ctx) {
 		//System.out.println(ctx.getText());
-		int dim = ctx.numeric_entity().size();
+		int dim = ctx.expression().size();
 		ArrayNode node = new ArrayNode();
 		for(int i=0; i<dim; i++) {
 			node.addInitValues(stack.pop());

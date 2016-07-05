@@ -196,7 +196,7 @@ EscapeSeq
  : '\\' [btnfr"'\\]
  ;
 
-array_init : LBRK (numeric_entity COMMA)* numeric_entity? RBRK ;
+array_init : LBRK (expression COMMA)* expression? RBRK ;
 
 func_call 
  : IDENTIFIER (PERIOD IDENTIFIER)* LPAREN (expression COMMA)* expression? RPAREN # FuncCall

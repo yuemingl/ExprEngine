@@ -2729,11 +2729,11 @@ public class ExprGrammarParser extends Parser {
 	public static class Array_initContext extends ParserRuleContext {
 		public TerminalNode LBRK() { return getToken(ExprGrammarParser.LBRK, 0); }
 		public TerminalNode RBRK() { return getToken(ExprGrammarParser.RBRK, 0); }
-		public List<Numeric_entityContext> numeric_entity() {
-			return getRuleContexts(Numeric_entityContext.class);
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
 		}
-		public Numeric_entityContext numeric_entity(int i) {
-			return getRuleContext(Numeric_entityContext.class,i);
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(ExprGrammarParser.COMMA); }
 		public TerminalNode COMMA(int i) {
@@ -2771,7 +2771,7 @@ public class ExprGrammarParser extends Parser {
 					{
 					{
 					setState(327);
-					numeric_entity();
+					expression();
 					setState(328);
 					match(COMMA);
 					}
@@ -2783,10 +2783,10 @@ public class ExprGrammarParser extends Parser {
 			}
 			setState(336);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << INTEGER) | (1L << FLOAT) | (1L << IDENTIFIER))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SUB) | (1L << NOT) | (1L << TRUE) | (1L << FALSE) | (1L << BNOT) | (1L << LPAREN) | (1L << LBRK) | (1L << INTEGER) | (1L << FLOAT) | (1L << IDENTIFIER) | (1L << StringLiteral))) != 0)) {
 				{
 				setState(335);
-				numeric_entity();
+				expression();
 				}
 			}
 
@@ -3293,10 +3293,10 @@ public class ExprGrammarParser extends Parser {
 		"\2\2\u0140\u013f\3\2\2\2\u0141\u0142\3\2\2\2\u0142\u0140\3\2\2\2\u0142"+
 		"\u0143\3\2\2\2\u0143%\3\2\2\2\u0144\u0147\79\2\2\u0145\u0147\5 \21\2\u0146"+
 		"\u0144\3\2\2\2\u0146\u0145\3\2\2\2\u0147\'\3\2\2\2\u0148\u014e\7*\2\2"+
-		"\u0149\u014a\5\30\r\2\u014a\u014b\7\61\2\2\u014b\u014d\3\2\2\2\u014c\u0149"+
+		"\u0149\u014a\5\n\6\2\u014a\u014b\7\61\2\2\u014b\u014d\3\2\2\2\u014c\u0149"+
 		"\3\2\2\2\u014d\u0150\3\2\2\2\u014e\u014c\3\2\2\2\u014e\u014f\3\2\2\2\u014f"+
-		"\u0152\3\2\2\2\u0150\u014e\3\2\2\2\u0151\u0153\5\30\r\2\u0152\u0151\3"+
-		"\2\2\2\u0152\u0153\3\2\2\2\u0153\u0154\3\2\2\2\u0154\u0155\7+\2\2\u0155"+
+		"\u0152\3\2\2\2\u0150\u014e\3\2\2\2\u0151\u0153\5\n\6\2\u0152\u0151\3\2"+
+		"\2\2\u0152\u0153\3\2\2\2\u0153\u0154\3\2\2\2\u0154\u0155\7+\2\2\u0155"+
 		")\3\2\2\2\u0156\u015b\7\60\2\2\u0157\u0158\7\64\2\2\u0158\u015a\7\60\2"+
 		"\2\u0159\u0157\3\2\2\2\u015a\u015d\3\2\2\2\u015b\u0159\3\2\2\2\u015b\u015c"+
 		"\3\2\2\2\u015c\u015e\3\2\2\2\u015d\u015b\3\2\2\2\u015e\u0164\7(\2\2\u015f"+
