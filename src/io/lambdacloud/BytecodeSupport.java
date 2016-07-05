@@ -35,4 +35,20 @@ public class BytecodeSupport {
 	public static void print(String format, Object ...params) {
 		
 	}
+	
+	public static int[] range(int s) {
+		int[] ret = new int[s];
+		for(int i=0; i<s; i++) {
+			ret[i] = i;
+		}
+		return ret;
+	}
+	
+	public static int[] range(int s, int e) {
+		int[] ret = new int[e-s];
+		for(int i=s; i<e; i++) {
+			ret[i-s] = i;
+		}
+		return ret;
+	}
 }

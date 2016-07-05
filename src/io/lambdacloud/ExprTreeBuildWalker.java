@@ -783,9 +783,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		String className = sb.length()>0?sb.delete(0, 1).toString():"";
 		if(className.equalsIgnoreCase("math"))
 			className = "java.lang.Math";
-		if(methodName.equalsIgnoreCase("print"))
-			className = "io.lambdacloud.BytecodeSupport";
-		if(methodName.equalsIgnoreCase("println"))
+		if(methodName.equalsIgnoreCase("print") ||
+			methodName.equalsIgnoreCase("println") ||
+			methodName.equalsIgnoreCase("range")
+				)
 			className = "io.lambdacloud.BytecodeSupport";
 		FuncCallNode fnode = new FuncCallNode(className, methodName);
 		for(ExpressionContext expr : ctx.expression()) {
