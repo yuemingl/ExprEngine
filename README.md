@@ -26,7 +26,7 @@ System.out.println(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+
 System.out.println(parseAndEval("[x for x in A for y in B]",
 				new Object[]{ new int[]{0,1,2}, new int[]{100,101,102} }));
 
-parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
+System.out.println(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
 				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }));
 
 ```
