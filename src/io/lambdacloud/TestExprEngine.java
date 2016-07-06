@@ -107,6 +107,12 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		//Test for variable types
+		assertEqual(parseAndEval("[x for x in y]",new Object[]{ new int[]{3,4,5} }), getList(3,4,5));
+		assertEqual(parseAndEval("x",new Object[]{ new Integer(3)} ), 3);
+		assertEqual(parseAndEval("x",new Object[]{ new Double(3)} ), 3.0);
+		
+		//Test for range
 		assertEqual(parseAndEval("range(1+2,2*x)",new int[]{3}), new int[]{3,4,5});
 
 		assertEqual(parseAndEval("x+1.1",new int[]{1}), 2.1);
@@ -119,6 +125,7 @@ public class TestExprEngine {
 		
 		assertEqual(parseAndEval("range(3)"), new int[]{0,1,2});
 		
+		//Test for list comprehension
 		assertEqual(parseAndEval("[ [x,x+1] for x in A]",
 				new Object[]{ new double[]{1,2,3} }), 
 				getList(new double[]{1.0,2.0}, new double[]{2.0,3.0}, new double[]{3.0,4.0}));
@@ -142,16 +149,16 @@ public class TestExprEngine {
 		//Loop for B first and the loop for A (The same as Python language)
 		assertEqual(parseAndEval("[x for x in A for y in B]",
 				new Object[]{ new int[]{0,1,2}, new int[]{100,101,102} }), 
-				getList(0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0));
+				getList(0, 0, 0, 1, 1, 1, 2, 2, 2));
 		
 		assertEqual(parseAndEval("[x+y for x in A if x>=2 for y in B if y>=100]",
-				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(102.0, 1002.0, 103.0, 1003.0));
+				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(102, 1002, 103, 1003));
 
 		assertEqual(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
-				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(1001.0, 1002.0, 1003.0));
+				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }), getList(1001, 1002, 1003));
 		
 		assertEqual(parseAndEval("[x+1 for x in A if x>=4]",
-				new Object[]{ new int[]{3,4,5} }), getList(5.0, 6.0) );
+				new Object[]{ new int[]{3,4,5} }), getList(5, 6) );
 
 		//test map for list comprehension
 		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
@@ -171,14 +178,14 @@ public class TestExprEngine {
 		assertEqual(parseAndEval("[ [ [x+y+z for x in A] for y in B] for z in C]",
 				new Object[]{ new int[]{1,2}, new int[]{3,4}, new int[]{5,6} }), 
 				getList(
-						getList(getList(9.0, 10.0), getList(10.0, 11.0)),
-						getList(getList(10.0, 11.0), getList(11.0, 12.0))
+						getList(getList(9, 10), getList(10, 11)),
+						getList(getList(10, 11), getList(11, 12))
 				)
 				);
 		
 		assertEqual(parseAndEval("[ [x+y for x in A] for y in B ]",
 				new Object[]{ new int[]{3,4,5}, new int[]{3,4,5} }), 
-				getList(getList(6.0, 7.0, 8.0), getList(7.0, 8.0, 9.0), getList(8.0, 9.0, 10.0)));
+				getList(getList(6, 7, 8), getList(7, 8, 9), getList(8, 9, 10)));
 
 		//assertEqual(parseAndEval("[x+1.0 for x in [3,4,5]]"), new double[]{4.0, 5.0, 6.0});
 		assertEqual(parseAndEval("[x+1.0 for x in [3,4,5]]"), getList(4.0, 5.0, 6.0));
@@ -188,9 +195,9 @@ public class TestExprEngine {
 
 		//type???
 		assertEqual(parseAndEval("[x+y for x in A for y in B]", new Object[]{ new int[]{3,4,5}, new int[]{1,2,3} }), 
-				getList( 4.0, 5.0, 6.0, 5.0, 6.0, 7.0, 6.0, 7.0, 8.0 ));
-		assertEqual(parseAndEval("[x+1.0 for x in y]",new Object[]{ new int[]{3,4,5} }), getList(4.0 ,5.0, 6.0));
-		assertEqual(parseAndEval("[x+1 for x in y]",new Object[]{ new int[]{3,4,5} }), getList(4.0 ,5.0, 6.0));
+				getList( 4, 5, 6, 5, 6, 7, 6, 7, 8 ));
+		assertEqual(parseAndEval("[x+1.0 for x in y]",new Object[]{ new int[]{3,4,5} }), getList(4.0, 5.0, 6.0));
+		assertEqual(parseAndEval("[x+1 for x in y]",new Object[]{ new int[]{3,4,5} }), getList(4 ,5, 6));
 		
 		parseAndEval("println('Begin test:'); print(1); print(2.0); println(true)");
 		parseAndEval("println(\"hello world!\")");

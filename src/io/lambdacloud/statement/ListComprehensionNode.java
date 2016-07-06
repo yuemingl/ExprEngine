@@ -117,6 +117,8 @@ public class ListComprehensionNode extends ExprNode {
 			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), setNode.getType());
 			VariableNode i = mg.newLocalVariable("i"+seq.getAndIncrement(), Type.getType(int.class));
 			VariableNode x = mg.varMap.get(varName);
+			//x is set to double by default. The type of x is corrected here.
+			x.setType(setA.getType().getElementType());
 			
 			//[x+1 for x in setA]
 			setNode.genCode(mg);
