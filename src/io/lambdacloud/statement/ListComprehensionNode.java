@@ -46,6 +46,74 @@ public class ListComprehensionNode extends ExprNode {
 			if(null == mg.retNodeTag) 
 				throw new RuntimeException("The return node of list comprehension "+this.toString()+"is null!");
 			
+			/**
+			 * Generate code for range() in list comprehension
+			 * [x*2 for x in range(s,e)]
+			 * ==>
+			 * List<ElementType> ret = new ArrayList<ElementType>();
+			 * for(int x=s; x<s; x++) {
+			 *   ret.add(x*2);
+			 * }
+			 * return ret;
+			 */
+			if(setNode instanceof RangeNode) {
+				VariableNode x = mg.varMap.get(varName);
+				x.setType(Type.getType(int.class));
+				
+				RangeNode range = (RangeNode)setNode;
+				//x = s;
+				range.genStartCode(mg);
+				mg.visitVarInsn(ISTORE, x.idxLVT);
+				
+				//Label in 'for(;*HERE*;)'
+				Label forCond = new Label();
+				mg.visitJumpInsn(GOTO, forCond);
+				
+				//Label in 'for(;;) { *HERE* }'
+				Label forBody = new Label();
+				mg.visitLabel(forBody);
+
+				//for body
+				//ret.add(x+1);
+				//Pass ret to inner loop
+				Label iInc = new Label();
+				if(this.exprNode instanceof LForNode) {
+					this.exprNode.genCode(mg); //Generate code for exprNode
+				} else if(this.exprNode instanceof LIfNode){
+					mg.labelForIncStackTag.push(iInc);
+					this.exprNode.genCode(mg); //Generate code for exprNode
+				} else {
+					mg.visitIntInsn(ALOAD, mg.retNodeTag.idxLVT);
+					this.exprNode.genCode(mg); //Generate code for exprNode
+					if(this.getType().getSort() == Type.DOUBLE) {
+						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+					} else if(this.getType().getSort() == Type.INT) {
+						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+					} else if(this.getType().getSort() == Type.LONG) {
+						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+					} else if(this.getType().getSort() == Type.BOOLEAN) {
+						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+					} else {
+						//do nothing
+					}
+					mg.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z", true);
+					mg.visitInsn(POP);
+				}				
+				
+				//i++
+				mg.visitLabel(iInc);
+				mg.visitIincInsn(x.idxLVT, 1);
+				//i<set.length
+				mg.visitLabel(forCond);
+				mg.visitVarInsn(ILOAD, x.idxLVT);
+				range.genEndCode(mg);
+				mg.visitJumpInsn(IF_ICMPLT, forBody);
+				
+				
+				return;
+			}
+			
+			
 			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), setNode.getType());
 			VariableNode i = mg.newLocalVariable("i"+seq.getAndIncrement(), Type.getType(int.class));
 			VariableNode x = mg.varMap.get(varName);
@@ -59,11 +127,11 @@ public class ListComprehensionNode extends ExprNode {
 			mg.visitInsn(ICONST_0);
 			mg.visitVarInsn(ISTORE, i.idxLVT);
 			
-			//Label in for(;?HERE?;)
+			//Label in 'for(;*HERE*;)'
 			Label forCond = new Label();
 			mg.visitJumpInsn(GOTO, forCond);
 			
-			//Label in for(;;) { ?HERE? }
+			//Label in 'for(;;) { *HERE* }'
 			Label forBody = new Label();
 			mg.visitLabel(forBody);
 			

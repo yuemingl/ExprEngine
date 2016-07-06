@@ -107,7 +107,11 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
-		assertEqual(parseAndEval("[x+10 for x in range(3)]"), getList(10.0, 11.0, 12.0));
+		//assertEqual(parseAndEval("x+1.1",new int[]{1}), 11.1);
+		//assertEqual(parseAndEval("x+10.0",new int[]{1}), 11.1);
+		
+		assertEqual(parseAndEval("[x+10 for x in range(3)]"), getList(10, 11, 12));
+		//assertEqual(parseAndEval("[x+10.0 for x in range(3)]"), getList(10.0, 11.0, 12.0));
 		
 		assertEqual(parseAndEval("range(3,5)"), new int[]{3,4});
 		

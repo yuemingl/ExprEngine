@@ -56,6 +56,7 @@ import io.lambdacloud.statement.NEQNode;
 import io.lambdacloud.statement.NegateNode;
 import io.lambdacloud.statement.NotNode;
 import io.lambdacloud.statement.OrNode;
+import io.lambdacloud.statement.RangeNode;
 import io.lambdacloud.statement.RemAsignNode;
 import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.SHLNode;
@@ -783,18 +784,29 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		String className = sb.length()>0?sb.delete(0, 1).toString():"";
 		if(className.equalsIgnoreCase("math"))
 			className = "java.lang.Math";
-		if(methodName.equalsIgnoreCase("print") ||
-			methodName.equalsIgnoreCase("println") ||
-			methodName.equalsIgnoreCase("range")
-				)
+		if( methodName.equalsIgnoreCase("print")
+			|| methodName.equalsIgnoreCase("println") 
+			//|| methodName.equalsIgnoreCase("range")
+		  ) {
 			className = "io.lambdacloud.BytecodeSupport";
-		FuncCallNode fnode = new FuncCallNode(className, methodName);
-		for(ExpressionContext expr : ctx.expression()) {
-			//System.out.println(expr.getText());
-			fnode.args.add(stack.pop());
 		}
-		stack.push(fnode);
-		
+		if(methodName.equalsIgnoreCase("range")) {
+			ExprNode start = null;
+			ExprNode end = stack.pop();
+			if(ctx.expression().size() > 1) {
+				start = end;
+				end = stack.pop();
+			}
+			RangeNode node = new RangeNode(start, end);
+			stack.push(node);
+		} else {
+			FuncCallNode fnode = new FuncCallNode(className, methodName);
+			for(ExpressionContext expr : ctx.expression()) {
+				//System.out.println(expr.getText());
+				fnode.args.add(stack.pop());
+			}
+			stack.push(fnode);
+		}
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
 //		System.out.println(this.stack);
@@ -830,6 +842,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			} else {
 				//val.setType(setA.getType().getElementType());
 				val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
+				//val.setType(Type.getType(int.class));
 			}
 			if(null != this.mapParameterTypes) {
 				val.setType(setA.getType().getElementType());
