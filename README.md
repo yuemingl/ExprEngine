@@ -1,5 +1,5 @@
 #ExprEngine
-ExprEngine converts a string of expression(s) to java bytecode in runtime. A static method or a class which implements a user provided interface is generted in memory (which can also be written to file). Some simple examples are shown in following codes.  
+ExprEngine compiles a string of expression to java bytecode in memory at runtime. The bytecode represents a static method or a class which implements a user defined interface. The method can be called as normal Java method and returns Java objects. Some simple examples are shown in following codes.  
 
 #### A quick example: parse and evaluate. (Warning: the bytecode will be generated each time when calling for parseAndEval().)
 ```Java
