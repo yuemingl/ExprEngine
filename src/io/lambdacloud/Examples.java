@@ -7,6 +7,8 @@ import static io.lambdacloud.ExprEngine.parseAndEval;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 public class Examples {
 
@@ -14,6 +16,7 @@ public class Examples {
 	 * A quick example: parse and evaluate. 
 	 * Warning: the bytecode will be generated each time of the call of parseAndEval().
 	 */
+	@SuppressWarnings("unchecked")
 	public static void ex1() {
 		//Basic expressions
 		System.out.println(parseAndEval("-x", new int[]{3}));
@@ -35,8 +38,23 @@ public class Examples {
 		//List comprehension
 		System.out.println(parseAndEval("[x for x in A for y in B]",
 				new Object[]{ new int[]{0,1,2}, new int[]{100,101,102} }));
+		
 		System.out.println(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
 				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }));
+		
+		System.out.println(Arrays.deepToString(
+				((List<int[][][]>)parseAndEval("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
+				new Object[]{ new int[]{1,2}, new int[]{3,4} })).toArray()));
+		
+		System.out.println(Arrays.deepToString(
+				(int[][][])parseAndEval("[ [[x],[y]], [[x+y]] ]",
+				new Object[]{ 1,2 })));
+		
+		System.out.println(Arrays.deepToString(
+				(int[][])parseAndEval("[ [x],[y] ]",
+				new Object[]{ 1,2 })));
+
+
 	}
 	
 	/**

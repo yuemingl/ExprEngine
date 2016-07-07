@@ -48,19 +48,30 @@ public class Tools {
 		throw new RuntimeException();
 	}
 	
+	public static void test() {
+		double[][] oo = new double[100][];
+	}
+	
 	public static Type typeConversion(Type type1, Type type2) {
 		int t1 = type1.getSort();
 		int t2 = type2.getSort();
-		if(t1 == Type.OBJECT || t2 == Type.OBJECT) {
+		if(t1 == Type.OBJECT && t2 == Type.OBJECT) {
 			return type1;
-		}
-		if(t1 == Type.DOUBLE || t2 == Type.DOUBLE) {
+		} else if(t1 == Type.ARRAY && t2 ==Type.ARRAY) {
+			return type1;
+		} else if(t1 == Type.DOUBLE || t2 == Type.DOUBLE) {
 			return Type.getType(double.class);
-		}
-		if(t1 == Type.INT || t2 == Type.INT) {
+		} else if(t1 == Type.FLOAT || t2 == Type.FLOAT) {
+			return Type.getType(float.class);
+		} else if(t1 == Type.LONG || t2 == Type.LONG) {
+			return Type.getType(long.class);
+		} else if(t1 == Type.INT || t2 == Type.INT) {
 			return Type.getType(int.class);
+		} else if(t1 == Type.BOOLEAN && t2 == Type.BOOLEAN) {
+			return Type.getType(boolean.class);
+		} else {
+			throw new RuntimeException("Cannot convert type "+type1+" and "+type2+"!");
 		}
-		return Type.getType(boolean.class);
 	}
 	
 	public static void insertConversionInsn(MethodGenHelper mg, Type from, Type to) {

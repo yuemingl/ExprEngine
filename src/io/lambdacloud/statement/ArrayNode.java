@@ -36,8 +36,12 @@ public class ArrayNode extends ExprNode {
 			for(int i=1; i<init.size(); i++)
 				eleType = Tools.typeConversion(eleType, init.get(i).getType());
 		}
-		
-		mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(eleType, false));
+		if(eleType.getSort() == Type.OBJECT ||
+				eleType.getSort() == Type.ARRAY) {
+			mg.visitTypeInsn(ANEWARRAY, eleType.getInternalName());
+		} else {
+			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(eleType, false));
+		}
 		int idx = 0;
 		for(int i=init.size()-1; i>=0; i--) {
 			mg.visitInsn(DUP);
@@ -47,9 +51,15 @@ public class ArrayNode extends ExprNode {
 			mg.visitInsn(eleType.getOpcode(IASTORE));
 		}
 	}
+	
 	@Override
 	public Type getType() {
-		return Type.getType(int[].class);
+		Type eleType = init.get(0).getType();
+		if(init.size() > 1) {
+			for(int i=1; i<init.size(); i++)
+				eleType = Tools.typeConversion(eleType, init.get(i).getType());
+		}
+		return Tools.getArrayType(eleType);
 	}
 	
 	public String toString() {
