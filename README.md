@@ -42,6 +42,10 @@ System.out.println(parseAndEval("[x for x in A for y in B]",
 System.out.println(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
 				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }));
 
+System.out.println(parseAndEval("[ x>3 for x in A ]", new Object[] {new int[]{1,2,3,4,5,6}}));
+
+System.out.println(parseAndEval("[ x for x in A if x>3 ]", new Object[] {new int[]{1,2,3,4,5,6}}));
+
 System.out.println(Arrays.deepToString(
 		((List<int[][][]>)parseAndEval("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
 		new Object[]{ new int[]{1,2}, new int[]{3,4} })).toArray()));
