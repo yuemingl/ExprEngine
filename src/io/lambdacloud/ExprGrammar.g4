@@ -187,7 +187,7 @@ Characters : Character+ ;
 
 fragment
 Character
- : ~["\\]
+ : ~['"\\]
  | EscapeSeq
  ;
 
