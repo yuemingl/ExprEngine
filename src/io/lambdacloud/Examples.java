@@ -73,7 +73,7 @@ public class Examples {
 		ExprTreeBuildWalker ew = parse("x+y", double.class);
 		Method m = genStaticMethod(ew, "myclass", false, "myfun");
 		try {
-			for(int i=0; i<5; i++)
+			for(int i=0; i<3; i++)
 				System.out.println(m.invoke(null, i, 10.0));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -85,11 +85,11 @@ public class Examples {
 	 * Use method handle to invoke the generated static method
 	 */
 	public static void ex3() {
-		ExprTreeBuildWalker ew = parse("x*y");
+		ExprTreeBuildWalker ew = parse("x+y");
 		MethodHandle mh = genMethodHandle(ew, "myclass", false, "myfun", 
 				double.class,  double.class, double.class);
 		try {
-			for(int i=0; i<5; i++)
+			for(int i=0; i<3; i++)
 					System.out.println(mh.invoke(i, 10.0));
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -104,7 +104,7 @@ public class Examples {
 		double apply(double x, double y);
 	}
 	public static void ex4() {
-		ExprTreeBuildWalker ew = parse("x*y", Fun2.class);
+		ExprTreeBuildWalker ew = parse("x+y", Fun2.class);
 		Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", true);
 		System.out.println(f.apply(3,4));
 	}
