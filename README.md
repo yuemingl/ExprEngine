@@ -1,7 +1,7 @@
 #ExprEngine
-ExprEngine compiles a string of expression to java bytecode in memory at runtime. The bytecode represents a static method or a class which implements a user defined interface. The method can be called as normal Java method and returns Java objects. Some simple examples are shown in following codes.  
+ExprEngine compiles a string of expression to java bytecode in memory at runtime. The bytecode represents a static method or a class which implements a user defined interface. The method can be called as normal Java method and returns Java object. Some simple examples are shown in following codes.  
 
-#### A quick example: parse and evaluate. (Warning: the bytecode will be generated each time when calling for parseAndEval().)
+#### A quick example: parse and evaluate. (Note: the bytecode will be generated each time when using function parseAndEval.)
 ```Java
 import static io.lambdacloud.ExprEngine.parseAndEval;
 ...
