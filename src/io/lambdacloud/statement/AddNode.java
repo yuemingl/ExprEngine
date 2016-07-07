@@ -7,8 +7,8 @@ import io.lambdacloud.MethodGenHelper;
 import org.objectweb.asm.Opcodes;
 
 public class AddNode extends ExprNode {
-	ExprNode left;
-	ExprNode right;
+	public ExprNode left;
+	public ExprNode right;
 	public AddNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.left.genLoadInsn(true);

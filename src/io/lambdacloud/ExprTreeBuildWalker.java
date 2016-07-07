@@ -847,8 +847,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			if(null != this.mapParameterTypes) {
 				val.setType(setA.getType().getElementType());
 			} else if(null != this.defaultParameterTypeOrInterface) {
-				//TODO
-				throw new RuntimeException();
+				val.setType(Type.getType(this.defaultParameterTypeOrInterface.getClass()));
 			}
 			
 			LForNode forNode = null;

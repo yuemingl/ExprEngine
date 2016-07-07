@@ -55,9 +55,5 @@ public class VariableNode extends ExprNode {
 	public void genCode(MethodGenHelper mg) {
 		mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), this.idxLVT);
 	}
-	
-	@Override
-	public Type getType() {
-		return this.type;
-	}
+
 }
