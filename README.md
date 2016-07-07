@@ -29,6 +29,10 @@ System.out.println(parseAndEval("[x for x in A for y in B]",
 System.out.println(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
 				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }));
 
+System.out.println(Arrays.deepToString(
+		((List<int[][][]>)parseAndEval("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
+		new Object[]{ new int[]{1,2}, new int[]{3,4} })).toArray()));
+
 ```
 
 ####  Parse and generate bytecode once, call many times. Use reflection to invoke the generated statis method
