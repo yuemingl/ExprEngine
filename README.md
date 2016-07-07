@@ -35,7 +35,7 @@ System.out.println(Arrays.deepToString(
 
 ```
 
-####  Parse and generate bytecode once, call many times. Use reflection to invoke the generated statis method
+####  Parse and generate bytecode once, call many times. Use reflection to invoke the generated static method
 
 ```Java
 import static io.lambdacloud.ExprEngine.genStaticMethod;
