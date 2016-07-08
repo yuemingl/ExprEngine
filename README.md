@@ -1,7 +1,7 @@
 #ExprEngine
 ExprEngine compiles a string of expression to java bytecode in memory at runtime. The bytecode represents a static method or a class which implements a user defined interface. The method can be called as normal Java method and returns Java object. Some simple examples are shown in following codes.  
 
-#### A quick example: parse and evaluate. (Note: the bytecode will be generated each time when using function ExprEngine.exec().)
+#### 1. A quick example: parse and evaluate. (Note: the bytecode will be generated each time when using function ExprEngine.exec(). See examples below for more efficient ways.)
 ```Java
 import static io.lambdacloud.ExprEngine.exec;
 ...
@@ -60,7 +60,7 @@ System.out.println(exec("[[1 for col in range(3)] for row in range(2)]"));
 
 ```
 
-####  Parse and generate bytecode once, call many times. Use reflection to invoke the generated static method
+####  2. Parse and generate bytecode once, call many times. Use reflection to invoke the generated static method
 
 ```Java
 import static io.lambdacloud.ExprEngine.genStaticMethod;
@@ -76,11 +76,11 @@ try {
 
 ```
 	
-#### Parse and generate bytecode once, call many times. Use method handle to invoke the generated static method
+#### 3. Parse and generate bytecode once, call many times. Use method handle to invoke the generated static method
 ```Java
 import static io.lambdacloud.ExprEngine.genMethodHandle;
 ...
-ExprTreeBuildWalker ew = parse("x*y");
+ExprTreeBuildWalker ew = parse("x+y");
 MethodHandle mh = genMethodHandle(ew, "myclass", false, "myfun", 
 		double.class,  double.class, double.class);
 try {
@@ -91,7 +91,7 @@ try {
 }
 ```
 
-#### Declare an interface for your function.A class which implements the interface is generated and ready to use.
+#### 4. Declare an interface for your function.A class which implements the interface is generated and ready to use.
 ```Java
 //Define your interface at somewhere
 public interface Fun2 {
@@ -100,7 +100,7 @@ public interface Fun2 {
 
 //Case the generated class to the interface you defined
 ...
-ExprTreeBuildWalker ew = parse("x*y", Fun2.class);
+ExprTreeBuildWalker ew = parse("x+y", Fun2.class);
 Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", true);
 System.out.println(f.apply(3,4));
 ...
