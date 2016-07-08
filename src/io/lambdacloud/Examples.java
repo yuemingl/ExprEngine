@@ -3,7 +3,7 @@ package io.lambdacloud;
 import static io.lambdacloud.ExprEngine.genStaticMethod;
 import static io.lambdacloud.ExprEngine.genMethodHandle;
 import static io.lambdacloud.ExprEngine.parse;
-import static io.lambdacloud.ExprEngine.parseAndEval;
+import static io.lambdacloud.ExprEngine.exec;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
@@ -20,57 +20,57 @@ public class Examples {
 	public static void ex1() {
 
 		//Basic expressions
-		System.out.println(parseAndEval("-x", new int[]{3}));
-		System.out.println(parseAndEval("x + y", new int[]{3,4}));
-		System.out.println(parseAndEval("x > y", new int[]{3,4}));
-		System.out.println(parseAndEval("x <= y and x > 0", new int[]{3,4}));
-		System.out.println(parseAndEval("a=x+y; a+2", new double[]{3.0,4.0}));
-		System.out.println(parseAndEval("(7^3) == (1<<2)"));
-		System.out.println(parseAndEval(" 'abc'+'def' "));
-		System.out.println(parseAndEval(" \"abc\"+'def' "));
-		System.out.println(parseAndEval("7**2"));
+		System.out.println(exec("-x", new int[]{3}));
+		System.out.println(exec("x + y", new int[]{3,4}));
+		System.out.println(exec("x > y", new int[]{3,4}));
+		System.out.println(exec("x <= y and x > 0", new int[]{3,4}));
+		System.out.println(exec("a=x+y; a+2", new double[]{3.0,4.0}));
+		System.out.println(exec("(7^3) == (1<<2)"));
+		System.out.println(exec(" 'abc'+'def' "));
+		System.out.println(exec(" \"abc\"+'def' "));
+		System.out.println(exec("7**2"));
 		
 		//If else
-		System.out.println(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));
-		System.out.println("max(3,4)="+parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}));
+		System.out.println(exec("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));
+		System.out.println("max(3,4)="+exec("a=if(x>y) {x} else {y}; a", new int[]{3,4}));
 		
 		//While for loops
-		System.out.println(parseAndEval("while(x<y) {x=x+1} x", new int[]{1,4}));
-		System.out.println(parseAndEval("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
+		System.out.println(exec("while(x<y) {x=x+1} x", new int[]{1,4}));
+		System.out.println(exec("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
 		
 		//Array
-		System.out.println(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
+		System.out.println(exec("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
 		System.out.println(Arrays.toString(
-				(int[])parseAndEval("[x, y, 3, 4]", new Object[]{ 1,2 })));
+				(int[])exec("[x, y, 3, 4]", new Object[]{ 1,2 })));
 		System.out.println(Arrays.toString(
-				(String[])parseAndEval("['abc', 'def', x]", new Object[]{"ghi"})));
+				(String[])exec("['abc', 'def', x]", new Object[]{"ghi"})));
 		System.out.println(Arrays.deepToString(
-				(int[][])parseAndEval("[ [x], [y] ]", new Object[]{ 1,2 })));
+				(int[][])exec("[ [x], [y] ]", new Object[]{ 1,2 })));
 		System.out.println(Arrays.deepToString(
-				(int[][][])parseAndEval("[ [[x],[y]], [[x+y]] ]", new Object[]{ 1,2 })));
+				(int[][][])exec("[ [[x],[y]], [[x+y]] ]", new Object[]{ 1,2 })));
 		System.out.println(Arrays.toString(
-				(double[])parseAndEval("x[i+1:j-1]", new Object[]{1,4,new double[]{1,2,3,4,5}})));
-		System.out.println(Arrays.deepToString((int[][])parseAndEval("[1:3, 5:10, 100:101]")));
+				(double[])exec("x[i+1:j-1]", new Object[]{1,4,new double[]{1,2,3,4,5}})));
+		System.out.println(Arrays.deepToString((int[][])exec("[1:3, 5:10, 100:101]")));
 		
 		//List comprehension
-		System.out.println(parseAndEval("[x for x in A for y in B]",
+		System.out.println(exec("[x for x in A for y in B]",
 				new Object[]{ new int[]{0,1,2}, new int[]{100,101,102} }));
 		
-		System.out.println(parseAndEval("[x+y for x in A for y in B if x+y>=1000]",
+		System.out.println(exec("[x+y for x in A for y in B if x+y>=1000]",
 				new Object[]{ new int[]{1,2,3}, new int[]{10,100,1000} }));
 		
-		System.out.println(parseAndEval("[ x>3 for x in A ]", new Object[] {new int[]{1,2,3,4,5,6}}));
+		System.out.println(exec("[ x>3 for x in A ]", new Object[] {new int[]{1,2,3,4,5,6}}));
 		
-		System.out.println(parseAndEval("[ x for x in A if x>3 ]", new Object[] {new int[]{1,2,3,4,5,6}}));
+		System.out.println(exec("[ x for x in A if x>3 ]", new Object[] {new int[]{1,2,3,4,5,6}}));
 		
 		System.out.println(Arrays.deepToString(
-				((List<int[][][]>)parseAndEval("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
+				((List<int[][][]>)exec("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
 				new Object[]{ new int[]{1,2}, new int[]{3,4} })).toArray()));
 		
 		//Memory efficient range() function (no temp list generated)
-		System.out.println(parseAndEval("[x+10.0 for x in range(3)]")); //0,1,2
-		System.out.println(parseAndEval("[x+10.0 for x in 1:3]"));      //1,2,3
-		System.out.println(parseAndEval("[[1 for col in range(3)] for row in range(2)]"));
+		System.out.println(exec("[x+10.0 for x in range(3)]")); //0,1,2
+		System.out.println(exec("[x+10.0 for x in 1:3]"));      //1,2,3
+		System.out.println(exec("[[1 for col in range(3)] for row in range(2)]"));
 		
 	}
 	

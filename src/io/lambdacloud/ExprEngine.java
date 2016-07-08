@@ -126,7 +126,7 @@ public class ExprEngine {
 	 * @param str
 	 * @return
 	 */
-	public static Object parseAndEval(String str) {
+	public static Object exec(String str) {
 		ExprTreeBuildWalker ew = parse(str);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
@@ -143,7 +143,7 @@ public class ExprEngine {
 	 * @param args
 	 * @return
 	 */
-	public static Object parseAndEval(String str, int[] args) {
+	public static Object exec(String str, int[] args) {
 		ExprTreeBuildWalker ew = parse(str, int.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
@@ -163,7 +163,7 @@ public class ExprEngine {
 	 * @param args
 	 * @return
 	 */
-	public static Object parseAndEval(String str, long[] args) {
+	public static Object exec(String str, long[] args) {
 		ExprTreeBuildWalker ew = parse(str, long.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
@@ -183,7 +183,7 @@ public class ExprEngine {
 	 * @param args
 	 * @return
 	 */
-	public static Object parseAndEval(String str, double[] args) {
+	public static Object exec(String str, double[] args) {
 		ExprTreeBuildWalker ew = parse(str, double.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
@@ -203,7 +203,7 @@ public class ExprEngine {
 	 * @param args
 	 * @return
 	 */
-	public static Object parseAndEval(String str, String[] args) {
+	public static Object exec(String str, String[] args) {
 		ExprTreeBuildWalker ew = parse(str, String.class);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
@@ -223,7 +223,7 @@ public class ExprEngine {
 	 * @param args
 	 * @return
 	 */
-	public static Object parseAndEval(String str, Object[] args) {
+	public static Object exec(String str, Object[] args) {
 		Class<?>[] aryParamTypes = new Class<?>[args.length];
 		for(int i=0; i<args.length; i++) {
 			aryParamTypes[i] = Tools.getPrimitiveClass(args[i].getClass());
@@ -247,7 +247,7 @@ public class ExprEngine {
 	 * @param args
 	 * @return
 	 */
-	public static Object parseAndEval(String str, Map<String, Object> args) {
+	public static Object exec(String str, Map<String, Object> args) {
 		Map<String, Class<?>> argTypes = new HashMap<String, Class<?>>();
 		for(Entry<String, Object> e : args.entrySet()) {
 			argTypes.put(e.getKey(), Tools.getPrimitiveClass(e.getValue().getClass()));
