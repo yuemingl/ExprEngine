@@ -51,6 +51,9 @@ System.out.println(Arrays.deepToString(
 		((List<int[][][]>)parseAndEval("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
 		new Object[]{ new int[]{1,2}, new int[]{3,4} })).toArray()));
 
+//Memory efficient range() function (no temp list generated)
+System.out.println(parseAndEval("[x+10.0 for x in range(3)]"));
+
 ```
 
 ####  Parse and generate bytecode once, call many times. Use reflection to invoke the generated static method

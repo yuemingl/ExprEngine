@@ -29,7 +29,6 @@ public class Examples {
 		System.out.println(parseAndEval(" 'abc'+'def' "));
 		System.out.println(parseAndEval(" \"abc\"+'def' "));
 		
-		
 		//If else
 		System.out.println(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));
 		System.out.println("max(3,4)="+parseAndEval("a=if(x>y) {x} else {y}; a", new int[]{3,4}));
@@ -65,9 +64,8 @@ public class Examples {
 		System.out.println(Arrays.deepToString(
 				((List<int[][][]>)parseAndEval("[ [ [[x],[y]], [[x+y]] ] for x in A for y in B]",
 				new Object[]{ new int[]{1,2}, new int[]{3,4} })).toArray()));
-
-
-
+		//Memory efficient range() function (no temp list generated)
+		System.out.println(parseAndEval("[x+10.0 for x in range(3)]"));
 	}
 	
 	/**
