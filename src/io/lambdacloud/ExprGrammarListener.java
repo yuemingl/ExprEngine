@@ -174,6 +174,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitListComprehension(ExprGrammarParser.ListComprehensionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprArrayGen}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprArrayGen(ExprGrammarParser.ExprArrayGenContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprArrayGen}
+	 * labeled alternative in {@link ExprGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprArrayGen(ExprGrammarParser.ExprArrayGenContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link ExprGrammarParser#assign_expr}.
 	 * @param ctx the parse tree
@@ -715,6 +727,16 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArray_init(ExprGrammarParser.Array_initContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#array_gen}.
+	 * @param ctx the parse tree
+	 */
+	void enterArray_gen(ExprGrammarParser.Array_genContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#array_gen}.
+	 * @param ctx the parse tree
+	 */
+	void exitArray_gen(ExprGrammarParser.Array_genContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FuncCall}
 	 * labeled alternative in {@link ExprGrammarParser#func_call}.

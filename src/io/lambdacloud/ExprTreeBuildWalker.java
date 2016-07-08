@@ -794,10 +794,9 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			ExprNode start = null;
 			ExprNode end = stack.pop();
 			if(ctx.expression().size() > 1) {
-				start = end;
-				end = stack.pop();
+				start = stack.pop();
 			}
-			RangeNode node = new RangeNode(start, end);
+			RangeNode node = new RangeNode(start, end, false);
 			stack.push(node);
 		} else {
 			FuncCallNode fnode = new FuncCallNode(className, methodName);
@@ -894,6 +893,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		else
 			throw new RuntimeException();
 		this.stack.push(listCompNode);
+	}
+	
+	@Override public void exitExprArrayGen(ExprGrammarParser.ExprArrayGenContext ctx) {
+		ExprNode idxE = this.stack.pop();
+		ExprNode idxS = this.stack.pop();
+		RangeNode node = new RangeNode(idxS, idxE, true);
+		stack.push(node);
 	}
 
 }

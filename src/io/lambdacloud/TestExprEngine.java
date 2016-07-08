@@ -35,6 +35,8 @@ public class TestExprEngine {
 		} else if(o1 instanceof List && o2 instanceof List) {
 			List l1 = (List)o1;
 			List l2 = (List)o2;
+			if(l1.size() != l2.size())
+				throw new RuntimeException("Assert fail!  Length: "+l1.size()+" != "+l2.size());
 			for(int i=0; i<l1.size(); i++) {
 				assertEqual(l1.get(i), l2.get(i));
 			}
@@ -107,6 +109,10 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		assertEqual(parseAndEval("1:3"), new int[]{1,2,3});
+		assertEqual(parseAndEval("[x for x in 1:3]"), getList(1,2,3));
+		
+
 		//Test for variable types
 		assertEqual(parseAndEval("[x for x in y]",new Object[]{ new int[]{3,4,5} }), getList(3,4,5));
 		assertEqual(parseAndEval("x",new Object[]{ new Integer(3)} ), 3);

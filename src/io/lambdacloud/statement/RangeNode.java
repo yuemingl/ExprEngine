@@ -13,20 +13,26 @@ import io.lambdacloud.MethodGenHelper;
 public class RangeNode extends ExprNode {
 	ExprNode start;
 	ExprNode end;
+	boolean includeEnd;
 	
-	public RangeNode(ExprNode start, ExprNode end) {
+	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
 		this.start = start;
 		this.end = end;
+		this.includeEnd = includeEnd;
 	}
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		try {
 			if(start != null) {
-				end.genCode(mg);
 				start.genCode(mg);
-				mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
+				end.genCode(mg);
+				if(this.includeEnd)
+					mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range2", 
 						"(II)[I", false);
+				else
+					mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
+							"(II)[I", false);
 			} else {
 				end.genCode(mg);
 				mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
@@ -52,5 +58,9 @@ public class RangeNode extends ExprNode {
 	
 	public void genEndCode(MethodGenHelper mg) {
 		end.genCode(mg);
+		if(this.includeEnd) {
+			mg.visitInsn(Opcodes.ICONST_1);
+			mg.visitInsn(Opcodes.IADD);
+		}
 	}
 }

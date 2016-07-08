@@ -186,6 +186,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprArrayGen(ExprGrammarParser.ExprArrayGenContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprArrayGen(ExprGrammarParser.ExprArrayGenContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExprAssign(ExprGrammarParser.ExprAssignContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -733,6 +745,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArray_init(ExprGrammarParser.Array_initContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArray_gen(ExprGrammarParser.Array_genContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArray_gen(ExprGrammarParser.Array_genContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

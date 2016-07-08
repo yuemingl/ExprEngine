@@ -51,4 +51,12 @@ public class BytecodeSupport {
 		}
 		return ret;
 	}
+	
+	public static int[] range2(int s, int e) {
+		int[] ret = new int[e-s+1];
+		for(int i=s; i<=e; i++) {
+			ret[i-s] = i;
+		}
+		return ret;
+	}
 }

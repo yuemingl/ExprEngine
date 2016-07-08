@@ -98,6 +98,7 @@ expression
  | assign_expr           # ExprAssign1
  | array_init            # ExprArrayInit
  | list_comprehension    # ListComprehension
+ | array_gen             # ExprArrayGen
  ;
 
 assign_expr
@@ -197,6 +198,7 @@ EscapeSeq
  ;
 
 array_init : LBRK (expression COMMA)* expression? RBRK ;
+array_gen : arithmetic_expr COLON arithmetic_expr ;
 
 func_call 
  : IDENTIFIER (PERIOD IDENTIFIER)* LPAREN (expression COMMA)* expression? RPAREN # FuncCall
