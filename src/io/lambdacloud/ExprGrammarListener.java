@@ -400,6 +400,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitBitExpressionUshr(ExprGrammarParser.BitExpressionUshrContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionPow}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionPow}
+	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionRem}
 	 * labeled alternative in {@link ExprGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree

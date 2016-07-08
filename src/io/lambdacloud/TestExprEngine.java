@@ -109,6 +109,9 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		assertEqual(parseAndEval("10+2**3"), 18.0);
+		assertEqual(parseAndEval("2**3"), 8.0);
+		
 		assertEqual(parseAndEval("1:3"), new int[]{1,2,3});
 		assertEqual(parseAndEval("[x for x in 1:3]"), getList(1,2,3));
 		

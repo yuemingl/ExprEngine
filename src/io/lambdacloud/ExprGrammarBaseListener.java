@@ -414,6 +414,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx) { }
 	/**
 	 * {@inheritDoc}

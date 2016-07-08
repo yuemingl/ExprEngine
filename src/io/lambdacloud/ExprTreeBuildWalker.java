@@ -901,5 +901,15 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		RangeNode node = new RangeNode(idxS, idxE, true);
 		stack.push(node);
 	}
+	@Override public void exitArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx) {
+		ExprNode base = this.stack.pop();
+		ExprNode pow = this.stack.pop();
+		pow.setType(Type.DOUBLE_TYPE);
+		base.setType(Type.DOUBLE_TYPE);
+		FuncCallNode fnode = new FuncCallNode("java.lang.Math", "pow");
+		fnode.args.add(base);
+		fnode.args.add(pow);
+		stack.push(fnode);
+	}
 
 }

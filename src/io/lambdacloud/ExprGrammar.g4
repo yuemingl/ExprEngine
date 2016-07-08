@@ -11,6 +11,7 @@ SUB : '-' ;
 MUL : '*' ;
 DIV : '/' ;
 REM : '%' ;
+POW : '**' ;
 
 AND : 'and' | '&&' ;
 OR  : 'or' | '||' ;
@@ -132,6 +133,7 @@ arithmetic_expr
  : IDENTIFIER (INC | DESC)                   # ArithmeticExpressionIncDec //Using 'IDENTIFIER', EntityVariable() will not be called
  | BNOT arithmetic_expr                      # BitExpressionNot
  | SUB arithmetic_expr                       # ArithmeticExpressionNegationEntity
+ | arithmetic_expr POW arithmetic_expr       # ArithmeticExpressionPow
  | arithmetic_expr MUL arithmetic_expr       # ArithmeticExpressionMul
  | arithmetic_expr DIV arithmetic_expr       # ArithmeticExpressionDiv
  | arithmetic_expr REM arithmetic_expr       # ArithmeticExpressionRem
