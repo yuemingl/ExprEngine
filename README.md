@@ -53,6 +53,8 @@ System.out.println(Arrays.deepToString(
 
 //Memory efficient range() function (no temp list generated)
 System.out.println(parseAndEval("[x+10.0 for x in range(3)]"));
+System.out.println(parseAndEval("[x+10.0 for x in 1:3]"));      //1,2,3
+System.out.println(parseAndEval("[[1 for col in range(3)] for row in range(2)]"));
 
 ```
 
