@@ -36,6 +36,7 @@ System.out.println(Arrays.deepToString(
 		(int[][][])parseAndEval("[ [[x],[y]], [[x+y]] ]", new Object[]{ 1,2 })));
 System.out.println(Arrays.toString(
 		(double[])parseAndEval("x[i+1:j-1]", new Object[]{1,4,new double[]{1,2,3,4,5}})));
+System.out.println(Arrays.deepToString((int[][])parseAndEval("[1:3, 5:10, 100:101]")));
 
 //List comprehension
 System.out.println(parseAndEval("[x for x in A for y in B]",
@@ -56,7 +57,6 @@ System.out.println(Arrays.deepToString(
 System.out.println(parseAndEval("[x+10.0 for x in range(3)]")); //0,1,2
 System.out.println(parseAndEval("[x+10.0 for x in 1:3]"));      //1,2,3
 System.out.println(parseAndEval("[[1 for col in range(3)] for row in range(2)]"));
-System.out.println(Arrays.deepToString((int[][])parseAndEval("[1:3, 5:10, 100:101]")));
 
 ```
 
