@@ -48,8 +48,8 @@ public class Examples {
 				(int[][])parseAndEval("[ [x], [y] ]", new Object[]{ 1,2 })));
 		System.out.println(Arrays.deepToString(
 				(int[][][])parseAndEval("[ [[x],[y]], [[x+y]] ]", new Object[]{ 1,2 })));
-		
-
+		System.out.println(Arrays.toString(
+				(double[])parseAndEval("x[i+1:j-1]", new Object[]{1,4,new double[]{1,2,3,4,5}})));
 		
 		//List comprehension
 		System.out.println(parseAndEval("[x for x in A for y in B]",

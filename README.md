@@ -22,7 +22,6 @@ System.out.println("max(3,4)="+parseAndEval("a=if(x>y) {x} else {y}; a", new int
 //While for loops
 System.out.println(parseAndEval("while(x<y) {x=x+1} x", new int[]{1,4}));
 System.out.println(parseAndEval("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
-System.out.println(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
 
 //Array
 System.out.println(parseAndEval("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
@@ -34,6 +33,8 @@ System.out.println(Arrays.deepToString(
 		(int[][])parseAndEval("[ [x], [y] ]", new Object[]{ 1,2 })));
 System.out.println(Arrays.deepToString(
 		(int[][][])parseAndEval("[ [[x],[y]], [[x+y]] ]", new Object[]{ 1,2 })));
+System.out.println(Arrays.toString(
+		(double[])parseAndEval("x[i+1:j-1]", new Object[]{1,4,new double[]{1,2,3,4,5}})));
 
 //List comprehension
 System.out.println(parseAndEval("[x for x in A for y in B]",
