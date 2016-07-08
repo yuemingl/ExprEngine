@@ -22,7 +22,6 @@ public class Examples {
 		//Basic expressions
 		System.out.println(parseAndEval("-x", new int[]{3}));
 		System.out.println(parseAndEval("x + y", new int[]{3,4}));
-		
 		System.out.println(parseAndEval("x > y", new int[]{3,4}));
 		System.out.println(parseAndEval("x <= y and x > 0", new int[]{3,4}));
 		System.out.println(parseAndEval("a=x+y; a+2", new double[]{3.0,4.0}));
@@ -30,9 +29,6 @@ public class Examples {
 		System.out.println(parseAndEval(" 'abc'+'def' "));
 		System.out.println(parseAndEval(" \"abc\"+'def' "));
 		System.out.println(parseAndEval("7**2"));
-		System.out.println(parseAndEval("7**2"));
-		
-		
 		
 		//If else
 		System.out.println(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));

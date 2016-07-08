@@ -14,6 +14,7 @@ System.out.println(parseAndEval("a=x+y; a+2", new double[]{3.0,4.0}));
 System.out.println(parseAndEval("(7^3) == (1<<2)"));
 System.out.println(parseAndEval(" 'abc'+'def' "));
 System.out.println(parseAndEval(" \"abc\"+'def' "));
+System.out.println(parseAndEval("7**2"));
 
 //If else 
 System.out.println(parseAndEval("if(x>y) {a=x+y;a } else {a=x*2;b=y*3; if(x<0) {x-1} else {a+b} }", new double[]{3,4}));
