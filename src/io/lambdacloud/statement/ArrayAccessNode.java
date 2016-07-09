@@ -10,6 +10,9 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
 
+import java.util.List;
+
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -41,33 +44,53 @@ public class ArrayAccessNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		if(null == idxE)
-			return var.getType().getElementType();
-		else
+		if(null == idxE) {
+			if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor()))
+				return Type.getType(Object.class);//TODO
+			else
+				return var.getType().getElementType();
+		} else {
 			return var.getType();
+		}
 	}
 	
 	public void genCode(MethodGenHelper mg) {
 		var.genCode(mg);
 		if(null == idxE) {
 			idxS.genCode(mg);
-			mg.visitInsn(getType().getOpcode(IALOAD));
+			if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
+			} else if(var.getType().getSort() == Type.ARRAY) {
+				mg.visitInsn(getType().getOpcode(IALOAD));
+			} else {
+				throw new RuntimeException(var+" has wrong type.");
+			}
 		} else {
-			SubNode sub = new SubNode(idxE, idxS);
-			sub.genCode(mg);
-			mg.visitInsn(ICONST_1);
-			mg.visitInsn(IADD);
-			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType(), true));
-			mg.visitIntInsn(ASTORE, retAry.idxLVT);
-			mg.visitVarInsn(ALOAD, var.idxLVT);
-			idxS.genCode(mg);
-			mg.visitVarInsn(ALOAD, retAry.idxLVT);
-			mg.visitInsn(ICONST_0);
-			mg.visitVarInsn(ALOAD, retAry.idxLVT);
-			mg.visitInsn(ARRAYLENGTH);
-			mg.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-			mg.visitVarInsn(ALOAD, retAry.idxLVT);
-			//mv.visitInsn(ARETURN);
+			if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				idxS.genCode(mg);
+				idxE.genCode(mg);
+				mg.visitInsn(ICONST_1);
+				mg.visitInsn(IADD);
+				mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
+			} else if(var.getType().getSort() == Type.ARRAY) {
+				SubNode sub = new SubNode(idxE, idxS);
+				sub.genCode(mg);
+				mg.visitInsn(ICONST_1);
+				mg.visitInsn(IADD);
+				mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(var.getType(), true));
+				mg.visitIntInsn(ASTORE, retAry.idxLVT);
+				mg.visitVarInsn(ALOAD, var.idxLVT);
+				idxS.genCode(mg);
+				mg.visitVarInsn(ALOAD, retAry.idxLVT);
+				mg.visitInsn(ICONST_0);
+				mg.visitVarInsn(ALOAD, retAry.idxLVT);
+				mg.visitInsn(ARRAYLENGTH);
+				mg.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+				mg.visitVarInsn(ALOAD, retAry.idxLVT);
+				//mv.visitInsn(ARETURN);
+			} else {
+				throw new RuntimeException(var+" has wrong type.");
+			}
 		}
 	}
 	
@@ -80,6 +103,10 @@ public class ArrayAccessNode extends ExprNode {
 		return ret;
 	}
 	
+	public static Object test3(List<Integer> a) {
+		a.subList(10, 20);
+		return a.get(1);
+	}
 	public static void main(String[] args) {
 		System.out.println(Type.getType(double[].class).getElementType());
 	}
