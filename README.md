@@ -60,7 +60,7 @@ System.out.println(exec("[[1 for col in range(3)] for row in range(2)]"));
 
 ```
 
-####  2. Parse and generate bytecode once, call many times. Use reflection to invoke the generated static method
+####  2. Parse and generate bytecode once, call as many times as you want. Use reflection to invoke the generated static method
 
 ```Java
 import static io.lambdacloud.ExprEngine.genStaticMethod;
@@ -76,7 +76,7 @@ try {
 
 ```
 	
-#### 3. Parse and generate bytecode once, call many times. Use method handle to invoke the generated static method
+#### 3. Parse and generate bytecode once, call as many times you want. Use method handle to invoke the generated static method
 ```Java
 import static io.lambdacloud.ExprEngine.genMethodHandle;
 ...
