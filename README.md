@@ -98,7 +98,7 @@ public interface Fun2 {
 	double apply(double x, double y);
 }
 
-//Case the generated class to the interface you defined
+//Cast the generated object to the interface you defined
 ...
 ExprTreeBuildWalker ew = parse("x+y", Fun2.class);
 Fun2 f = (Fun2)ExprEngine.newInstance(ew, "myclass", true);
