@@ -47,8 +47,9 @@ public class ArrayAccessNode extends ExprNode {
 		if(null == idxE) {
 			if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor()))
 				return Type.getType(Object.class);//TODO
-			else
-				return var.getType().getElementType();
+			else {
+				return Tools.getElementType(var.getType());
+			}
 		} else {
 			return var.getType();
 		}

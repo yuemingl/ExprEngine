@@ -73,6 +73,7 @@ public class Examples {
 		System.out.println(exec("[[1 for col in range(3)] for row in range(2)]"));
 		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
 		System.out.println(exec("a=[[col+row*10 for col in range(3)] for row in range(5)]; a[0:2]"));
+		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"));
 
 
 	}
@@ -122,8 +123,8 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		fhurvgfighjhhknhjhhfhfyf7rudf756584e6dfgfhytthghgughgyftdsrs3qerfttthtfyyfyrtyrrth57t5h5y6it6jy5tuy56u75i6uituyjhthgbmbmbnmmnnnbhjh.hjhihijhijihuiytrtyyhihihijihihugjggutyt75h45779tigtighvnnvvhhghxgsdwetqy2y3y7t966gujyioihokhklglvjjbvmvkgjjtkjtyfyjgikhkhglyouoihihuu86i9tjjbkgmhmhh,,mn,n,nmhkjkiuykjiyhhkgjyuyinmnjnjfutrt567r4o6f86777ujrghew31wq2aafxrfxvcvnhhjhhlhuuuuhyu68yuyjuhjjggjgnvjvjyuykggjgigjugyvnbbgk,g,bmbnghhjggjgmbjmmbmhgdgrbyyr5rryfhggffgfjvhvvhvhgr57etti80fjtuutjgjfjfyftrtrhghfhghggjgjgjgjgjhghghjjjhhjjhhjgjjhgtjhgugtuyu586756jnjbjgjgjfjfuwslq5q433hkb  fgfhrutyjhmghgvfhfhftgttuftdt64065utnvfrhui6543w3rrtrfth5hh6h4t5ttyryuttiuhthrhttgytyuyrhyytghthtyttgghgujgjjggjgjggjgjjgjjjtrghghguuyuu5jtnhjtjjgtkhkgy6tyt8iiuhrjuyhikyuthruh6rjutguhtbgjruyty5uygyghijthygtt4rfrytygtyhr6yi6y5t6tgythygu5yt8utyhiuuyi7ynhhjy[l;ijktgrhsdrdgrtjhj gj gjyutmgjopguyt7b  hjhjyut6   k/hj;uniuj8   uupi7yhi7kuyiu6uk7i6h8iujt6766y8yi789u6gtnif56oht7yujyiyuyt98yyiitihu6yu6u6tnoyuhturuhtyjtoutthkiyuuyuuuui9io]
-				
+		System.out.println(exec("a=[[1,2],[3,4,5]]; a[0][0]"));
+//		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[1]"));
 //		ex1();
 //		ex2();
 //		ex3();

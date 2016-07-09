@@ -24,9 +24,15 @@ public class Tools {
 //	}
 	
 	public static int getTypeForNEWARRAY(Type arrayType, boolean isArray) {
-		Type et = arrayType;
-		if(isArray)
+		Type et = null;
+		if(isArray) {
+			if(arrayType.getSort() != Type.ARRAY) {
+				throw new RuntimeException("An array type is needed!");
+			}
 			et = arrayType.getElementType();
+		} else {
+			et = arrayType;
+		}
 		switch(et.getSort()) {
 		case Type.DOUBLE:
 			return T_DOUBLE;
@@ -177,6 +183,13 @@ public class Tools {
 	
 	public static Type getArrayType(Type element) {
 		return Type.getType("["+element.getDescriptor());
+	}
+	
+	public static Type getElementType(Type arrayType) {
+		if(arrayType.getSort() != Type.ARRAY) {
+			throw new RuntimeException("An array type is needed!");
+		}
+		return Type.getType(arrayType.getDescriptor().substring(1));
 	}
 	
 	public static int getNextIndexLVT(Map<String, VariableNode> localVarMap, 
