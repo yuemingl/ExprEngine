@@ -715,12 +715,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			varMap.put(varName, var);
 		}
 		
+		ArrayAccessNode node = new ArrayAccessNode(var);
 		for(int i=0; i<ctx.array_index().size(); i++) {
-		}
-		
-		ArrayAccessNode nextDim = null;
-		VariableNode retVal = null;
-		for(int i=ctx.array_index().size()-1; i>=0; i--) {
 			Array_indexContext aic = ctx.array_index(i);
 			ExprNode idxS = this.stack.pop();
 			ExprNode idxE = null;
@@ -728,18 +724,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				idxE = idxS;
 				idxS = this.stack.pop();
 			}
-			
-			if(aic.arithmetic_expr().size() > 1) {
-				String retName = varName+"_ret_"+i;
-				retVal = VariableNode.newLocalVar(retName, Type.getType(int[].class));
-				this.varMap.put(retName, retVal);
-			}
-			nextDim = new ArrayAccessNode(var, idxS, idxE, retVal, nextDim);
-			if(null != retVal)
-				var = retVal;
+			node.addIndex(idxS, idxE);
 		}
-		
-		this.stack.push(nextDim);
+
+		this.stack.push(node);
 	}
 	public static int test(int[][] a) {
 		return a[0][1];

@@ -123,7 +123,7 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(exec("a=[[1,2],[3,4,5]]; a[0][1]"));
+		System.out.println(exec("a=[[1,2],[3,4,5]]; a[1][2]"));
 //		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[1]"));
 //		ex1();
 //		ex2();
