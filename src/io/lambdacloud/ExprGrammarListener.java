@@ -684,6 +684,16 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#array_index}.
+	 * @param ctx the parse tree
+	 */
+	void enterArray_index(ExprGrammarParser.Array_indexContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#array_index}.
+	 * @param ctx the parse tree
+	 */
+	void exitArray_index(ExprGrammarParser.Array_indexContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code EntityLogicalConst}
 	 * labeled alternative in {@link ExprGrammarParser#logical_entity}.
 	 * @param ctx the parse tree

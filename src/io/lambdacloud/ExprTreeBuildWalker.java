@@ -20,6 +20,7 @@ import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
+import io.lambdacloud.ExprGrammarParser.Array_indexContext;
 import io.lambdacloud.ExprGrammarParser.ExpressionContext;
 import io.lambdacloud.ExprGrammarParser.List_comp_for_ifContext;
 import io.lambdacloud.statement.AddAsignNode;
@@ -708,25 +709,43 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx) {
 		//System.out.println(ctx.getText());
 		String varName = ctx.IDENTIFIER().getText();
-		ExprNode idxS = this.stack.pop();
-		ExprNode idxE = null;
-		if(ctx.arithmetic_expr().size() > 1) {
-			idxE = idxS;
-			idxS = this.stack.pop();
-		}
-		
 		VariableNode var = this.varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
 			varMap.put(varName, var);
 		}
 		
-		VariableNode retAry = null;
-		if(ctx.arithmetic_expr().size() > 1) {
-			retAry = VariableNode.newLocalVar(varName+"_ret", Type.getType(int[].class));
-			this.varMap.put(varName+"_ret", retAry);
+		for(int i=0; i<ctx.array_index().size(); i++) {
 		}
-		this.stack.push(new ArrayAccessNode(var, idxS, idxE, retAry));
+		
+		ArrayAccessNode nextDim = null;
+		VariableNode retVal = null;
+		for(int i=ctx.array_index().size()-1; i>=0; i--) {
+			Array_indexContext aic = ctx.array_index(i);
+			ExprNode idxS = this.stack.pop();
+			ExprNode idxE = null;
+			if(aic.arithmetic_expr().size() > 1) {
+				idxE = idxS;
+				idxS = this.stack.pop();
+			}
+			
+			if(aic.arithmetic_expr().size() > 1) {
+				String retName = varName+"_ret_"+i;
+				retVal = VariableNode.newLocalVar(retName, Type.getType(int[].class));
+				this.varMap.put(retName, retVal);
+			}
+			nextDim = new ArrayAccessNode(var, idxS, idxE, retVal, nextDim);
+			if(null != retVal)
+				var = retVal;
+		}
+		
+		this.stack.push(nextDim);
+	}
+	public static int test(int[][] a) {
+		return a[0][1];
+	}
+	public static int[] test1(int[][] a) {
+		return a[0];
 	}
 	
 	//Set genLoadInsn here? (No, so far we set genLoadInsn(true) in each XXXNode calss instead)
