@@ -123,8 +123,10 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(exec("[ [10*x+y for x in 1:3] for y in 4:6]"));
-		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
+		System.out.println(exec("a=[ [10*x+y for x in 1:5] for y in 6:10]"));
+		System.out.println(exec("a=[ [10*x+y for x in 1:5] for y in 6:10]; a[1:3][1:2][1][2:4]"));
+//		System.out.println(exec("[ [10*x+y for x in 1:3] for y in 4:6]"));
+//		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
 		//Wrong grammar: System.out.println(exec("[ x+y for x in range(1:3) for y in range(3:6)]"));
 //		System.out.println(exec("a=[[1,2],[3,4,5]]; a[1][2]"));
 //		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[1]"));

@@ -716,7 +716,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		
 		ArrayAccessNode node = new ArrayAccessNode(var);
-		for(int i=0; i<ctx.array_index().size(); i++) {
+		for(int i=ctx.array_index().size()-1; i>=0; i--) {
 			Array_indexContext aic = ctx.array_index(i);
 			ExprNode idxS = this.stack.pop();
 			ExprNode idxE = null;
