@@ -5,6 +5,7 @@ import io.lambdacloud.ExprEngine;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,13 @@ import java.util.Map;
 public class TestExprEngine {
 	
 	public static void testExprs() {
+		//Test array access
+//		assertEqual(exec("a=[[1,2,3,4],[4,5,6]]; a[0][1]=20; a[0][1]"), 20);
+//		assertEqual(exec("a=[[1,2,3,4],[4,5,6]]; b=a[0]; b[1]=20; b[1]"), 20);
+		
+		assertEqual(exec("a=[[1,2],[3,4,5],[6,7,8]]; a[1:2]"), new int[][]{{3,4,5},{6,7,8}});
+		assertEqual(exec("a=[[1,2],[3,4,5],[6,7,8]]; a[1:2][1]"), new int[]{6,7,8});
+		assertEqual(exec("a=[1:3, 5:10, 100:101]; a[1][1:3]"), new int[]{6,7,8});
 		
 		assertEqual(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"), getList(1,1,1));
 		assertEqual(exec("a=[[col+row*10 for col in range(3)] for row in range(5)]; a[0:2]"), getList(
@@ -395,7 +403,14 @@ public class TestExprEngine {
 	}
 
 	public static void assertEqual(Object o1, Object o2) {
-		if(o1 instanceof int[] && o2 instanceof int[]) {
+		if(o1 instanceof int[][] && o2 instanceof int[][]) {
+			int[][] o11 = (int[][])o1;
+			int[][] o22 = (int[][])o2;
+			for(int i=0; i<o11.length; i++)
+				assertEqual(o11[i],o22[i]);
+			return;
+		}
+		else if(o1 instanceof int[] && o2 instanceof int[]) {
 			int[] a = (int[])o1;
 			int[] b = (int[])o2;
 			if(a.length != b.length)

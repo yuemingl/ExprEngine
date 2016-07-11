@@ -127,10 +127,12 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		ex1();
-		ex2();
-		ex3();
-		ex4();
+//		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3,4],[4,5,6]]; a[0][1]=20; a")));
+
+//		ex1();
+//		ex2();
+//		ex3();
+//		ex4();
 	}
 
 }

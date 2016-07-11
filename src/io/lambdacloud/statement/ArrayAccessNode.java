@@ -58,28 +58,39 @@ public class ArrayAccessNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		Type retType = null;
-		for(int i=0; i<this.indices.size(); i++) {
-			IndexPair p = this.indices.get(i);
+		return getType(this.indices.size());
+	}
+	
+	/**
+	 * 1,2,3...
+	 * @param dim
+	 * @return
+	 */
+	public Type getType(int dim) {
+		Type ret = var.getType();
+		for(int i=0; i<dim; i++) {
+			IndexPair p = this.indices.get(this.indices.size()-1-i);
 			if(null == p.idxE) {
 				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor()))
 					return Type.getType(Object.class);//TODO
 				else {
-					if(null == retType)
-						retType = Tools.getElementType(var.getType());
+					if(null == ret)
+						ret = Tools.getElementType(var.getType());
 					else
-						retType = Tools.getElementType(retType);
+						ret = Tools.getElementType(ret);
 				}
 			} else {
-				if(null == retType)
-					retType = var.getType();
+				if(null == ret)
+					ret = var.getType();
 			}
 		}
-		return retType;
+		return ret;
 	}
 	
 	public void genCode(MethodGenHelper mg) {
 		var.genCode(mg);
+		boolean isRange = true;
+		VariableNode tmpVar = var;
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair p = this.indices.get(i);
 			
@@ -92,13 +103,14 @@ public class ArrayAccessNode extends ExprNode {
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
 				} else if(var.getType().getSort() == Type.ARRAY) {
 					if(i == 0)
-						mg.visitInsn(getType().getOpcode(IALOAD));
+						mg.visitInsn(getType(this.indices.size()-i).getOpcode(IALOAD));
 					else
 						mg.visitInsn(Opcodes.AALOAD);
 						
 				} else {
 					throw new RuntimeException(var+" has wrong type.");
 				}
+				isRange = false;
 			} else {
 				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					idxS.genCode(mg);
@@ -107,7 +119,7 @@ public class ArrayAccessNode extends ExprNode {
 					mg.visitInsn(IADD);
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
 				} else if(var.getType().getSort() == Type.ARRAY) {
-					VariableNode retVar = mg.newLocalVariable(var.name+"_ret_"+i, var.getType());
+					VariableNode retVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
 					
 					SubNode sub = new SubNode(idxE, idxS);
 					sub.genCode(mg);
@@ -120,37 +132,50 @@ public class ArrayAccessNode extends ExprNode {
 					} else {
 						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(), true));
 					}
-					
 					mg.visitIntInsn(ASTORE, retVar.idxLVT);
-					mg.visitVarInsn(ALOAD, var.idxLVT);
-					idxS.genCode(mg);
-					mg.visitVarInsn(ALOAD, retVar.idxLVT);
-					mg.visitInsn(ICONST_0);
-					mg.visitVarInsn(ALOAD, retVar.idxLVT);
+					
+					//Shallow copy??
+					//System.arraycopy(src, srcPos, dest, destPos, length);
+					if(isRange) mg.visitVarInsn(ALOAD, tmpVar.idxLVT); //src
+					idxS.genCode(mg);                                  //srcPos
+					mg.visitVarInsn(ALOAD, retVar.idxLVT);             //dest
+					mg.visitInsn(ICONST_0);                            //destPos
+					mg.visitVarInsn(ALOAD, retVar.idxLVT);             //dest.length
 					mg.visitInsn(ARRAYLENGTH);
+					
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+					
+					//return retVar
 					mg.visitVarInsn(ALOAD, retVar.idxLVT);
-					//mv.visitInsn(ARETURN);
+					
+					tmpVar = retVar;
 				} else {
 					throw new RuntimeException(var+" has wrong type.");
 				}
+				isRange = true;
 			}
 		}
 	}
 	
-	public int _test(int[] a) {
+	public int test(int[] a) {
 		return a[2];
 	}
-	public int[] _test2(int[] a) {
+	public int[] test2(int[] a) {
 		int[] ret = new int[3];
 		System.arraycopy(a, 1, ret, 0, ret.length);
 		return ret;
 	}
 	
-	public static Object _test3(List<Integer> a) {
+	public static Object test3(List<Integer> a) {
 		a.subList(10, 20);
 		return a.get(1);
 	}
+	
+	public static void test4(int[][] src) {
+		int[][] dest = new int[10][];
+		System.arraycopy(src, 1, dest, 0, dest.length);
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(Type.getType(double[].class).getElementType());
 	}
