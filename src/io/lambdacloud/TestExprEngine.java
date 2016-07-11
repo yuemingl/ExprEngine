@@ -10,103 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 public class TestExprEngine {
-
-	public static void assertEqual(Object o1, Object o2) {
-		if(o1 instanceof int[] && o2 instanceof int[]) {
-			int[] a = (int[])o1;
-			int[] b = (int[])o2;
-			if(a.length != b.length)
-				throw new RuntimeException("Assert fail! Length: "+a.length+" != "+b.length);
-			for(int i=0; i<a.length; i++) {
-				if(a[i] != b[i])
-					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
-			}
-			return;
-		} else if(o1 instanceof double[] && o2 instanceof double[]) {
-			double[] a = (double[])o1;
-			double[] b = (double[])o2;
-			if(a.length != b.length)
-				throw new RuntimeException("Assert fail! Length: "+a.length+" != "+b.length);
-			for(int i=0; i<a.length; i++) {
-				if(a[i] != b[i])
-					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
-			}
-			return;
-		} else if(o1 instanceof List && o2 instanceof List) {
-			List l1 = (List)o1;
-			List l2 = (List)o2;
-			if(l1.size() != l2.size())
-				throw new RuntimeException("Assert fail!  Length: "+l1.size()+" != "+l2.size());
-			for(int i=0; i<l1.size(); i++) {
-				assertEqual(l1.get(i), l2.get(i));
-			}
-			return;
-		}
-		if(!o1.equals(o2)) {
-			System.err.println(o1 + " != "+o2);
-			throw new RuntimeException("Assert fail!");
-		}
-	}
-	
-	public static void main(String[] args){
-		testExprs();
-		test();
-	}
-	
-	public static void myPrint(Object o) {
-		if(o instanceof double[]) {
-			double[] a = (double[])o;
-			System.out.print("[");
-			for(double d : a)
-				System.out.print(d+", ");
-			System.out.println("]");
-		} else {
-			System.out.println(o);
-		}
-	}
-	
-	public static void test() {
-		HashMap<String, Class<?>> param = new HashMap<String, Class<?>>();
-		param.put("x", double[].class);
-		param.put("i", int.class);
-		param.put("j", int.class);
-		
-		//ExprTreeBuildWalker ew = parse("x[i]", param);
-		ExprTreeBuildWalker ew = parse("x[i+1]", param);
-//		ExprTreeBuildWalker ew = parse("x[1:3]", param);
-//		ExprTreeBuildWalker ew = parse("x[i:3]", param);
-//		ExprTreeBuildWalker ew = parse("x[1:j]", param);
-//		ExprTreeBuildWalker ew = parse("x[i:j]", param);
-//		ExprTreeBuildWalker ew = parse("x[i+1:j+1]", param);
-		Method m = ExprEngine.genStaticMethod(ew, "myclass", true, "myfun");
-		try {
-			double[] ary = new double[]{1,2,3,4,5};
-			for(int i=0; i<3; i++)
-				myPrint(m.invoke(null, i, ary)); //parameters order: i, x
-				//myPrint(m.invoke(null, i, 3, ary)); //parameters order: i, x
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static int arrayArgFunc(int[] arg) {
-		return arg[0];
-	}
-	
-	public static Map<String, Object> getMap(Object ...args) {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		for(int i=0; i<args.length; i+=2) {
-			ret.put(args[i].toString(), args[i+1]);
-		}
-		return ret;
-	}
-	
-	public static List getList(Object ...e) {
-		List ret = new ArrayList();
-		for(Object o : e) 
-			ret.add(o);
-		return ret;
-	}
 	
 	public static void testExprs() {
 		
@@ -491,4 +394,101 @@ public class TestExprEngine {
 		
 	}
 
+	public static void assertEqual(Object o1, Object o2) {
+		if(o1 instanceof int[] && o2 instanceof int[]) {
+			int[] a = (int[])o1;
+			int[] b = (int[])o2;
+			if(a.length != b.length)
+				throw new RuntimeException("Assert fail! Length: "+a.length+" != "+b.length);
+			for(int i=0; i<a.length; i++) {
+				if(a[i] != b[i])
+					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
+			}
+			return;
+		} else if(o1 instanceof double[] && o2 instanceof double[]) {
+			double[] a = (double[])o1;
+			double[] b = (double[])o2;
+			if(a.length != b.length)
+				throw new RuntimeException("Assert fail! Length: "+a.length+" != "+b.length);
+			for(int i=0; i<a.length; i++) {
+				if(a[i] != b[i])
+					throw new RuntimeException("Assert fail!  "+a[i]+" != "+b[i]);
+			}
+			return;
+		} else if(o1 instanceof List && o2 instanceof List) {
+			List<?> l1 = (List<?>)o1;
+			List<?> l2 = (List<?>)o2;
+			if(l1.size() != l2.size())
+				throw new RuntimeException("Assert fail!  Length: "+l1.size()+" != "+l2.size());
+			for(int i=0; i<l1.size(); i++) {
+				assertEqual(l1.get(i), l2.get(i));
+			}
+			return;
+		}
+		if(!o1.equals(o2)) {
+			System.err.println(o1 + " != "+o2);
+			throw new RuntimeException("Assert fail!");
+		}
+	}
+	
+	public static void main(String[] args){
+		testExprs();
+		test();
+	}
+	
+	public static void myPrint(Object o) {
+		if(o instanceof double[]) {
+			double[] a = (double[])o;
+			System.out.print("[");
+			for(double d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
+		} else {
+			System.out.println(o);
+		}
+	}
+	
+	public static void test() {
+		HashMap<String, Class<?>> param = new HashMap<String, Class<?>>();
+		param.put("x", double[].class);
+		param.put("i", int.class);
+		param.put("j", int.class);
+		
+		//ExprTreeBuildWalker ew = parse("x[i]", param);
+		ExprTreeBuildWalker ew = parse("x[i+1]", param);
+//		ExprTreeBuildWalker ew = parse("x[1:3]", param);
+//		ExprTreeBuildWalker ew = parse("x[i:3]", param);
+//		ExprTreeBuildWalker ew = parse("x[1:j]", param);
+//		ExprTreeBuildWalker ew = parse("x[i:j]", param);
+//		ExprTreeBuildWalker ew = parse("x[i+1:j+1]", param);
+		Method m = ExprEngine.genStaticMethod(ew, "myclass", true, "myfun");
+		try {
+			double[] ary = new double[]{1,2,3,4,5};
+			for(int i=0; i<3; i++)
+				myPrint(m.invoke(null, i, ary)); //parameters order: i, x
+				//myPrint(m.invoke(null, i, 3, ary)); //parameters order: i, x
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static int arrayArgFunc(int[] arg) {
+		return arg[0];
+	}
+	
+	public static Map<String, Object> getMap(Object ...args) {
+		Map<String, Object> ret = new HashMap<String, Object>();
+		for(int i=0; i<args.length; i+=2) {
+			ret.put(args[i].toString(), args[i+1]);
+		}
+		return ret;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static List getList(Object ...e) {
+		List ret = new ArrayList();
+		for(Object o : e) 
+			ret.add(o);
+		return ret;
+	}
 }
