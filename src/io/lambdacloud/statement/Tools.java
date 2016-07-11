@@ -51,7 +51,7 @@ public class Tools {
 		case Type.BOOLEAN:
 			return T_BOOLEAN;
 		}
-		throw new RuntimeException();
+		throw new RuntimeException("Type "+et+" is not a primitive type for NEWARRAY instruction. Use ANEWARRAY instead.");
 	}
 	
 	public static void test() {

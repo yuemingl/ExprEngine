@@ -109,9 +109,25 @@ public class TestExprEngine {
 	}
 	
 	public static void testExprs() {
+		
+		assertEqual(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"), getList(1,1,1));
+		assertEqual(exec("a=[[col+row*10 for col in range(3)] for row in range(5)]; a[0:2]"), getList(
+				getList(0,1,2),getList(10,11,12),getList(20,21,22)));
+		assertEqual(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"),1);
+		assertEqual(exec("a=[[1,2],[3,4,5],[6,7,8]]; a[1:2][1][1]"),7);
+		assertEqual(exec("a=[ [10*x+y for x in 1:5] for y in 6:10]; a[1:3][1:2][1][2:4]"),getList(39,49,59));
+		assertEqual(exec("[ [10*x+y for x in 1:3] for y in 4:6]"),getList(
+				getList(14, 24, 34),getList(15, 25, 35),getList(16, 26, 36)));
+		assertEqual(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"),26);
+		//Wrong grammar: System.out.println(exec("[ x+y for x in range(1:3) for y in range(3:6)]"));
+		assertEqual(exec("a=[[1,2],[3,4,5]]; a[1][2]"),5);
+		assertEqual(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[1]"),2);
+
+		//Exp
 		assertEqual(exec("10+2**3"), 18.0);
 		assertEqual(exec("2**3"), 8.0);
 		
+		//Semi-colon
 		assertEqual(exec("1:3"), new int[]{1,2,3});
 		assertEqual(exec("[x for x in 1:3]"), getList(1,2,3));
 		
