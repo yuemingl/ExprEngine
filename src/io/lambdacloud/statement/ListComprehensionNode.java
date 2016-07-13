@@ -40,6 +40,14 @@ public class ListComprehensionNode extends ExprNode {
 			}
 			return bn.getType();
 		}
+		
+		public ExprNode getElementNode() {
+			ExprNode bn = this.exprNode;
+			while(bn instanceof LForNode) {
+				bn = ((LForNode)bn).exprNode;
+			}
+			return bn;
+		}
 
 		@Override
 		public void genCode(MethodGenHelper mg) {
@@ -243,10 +251,19 @@ public class ListComprehensionNode extends ExprNode {
 	
 	@Override
 	public Type getType() {
-		//return Tools.getArrayType(this.forIf.getType());
 		return Type.getType(List.class);
 	}
 	
+	public ExprNode getElementNode() {
+		return this.forNode.getElementNode();
+	}
+	
+	public static int test() {
+		List<String> s = new ArrayList<String>();
+		List<Double> t = new ArrayList<Double>();
+		return s.size()+t.size();
+	}
+
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		//Define a local variable for the returned value of this list comprehension

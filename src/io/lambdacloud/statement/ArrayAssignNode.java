@@ -2,6 +2,10 @@ package io.lambdacloud.statement;
 
 import static org.objectweb.asm.Opcodes.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -10,60 +14,138 @@ import io.lambdacloud.MethodGenHelper;
  * x = a[1]
  * y = a[5:10]
  *
+ * a[0][1] = 10
+ * a[1:5][0] = 20
  */
 public class ArrayAssignNode extends ExprNode {
 	public VariableNode var;
-	public ExprNode idxS;
-	public ExprNode idxE;
-	public VariableNode retAry;
-	public ExprNode val;
+	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
+	public ExprNode value;
 	
-	public ArrayAssignNode(VariableNode var, ExprNode idxS, ExprNode idxE, VariableNode retAry, ExprNode val) {
+	public static class IndexPair {
+		public ExprNode idxS;
+		public ExprNode idxE;
+		public IndexPair(ExprNode idxS, ExprNode idxE) {
+			this.idxE = idxE;
+			this.idxS = idxS;
+		}
+		public String toString() {
+			return idxS+":"+idxE;
+		}
+	}
+	
+	public ArrayAssignNode(VariableNode var, ExprNode value) {
 		this.var = var;
-		this.idxS = idxS;
-		this.idxE = idxE;
-		this.retAry = retAry;
-		this.type = Type.INT_TYPE;
-		this.val = val;
+		this.value = value;
+	}
+	
+	public void addIndex(ExprNode idxS, ExprNode idxE) {
+		indices.add(new IndexPair(idxS, idxE));
 	}
 	
 	public String toString() {
-		if(null == idxE)
-			return var+"["+idxS+"]="+val;
-		return var+"["+idxS+":"+idxE+"]="+val;
+		return var+"["+this.indices+"]="+value;
 	}
-	
+
 	@Override
 	public Type getType() {
-		if(null == idxE)
-			return var.getType().getElementType();
-		else
-			return var.getType();
+		return getType(this.indices.size());
+	}
+	
+	/**
+	 * 1,2,3...
+	 * @param dim
+	 * @return
+	 */
+	public Type getType(int dim) {
+		Type ret = var.getType();
+		for(int i=0; i<dim; i++) {
+			IndexPair p = this.indices.get(this.indices.size()-1-i);
+			if(null == p.idxE) {
+				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor()))
+					return Type.getType(Object.class); //TODO
+				else {
+					if(null == ret)
+						ret = Tools.getElementType(var.getType());
+					else
+						ret = Tools.getElementType(ret);
+				}
+			} else {
+				if(null == ret)
+					ret = var.getType();
+			}
+		}
+		return ret;
 	}
 	
 	public void genCode(MethodGenHelper mg) {
-		var.genCode(mg); //ALOAD
-		if(null == idxE) {
-			idxS.genCode(mg);
-			val.genCode(mg);
-			mg.visitInsn(getType().getOpcode(IASTORE));
-		} else {
-			//TODO a[1:3]=3
-			//TODO a[1:3]=[1,2,3]
-//			SubNode sub = new SubNode(idxE, idxS);
-//			sub.genCode(mv);
-//			mv.visitInsn(ICONST_1);
-//			mv.visitInsn(IADD);
-//			mv.visitIntInsn(NEWARRAY, getTypeForNEWARRAY(var.getType()));
-//			mv.visitIntInsn(ASTORE, retAry.idxLVT);
-//			mv.visitVarInsn(ALOAD, var.idxLVT);
-//			idxS.genCode(mv);
-//			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-//			mv.visitInsn(ICONST_0);
-//			mv.visitVarInsn(ALOAD, retAry.idxLVT);
-//			mv.visitInsn(ARRAYLENGTH);
-//			mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
-//			mv.visitVarInsn(ALOAD, retAry.idxLVT);
+		var.genCode(mg);
+		boolean isRange = true;
+		VariableNode tmpVar = var;
+		for(int i=this.indices.size()-1; i>=0; i--) {
+			IndexPair p = this.indices.get(i);
+			
+			ExprNode idxS = p.idxS;
+			ExprNode idxE = p.idxE;
+			
+			if(null == idxE) {
+				idxS.genCode(mg);
+				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
+				} else if(var.getType().getSort() == Type.ARRAY) {
+					if(i == 0) {
+						value.genCode(mg);
+						mg.visitInsn(getType(this.indices.size()-i).getOpcode(IASTORE));
+					} else {
+						mg.visitInsn(Opcodes.AALOAD);
+					}
+				} else {
+					throw new RuntimeException(var+" has wrong type.");
+				}
+				isRange = false;
+			} else {
+				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+					idxS.genCode(mg);
+					idxE.genCode(mg);
+					mg.visitInsn(ICONST_1);
+					mg.visitInsn(IADD);
+					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
+				} else if(var.getType().getSort() == Type.ARRAY) {
+					VariableNode retVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
+					
+					SubNode sub = new SubNode(idxE, idxS);
+					sub.genCode(mg);
+					mg.visitInsn(ICONST_1);
+					mg.visitInsn(IADD);
+					
+					if(Tools.getElementType(retVar.getType()).getSort() == Type.OBJECT ||
+							Tools.getElementType(retVar.getType()).getSort() == Type.ARRAY) {
+						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(retVar.getType()).getDescriptor());
+					} else {
+						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(), true));
+					}
+					mg.visitIntInsn(ASTORE, retVar.idxLVT);
+					
+					//Shallow copy??
+					//System.arraycopy(src, srcPos, dest, destPos, length);
+					if(isRange) mg.visitVarInsn(ALOAD, tmpVar.idxLVT); //src
+					idxS.genCode(mg);                                  //srcPos
+					mg.visitVarInsn(ALOAD, retVar.idxLVT);             //dest
+					mg.visitInsn(ICONST_0);                            //destPos
+					mg.visitVarInsn(ALOAD, retVar.idxLVT);             //dest.length
+					mg.visitInsn(ARRAYLENGTH);
+					
+					mg.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
+					
+					//return retVar
+					mg.visitVarInsn(ALOAD, retVar.idxLVT);
+					
+					tmpVar = retVar;
+				} else {
+					throw new RuntimeException(var+" has wrong type.");
+				}
+				isRange = true;
+			}
 		}
 	}
 	
@@ -75,6 +157,10 @@ public class ArrayAssignNode extends ExprNode {
 		int[] ret = new int[3];
 		System.arraycopy(a, 1, ret, 0, ret.length);
 		return ret;
+	}
+	
+	public void test3(int[][][] a) {
+		a[0][1][2] = 1000;
 	}
 	
 	public static void main(String[] args) {

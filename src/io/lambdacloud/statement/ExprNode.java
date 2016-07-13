@@ -1,5 +1,8 @@
 package io.lambdacloud.statement;
 
+import java.util.Map;
+import java.util.SortedMap;
+
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -17,6 +20,11 @@ public abstract class ExprNode {
 	public void setType(Type type) {
 		this.type = type;
 	}
+
+// Pass all the way down to the leave of the expresson tree
+//	public void fixType(Map<String, VariableNode> varMap) {
+//	}
+	
 	public void setTag(Object tag) {
 		this.tag = tag;
 	}

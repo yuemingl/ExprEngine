@@ -11,6 +11,9 @@ public class VariableNode extends ExprNode {
 	public int idxLVT; //index in local variable table
 	private int varLoc; //1 parameter; 2 local variable; 3 global?
 	
+	//This is mainly used to carry type info for arrays generated from list comprehension
+	public ExprNode lastValue;
+	
 	public boolean isParameter() {
 		return varLoc == 1;
 	}

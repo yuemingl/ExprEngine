@@ -40,7 +40,10 @@ public class ArrayAccessNode extends ExprNode {
 			this.idxS = idxS;
 		}
 		public String toString() {
-			return idxS+":"+idxE;
+			if(null == idxE)
+				return idxS.toString();
+			else
+				return idxS+":"+idxE;
 		}
 	}
 	
@@ -53,7 +56,10 @@ public class ArrayAccessNode extends ExprNode {
 	}
 	
 	public String toString() {
-		return var+"["+this.indices+"]";
+		StringBuilder sb = new StringBuilder();
+		for(int i=this.indices.size()-1; i>=0; i--)
+			sb.append("["+this.indices.get(i)+"]");
+		return var+sb.toString();
 	}
 	
 	@Override
@@ -68,29 +74,62 @@ public class ArrayAccessNode extends ExprNode {
 	 */
 	public Type getType(int dim) {
 		Type ret = var.getType();
+		ExprNode valNode = var.lastValue;
 		for(int i=0; i<dim; i++) {
-			IndexPair p = this.indices.get(this.indices.size()-1-i);
+			int dimToIndex = this.indices.size()-1-i;
+			IndexPair p = this.indices.get(dimToIndex);
 			if(null == p.idxE) {
-				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor()))
-					return Type.getType(Object.class);//TODO
-				else {
-					if(null == ret)
-						ret = Tools.getElementType(var.getType());
-					else
-						ret = Tools.getElementType(ret);
+				if(valNode != null && valNode instanceof ListComprehensionNode) {
+					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
+					valNode = lstNode.getElementNode();
+					ret = valNode.getType();
+					if(ret.getSort() != Type.ARRAY)
+						return Type.getType(Object.class);
+				} else if(ret.getDescriptor().equals(Type.getType(List.class).getDescriptor()))
+					return Type.getType(Object.class);
+				else if(ret.getSort() == Type.ARRAY){
+					ret = Tools.getElementType(ret);
+				} else {
+					throw new RuntimeException();
 				}
 			} else {
-				if(null == ret)
-					ret = var.getType();
+				//Do nothing
 			}
 		}
 		return ret;
 	}
 	
+	/**
+    ALOAD 1
+    ICONST_0
+    INVOKEINTERFACE java/util/List.get (I)Ljava/lang/Object;
+    CHECKCAST java/lang/Integer
+    ARETURN
+mv.visitVarInsn(ALOAD, 1);
+mv.visitInsn(ICONST_0);
+mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
+mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+mv.visitInsn(ARETURN);
+mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Integer;>;", l0, l1, 1);
+	 * @param arg
+	 * @return
+	 */
+	public Integer test(List<Integer> arg) {
+		return arg.get(0);
+	}
+	public int[] test2(List<int[]> arg) {
+		return arg.get(0);
+	}
+	
 	public void genCode(MethodGenHelper mg) {
+		
 		var.genCode(mg);
+		
 		boolean isRange = true;
-		VariableNode tmpVar = var;
+		ExprNode valNode = var.lastValue;
+		Type aryType = var.getType();
+		Type eleType = getType(1);
+		VariableNode srcVar = var;
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair p = this.indices.get(i);
 			
@@ -99,59 +138,97 @@ public class ArrayAccessNode extends ExprNode {
 			
 			if(null == idxE) {
 				idxS.genCode(mg);
-				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(aryType.getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
-				} else if(var.getType().getSort() == Type.ARRAY) {
-					if(i == 0)
-						mg.visitInsn(getType(this.indices.size()-i).getOpcode(IALOAD));
-					else
+					if(eleType.getSort() == Type.ARRAY) {
+						mg.visitTypeInsn(Opcodes.CHECKCAST, eleType.getInternalName());
+					}
+					//cann't cast Integer to int
+//					else if(eleType.getSort() != Type.OBJECT){
+//						mg.visitTypeInsn(Opcodes.CHECKCAST, eleType.getDescriptor());
+//					}
+				} else if(aryType.getSort() == Type.ARRAY) {
+					if(i == 0) {
+						//checkcase
+						mg.visitInsn(eleType.getOpcode(IALOAD));
+					} else {
 						mg.visitInsn(Opcodes.AALOAD);
+					}
 						
 				} else {
-					throw new RuntimeException(var+" has wrong type.");
+					throw new RuntimeException("Wrong type: "+aryType.getDescriptor());
 				}
+				
+				if(valNode != null && valNode instanceof ListComprehensionNode) {
+					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
+					valNode = lstNode.getElementNode();
+					aryType = valNode.getType();
+					if(aryType.getSort() == Type.ARRAY)
+						eleType = Tools.getElementType(aryType);
+					else if(valNode instanceof ListComprehensionNode) {
+						eleType = ((ListComprehensionNode)valNode).getElementNode().getType();
+					} else
+						eleType = null;
+				} else {
+					int dim = this.indices.size()-i;
+					aryType = getType(dim);
+					if(dim+1 <= this.indices.size())
+						eleType = getType(dim+1);
+					else
+						eleType = null;
+				}
+				
 				isRange = false;
 			} else {
-				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(valNode != null && valNode.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					idxS.genCode(mg);
 					idxE.genCode(mg);
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
-				} else if(var.getType().getSort() == Type.ARRAY) {
-					VariableNode retVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
+				} else if(valNode == null || valNode.getType().getSort() == Type.ARRAY) {
+					VariableNode dstVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
 					
+					//_len = idxE - idxS + 1
 					SubNode sub = new SubNode(idxE, idxS);
 					sub.genCode(mg);
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					
-					if(Tools.getElementType(retVar.getType()).getSort() == Type.OBJECT ||
-							Tools.getElementType(retVar.getType()).getSort() == Type.ARRAY) {
-						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(retVar.getType()).getDescriptor());
+					//dstVar = new ElementType[_len]
+					if(Tools.getElementType(dstVar.getType()).getSort() == Type.OBJECT ||
+							Tools.getElementType(dstVar.getType()).getSort() == Type.ARRAY) {
+						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(dstVar.getType()).getDescriptor());
 					} else {
-						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(), true));
+						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(dstVar.getType(), true));
 					}
-					mg.visitIntInsn(ASTORE, retVar.idxLVT);
+					mg.visitIntInsn(ASTORE, dstVar.idxLVT);
 					
-					//Shallow copy??
-					//System.arraycopy(src, srcPos, dest, destPos, length);
-					if(isRange) mg.visitVarInsn(ALOAD, tmpVar.idxLVT); //src
+					//Shallow copy: System.arraycopy(src, srcPos, dest, destPos, length);
+					if(isRange) mg.visitVarInsn(ALOAD, srcVar.idxLVT); //src
 					idxS.genCode(mg);                                  //srcPos
-					mg.visitVarInsn(ALOAD, retVar.idxLVT);             //dest
+					mg.visitVarInsn(ALOAD, dstVar.idxLVT);             //dest
 					mg.visitInsn(ICONST_0);                            //destPos
-					mg.visitVarInsn(ALOAD, retVar.idxLVT);             //dest.length
+					mg.visitVarInsn(ALOAD, dstVar.idxLVT);             //dest.length
 					mg.visitInsn(ARRAYLENGTH);
 					
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V", false);
 					
 					//return retVar
-					mg.visitVarInsn(ALOAD, retVar.idxLVT);
+					mg.visitVarInsn(ALOAD, dstVar.idxLVT);
 					
-					tmpVar = retVar;
+					srcVar = dstVar;
 				} else {
 					throw new RuntimeException(var+" has wrong type.");
 				}
+				
+				int dim = this.indices.size()-i;
+				aryType = getType(dim);
+				if(dim+1 <= this.indices.size())
+					eleType = getType(dim+1);
+				else
+					eleType = null;
+
 				isRange = true;
 			}
 		}
@@ -175,9 +252,8 @@ public class ArrayAccessNode extends ExprNode {
 		int[][] dest = new int[10][];
 		System.arraycopy(src, 1, dest, 0, dest.length);
 	}
-	
+
 	public static void main(String[] args) {
-		System.out.println(Type.getType(double[].class).getElementType());
+		System.out.println(Type.getType(double.class).getInternalName());
 	}
-	
 }

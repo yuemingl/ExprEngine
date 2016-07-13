@@ -127,7 +127,20 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-//		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3,4],[4,5,6]]; a[0][1]=20; a")));
+		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1:2][0][1]")); //mixed type: array in list
+
+		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
+
+		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
+
+		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1][0]")); //mixed type: array in list
+
+		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]"));
+		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]"));
+		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"));
+		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
+		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]=20; a")));
+		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]=20; a")));
 
 //		ex1();
 //		ex2();

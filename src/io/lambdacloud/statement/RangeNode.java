@@ -63,4 +63,12 @@ public class RangeNode extends ExprNode {
 			mg.visitInsn(Opcodes.IADD);
 		}
 	}
+	
+	public String toString() {
+		if(includeEnd)
+			return "["+start+", "+end+"]";
+		else
+			return "["+start+", "+end+")";
+			
+	}
 }

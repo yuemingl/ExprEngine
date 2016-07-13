@@ -377,31 +377,30 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		this.stack.push(new AssignNode(var, value));
 	}
+	
 	@Override public void exitExprArrayAssign(ExprGrammarParser.ExprArrayAssignContext ctx) { 
 		//System.out.println(ctx.getText());
-		ExprNode val = this.stack.pop();
-		
 		String varName = ctx.IDENTIFIER().getText();
-		ExprNode idxS = this.stack.pop();
-		ExprNode idxE = null;
-		if(ctx.arithmetic_expr().size() > 1) {
-			idxE = idxS;
-			idxS = this.stack.pop();
-		}
-		
 		VariableNode var = this.varMap.get(varName);
 		if(null == var) {
-			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //TODO default to double ???
-			varMap.put(varName, var);
+			//var = VariableNode.newParameter(varName, Type.getType(int[].class)); //TODO default to double ???
+			//varMap.put(varName, var);
+			throw new RuntimeException("Uninitialized array "+varName);
 		}
+		ExprNode val = this.stack.pop();
 		
-		VariableNode retAry = null;
-		if(ctx.arithmetic_expr().size() > 1) {
-			retAry = VariableNode.newLocalVar(varName+"_ret", Type.getType(int[].class));
-			this.varMap.put(varName+"_ret", retAry);
+		ArrayAssignNode node = new ArrayAssignNode(var, val);
+		for(int i=ctx.array_index().size()-1; i>=0; i--) {
+			Array_indexContext aic = ctx.array_index(i);
+			ExprNode idxS = this.stack.pop();
+			ExprNode idxE = null;
+			if(aic.arithmetic_expr().size() > 1) {
+				idxE = idxS;
+				idxS = this.stack.pop();
+			}
+			node.addIndex(idxS, idxE);
 		}
-		this.stack.push(new ArrayAssignNode(var, idxS, idxE, retAry, val));
-		
+		this.stack.push(node);
 	}
 
 	@Override public void exitLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { 
@@ -842,7 +841,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			ExprNode setA = this.stack.pop();
 			if(null == val) {
 				//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
-				val = this.varMap.put(varName, VariableNode.newLocalVar(varName,Type.getType(double.class)));
+				val = VariableNode.newLocalVar(varName,Type.getType(double.class));
+				this.varMap.put(varName, val);
 				//this is needed for 'y' in [ [x for x in A] for y in B ]
 				//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
 			} else {
@@ -856,6 +856,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				val.setType(Type.getType(this.defaultParameterTypeOrInterface.getClass()));
 			}
 			
+			//TODO type of val, see ExprNode.fixType() for a possible alternative solution 
+			if(setA instanceof RangeNode) {
+				val.setType(Type.INT_TYPE);
+			}
 			LForNode forNode = null;
 			//Build a singly linked list from tail to head
 			//(TAIL) null <- forNode <- forNode <- ... <- listCompNode.forNode (HEAD)

@@ -12,6 +12,8 @@ public class AssignNode extends ExprNode {
 	public AssignNode(VariableNode left, ExprNode right) {
 		this.left = left;
 		this.left.genLoadInsn(true);
+		this.left.lastValue = right;
+		
 		this.right = right;
 		this.right.genLoadInsn(true);
 		this.type = right.getType();
