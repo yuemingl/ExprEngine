@@ -8,6 +8,7 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 
 public abstract class ExprNode {
+	boolean freezeType = false;
 	protected Type type;
 	protected Object tag;
 	protected boolean genLoadInsn = false;
@@ -18,7 +19,12 @@ public abstract class ExprNode {
 		return type;
 	}
 	public void setType(Type type) {
-		this.type = type;
+		if(!this.freezeType)
+			this.type = type;
+	}
+	
+	public void freezeType(boolean isFreeze) {
+		this.freezeType = isFreeze;
 	}
 
 // Pass all the way down to the leave of the expresson tree
