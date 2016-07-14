@@ -26,8 +26,8 @@ public class FuncCallNode extends ExprNode {
 	
 	public Class<?>[] getParameterTypes() {
 		Class<?>[] ret = new Class<?>[args.size()];
-		for(int i=0; i<ret.length; i++) {
-			ret[i] = Tools.typeToClass(args.get(i).getType());
+		for(int i=args.size()-1 ; i>=0; i--) {
+			ret[args.size()-1-i] = Tools.typeToClass(args.get(i).getType());
 		}
 		return ret;
 	}
