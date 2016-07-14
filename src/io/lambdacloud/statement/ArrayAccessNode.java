@@ -79,17 +79,21 @@ public class ArrayAccessNode extends ExprNode {
 			int dimToIndex = this.indices.size()-1-i;
 			IndexPair p = this.indices.get(dimToIndex);
 			if(null == p.idxE) {
+				
 				if(valNode != null && valNode instanceof ListComprehensionNode) {
 					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
 					valNode = lstNode.getElementNode();
 					ret = valNode.getType();
 					if(ret.getSort() != Type.ARRAY)
-						return Type.getType(Object.class);
-				} else if(ret.getDescriptor().equals(Type.getType(List.class).getDescriptor()))
+						return Type.getType(Object.class); //don't return primitive type
+				} else if(ret.getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+					
 					return Type.getType(Object.class);
-				else if(ret.getSort() == Type.ARRAY){
+				} else if(ret.getSort() == Type.ARRAY){
+					
 					ret = Tools.getElementType(ret);
 				} else {
+					
 					throw new RuntimeException();
 				}
 			} else {
@@ -163,12 +167,14 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
 					valNode = lstNode.getElementNode();
 					aryType = valNode.getType();
-					if(aryType.getSort() == Type.ARRAY)
-						eleType = Tools.getElementType(aryType);
-					else if(valNode instanceof ListComprehensionNode) {
+					if(aryType.getSort() == Type.ARRAY) {
+						//get primitive type instead of Object returned from getType(dim)
+						eleType = Tools.getElementType(aryType); 
+					} else if(valNode instanceof ListComprehensionNode) {
 						eleType = ((ListComprehensionNode)valNode).getElementNode().getType();
-					} else
+					} else {
 						eleType = null;
+					}
 				} else {
 					int dim = this.indices.size()-i;
 					aryType = getType(dim);
