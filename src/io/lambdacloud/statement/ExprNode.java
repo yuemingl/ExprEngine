@@ -31,8 +31,9 @@ public abstract class ExprNode {
 //	public void fixType(Map<String, VariableNode> varMap) {
 //	}
 	
-	public void setTag(Object tag) {
+	public ExprNode setTag(Object tag) {
 		this.tag = tag;
+		return this;
 	}
 	public Object getTag() {
 		return this.tag;

@@ -88,6 +88,7 @@ statement
  | 'while' LPAREN logical_expr RPAREN block                   # ExprWhile
  | 'for' LPAREN (assign_expr COMMA)* assign_expr? SEMI  logical_expr SEMI (expression COMMA)* expression? RPAREN (SEMI | block?)   # ExprFor
  | func_call expr_end                                         # FuncCall2
+ | 'def' IDENTIFIER LPAREN (IDENTIFIER COMMA)* IDENTIFIER? RPAREN block # FuncDef
  ;
 
 block : LCB statements RCB       # StatementBlock;

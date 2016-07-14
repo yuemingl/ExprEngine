@@ -102,6 +102,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFuncDef(ExprGrammarParser.FuncDefContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -90,6 +90,18 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitFuncCall2(ExprGrammarParser.FuncCall2Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code FuncDef}
+	 * labeled alternative in {@link ExprGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncDef(ExprGrammarParser.FuncDefContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FuncDef}
+	 * labeled alternative in {@link ExprGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncDef(ExprGrammarParser.FuncDefContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code StatementBlock}
 	 * labeled alternative in {@link ExprGrammarParser#block}.
 	 * @param ctx the parse tree

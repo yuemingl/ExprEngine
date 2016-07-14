@@ -93,8 +93,8 @@ public class ArrayAccessNode extends ExprNode {
 					
 					ret = Tools.getElementType(ret);
 				} else {
-					
-					throw new RuntimeException();
+					//Do nothing
+					//throw new RuntimeException(ret.toString());
 				}
 			} else {
 				//Do nothing

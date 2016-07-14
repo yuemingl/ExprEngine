@@ -644,7 +644,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) {
 		//System.out.println("enterStatementBlock:"+ctx.getText());
-		stack.peek().setTag("S");
+		//if(stack.size() > 0)
+			stack.peek().setTag("S");
 	}
 	
 	@Override public void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { 
@@ -1030,6 +1031,29 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		FuncCallNode fcn = new FuncCallNode("io.lambdacloud.BytecodeSupport","sum");
 		fcn.args.add(listCompNode);
 		this.stack.push(fcn);
+	}
+	
+	@Override public void enterFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
+		this.stack.push(VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
+	}
+
+	HashMap<String, String> funcSource = new HashMap<String, String>();
+	HashMap<String, Class<?>> funcBytecodes = new HashMap<String, Class<?>>();
+	
+	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
+		String funcName = ctx.IDENTIFIER(0).getText();
+		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
+			System.out.println(ctx.IDENTIFIER(i).getText());
+		}
+		this.funcSource.put(funcName, ctx.getText());
+		ExprNode node = this.stack.peek();
+		while(true) {
+			if("S".equals(node.getTag())) {
+				break;
+			} else {
+				node = this.stack.pop();
+			}
+		}
 	}
 
 }
