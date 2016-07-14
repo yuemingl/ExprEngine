@@ -91,7 +91,7 @@ statement
  | 'def' IDENTIFIER LPAREN (IDENTIFIER COMMA)* IDENTIFIER? RPAREN block # FuncDef
  ;
 
-block : LCB statements RCB       # StatementBlock;
+block : LCB statements RCB expr_end*       # StatementBlock;
 
 expression
  : arithmetic_expr       # ExprArithmetic
