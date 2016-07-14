@@ -100,6 +100,7 @@ expression
  | array_init            # ExprArrayInit
  | list_comprehension    # ListComprehension
  | array_gen             # ExprArrayGen
+ | 'sum' expression list_comp_for_if+                         # ExprSum
  ;
 
 assign_expr

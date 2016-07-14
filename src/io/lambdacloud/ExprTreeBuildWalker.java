@@ -124,6 +124,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		for(VariableNode node : pList) {
 			
 			//Fix parameter types according the passed in types
+			if(null == mapParameterTypes)
+				throw new RuntimeException("Need parameter for variable: "+node.name);
+			Class<?> cls = mapParameterTypes.get(node.name);
+			if(null == cls)
+				throw new RuntimeException("Need parameter for variable: "+node.name);
 			node.setType(Type.getType(mapParameterTypes.get(node.name)));
 			
 			ret[i] = Type.getType(mapParameterTypes.get(node.name));
@@ -790,10 +795,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		String className = sb.length()>0?sb.delete(0, 1).toString():"";
 		if(className.equalsIgnoreCase("math"))
 			className = "java.lang.Math";
-		if( methodName.equalsIgnoreCase("print")
-			|| methodName.equalsIgnoreCase("println") 
-			//|| methodName.equalsIgnoreCase("range")
-		  ) {
+		else if( methodName.equalsIgnoreCase("print")
+				|| methodName.equalsIgnoreCase("println") 
+				//|| methodName.equalsIgnoreCase("range")
+			  ) {
+				className = "io.lambdacloud.BytecodeSupport";
+		} else if(className.length() == 0){
 			className = "io.lambdacloud.BytecodeSupport";
 		}
 		if(methodName.equalsIgnoreCase("range")) {
@@ -808,7 +815,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			FuncCallNode fnode = new FuncCallNode(className, methodName);
 			for(ExpressionContext expr : ctx.expression()) {
 				//System.out.println(expr.getText());
-				fnode.args.add(stack.pop());
+				ExprNode arg = stack.pop();
+				if(arg instanceof AssignNode) {
+					arg.genLoadInsn(true);
+				}
+				fnode.args.add(arg);
 			}
 			stack.push(fnode);
 		}
@@ -912,15 +923,113 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		RangeNode node = new RangeNode(idxS, idxE, true);
 		stack.push(node);
 	}
+	
 	@Override public void exitArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx) {
-		ExprNode base = this.stack.pop();
 		ExprNode pow = this.stack.pop();
+		ExprNode base = this.stack.pop();
 		pow.setType(Type.DOUBLE_TYPE);
 		base.setType(Type.DOUBLE_TYPE);
+		base.freezeType(true);
 		FuncCallNode fnode = new FuncCallNode("java.lang.Math", "pow");
-		fnode.args.add(base);
+		//reverse the order
 		fnode.args.add(pow);
+		fnode.args.add(base);
 		stack.push(fnode);
+	}
+	
+	@Override public void exitExprSum(ExprGrammarParser.ExprSumContext ctx) {
+//		System.out.println(this.stack);
+//		
+//		System.out.print("[ "+ctx.expression().getText());
+//		for(int i=0; i<ctx.list_comp_for_if().size(); i++) {
+//			List_comp_for_ifContext for_if = ctx.list_comp_for_if(i);
+//				System.out.print(" for "+for_if.list_comp_for().IDENTIFIER().getText());
+//				System.out.print(" in "+for_if.list_comp_for().expression().getText());
+//				if(null != for_if.list_comp_if())
+//					System.out.print(" "+for_if.list_comp_if().getText());
+//		}
+//		System.out.println(" ]");
+		
+		ListComprehensionNode listCompNode = new ListComprehensionNode();
+		for(int i=ctx.list_comp_for_if().size()-1; i>=0; i--) {
+			
+			List_comp_for_ifContext forIfNode = ctx.list_comp_for_if(i);
+			LIfNode ifNode = null;
+			if(null != forIfNode.list_comp_if()) {
+				ifNode = new LIfNode(this.stack.pop(), null);
+			}
+			
+			//[x+y for x in setA for y in setB]
+			String varName = forIfNode.list_comp_for().IDENTIFIER().getText();
+			VariableNode val = this.varMap.get(varName);
+			ExprNode setA = this.stack.pop();
+			if(null == val) {
+				//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
+				val = VariableNode.newLocalVar(varName,Type.getType(double.class));
+				this.varMap.put(varName, val);
+				//this is needed for 'y' in [ [x for x in A] for y in B ]
+				//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
+			} else {
+				//val.setType(setA.getType().getElementType());
+				val.setAsLocalVar(); //Set x as local variable in expression like '[for x in setA]'
+				//val.setType(Type.getType(int.class));
+			}
+			if(null != this.mapParameterTypes) {
+				val.setType(setA.getType().getElementType());
+			} else if(null != this.defaultParameterTypeOrInterface) {
+				val.setType(Type.getType(this.defaultParameterTypeOrInterface.getClass()));
+			}
+			
+			//TODO type of val, see ExprNode.fixType() for a possible alternative solution 
+			if(setA instanceof RangeNode) {
+				val.setType(Type.INT_TYPE);
+			}
+			LForNode forNode = null;
+			//Build a singly linked list from tail to head
+			//(TAIL) null <- forNode <- forNode <- ... <- listCompNode.forNode (HEAD)
+			if(null == listCompNode.forNode) {
+				//If we have ifNode, it should be processed here
+				//together with The first forNode
+				forNode = new LForNode(
+						varName, setA,
+						ifNode
+						);
+			} else {
+				ExprNode forNodeExpr = listCompNode.forNode;
+				if(null != ifNode) {
+					ifNode.bodyExpr = listCompNode.forNode;
+					forNodeExpr = ifNode;
+				}
+				forNode = new LForNode(
+						varName, setA,
+						forNodeExpr
+						);
+			}
+			listCompNode.forNode = forNode;
+		}
+
+		ExprNode forNode = listCompNode.forNode;
+		ExprNode forNodeExpr = listCompNode.forNode.exprNode;
+		while(null != forNodeExpr) {
+			if(forNodeExpr instanceof LForNode) {
+				forNode = forNodeExpr;
+				forNodeExpr = ((LForNode)forNodeExpr).exprNode;
+			} else if(forNodeExpr instanceof LIfNode) {
+				forNode = forNodeExpr;
+				forNodeExpr = ((LIfNode)forNodeExpr).bodyExpr;
+			} else {
+				throw new RuntimeException();
+			}
+		}
+		if(forNode instanceof LForNode)
+			((LForNode)forNode).exprNode = this.stack.pop(); //The last expression
+		else if(forNode instanceof LIfNode)
+			((LIfNode)forNode).bodyExpr = this.stack.pop(); //The last expression
+		else
+			throw new RuntimeException();
+		FuncCallNode fcn = new FuncCallNode("io.lambdacloud.BytecodeSupport","sum");
+		fcn.args.add(listCompNode);
+		this.stack.push(fcn);
 	}
 
 }

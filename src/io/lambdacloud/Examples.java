@@ -127,20 +127,47 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1:2][0][1]")); //mixed type: array in list
+//bug		System.out.println(exec("x**2", new int[]{5}));
+		
+//bug		System.out.println(exec("sum x**2 for x in 1:3"));
+		System.out.println(exec("sum x+1 for x in 1:3"));
+		
+////		System.out.println(exec("10+2**3"));
+//		System.out.println(exec("5**2"));
+//
+//bug		System.out.println(exec("[x**2 for x in 1:3]"));
+//		System.out.println(exec("[(x+0.0)**2 for x in 1:3]"));
+//bug sum is used as key word		System.out.println(exec("sum( [(x+0.0)**2 for x in 1:3] )"));
+//
+//		System.out.println(exec("[sum(x=1:y) for y in 1:10]"));
+//		
+//		System.out.println(exec("sum(x=1:3)"));
+//		System.out.println(exec("sum(1:3)"));
+		
+//		System.out.println(exec("sum([x for x in 1:3])"));
+		
+//		System.out.println(exec("a=[1,2,3]; sum(a)"));
+//		System.out.println(exec("sum([1,2,3])"));
+		//System.out.println(exec("'abc'+10"));
 
-		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
-
-		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
-
-		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1][0]")); //mixed type: array in list
-
-		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]"));
-		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]"));
-		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"));
-		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
-		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]=20; a")));
-		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]=20; a")));
+//		//System.out.println(exec("a=10:20; for(i=0;i<10;i++) { b+=a[i] } b"));
+//		System.out.println(exec("a=10:20; for(i=0;i<10;i++) { b+=a[i] } b",new int[]{0}));
+//		System.out.println(exec("b=0; a=10:20; for(i=0;i<10;i++) { b+=a[i] } b"));
+//		
+//		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1:2][0][1]")); //mixed type: array in list
+//
+//		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
+//
+//		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
+//
+//		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1][0]")); //mixed type: array in list
+//
+//		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]"));
+//		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]"));
+//		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"));
+//		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
+//		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]=20; a")));
+//		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]=20; a")));
 
 //		ex1();
 //		ex2();

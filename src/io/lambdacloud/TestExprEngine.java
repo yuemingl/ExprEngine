@@ -156,7 +156,7 @@ public class TestExprEngine {
 		assertEqual(exec("a=[10,20,30]; a[0]=1; a"), new int[]{1,20,30});
 
 		assertEqual(exec("a=[10,20,30]; i=1; a[i*2]"), 30);
-		assertEqual(exec("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"), 100);
+		assertEqual(exec("a=[10,20,30,40]; sum1=0; for(i=0;i<4;i++) { sum1+=a[i] } sum1"), 100);
 	
 		assertEqual(exec("x[i+1:j]", new Object[]{1,4,new double[]{1,2,3,4,5}}), new double[]{3.0,4.0,5.0});
 		assertEqual(exec("x[i]", new Object[]{1,new double[]{1,2,3}}), 2.0);
