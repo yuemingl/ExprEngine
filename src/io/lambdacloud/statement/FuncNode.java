@@ -81,7 +81,7 @@ public class FuncNode extends ExprNode {
 			cgen.startCode();
 			
 			// Generate code for all the expressions
-			for (int i = 0; i < this.body.size(); i++) {
+			for (int i = this.body.size()-1; i >= 0; i--) {
 				ExprNode expr = this.body.get(i);
 				expr.genCode(mg);
 			}
