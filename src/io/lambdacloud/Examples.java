@@ -149,9 +149,9 @@ public class Examples {
 //						"N", 3
 //						)));
 		
+		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
 		//System.out.println(exec("def fun1(x, y) { x+y } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
-//		System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)"));
-		System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)"));
+		//System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)"));
 
 		//bug		System.out.println(exec("x**2", new int[]{5}));
 		
