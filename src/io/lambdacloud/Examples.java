@@ -150,12 +150,13 @@ public class Examples {
 //						)));
 		
 		//System.out.println(exec("a=x+y; a-1",new int[]{1,2}));
+		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); a+1"));
 		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } b=fun1(1,2); b+1"));
 		//System.out.println(exec("def fun1(x, y) { x+y } fun1(2.5,1)"));
 		//System.out.println(exec("def fun1(x, y) { x+y } r=0; for(i=0;i<10;i++) { r+=fun1(1,i)+fun1(2,i) } r"));
 		//System.out.println(exec("def fun1(x, y) { x+y } r=0; for(i=0;i<10;i++) { r+=fun1(1,i) } r"));
 		//bootstrap 3 times? System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)+fun1(3,4)"));
-		//System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
+		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
 		//System.out.println(exec("def fun1(x, y) { x+y } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
 		//System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)"));
 

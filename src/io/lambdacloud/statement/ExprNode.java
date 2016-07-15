@@ -51,4 +51,7 @@ public abstract class ExprNode {
 	public void genLoadInsn(boolean flag) {
 		this.genLoadInsn = flag;
 	}
+	
+	public void fixType() {
+	}
 }

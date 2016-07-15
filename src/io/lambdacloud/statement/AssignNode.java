@@ -40,4 +40,7 @@ public class AssignNode extends ExprNode {
 		}
 	}
 	
+	public void fixType() {
+		left.setType(right.getType());
+	}
 }

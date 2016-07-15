@@ -59,6 +59,11 @@ public class FuncNode extends ExprNode {
 			ret[i] = localVarMap.get(node.name).getType();
 			i++;
 		}
+		
+		for (int j = this.body.size()-1; j >= 0; j--) {
+			this.body.get(j).fixType();
+		}
+
 		return ret;
 	}
 
