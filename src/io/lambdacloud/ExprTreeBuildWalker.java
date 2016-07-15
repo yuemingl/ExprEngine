@@ -80,12 +80,14 @@ import io.lambdacloud.statement.VariableNode;
 import io.lambdacloud.statement.WhileNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
-	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
+//	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
+//	
+//	//Variable map which is generated after parsing
+//	//Another place is the phase of code generation
+//	public SortedMap<String, VariableNode> varMap = new TreeMap<String, VariableNode>();
 	
-	//Variable map which is generated after parsing
-	//Another place is the phase of code generation
-	public SortedMap<String, VariableNode> varMap = new TreeMap<String, VariableNode>();
-	
+	public Deque<Scope> scope = new LinkedList<Scope>();
+
 	//Parameter types which should be passed in before parsing
 	protected Class<?> defaultParameterTypeOrInterface = null;
 	protected Map<String, Class<?>> mapParameterTypes = null;
@@ -93,14 +95,21 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public static HashMap<String, FuncNode> funcMap = new HashMap<String, FuncNode>();
 	
 	public ExprTreeBuildWalker() {
+		scope.push(new Scope());
 	}
 	
 	public ExprTreeBuildWalker(Class<?> defaultParameterTypeOrInterface) {
 		this.defaultParameterTypeOrInterface = defaultParameterTypeOrInterface;
+		scope.push(new Scope());
 	}
 	
 	public ExprTreeBuildWalker(Map<String, Class<?>> mapParameterTypes) {
 		this.mapParameterTypes = mapParameterTypes;
+		scope.push(new Scope());
+	}
+	
+	public Scope currentScope() {
+		return this.scope.peek();
 	}
 	
 	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
@@ -120,12 +129,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public void printInfo() {
 		System.out.println("Parameters:");
-		for(VariableNode n : varMap.values()) {
+		for(VariableNode n : currentScope().varMap.values()) {
 			if(n.isParameter())
 				System.out.println(n.name+": "+n.getType().getDescriptor());
 		}
 		System.out.println("Local Variables:");
-		for(VariableNode n : varMap.values()) {
+		for(VariableNode n : currentScope().varMap.values()) {
 			if(n.isLocalVar())
 				System.out.println(n.name+": "+n.getType().getDescriptor());
 		}
@@ -133,7 +142,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public Type[] getAndFixParameterTypes(Map<String, Class<?>> mapParameterTypes) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+		for(Entry<String, VariableNode> e : this.currentScope().varMap.entrySet()) {
 			if(e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
@@ -165,7 +174,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public Type[] getAndFixParameterTypes(Class<?>[] aryParameterTypes) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+		for(Entry<String, VariableNode> e : this.currentScope().varMap.entrySet()) {
 			if(e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
@@ -195,7 +204,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public Type[] getAndFixParameterTypes(Class<?> defaultParameterType) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+		for(Entry<String, VariableNode> e : this.currentScope().varMap.entrySet()) {
 			if(e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
@@ -226,7 +235,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		}
 		
 		List<VariableNode> pList = new ArrayList<VariableNode>();
-		for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+		for(Entry<String, VariableNode> e : this.currentScope().varMap.entrySet()) {
 			if(e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
@@ -301,33 +310,33 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 						Method m = this.defaultParameterTypeOrInterface.getDeclaredMethods()[0];
 						paramTypes = getAndFixParameterTypes(m.getParameterTypes());
 						//Check m.getReturnType() == retType ? 
-						retType = stack.peek().getType(); //return type of the last expression
+						retType = currentScope().stack.peek().getType(); //return type of the last expression
 						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 						cgen.startMethod(access, m.getName(),
 								Type.getMethodDescriptor(retType, paramTypes));
 					} else {
 						int nParam = 0;
-						for(Entry<String, VariableNode> e : this.varMap.entrySet()) {
+						for(Entry<String, VariableNode> e : this.currentScope().varMap.entrySet()) {
 							if(e.getValue().isParameter()) nParam++;
 						}
 						Class<?>[] pTypes = new Class<?>[nParam];
 						for(int i=0; i<pTypes.length; i++) pTypes[i] = this.defaultParameterTypeOrInterface; 
 						paramTypes = getAndFixParameterTypes(pTypes);
-						retType = stack.peek().getType(); //return type of the last expression
+						retType = currentScope().stack.peek().getType(); //return type of the last expression
 						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 						cgen.startMethod(access, methodName,
 								Type.getMethodDescriptor(retType, paramTypes));
 					}
 				} else {
 					paramTypes = getAndFixParameterTypes(this.mapParameterTypes);
-					retType = stack.peek().getType(); //return type of the last expression
+					retType = currentScope().stack.peek().getType(); //return type of the last expression
 					if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 					cgen.startMethod(access, methodName,
 							Type.getMethodDescriptor(retType, paramTypes));
 				}
 			} else {
 				paramTypes = getAndFixParameterTypes(aryParameterTypes);
-				retType = stack.peek().getType(); //return type of the last expression
+				retType = currentScope().stack.peek().getType(); //return type of the last expression
 				if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 				cgen.startMethod(access, methodName,
 						Type.getMethodDescriptor(retType, paramTypes));
@@ -335,7 +344,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv, varMap);
+			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
 			
 //			int index = 1;
 //			if(isStatic) index = 0;
@@ -361,8 +370,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 
 			
 			//Generate code for all the expressions
-			while(!stack.isEmpty()) {
-				ExprNode expr = stack.pollLast();
+			while(!currentScope().stack.isEmpty()) {
+				ExprNode expr = currentScope().stack.pollLast();
 				expr.genCode(mg);
 			}
 			
@@ -370,7 +379,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			if(!isStatic)
 				mg.visitLocalVariable("this", "L"+className+";", 
 						null, cgen.labelStart, cgen.lableEnd, 0);
-			for(VariableNode var : varMap.values()) {
+			for(VariableNode var : currentScope().varMap.values()) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
 						null, cgen.labelStart, cgen.lableEnd, var.idxLVT);
 			}
@@ -400,158 +409,158 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitExprAssign(ExprGrammarParser.ExprAssignContext ctx) {
 		//System.out.println("asign: "+ctx.IDENTIFIER().getText()+"="+ctx.statement().getText());
 		String varName = ctx.IDENTIFIER().getText();
-		ExprNode value = this.stack.pop();
-		VariableNode var = this.varMap.get(varName);
+		ExprNode value = this.currentScope().stack.pop();
+		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newLocalVar(varName, value.getType());
-			this.varMap.put(varName, var);
+			this.currentScope().varMap.put(varName, var);
 		}
-		this.stack.push(new AssignNode(var, value));
+		this.currentScope().stack.push(new AssignNode(var, value));
 	}
 	
 	@Override public void exitExprArrayAssign(ExprGrammarParser.ExprArrayAssignContext ctx) { 
 		//System.out.println(ctx.getText());
 		String varName = ctx.IDENTIFIER().getText();
-		VariableNode var = this.varMap.get(varName);
+		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
 			//var = VariableNode.newParameter(varName, Type.getType(int[].class)); //TODO default to double ???
 			//varMap.put(varName, var);
 			throw new RuntimeException("Uninitialized array "+varName);
 		}
-		ExprNode val = this.stack.pop();
+		ExprNode val = this.currentScope().stack.pop();
 		
 		ArrayAssignNode node = new ArrayAssignNode(var, val);
 		for(int i=ctx.array_index().size()-1; i>=0; i--) {
 			Array_indexContext aic = ctx.array_index(i);
-			ExprNode idxS = this.stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
 			ExprNode idxE = null;
 			if(aic.arithmetic_expr().size() > 1) {
 				idxE = idxS;
-				idxS = this.stack.pop();
+				idxS = this.currentScope().stack.pop();
 			}
 			node.addIndex(idxS, idxE);
 		}
-		this.stack.push(node);
+		this.currentScope().stack.push(node);
 	}
 
 	@Override public void exitLogicalExpressionAnd(ExprGrammarParser.LogicalExpressionAndContext ctx) { 
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new AndNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new AndNode(v1, v2));
 	}
 
 	@Override public void exitLogicalExpressionOr(ExprGrammarParser.LogicalExpressionOrContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new OrNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new OrNode(v1, v2));
 	}
 
 	@Override public void exitLogicalExpressionNot(ExprGrammarParser.LogicalExpressionNotContext ctx) {
-		stack.push(new NotNode(stack.pop()));
+		currentScope().stack.push(new NotNode(currentScope().stack.pop()));
 	}
 
 	@Override public void exitComparisonArithmeticExpression(ExprGrammarParser.ComparisonArithmeticExpressionContext ctx) { 
 		//System.out.println(ctx.getText()+"   "+ctx.comp_operator().getText());
 		String op = ctx.comp_operator().getText();
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
 		if(op.equals(">")) {
-			stack.push(new GTNode(v1, v2));
+			currentScope().stack.push(new GTNode(v1, v2));
 		} else if(op.equals(">=")) {
-			stack.push(new GENode(v1, v2));
+			currentScope().stack.push(new GENode(v1, v2));
 		} else if(op.equals("<")) {
-			stack.push(new LTNode(v1, v2));
+			currentScope().stack.push(new LTNode(v1, v2));
 		} else if(op.equals("<=")) {
-			stack.push(new LENode(v1, v2));
+			currentScope().stack.push(new LENode(v1, v2));
 		} else if(op.equals("==")) {
-			stack.push(new EQNode(v1, v2));
+			currentScope().stack.push(new EQNode(v1, v2));
 		} else if(op.equals("!=")) {
-			stack.push(new NEQNode(v1, v2));
+			currentScope().stack.push(new NEQNode(v1, v2));
 		}
 	}
 
 	@Override public void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx) { 
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new MultNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MultNode(v1, v2));
 	}
 
 	@Override public void exitArithmeticExpressionAdd(ExprGrammarParser.ArithmeticExpressionAddContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new AddNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new AddNode(v1, v2));
 	}
 	
 	@Override public void exitArithmeticExpressionNegationEntity(ExprGrammarParser.ArithmeticExpressionNegationEntityContext ctx) {
-		stack.push(new NegateNode(stack.pop()));
+		currentScope().stack.push(new NegateNode(currentScope().stack.pop()));
 	}
 //	@Override public void exitArithmeticExpressionNegationExpr(ExprGrammarParser.ArithmeticExpressionNegationExprContext ctx) {
 //		stack.push(new NegateNode(stack.pop()));
 //	}
 	
 	@Override public void exitArithmeticExpressionSub(ExprGrammarParser.ArithmeticExpressionSubContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new SubNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SubNode(v1, v2));
 	}
 	@Override public void exitArithmeticExpressionDiv(ExprGrammarParser.ArithmeticExpressionDivContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new DivNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new DivNode(v1, v2));
 	}
 	@Override public void exitArithmeticExpressionRem(ExprGrammarParser.ArithmeticExpressionRemContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new RemNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new RemNode(v1, v2));
 	}
 	@Override public void exitBitExpressionAnd(ExprGrammarParser.BitExpressionAndContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new BAndNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new BAndNode(v1, v2));
 	}
 	@Override public void exitBitExpressionOr(ExprGrammarParser.BitExpressionOrContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new BOrNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new BOrNode(v1, v2));
 	}
 	@Override public void exitBitExpressionNot(ExprGrammarParser.BitExpressionNotContext ctx) {
-		stack.push(new BNotNode(stack.pop()));
+		currentScope().stack.push(new BNotNode(currentScope().stack.pop()));
 	}
 	@Override public void exitBitExpressionXor(ExprGrammarParser.BitExpressionXorContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new BXorNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new BXorNode(v1, v2));
 	}
 	@Override public void exitBitExpressionShl(ExprGrammarParser.BitExpressionShlContext ctx) { 
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new SHLNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SHLNode(v1, v2));
 	}
 	@Override public void exitBitExpressionShr(ExprGrammarParser.BitExpressionShrContext ctx) { 
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new SHRNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SHRNode(v1, v2));
 		
 	}
 	@Override public void exitBitExpressionUshr(ExprGrammarParser.BitExpressionUshrContext ctx) { 
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new USHRNode(v1, v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new USHRNode(v1, v2));
 	}
 
 	@Override public void exitEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) {
 		//System.out.println("exitConstInteger"+ctx.getText());
-		stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
+		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
 	}
 	@Override public void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { 
 		//System.out.println("exitEntityConstFloat:"+ctx.getText());
-		stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
+		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 
 	@Override public void exitEntityVariable(ExprGrammarParser.EntityVariableContext ctx) {
 		//System.out.println("exitEntityVariable: "+ctx.getText());
 		String varName = ctx.getText();
-		VariableNode val = varMap.get(varName);
+		VariableNode val = currentScope().varMap.get(varName);
 		if(null == val) {
 			if(null != this.mapParameterTypes) {
 				Class<?> varCls = this.mapParameterTypes.get(varName);
@@ -575,13 +584,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				//TODO need better solution
 				val = VariableNode.newParameter(varName, Type.getType(double.class));
 			}
-			varMap.put(varName, val);
+			currentScope().varMap.put(varName, val);
 		}
-		stack.push(val);
+		currentScope().stack.push(val);
 	}
 	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) {
 		//System.out.println("exitEntityLogicalConst:"+ctx.getText());
-		stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
+		currentScope().stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
 	}
 	
 	@Override public void exitLogicalExpressionEntity(ExprGrammarParser.LogicalExpressionEntityContext ctx) {
@@ -611,40 +620,40 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //	}
 	@Override public void exitArithmeticExpressionIncDec(ExprGrammarParser.ArithmeticExpressionIncDecContext ctx) {
 		String varName = ctx.IDENTIFIER().getText();
-		VariableNode var = varMap.get(varName);
+		VariableNode var = currentScope().varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface)); //default to double
-			varMap.put(varName, var);
+			currentScope().varMap.put(varName, var);
 		}
 		if(null != ctx.INC())
-			stack.push(new IncNode(var));
+			currentScope().stack.push(new IncNode(var));
 		else if(null != ctx.DESC())
-			stack.push(new DescNode(var));
+			currentScope().stack.push(new DescNode(var));
 	}
 	@Override public void exitExprAddAssign(ExprGrammarParser.ExprAddAssignContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new AddAsignNode((VariableNode)v1,v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new AddAsignNode((VariableNode)v1,v2));
 	}
 	@Override public void exitExprSubAssign(ExprGrammarParser.ExprSubAssignContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new SubAsignNode((VariableNode)v1,v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SubAsignNode((VariableNode)v1,v2));
 	}
 	@Override public void exitExprMulAssign(ExprGrammarParser.ExprMulAssignContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new MulAsignNode((VariableNode)v1,v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MulAsignNode((VariableNode)v1,v2));
 	}
 	@Override public void exitExprDivAssign(ExprGrammarParser.ExprDivAssignContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new DivAsignNode((VariableNode)v1,v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new DivAsignNode((VariableNode)v1,v2));
 	}
 	@Override public void exitExprRemAssign(ExprGrammarParser.ExprRemAssignContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new RemAsignNode((VariableNode)v1,v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new RemAsignNode((VariableNode)v1,v2));
 	}
 
 	@Override public void exitExprIf(ExprGrammarParser.ExprIfContext ctx) {
@@ -655,64 +664,64 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		if(ctx.block().size() > 1) { //else branch
 			//System.out.println(ctx.block().get(1).getText());
 			while(true) {
-				ExprNode n = stack.peek();
+				ExprNode n = currentScope().stack.peek();
 				if(n.getTag()=="S") { n.setTag("SS"); break; }
-				ifnode.elseBlockExprs.add(stack.pop());
+				ifnode.elseBlockExprs.add(currentScope().stack.pop());
 			}
 		}
 		while(true) {
-			ExprNode n = stack.peek();
+			ExprNode n = currentScope().stack.peek();
 			if(n.getTag()=="S") { n.setTag("SS"); break; }
-			ifnode.ifBlockExprs.add(stack.pop());
+			ifnode.ifBlockExprs.add(currentScope().stack.pop());
 		}
-		ifnode.condition = stack.pop();
-		stack.push(ifnode);
+		ifnode.condition = currentScope().stack.pop();
+		currentScope().stack.push(ifnode);
 	}
 	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) {
 		//System.out.println("enterStatementBlock:"+ctx.getText());
 		//if(stack.size() > 0)
-			stack.peek().setTag("S");
+		currentScope().stack.peek().setTag("S");
 	}
 	
 	@Override public void exitStatementBlock(ExprGrammarParser.StatementBlockContext ctx) { 
 		//System.out.println("exitStatementBlock:"+ctx.getText());
-		stack.peek().setTag("E");
+		currentScope().stack.peek().setTag("E");
 	}
 	@Override public void exitExprWhile(ExprGrammarParser.ExprWhileContext ctx) { 
 		WhileNode wn = new WhileNode();
 		while(true) {
-			ExprNode n = stack.peek();
+			ExprNode n = currentScope().stack.peek();
 			if(n.getTag()=="S") { 
 				n.setTag("SS"); 
 				break; 
 			}
-			wn.block.add(stack.pop());
+			wn.block.add(currentScope().stack.pop());
 		}
-		wn.condition = stack.pop();
-		stack.push(wn);
+		wn.condition = currentScope().stack.pop();
+		currentScope().stack.push(wn);
 	}
 	@Override public void exitExprFor(ExprGrammarParser.ExprForContext ctx) { 
 		ForNode fn = new ForNode();
 		while(true) {
-			ExprNode n = stack.peek();
+			ExprNode n = currentScope().stack.peek();
 			if(n.getTag()=="S") { 
 				n.setTag("SS"); 
 				break; 
 			}
-			fn.block.add(stack.pop());
+			fn.block.add(currentScope().stack.pop());
 		}
 		if(ctx.assign_expr().size() > 0) {
 			for(int i=ctx.assign_expr().size()-1; i>=0; i--) {
-				fn.inc.add(stack.pop());
+				fn.inc.add(currentScope().stack.pop());
 			}
 		}
-		fn.cond = stack.pop();
+		fn.cond = currentScope().stack.pop();
 		if(ctx.assign_expr().size() > 0) {
 			for(int i=ctx.assign_expr().size()-1; i>=0; i--) {
-				fn.init.add(stack.pop());
+				fn.init.add(currentScope().stack.pop());
 			}
 		}
-		stack.push(fn);
+		currentScope().stack.push(fn);
 	}
 	@Override public void exitStatements(ExprGrammarParser.StatementsContext ctx) {
 
@@ -721,7 +730,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitProg(ExprGrammarParser.ProgContext ctx) { 
 		if(ctx.statements().statement().size() == 0) { //Single expression case
 			//Add return value by generating load instruction
-			ExprNode node = stack.peek();
+			ExprNode node = currentScope().stack.peek();
 			node.genLoadInsn(true);
 //			if(node instanceof AddAsignNode ||
 //			   node instanceof SubAsignNode ||
@@ -740,25 +749,25 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitEntityArrayAccess(ExprGrammarParser.EntityArrayAccessContext ctx) {
 		//System.out.println(ctx.getText());
 		String varName = ctx.IDENTIFIER().getText();
-		VariableNode var = this.varMap.get(varName);
+		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
-			varMap.put(varName, var);
+			currentScope().varMap.put(varName, var);
 		}
 		
 		ArrayAccessNode node = new ArrayAccessNode(var);
 		for(int i=ctx.array_index().size()-1; i>=0; i--) {
 			Array_indexContext aic = ctx.array_index(i);
-			ExprNode idxS = this.stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
 			ExprNode idxE = null;
 			if(aic.arithmetic_expr().size() > 1) {
 				idxE = idxS;
-				idxS = this.stack.pop();
+				idxS = this.currentScope().stack.pop();
 			}
 			node.addIndex(idxS, idxE);
 		}
 
-		this.stack.push(node);
+		this.currentScope().stack.push(node);
 	}
 	public static int test(int[][] a) {
 		return a[0][1];
@@ -781,7 +790,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//System.out.println("exitStringConst"+ctx.getText());
 		String s = ctx.getText();
 		//System.out.println(s);
-		stack.push(new StringNode(s.substring(1, s.length()-1)));
+		currentScope().stack.push(new StringNode(s.substring(1, s.length()-1)));
 		
 	}
 
@@ -790,25 +799,25 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void exitStringConcat(ExprGrammarParser.StringConcatContext ctx) {
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new StringConcatNode(v1,v2));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new StringConcatNode(v1,v2));
 	}
 	
 	@Override public void exitComparisonStringExpression(ExprGrammarParser.ComparisonStringExpressionContext ctx) { 
 		String op = (null==ctx.EQ()) ? ctx.NEQ().getText() : ctx.EQ().getText();
-		ExprNode v2 = stack.pop();
-		ExprNode v1 = stack.pop();
-		stack.push(new StringCompareNode(v1, v2, op));
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new StringCompareNode(v1, v2, op));
 	}
 	@Override public void exitArray_init(ExprGrammarParser.Array_initContext ctx) {
 		//System.out.println(ctx.getText());
 		int dim = ctx.expression().size();
 		ArrayNode node = new ArrayNode();
 		for(int i=0; i<dim; i++) {
-			node.addInitValues(stack.pop());
+			node.addInitValues(currentScope().stack.pop());
 		}
-		stack.push(node);
+		currentScope().stack.push(node);
 	}
 	
 	@Override public void exitFuncCall(ExprGrammarParser.FuncCallContext ctx) {
@@ -836,12 +845,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//Method name transform
 		if(methodName.equalsIgnoreCase("range")) {
 			ExprNode start = null;
-			ExprNode end = stack.pop();
+			ExprNode end = currentScope().stack.pop();
 			if(ctx.expression().size() > 1) {
-				start = stack.pop();
+				start = currentScope().stack.pop();
 			}
 			RangeNode node = new RangeNode(start, end, false);
-			stack.push(node);
+			currentScope().stack.push(node);
 		} else {
 			FuncNode fnode = funcMap.get(methodName);
 			boolean isDynamicCall = false;
@@ -849,13 +858,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			FuncCallNode fcnode = new FuncCallNode(className, methodName, isDynamicCall);
 			for(int i=0; i<ctx.expression().size(); i++) {
 				//System.out.println(ctx.expression(i).getText());
-				ExprNode arg = stack.pop();
+				ExprNode arg = currentScope().stack.pop();
 				if(arg instanceof AssignNode) {
 					arg.genLoadInsn(true);
 				}
 				fcnode.args.add(arg);
 			}
-			stack.push(fcnode);
+			currentScope().stack.push(fcnode);
 		}
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
@@ -877,17 +886,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			List_comp_for_ifContext forIfNode = ctx.list_comp_for_if(i);
 			LIfNode ifNode = null;
 			if(null != forIfNode.list_comp_if()) {
-				ifNode = new LIfNode(this.stack.pop(), null);
+				ifNode = new LIfNode(this.currentScope().stack.pop(), null);
 			}
 			
 			//[x+y for x in setA for y in setB]
 			String varName = forIfNode.list_comp_for().IDENTIFIER().getText();
-			VariableNode val = this.varMap.get(varName);
-			ExprNode setA = this.stack.pop();
+			VariableNode val = this.currentScope().varMap.get(varName);
+			ExprNode setA = this.currentScope().stack.pop();
 			if(null == val) {
 				//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
 				val = VariableNode.newLocalVar(varName,Type.getType(double.class));
-				this.varMap.put(varName, val);
+				this.currentScope().varMap.put(varName, val);
 				//this is needed for 'y' in [ [x for x in A] for y in B ]
 				//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
 			} else {
@@ -943,24 +952,24 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 		}
 		if(forNode instanceof LForNode)
-			((LForNode)forNode).exprNode = this.stack.pop(); //The last expression
+			((LForNode)forNode).exprNode = this.currentScope().stack.pop(); //The last expression
 		else if(forNode instanceof LIfNode)
-			((LIfNode)forNode).bodyExpr = this.stack.pop(); //The last expression
+			((LIfNode)forNode).bodyExpr = this.currentScope().stack.pop(); //The last expression
 		else
 			throw new RuntimeException();
-		this.stack.push(listCompNode);
+		this.currentScope().stack.push(listCompNode);
 	}
 	
 	@Override public void exitExprArrayGen(ExprGrammarParser.ExprArrayGenContext ctx) {
-		ExprNode idxE = this.stack.pop();
-		ExprNode idxS = this.stack.pop();
+		ExprNode idxE = this.currentScope().stack.pop();
+		ExprNode idxS = this.currentScope().stack.pop();
 		RangeNode node = new RangeNode(idxS, idxE, true);
-		stack.push(node);
+		currentScope().stack.push(node);
 	}
 	
 	@Override public void exitArithmeticExpressionPow(ExprGrammarParser.ArithmeticExpressionPowContext ctx) {
-		ExprNode pow = this.stack.pop();
-		ExprNode base = this.stack.pop();
+		ExprNode pow = this.currentScope().stack.pop();
+		ExprNode base = this.currentScope().stack.pop();
 		pow.setType(Type.DOUBLE_TYPE);
 		base.setType(Type.DOUBLE_TYPE);
 		base.freezeType(true);
@@ -968,7 +977,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//reverse the order
 		fnode.args.add(pow);
 		fnode.args.add(base);
-		stack.push(fnode);
+		currentScope().stack.push(fnode);
 	}
 	
 	@Override public void exitExprSum(ExprGrammarParser.ExprSumContext ctx) {
@@ -990,17 +999,17 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			List_comp_for_ifContext forIfNode = ctx.list_comp_for_if(i);
 			LIfNode ifNode = null;
 			if(null != forIfNode.list_comp_if()) {
-				ifNode = new LIfNode(this.stack.pop(), null);
+				ifNode = new LIfNode(this.currentScope().stack.pop(), null);
 			}
 			
 			//[x+y for x in setA for y in setB]
 			String varName = forIfNode.list_comp_for().IDENTIFIER().getText();
-			VariableNode val = this.varMap.get(varName);
-			ExprNode setA = this.stack.pop();
+			VariableNode val = this.currentScope().varMap.get(varName);
+			ExprNode setA = this.currentScope().stack.pop();
 			if(null == val) {
 				//val = this.varMap.put(varName, VariableNode.newLocalVar(varName,setA.getType().getElementType()));
 				val = VariableNode.newLocalVar(varName,Type.getType(double.class));
-				this.varMap.put(varName, val);
+				this.currentScope().varMap.put(varName, val);
 				//this is needed for 'y' in [ [x for x in A] for y in B ]
 				//throw new RuntimeException("Should not be here since all expr has been generated if we are here");
 			} else {
@@ -1056,18 +1065,18 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 		}
 		if(forNode instanceof LForNode)
-			((LForNode)forNode).exprNode = this.stack.pop(); //The last expression
+			((LForNode)forNode).exprNode = this.currentScope().stack.pop(); //The last expression
 		else if(forNode instanceof LIfNode)
-			((LIfNode)forNode).bodyExpr = this.stack.pop(); //The last expression
+			((LIfNode)forNode).bodyExpr = this.currentScope().stack.pop(); //The last expression
 		else
 			throw new RuntimeException();
 		FuncCallNode fcn = new FuncCallNode("io.lambdacloud.BytecodeSupport", "sum", false);
 		fcn.args.add(listCompNode);
-		this.stack.push(fcn);
+		this.currentScope().stack.push(fcn);
 	}
 	
 	@Override public void enterFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
-		this.stack.push(VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
+		this.currentScope().stack.push(VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
 	}
 
 	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) {
@@ -1077,16 +1086,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		fNode.name = ctx.IDENTIFIER(0).getText();
 		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
 			String paramName = ctx.IDENTIFIER(i).getText();
-			VariableNode var = this.varMap.get(paramName);
+			VariableNode var = this.currentScope().varMap.get(paramName);
 			fNode.paramVarMap.put(paramName, var);
 			//remove function parameters from varMap
 			//TODO FixMe Consider scope?  like funName.paramName
-			this.varMap.remove(paramName);
+			this.currentScope().varMap.remove(paramName);
 		}
 		
 		ExprNode node = null;
-		while(!this.stack.isEmpty()) {
-			node = this.stack.pop();
+		while(!this.currentScope().stack.isEmpty()) {
+			node = this.currentScope().stack.pop();
 			if("S".equals(node.getTag())) { //stop flag
 				break;
 			} else {
