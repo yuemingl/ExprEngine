@@ -1,6 +1,13 @@
 package io.lambdacloud;
 
+import static io.lambdacloud.ExprEngine.parse;
+
 import java.io.FileOutputStream;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +49,7 @@ import io.lambdacloud.statement.EQNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.ForNode;
 import io.lambdacloud.statement.FuncCallNode;
+import io.lambdacloud.statement.FuncNode;
 import io.lambdacloud.statement.GENode;
 import io.lambdacloud.statement.GTNode;
 import io.lambdacloud.statement.IfNode;
@@ -81,6 +89,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	//Parameter types which should be passed in before parsing
 	protected Class<?> defaultParameterTypeOrInterface = null;
 	protected Map<String, Class<?>> mapParameterTypes = null;
+
+	public static HashMap<String, FuncNode> funcMap = new HashMap<String, FuncNode>();
 	
 	public ExprTreeBuildWalker() {
 	}
@@ -91,6 +101,21 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	public ExprTreeBuildWalker(Map<String, Class<?>> mapParameterTypes) {
 		this.mapParameterTypes = mapParameterTypes;
+	}
+	
+	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
+		String tt = type.toMethodDescriptorString();
+		System.out.println("bootstrap: "+name+":"+tt);
+		
+		FuncNode fnode = funcMap.get(name);
+		fnode.setParamTypes(type.parameterArray());
+		tt = tt.replaceAll("\\(|\\)", "_");
+		Class<?> cls = fnode.genFuncCode("class"+name+tt,true);
+		
+		MethodHandle mh = MethodHandles.lookup().findStatic(cls, name,
+		MethodType.methodType(type.returnType(),type.parameterArray()));
+
+		return new ConstantCallSite(mh);
 	}
 	
 	public void printInfo() {
@@ -231,26 +256,26 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 * Use mapParameterTypes to generate class
 	 * @param className
 	 * @param interfaces
-	 * @param wirteFile
+	 * @param writeFile
 	 * @param methodName
 	 * @param isStatic
 	 * @return
 	 */
-	public Class<?> genClass(String className, boolean wirteFile, 
+	public Class<?> genClass(String className, boolean writeFile, 
 			String methodName, boolean isStatic) {
-		return genClass(className, wirteFile, methodName,  isStatic, null);
+		return genClass(className, writeFile, methodName,  isStatic, null);
 	}
 	
 	/**
 	 * Use defaultParameterTypesOrInterface to generate class
 	 * @param className
-	 * @param wirteFile
+	 * @param writeFile
 	 * @param methodName
 	 * @param isStatic
 	 * @param aryParameterTypes
 	 * @return
 	 */
-	public Class<?> genClass(String className, boolean wirteFile, 
+	public Class<?> genClass(String className, boolean writeFile, 
 			String methodName, boolean isStatic, Class<?>[] aryParameterTypes) {
 		try {
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
@@ -343,10 +368,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			
 			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			if(!isStatic)
-				mg.visitLocalVariable("this", "L"+className+";", null, cgen.l0, cgen.l1, 0);
+				mg.visitLocalVariable("this", "L"+className+";", 
+						null, cgen.labelStart, cgen.lableEnd, 0);
 			for(VariableNode var : varMap.values()) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
-						null, cgen.l0, cgen.l1, var.idxLVT);
+						null, cgen.labelStart, cgen.lableEnd, var.idxLVT);
 			}
 			
 			mg.visitMaxs(-1, -1); //Auto generated
@@ -354,7 +380,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			cgen.endClass();
 			
 			byte[] bcode = cgen.dump();
-			if(wirteFile) {
+			if(writeFile) {
 				FileOutputStream fos = new FileOutputStream(className+".class");
 				fos.write(bcode);
 				fos.close();
@@ -787,6 +813,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	@Override public void exitFuncCall(ExprGrammarParser.FuncCallContext ctx) {
 		String methodName = ctx.IDENTIFIER(ctx.IDENTIFIER().size()-1).getText();
+		
 		StringBuilder sb = new StringBuilder();
 		//for(int i= ctx.IDENTIFIER().size()-1; i>0; i--) {
 		for(int i=0; i<ctx.IDENTIFIER().size()-1; i++) {
@@ -794,6 +821,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			sb.append(".").append(node.getText());
 		}
 		String className = sb.length()>0?sb.delete(0, 1).toString():"";
+		//Class name transform
 		if(className.equalsIgnoreCase("math"))
 			className = "java.lang.Math";
 		else if( methodName.equalsIgnoreCase("print")
@@ -804,6 +832,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		} else if(className.length() == 0){
 			className = "io.lambdacloud.BytecodeSupport";
 		}
+		
+		//Method name transform
 		if(methodName.equalsIgnoreCase("range")) {
 			ExprNode start = null;
 			ExprNode end = stack.pop();
@@ -813,16 +843,19 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			RangeNode node = new RangeNode(start, end, false);
 			stack.push(node);
 		} else {
-			FuncCallNode fnode = new FuncCallNode(className, methodName);
-			for(ExpressionContext expr : ctx.expression()) {
-				//System.out.println(expr.getText());
+			FuncNode fnode = funcMap.get(methodName);
+			boolean isDynamicCall = false;
+			if(null != fnode) isDynamicCall = true;
+			FuncCallNode fcnode = new FuncCallNode(className, methodName, isDynamicCall);
+			for(int i=0; i<ctx.expression().size(); i++) {
+				//System.out.println(ctx.expression(i).getText());
 				ExprNode arg = stack.pop();
 				if(arg instanceof AssignNode) {
 					arg.genLoadInsn(true);
 				}
-				fnode.args.add(arg);
+				fcnode.args.add(arg);
 			}
-			stack.push(fnode);
+			stack.push(fcnode);
 		}
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
@@ -931,7 +964,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		pow.setType(Type.DOUBLE_TYPE);
 		base.setType(Type.DOUBLE_TYPE);
 		base.freezeType(true);
-		FuncCallNode fnode = new FuncCallNode("java.lang.Math", "pow");
+		FuncCallNode fnode = new FuncCallNode("java.lang.Math", "pow", false);
 		//reverse the order
 		fnode.args.add(pow);
 		fnode.args.add(base);
@@ -1028,7 +1061,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			((LIfNode)forNode).bodyExpr = this.stack.pop(); //The last expression
 		else
 			throw new RuntimeException();
-		FuncCallNode fcn = new FuncCallNode("io.lambdacloud.BytecodeSupport","sum");
+		FuncCallNode fcn = new FuncCallNode("io.lambdacloud.BytecodeSupport", "sum", false);
 		fcn.args.add(listCompNode);
 		this.stack.push(fcn);
 	}
@@ -1037,23 +1070,32 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		this.stack.push(VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
 	}
 
-	HashMap<String, String> funcSource = new HashMap<String, String>();
-	HashMap<String, Class<?>> funcBytecodes = new HashMap<String, Class<?>>();
-	
-	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
-		String funcName = ctx.IDENTIFIER(0).getText();
-		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
-			System.out.println(ctx.IDENTIFIER(i).getText());
+	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) {
+		
+		//TODO when enterFuncDef, do we need scope to switch stack and varMap into function local scope?
+		FuncNode fNode = new FuncNode();
+		fNode.name = ctx.IDENTIFIER(0).getText();
+		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
+			String paramName = ctx.IDENTIFIER(i).getText();
+			VariableNode var = this.varMap.get(paramName);
+			fNode.paramVarMap.put(paramName, var);
+			//remove function parameters from varMap
+			//TODO FixMe Consider scope?  like funName.paramName
+			this.varMap.remove(paramName);
 		}
-		this.funcSource.put(funcName, ctx.getText());
-		ExprNode node = this.stack.peek();
-		while(true) {
-			if("S".equals(node.getTag())) {
+		
+		ExprNode node = null;
+		while(!this.stack.isEmpty()) {
+			node = this.stack.pop();
+			if("S".equals(node.getTag())) { //stop flag
 				break;
 			} else {
-				node = this.stack.pop();
+				fNode.body.add(node);
 			}
 		}
+		funcMap.put(fNode.name, fNode);
+		
+		System.out.println(fNode);
 	}
 
 }
