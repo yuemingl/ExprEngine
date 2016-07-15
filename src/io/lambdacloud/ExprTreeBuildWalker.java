@@ -95,21 +95,29 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public static HashMap<String, FuncNode> funcMap = new HashMap<String, FuncNode>();
 	
 	public ExprTreeBuildWalker() {
-		scope.push(new Scope());
+		scope.push(new Scope("global"));
 	}
 	
 	public ExprTreeBuildWalker(Class<?> defaultParameterTypeOrInterface) {
 		this.defaultParameterTypeOrInterface = defaultParameterTypeOrInterface;
-		scope.push(new Scope());
+		scope.push(new Scope("global"));
 	}
 	
 	public ExprTreeBuildWalker(Map<String, Class<?>> mapParameterTypes) {
 		this.mapParameterTypes = mapParameterTypes;
-		scope.push(new Scope());
+		scope.push(new Scope("global"));
 	}
 	
 	public Scope currentScope() {
 		return this.scope.peek();
+	}
+	
+	public void addScope(String scopeName) {
+		this.scope.push(new Scope(scopeName));
+	}
+	
+	public Scope popScope() {
+		return this.scope.pop();
 	}
 	
 	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
@@ -677,6 +685,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		ifnode.condition = currentScope().stack.pop();
 		currentScope().stack.push(ifnode);
 	}
+	
 	@Override public void enterStatementBlock(ExprGrammarParser.StatementBlockContext ctx) {
 		//System.out.println("enterStatementBlock:"+ctx.getText());
 		//if(stack.size() > 0)
@@ -1076,6 +1085,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void enterFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
+		this.addScope(ctx.IDENTIFIER(0).getText());
 		this.currentScope().stack.push(VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
 	}
 
@@ -1084,14 +1094,15 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//TODO when enterFuncDef, do we need scope to switch stack and varMap into function local scope?
 		FuncNode fNode = new FuncNode();
 		fNode.name = ctx.IDENTIFIER(0).getText();
-		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
-			String paramName = ctx.IDENTIFIER(i).getText();
-			VariableNode var = this.currentScope().varMap.get(paramName);
-			fNode.paramVarMap.put(paramName, var);
-			//remove function parameters from varMap
-			//TODO FixMe Consider scope?  like funName.paramName
-			this.currentScope().varMap.remove(paramName);
-		}
+//		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
+//			String paramName = ctx.IDENTIFIER(i).getText();
+//			VariableNode var = this.currentScope().varMap.get(paramName);
+//			fNode.localVarMap.put(paramName, var);
+//			//remove function parameters from varMap
+//			//TODO FixMe Consider scope?  like funName.paramName
+//			this.currentScope().varMap.remove(paramName);
+//		}
+		fNode.localVarMap.putAll(this.currentScope().varMap);
 		
 		ExprNode node = null;
 		while(!this.currentScope().stack.isEmpty()) {
@@ -1105,6 +1116,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		funcMap.put(fNode.name, fNode);
 		
 		System.out.println(fNode);
+		this.popScope();
 	}
 
 }

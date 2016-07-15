@@ -29,7 +29,13 @@ public class FuncCallNode extends ExprNode {
 	}
 
 	public String toString() {
-		return "";
+		StringBuilder sb = new StringBuilder();
+		sb.append("call ").append(this.fullClassName).append(this.methodName).append("(");
+		for (int i = args.size() - 1; i >= 0; i--) {
+			sb.append(args.get(i)).append(", ");
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 
 	public Class<?>[] getParameterClassTypes() {

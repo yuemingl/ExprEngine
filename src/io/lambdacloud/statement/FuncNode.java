@@ -22,14 +22,15 @@ import io.lambdacloud.MethodGenHelper;
 
 public class FuncNode extends ExprNode {
 	public String name;
-	public Map<String, VariableNode> paramVarMap = new TreeMap<String, VariableNode>();
+	public Map<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
 
 	public void setParamTypes(Class<?>[] cls) {
 		int i=0;
-		for(Entry<String, VariableNode> e : paramVarMap.entrySet()) {
-			e.getValue().setType(Type.getType(cls[i++]));
+		for(Entry<String, VariableNode> e : localVarMap.entrySet()) {
+			if(e.getValue().isParameter())
+				e.getValue().setType(Type.getType(cls[i++]));
 		}
 	}
 	
@@ -41,7 +42,7 @@ public class FuncNode extends ExprNode {
 	public Type[] getAndFixParameterTypes() {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
 
-		for (Entry<String, VariableNode> e : this.paramVarMap.entrySet()) {
+		for (Entry<String, VariableNode> e : this.localVarMap.entrySet()) {
 			if (e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
@@ -55,7 +56,7 @@ public class FuncNode extends ExprNode {
 		Type[] ret = new Type[pList.size()];
 		int i = 0;
 		for (VariableNode node : pList) {
-			ret[i] = paramVarMap.get(node.name).getType();
+			ret[i] = localVarMap.get(node.name).getType();
 			i++;
 		}
 		return ret;
@@ -76,7 +77,7 @@ public class FuncNode extends ExprNode {
 
 			cgen.startMethod(access, name, Type.getMethodDescriptor(retType, paramTypes));
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv, paramVarMap);
+			MethodGenHelper mg = new MethodGenHelper(mv, localVarMap);
 			mg.updateLVTIndex(true);
 			cgen.startCode();
 			
@@ -87,7 +88,7 @@ public class FuncNode extends ExprNode {
 			}
 
 			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
-			for (VariableNode var : paramVarMap.values()) {
+			for (VariableNode var : localVarMap.values()) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(), null, cgen.labelStart, cgen.lableEnd,
 						var.idxLVT);
 			}
@@ -119,7 +120,7 @@ public class FuncNode extends ExprNode {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("def ").append(name + "(");
-		for (Entry<String, VariableNode> e : paramVarMap.entrySet()) {
+		for (Entry<String, VariableNode> e : localVarMap.entrySet()) {
 			sb.append(e.getValue()).append(", ");
 		}
 		sb.append(") {\n");
