@@ -43,12 +43,12 @@ public class CodeGenerator implements Opcodes {
 		mv = cw.visitMethod(access, name, type, null, null);
 	}
 	
-	Label l0 = new Label();
-	Label l1 = new Label();
+	public Label labelStart = new Label();
+	public Label lableEnd = new Label();
 	
 	public void startCode() {
 		mv.visitCode();
-		mv.visitLabel(l0);
+		mv.visitLabel(labelStart);
 	}
 	
 	public MethodVisitor getMV() {
@@ -56,7 +56,7 @@ public class CodeGenerator implements Opcodes {
 	}
 	
 	public void endCode() {
-		mv.visitLabel(l1);
+		mv.visitLabel(lableEnd);
 		mv.visitEnd();
 	}
 	
@@ -79,9 +79,9 @@ public class CodeGenerator implements Opcodes {
 			mv.visitInsn(DADD);
 			mv.visitInsn(DRETURN);
 			
-			mv.visitLocalVariable("this", "L"+clsName+";", null, cgen.l0, cgen.l1, 0);
-			mv.visitLocalVariable("a", "D", null, cgen.l0, cgen.l1, 1);
-			mv.visitLocalVariable("b", "D", null, cgen.l0, cgen.l1, 3);
+			mv.visitLocalVariable("this", "L"+clsName+";", null, cgen.labelStart, cgen.lableEnd, 0);
+			mv.visitLocalVariable("a", "D", null, cgen.labelStart, cgen.lableEnd, 1);
+			mv.visitLocalVariable("b", "D", null, cgen.labelStart, cgen.lableEnd, 3);
 			mv.visitMaxs(4, 5);
 			
 			cgen.endCode();
