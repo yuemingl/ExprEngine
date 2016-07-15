@@ -77,7 +77,7 @@ public class ExprEngine {
 		}
 		return o;
 	}
-		
+
 	public static Method genStaticMethod(ExprTreeBuildWalker ew,
 			String className, boolean wirteFile, 
 			String methodName) {

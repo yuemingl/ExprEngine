@@ -127,30 +127,36 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		//Put the algorithm logic in the expression without considering types
-		//Pass typed parameters in and compile the algorithm with most efficient
-		//Bytecode
-		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
-				TestExprEngine.getMap(
-						"a", new double[]{1,2,3},
-						"b", new double[]{1,1,1},
-						"r", 0.0,
-						"N", 3
-						)));
-		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
-				TestExprEngine.getMap(
-						"a", new int[]{1,2,3},
-						"b", new int[]{1,1,1},
-						"r", 0,
-						"N", 3
-						)));
 		
-//		System.out.println(exec("def test (x, y) { a=x+y; a-1 }"));
+//		System.out.println(exec(
+//				"[ i+j for i in range(20) for j in range(i+1,20) if i+j == 32 ]"));
+				
+//		//Put the algorithm logic in the expression without considering types
+//		//Pass typed parameters in and compile the algorithm with most efficient
+//		//Bytecode
+//		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
+//				TestExprEngine.getMap(
+//						"a", new double[]{1,2,3},
+//						"b", new double[]{1,1,1},
+//						"r", 0.0,
+//						"N", 3
+//						)));
+//		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
+//				TestExprEngine.getMap(
+//						"a", new int[]{1,2,3},
+//						"b", new int[]{1,1,1},
+//						"r", 0,
+//						"N", 3
+//						)));
+		
+		//System.out.println(exec("def fun1(x, y) { x+y } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
+//		System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)"));
+		System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)"));
 
 		//bug		System.out.println(exec("x**2", new int[]{5}));
 		
 //bug		System.out.println(exec("sum x**2 for x in 1:3"));
-		System.out.println(exec("sum x+1 for x in 1:3"));
+//		System.out.println(exec("sum x+1 for x in 1:3"));
 		
 ////		System.out.println(exec("10+2**3"));
 //		System.out.println(exec("5**2"));
