@@ -49,10 +49,19 @@ public class VariableNode extends ExprNode {
 	private VariableNode() {
 	}
 	
+//	@Override 
+//	public Type getType() {
+//		if(null != this.lastValue && this != this.lastValue) {
+//			return this.lastValue.getType();
+//		} else {
+//			return type;
+//		}
+//	}
+	
 	public String toString() {
 		String loc = "local";
 		if(this.varLoc == 1) loc = "param";
-		return "var(" + this.name + ":" + loc + ")";
+		return "var(" + this.name + ":" + type + ":" + loc + ":" + idxLVT + ")";
 	}
 	
 	public void genCode(MethodGenHelper mg) {
