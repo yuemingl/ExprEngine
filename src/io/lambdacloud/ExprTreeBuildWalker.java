@@ -121,13 +121,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
-		String tt = type.toMethodDescriptorString();
-		System.out.println("bootstrap: "+name+":"+tt);
 		
 		FuncNode fnode = funcMap.get(name);
 		fnode.setParamTypes(type.parameterArray());
-		tt = tt.replaceAll("\\(|\\)", "_");
-		Class<?> cls = fnode.genFuncCode("class"+name+tt,true);
+		String tt = type.toMethodDescriptorString();
+		System.out.println("bootstrap: "+fnode.getFuncClassName()+"."+name+":"+tt);
+		//tt = tt.replaceAll("\\(|\\)", "_");
+		Class<?> cls = fnode.genFuncCode(true);
 		
 		MethodHandle mh = MethodHandles.lookup().findStatic(cls, name,
 		MethodType.methodType(type.returnType(),type.parameterArray()));
@@ -862,8 +862,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			currentScope().stack.push(node);
 		} else {
 			FuncNode fnode = funcMap.get(methodName);
+			System.out.println("Call "+methodName+" in scope "+this.currentScope());
 			boolean isDynamicCall = false;
-			if(null != fnode) isDynamicCall = true;
+			if(null != fnode && !fnode.name.equals(this.currentScope().toString())) {
+				className = "global";
+				isDynamicCall = true;
+			} else if(null != fnode && fnode.name.equals(this.currentScope().toString())) {
+				//recusive call the function
+				className = fnode.getFuncClassName();
+				isDynamicCall = false;
+			}
 			FuncCallNode fcnode = new FuncCallNode(className, methodName, isDynamicCall);
 			for(int i=0; i<ctx.expression().size(); i++) {
 				//System.out.println(ctx.expression(i).getText());
@@ -1085,15 +1093,25 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void enterFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
-		this.addScope(ctx.IDENTIFIER(0).getText());
-		this.currentScope().stack.push(VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
+		String funcName = ctx.IDENTIFIER(0).getText();
+		this.addScope(funcName);
+		this.currentScope().stack.push(
+				VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
+		FuncNode fnode = this.funcMap.get(funcName);
+		if(null != fnode) {
+			throw new RuntimeException("Function "+funcName+" already defined!");
+		} else {
+			funcMap.put(funcName, new FuncNode(funcName));
+			
+		}
+		
 	}
 
 	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) {
-		
 		//TODO when enterFuncDef, do we need scope to switch stack and varMap into function local scope?
-		FuncNode fNode = new FuncNode();
-		fNode.name = ctx.IDENTIFIER(0).getText();
+		
+		String funcName = ctx.IDENTIFIER(0).getText();
+		FuncNode fNode = funcMap.get(funcName);
 //		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
 //			String paramName = ctx.IDENTIFIER(i).getText();
 //			VariableNode var = this.currentScope().varMap.get(paramName);
@@ -1113,7 +1131,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				fNode.body.add(node);
 			}
 		}
-		funcMap.put(fNode.name, fNode);
+		//funcMap.put(fNode.name, fNode);
 		
 		System.out.println(fNode);
 		this.popScope();

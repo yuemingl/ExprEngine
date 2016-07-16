@@ -25,6 +25,10 @@ public class FuncNode extends ExprNode {
 	public Map<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
+	
+	public FuncNode(String name) {
+		this.name = name;
+	}
 
 	public void setParamTypes(Class<?>[] cls) {
 		int i=0;
@@ -67,10 +71,18 @@ public class FuncNode extends ExprNode {
 		return ret;
 	}
 
-	public Class<?> genFuncCode(String className, boolean writeFile) {
+	public String getFuncClassName() {
+		String ret = "FC"+name+this.hashCode();//TODO need better naming way
+		return ret;
+	}
+	
+	public Class<?> genFuncCode(boolean writeFile) {
+		//System.out.println(this.toString());
 		try {
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			CodeGenerator cgen = new CodeGenerator();
+			
+			String className = getFuncClassName();
 			cgen.startClass(className, null);
 
 			// Define method
