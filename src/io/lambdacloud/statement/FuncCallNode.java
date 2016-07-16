@@ -30,7 +30,7 @@ public class FuncCallNode extends ExprNode {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("call ").append(this.fullClassName).append(this.methodName).append("(");
+		sb.append("call ").append(this.fullClassName).append(".").append(this.methodName).append("(");
 		for (int i = args.size() - 1; i >= 0; i--) {
 			sb.append(args.get(i)).append(", ");
 		}
@@ -68,17 +68,28 @@ public class FuncCallNode extends ExprNode {
 			mg.visitInvokeDynamicInsn(this.methodName,
 					Type.getMethodDescriptor(this.getType(), this.getParameterTypes()), bootstrapHandle, new Object[0]);
 		} else {
-			Class<?> c;
-			try {
-				c = Class.forName(fullClassName);
-				Method m = c.getMethod(methodName, this.getParameterClassTypes());
+			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
+			if(fnode == null) {
+				//Find return type
+				Class<?> c;
+				try {
+					c = Class.forName(fullClassName);
+					Method m = c.getMethod(methodName, this.getParameterClassTypes());
+					for (int i = args.size() - 1; i >= 0; i--) {
+						args.get(i).genCode(mg);
+					}
+					mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
+							Type.getMethodDescriptor(m), false);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				Type retTy = fnode.getRetType();
 				for (int i = args.size() - 1; i >= 0; i--) {
 					args.get(i).genCode(mg);
 				}
 				mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
-						Type.getMethodDescriptor(m), false);
-			} catch (Exception e) {
-				e.printStackTrace();
+						Type.getMethodDescriptor(retTy, this.getParameterTypes()), false);
 			}
 		}
 	}
@@ -90,15 +101,20 @@ public class FuncCallNode extends ExprNode {
 			fnode.setParamTypes(this.getParameterClassTypes());
 			return fnode.getRetType();
 		} else {
-			Class<?> c;
-			try {
-				c = Class.forName(fullClassName);
-				Method m = c.getMethod(methodName, this.getParameterClassTypes());
-				return Type.getType(m.getReturnType());
-			} catch (Exception e) {
-				e.printStackTrace();
+			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
+			if(fnode == null) {
+				Class<?> c;
+				try {
+					c = Class.forName(fullClassName);
+					Method m = c.getMethod(methodName, this.getParameterClassTypes());
+					return Type.getType(m.getReturnType());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			} else {
+				return fnode.getRetType();
 			}
-			return null;
 		}
 	}
 
