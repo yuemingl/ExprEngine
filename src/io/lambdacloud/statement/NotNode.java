@@ -16,7 +16,6 @@ public class NotNode extends ExprNode {
 	
 	public NotNode(ExprNode expr) {
 		this.expr = expr;
-		this.type = Type.BOOLEAN_TYPE;
 	}
 	
 	public String toString() {
@@ -35,6 +34,11 @@ public class NotNode extends ExprNode {
 		mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 		mg.visitInsn(ICONST_1);
 		mg.visitLabel(l2);
+	}
+	
+	@Override
+	public Type getType() {
+		return Type.BOOLEAN_TYPE;
 	}
 	
 	public boolean test(boolean a, boolean b) {

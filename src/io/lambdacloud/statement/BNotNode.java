@@ -13,7 +13,6 @@ public class BNotNode extends ExprNode {
 	public BNotNode(ExprNode expr) {
 		this.expr = expr;
 		this.expr.genLoadInsn(true);
-		this.type = expr.getType();
 	}
 	
 	public String toString() {

@@ -11,7 +11,6 @@ public class NegateNode extends ExprNode {
 	public NegateNode(ExprNode expr) {
 		this.expr = expr;
 		expr.genLoadInsn(true);
-		this.type = getType();
 	}
 	
 	public String toString() {

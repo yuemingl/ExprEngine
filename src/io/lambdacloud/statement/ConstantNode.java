@@ -5,7 +5,9 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 
 public class ConstantNode extends ExprNode {
+	Type type;
 	String value;
+	
 	public ConstantNode(String value, Type type) {
 		this.value = value;
 		this.type = type;
@@ -28,6 +30,16 @@ public class ConstantNode extends ExprNode {
 		return this.value;
 	}
 	
+	@Override
+	public Type getType() {
+		return this.type;
+	}
+
+	@Override
+	public void setType(Type type) {
+		this.type = type;
+	}
+
 	public void genCode(MethodGenHelper mg) {
 		if(type.getSort() == Type.DOUBLE) {
 			mg.visitLdcInsn(getDouble());
@@ -40,3 +52,6 @@ public class ConstantNode extends ExprNode {
 		}
 	}
 }
+
+//dvr5grtry7r7ytttgtyrtyiybvvthbrrggyjhytyyfthgguytbyfderfbtjhibybfghguyhhtyhghbygjyjh ghghghftfgrttutyt6y6utu56j8ytu7k76lynb8hujiojkjy7ik66ujyttytytygjvybuhjbughhuuyyhiyu7oyytby4e2fthtjtuhngyjtyyhjhmghjnyguyhnyhjohkuykhkkhnujkjmiyhhjky,ujjgrtjjhghhmtg67u5766l6hyr6tr9ygyhyhguhtgfrdrwd5tgayha7wygerduhgjynghyjjyjtyjy978uyt5r5tujr57t7y6rr6tu
+

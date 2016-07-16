@@ -12,7 +12,6 @@ public class RemAsignNode extends ExprNode {
 	public RemAsignNode(VariableNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = getType();
 	}
 	
 	public String toString() {

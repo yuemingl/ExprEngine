@@ -146,4 +146,10 @@ public class FuncNode extends ExprNode {
 		sb.append("}");
 		return sb.toString();
 	}
+
+	@Override
+	public Type getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

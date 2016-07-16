@@ -14,7 +14,6 @@ public class MultNode extends ExprNode {
 		this.left.genLoadInsn(true);
 		this.right = right;
 		this.right.genLoadInsn(true);
-		this.type = getType();
 	}
 
 	public String toString() {

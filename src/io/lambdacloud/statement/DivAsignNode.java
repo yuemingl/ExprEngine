@@ -12,7 +12,6 @@ public class DivAsignNode extends ExprNode {
 	public DivAsignNode(VariableNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = getType();
 	}
 	
 	public String toString() {

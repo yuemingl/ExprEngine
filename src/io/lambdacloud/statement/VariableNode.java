@@ -8,6 +8,7 @@ import io.lambdacloud.MethodGenHelper;
 
 public class VariableNode extends ExprNode {
 	public String name;
+	public Type type;
 	public int idxLVT; //index in local variable table
 	private int varLoc; //1 parameter; 2 local variable; 3 global?
 	
@@ -68,4 +69,13 @@ public class VariableNode extends ExprNode {
 		mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), this.idxLVT);
 	}
 
+	@Override
+	public Type getType() {
+		return this.type;
+	}
+	
+	@Override
+	public void setType(Type type) {
+		this.type = type;
+	}
 }

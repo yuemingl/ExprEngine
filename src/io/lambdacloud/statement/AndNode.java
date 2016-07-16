@@ -18,7 +18,6 @@ public class AndNode extends ExprNode {
 	public AndNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = Type.BOOLEAN_TYPE;
 	}
 	
 	public String toString() {
@@ -39,6 +38,11 @@ public class AndNode extends ExprNode {
 		mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 		mg.visitInsn(ICONST_0);
 		mg.visitLabel(l2);
+	}
+	
+	@Override
+	public Type getType() {
+		return Type.BOOLEAN_TYPE;
 	}
 	
 	public boolean test(boolean a, boolean b) {

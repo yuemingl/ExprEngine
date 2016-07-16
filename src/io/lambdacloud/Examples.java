@@ -151,7 +151,8 @@ public class Examples {
 		
 		//System.out.println(exec("def fun1(x, y) { x+y } def fun2(x,y) {x-y} fun2(1,1)"));
 
-		System.out.println(exec("def fun1(x, y) { a=x+y; b=x-y; if(a<10) {fun1(a,b)} else{a} } fun1(1,1)"));
+		System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
+		//System.out.println(exec("def fun1(x, y) { a=x+y; b=x-y; if(a<10) {fun1(a,b)} else{a} } fun1(1,1)"));
 		
 		//System.out.println(exec("def fun1(x, y) { x+y } fun1(1,1)+fun1(3,4)"));
 		//System.out.println(exec("a=x+y; a-1",new int[]{1,2}));

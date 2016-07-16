@@ -12,7 +12,6 @@ public class BXorNode extends ExprNode {
 	public BXorNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
-		this.type = getType();
 	}
 	
 	public String toString() {

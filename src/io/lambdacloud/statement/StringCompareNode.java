@@ -15,7 +15,6 @@ public class StringCompareNode extends ExprNode {
 		this.left = left;
 		this.right = right;
 		this.opcode = opcode;
-		this.type = Type.BOOLEAN_TYPE;
 	}
 	
 	@Override
@@ -41,6 +40,11 @@ public class StringCompareNode extends ExprNode {
 			throw new RuntimeException("");
 		}
 		
+	}
+	
+	@Override
+	public Type getType() {
+		return Type.BOOLEAN_TYPE;
 	}
 
 	public boolean test(String a, String b) {

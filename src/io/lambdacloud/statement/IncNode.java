@@ -10,7 +10,6 @@ public class IncNode extends ExprNode {
 	
 	public IncNode(VariableNode var) {
 		this.var = var;
-		this.type = var.getType();
 	}
 	
 	public String toString() {

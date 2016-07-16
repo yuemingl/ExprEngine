@@ -22,7 +22,6 @@ public class GENode extends ExprNode {
 		this.left.genLoadInsn(true);
 		this.right = right;
 		this.right.genLoadInsn(true);
-		this.type = Type.BOOLEAN_TYPE;
 	}
 	
 	public String toString() {
@@ -65,6 +64,11 @@ public class GENode extends ExprNode {
 			throw new RuntimeException();
 	}
 	
+	@Override
+	public Type getType() {
+		return Type.BOOLEAN_TYPE;
+	}
+
 	public boolean test(double a, double b) {
 		boolean c =  a >= b;
 		return c;

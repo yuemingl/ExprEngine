@@ -16,7 +16,6 @@ public class AssignNode extends ExprNode {
 		
 		this.right = right;
 		this.right.genLoadInsn(true);
-		this.type = right.getType();
 	}
 	
 	public String toString() {

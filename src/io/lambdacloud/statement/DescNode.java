@@ -10,7 +10,6 @@ public class DescNode extends ExprNode {
 	
 	public DescNode(VariableNode var) {
 		this.var = var;
-		this.type = var.getType();
 	}
 	
 	public String toString() {
