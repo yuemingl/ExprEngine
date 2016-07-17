@@ -99,4 +99,16 @@ mv.visitInsn(IRETURN);
 		else
 			return "if("+this.condition+") {"+this.ifBlockExprs+"} else {"+this.elseBlockExprs+"}";
 	}	
+	
+	public void fixType() {
+		this.condition.fixType();
+		for(ExprNode e : this.ifBlockExprs) {
+			e.fixType();
+		}
+		if(null != this.elseBlockExprs) {
+			for(ExprNode e : this.elseBlockExprs) {
+				e.fixType();
+			}
+		}
+	}
 }
