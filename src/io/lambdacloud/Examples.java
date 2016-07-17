@@ -148,10 +148,14 @@ public class Examples {
 //						"r", 0,
 //						"N", 3
 //						)));
-		
+
+		//System.out.println(exec("if (x>0) { return 1 } x ", new int[]{2}));
+		System.out.println(exec("def test(n) {if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
+		//System.out.println(exec("def test(n) {a=0; if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
+
 		//System.out.println(exec("def fun1(x, y) { x+y } def fun2(x,y) {x-y} fun2(1,1)"));
 
-		System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
+		//System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
 		//System.out.println(exec("def fun1(x, y) { a=x+y; b=x-y; if(a<10) {fun1(a,b)} else{a} } fun1(1,1)"));
 		
 		//System.out.println(exec("def fun1(x, y) { x+y } fun1(1,1)+fun1(3,4)"));

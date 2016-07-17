@@ -68,6 +68,7 @@ import io.lambdacloud.statement.OrNode;
 import io.lambdacloud.statement.RangeNode;
 import io.lambdacloud.statement.RemAsignNode;
 import io.lambdacloud.statement.RemNode;
+import io.lambdacloud.statement.ReturnNode;
 import io.lambdacloud.statement.SHLNode;
 import io.lambdacloud.statement.SHRNode;
 import io.lambdacloud.statement.StringCompareNode;
@@ -1135,6 +1136,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		
 		System.out.println(fNode);
 		this.popScope();
+	}
+	
+	@Override public void exitExprReturn(ExprGrammarParser.ExprReturnContext ctx) {
+		ReturnNode node = null;
+		if(null != ctx.expression()) {
+			node = new ReturnNode(this.currentScope().stack.pop());
+		} else {
+			node = new ReturnNode();
+		}
+		this.currentScope().stack.push(node);
 	}
 
 }
