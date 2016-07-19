@@ -78,6 +78,8 @@ WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
 
 prog : statements EOF ;
 
+expr_end : (SEMI | '\n')+ ;
+
 statements
  : statement* (expression expr_end?)?
  ;
@@ -92,7 +94,7 @@ statement
  | 'return' (expression expr_end?)?                           # ExprReturn
  ;
 
-block : LCB statements RCB expr_end*       # StatementBlock;
+block : LCB expr_end* statements RCB expr_end*       # StatementBlock;
 
 expression
  : arithmetic_expr       # ExprArithmetic
@@ -180,8 +182,6 @@ variable_entity
 array_index : LBRK arithmetic_expr (COLON arithmetic_expr)? RBRK ;
 
 logical_entity  : (TRUE | FALSE) # EntityLogicalConst ;
-
-expr_end : (SEMI | '\n')+ ;
 
 string_entity
  : StringLiteral     # StringConst
