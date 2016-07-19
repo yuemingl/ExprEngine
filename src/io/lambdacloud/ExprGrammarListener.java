@@ -20,6 +20,16 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 */
 	void exitProg(ExprGrammarParser.ProgContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ExprGrammarParser#expr_end}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpr_end(ExprGrammarParser.Expr_endContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprGrammarParser#expr_end}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpr_end(ExprGrammarParser.Expr_endContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ExprGrammarParser#statements}.
 	 * @param ctx the parse tree
 	 */
@@ -741,16 +751,6 @@ public interface ExprGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ExprGrammarParser#expr_end}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpr_end(ExprGrammarParser.Expr_endContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ExprGrammarParser#expr_end}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpr_end(ExprGrammarParser.Expr_endContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code StringConst}
 	 * labeled alternative in {@link ExprGrammarParser#string_entity}.

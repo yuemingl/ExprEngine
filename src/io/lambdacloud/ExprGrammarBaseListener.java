@@ -30,6 +30,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpr_end(ExprGrammarParser.Expr_endContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpr_end(ExprGrammarParser.Expr_endContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStatements(ExprGrammarParser.StatementsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -757,18 +769,6 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEntityLogicalConst(ExprGrammarParser.EntityLogicalConstContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpr_end(ExprGrammarParser.Expr_endContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpr_end(ExprGrammarParser.Expr_endContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

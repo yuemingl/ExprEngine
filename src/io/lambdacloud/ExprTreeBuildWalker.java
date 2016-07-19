@@ -81,6 +81,7 @@ import io.lambdacloud.statement.VariableNode;
 import io.lambdacloud.statement.WhileNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
+	public static boolean DEBUG = false;
 //	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 //	
 //	//Variable map which is generated after parsing
@@ -126,7 +127,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		FuncNode fnode = funcMap.get(name);
 		fnode.setParamTypes(type.parameterArray());
 		String tt = type.toMethodDescriptorString();
-		System.out.println("bootstrap: "+fnode.getFuncClassName()+"."+name+":"+tt);
+		if(DEBUG)
+			System.out.println("bootstrap: "+fnode.getFuncClassName()+"."+name+":"+tt);
 		//tt = tt.replaceAll("\\(|\\)", "_");
 		Class<?> cls = fnode.genFuncCode(true);
 		
@@ -863,7 +865,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			currentScope().stack.push(node);
 		} else {
 			FuncNode fnode = funcMap.get(methodName);
-			System.out.println("Call "+methodName+" in scope "+this.currentScope());
+			if(DEBUG)
+				System.out.println("Call "+methodName+" in scope "+this.currentScope());
 			boolean isDynamicCall = false;
 			if(null != fnode && !fnode.name.equals(this.currentScope().toString())) {
 				className = "global";
@@ -1133,8 +1136,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			}
 		}
 		//funcMap.put(fNode.name, fNode);
-		
-		System.out.println(fNode);
+		if(DEBUG)
+			System.out.println(fNode);
 		this.popScope();
 	}
 	

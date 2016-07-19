@@ -39,7 +39,7 @@ public class Examples {
 		System.out.println(exec("for(i=0;i<=n;i++) {x+=i} x", new int[]{100,0}));
 		
 		//Array
-		System.out.println(exec("a=[10,20,30,40]; sum=0; for(i=0;i<4;i++) { sum+=a[i] } sum"));
+		System.out.println(exec("a=[10,20,30,40]; sum1=0; for(i=0;i<4;i++) { sum1+=a[i] } sum1"));
 		System.out.println(Arrays.toString(
 				(int[])exec("[x, y, 3, 4]", new Object[]{ 1,2 })));
 		System.out.println(Arrays.toString(
@@ -149,8 +149,13 @@ public class Examples {
 //						"N", 3
 //						)));
 
+//		System.out.println(exec("def fun1(x, y) { x+y }"));
+//		System.out.println(exec("fun1(1,1)+fun1(3,4)"));
+		
+		
+		
 		//System.out.println(exec("if (x>0) { return 1 } x ", new int[]{2}));
-		System.out.println(exec("def test(n) {if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
+		//System.out.println(exec("def test(n) {if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
 		//System.out.println(exec("def test(n) {a=0; if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
 
 		//System.out.println(exec("def fun1(x, y) { x+y } def fun2(x,y) {x-y} fun2(1,1)"));
@@ -212,10 +217,10 @@ public class Examples {
 //		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]=20; a")));
 //		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]=20; a")));
 
-//		ex1();
-//		ex2();
-//		ex3();
-//		ex4();
+		ex1();
+		ex2();
+		ex3();
+		ex4();
 	}
 
 }

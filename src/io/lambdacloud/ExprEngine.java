@@ -1,4 +1,8 @@
 package io.lambdacloud;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -28,7 +32,7 @@ public class ExprEngine {
 		walker.walk(ew, tree);
 		return ew;
 	}
-	
+
 	public static ExprTreeBuildWalker parse(String str, Class<?> defaultParameterTypeOrInterface) {
 		ANTLRInputStream input = new ANTLRInputStream(str);
 		ExprGrammarLexer lexer = new ExprGrammarLexer(input);
@@ -52,9 +56,10 @@ public class ExprEngine {
 		walker.walk(ew, tree);
 		return ew;
 	}
-	
+
 	/**
 	 * Create an instance in memory (without writing bytecode to a class file)
+	 * 
 	 * @param ew
 	 * @param className
 	 * @param _interface
@@ -63,9 +68,8 @@ public class ExprEngine {
 	public static Object newInstance(ExprTreeBuildWalker ew, String className) {
 		return newInstance(ew, className, false);
 	}
-	
-	public static Object newInstance(ExprTreeBuildWalker ew, 
-			String className, boolean wirteFile) {
+
+	public static Object newInstance(ExprTreeBuildWalker ew, String className, boolean wirteFile) {
 		Class<?> c = ew.genClass(className, wirteFile, null, false);
 		Object o = null;
 		try {
@@ -78,10 +82,9 @@ public class ExprEngine {
 		return o;
 	}
 
-	public static Method genStaticMethod(ExprTreeBuildWalker ew,
-			String className, boolean wirteFile, 
+	public static Method genStaticMethod(ExprTreeBuildWalker ew, String className, boolean wirteFile,
 			String methodName) {
-		
+
 		Class<?> c = ew.genClass(className, wirteFile, methodName, true);
 		Method m1 = null;
 		try {
@@ -91,11 +94,10 @@ public class ExprEngine {
 		}
 		return m1;
 	}
-	
-	public static Method genStaticMethod(ExprTreeBuildWalker ew,
-			String className, boolean wirteFile, 
-			String methodName, Class<?>[] aryParameterTypes) {
-		
+
+	public static Method genStaticMethod(ExprTreeBuildWalker ew, String className, boolean wirteFile, String methodName,
+			Class<?>[] aryParameterTypes) {
+
 		Class<?> c = ew.genClass(className, wirteFile, methodName, true, aryParameterTypes);
 		Method m1 = null;
 		try {
@@ -105,9 +107,9 @@ public class ExprEngine {
 		}
 		return m1;
 	}
-	
-	public static MethodHandle genMethodHandle(ExprTreeBuildWalker ew, 
-			String className, boolean wirteFile, String methodName, Class<?> retType, Class<?> ...parameterTypes) {
+
+	public static MethodHandle genMethodHandle(ExprTreeBuildWalker ew, String className, boolean wirteFile,
+			String methodName, Class<?> retType, Class<?>... parameterTypes) {
 		Class<?> c = ew.genClass(className, wirteFile, methodName, true, parameterTypes);
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
 		MethodHandle mh = null;
@@ -120,9 +122,10 @@ public class ExprEngine {
 		}
 		return mh;
 	}
-	
+
 	/**
 	 * Parse without parameters
+	 * 
 	 * @param str
 	 * @return
 	 */
@@ -136,9 +139,10 @@ public class ExprEngine {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Parse with all int type parameters
+	 * 
 	 * @param str
 	 * @param args
 	 * @return
@@ -148,7 +152,7 @@ public class ExprEngine {
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			Object[] params = new Object[args.length];
-			for(int i=0; i<args.length; i++)
+			for (int i = 0; i < args.length; i++)
 				params[i] = args[i];
 			return m1.invoke(null, params);
 		} catch (Exception e) {
@@ -156,9 +160,10 @@ public class ExprEngine {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Parse with all long type parameters
+	 * 
 	 * @param str
 	 * @param args
 	 * @return
@@ -168,7 +173,7 @@ public class ExprEngine {
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			Object[] params = new Object[args.length];
-			for(int i=0; i<args.length; i++)
+			for (int i = 0; i < args.length; i++)
 				params[i] = args[i];
 			return m1.invoke(null, params);
 		} catch (Exception e) {
@@ -176,9 +181,10 @@ public class ExprEngine {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Parse with all double type parameters
+	 * 
 	 * @param str
 	 * @param args
 	 * @return
@@ -188,7 +194,7 @@ public class ExprEngine {
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			Object[] params = new Object[args.length];
-			for(int i=0; i<args.length; i++)
+			for (int i = 0; i < args.length; i++)
 				params[i] = args[i];
 			return m1.invoke(null, params);
 		} catch (Exception e) {
@@ -196,9 +202,10 @@ public class ExprEngine {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Parse with all String type parameters
+	 * 
 	 * @param str
 	 * @param args
 	 * @return
@@ -208,7 +215,7 @@ public class ExprEngine {
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
 			Object[] params = new Object[args.length];
-			for(int i=0; i<args.length; i++)
+			for (int i = 0; i < args.length; i++)
 				params[i] = args[i];
 			return m1.invoke(null, params);
 		} catch (Exception e) {
@@ -216,23 +223,24 @@ public class ExprEngine {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Parse without type info
+	 * 
 	 * @param str
 	 * @param args
 	 * @return
 	 */
 	public static Object exec(String str, Object[] args) {
 		Class<?>[] aryParamTypes = new Class<?>[args.length];
-		for(int i=0; i<args.length; i++) {
+		for (int i = 0; i < args.length; i++) {
 			aryParamTypes[i] = Tools.getPrimitiveClass(args[i].getClass());
 		}
 		ExprTreeBuildWalker ew = parse(str);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply", aryParamTypes);
 		try {
 			Object[] params = new Object[args.length];
-			for(int i=0; i<args.length; i++)
+			for (int i = 0; i < args.length; i++)
 				params[i] = args[i];
 			return m1.invoke(null, params);
 		} catch (Exception e) {
@@ -243,13 +251,14 @@ public class ExprEngine {
 
 	/**
 	 * Parse with type info by passing a name->object map
+	 * 
 	 * @param str
 	 * @param args
 	 * @return
 	 */
 	public static Object exec(String str, Map<String, Object> args) {
 		Map<String, Class<?>> argTypes = new HashMap<String, Class<?>>();
-		for(Entry<String, Object> e : args.entrySet()) {
+		for (Entry<String, Object> e : args.entrySet()) {
 			argTypes.put(e.getKey(), Tools.getPrimitiveClass(e.getValue().getClass()));
 		}
 		ExprTreeBuildWalker ew = parse(str, argTypes);
@@ -259,7 +268,7 @@ public class ExprEngine {
 			argNames.addAll(args.keySet());
 			Collections.sort(argNames);
 			Object[] params = new Object[argNames.size()];
-			for(int i=0; i<params.length; i++)
+			for (int i = 0; i < params.length; i++)
 				params[i] = args.get(argNames.get(i));
 			return m1.invoke(null, params);
 		} catch (Exception e) {
@@ -267,5 +276,31 @@ public class ExprEngine {
 		}
 		return null;
 	}
-	
+
+	public static void main(String[] args) {
+		BufferedReader br = null;
+		if (args.length != 1) {
+			System.out.println("ExprEngine 1.0");
+			System.out.println("Usage: java -jar ExprEngine.jar <filename>");
+			return;
+		}
+		try {
+			StringBuilder sb = new StringBuilder();
+			br = new BufferedReader(new FileReader(args[0]));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				sb.append(line).append("\n");
+			}
+			exec(sb.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
 }
