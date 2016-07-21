@@ -1,0 +1,12 @@
+def plus(x, y) {
+  x + y
+}
+
+sum1 = 0
+sum2 = 0.0
+for(i=0;i<999999;i++) {
+  sum1 += plus(1,i)
+  sum2 += plus(1.5,2.5)
+}
+println(sum1)
+println(sum2)

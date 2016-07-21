@@ -1,0 +1,5 @@
+a=1:10
+for(i=0;i<10;i++) { 
+	println(a[i]) 
+}
+println(sum x*x for x in 1:3)

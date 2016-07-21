@@ -1,7 +1,5 @@
 package io.lambdacloud;
 
-import static io.lambdacloud.ExprEngine.parse;
-
 import java.io.FileOutputStream;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
@@ -18,17 +16,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.ExprGrammarParser.Array_indexContext;
-import io.lambdacloud.ExprGrammarParser.ExpressionContext;
 import io.lambdacloud.ExprGrammarParser.List_comp_for_ifContext;
 import io.lambdacloud.statement.AddAsignNode;
 import io.lambdacloud.statement.AddNode;
@@ -872,7 +866,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				className = "global";
 				isDynamicCall = true;
 			} else if(null != fnode && fnode.name.equals(this.currentScope().toString())) {
-				//recusive call the function
+				//This is the case that the recursively call of the function
+				
 				className = fnode.getFuncClassName();
 				isDynamicCall = false;
 			}
@@ -1101,14 +1096,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		this.addScope(funcName);
 		this.currentScope().stack.push(
 				VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
-		FuncNode fnode = this.funcMap.get(funcName);
+		FuncNode fnode = funcMap.get(funcName);
 		if(null != fnode) {
 			throw new RuntimeException("Function "+funcName+" already defined!");
 		} else {
 			funcMap.put(funcName, new FuncNode(funcName));
-			
 		}
-		
 	}
 
 	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) {

@@ -1,0 +1,10 @@
+l = [ x+100 for x in 0:3 ]
+for(i=0; i<len(l); i++) {
+	println(l[i])
+}
+
+l = [ x+y for x in -5:5 for y in 100:101 if x+y <= 100 ]
+for(i=0; i<len(l); i++) {
+	println(l[i])
+}
+
