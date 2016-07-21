@@ -9,9 +9,7 @@ import java.util.LinkedList;
 
 import org.objectweb.asm.Opcodes;
 
-public class MulAsignNode extends ExprNode {
-	VariableNode left;
-	ExprNode right;
+public class MulAsignNode extends BinaryOp {
 	public MulAsignNode(VariableNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
@@ -22,25 +20,17 @@ public class MulAsignNode extends ExprNode {
 	}
 	
 	public void genCode(MethodGenHelper mg) {
+		VariableNode var = (VariableNode) left;
 		Type myType = this.getType();
 		left.genCode(mg); //load
 		right.genCode(mg);
 		mg.visitInsn(myType.getOpcode(Opcodes.IMUL));
-		mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), left.idxLVT);
+		mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
 		if(genLoadInsn) {
-			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), left.idxLVT);
+			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
 	}
 
-	@Override
-	public Type getType(Deque<Object> stack) {
-		//circle check
-		if(stack.contains(this)) return null;
-		stack.push(this);
-		
-		return Tools.typeConversion(left.getType(stack), right.getType(stack));
-	}
-	
 	public int test(int x, int y) {
 		x *= y*y;
 		return x;

@@ -1,17 +1,12 @@
 package io.lambdacloud.statement;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-import java.util.Deque;
-import java.util.LinkedList;
-
-import org.objectweb.asm.Opcodes;
-
-public class AddNode extends ExprNode {
-	public ExprNode left;
-	public ExprNode right;
+public class AddNode extends BinaryOp {
+	
 	public AddNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.left.genLoadInsn(true);
@@ -34,16 +29,5 @@ public class AddNode extends ExprNode {
 		} else {
 			mg.visitInsn(myType.getOpcode(Opcodes.IADD));
 		}
-	}
-
-	@Override
-	public Type getType(Deque<Object> stack) {
-		//circle check
-		if(stack.contains(this)) return null;
-		stack.push(this);
-		Type lType = left.getType(stack);
-		Type rType = right.getType(stack);
-		stack.pop();
-		return Tools.typeConversion(lType, rType);
 	}
 }
