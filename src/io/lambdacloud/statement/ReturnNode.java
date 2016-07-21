@@ -1,5 +1,8 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
@@ -27,8 +30,11 @@ public class ReturnNode extends ExprNode {
 	}
 
 	@Override
-	public Type getType() {
-		return retExpr.getType();
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return retExpr.getType(stack);
 	}
-
 }

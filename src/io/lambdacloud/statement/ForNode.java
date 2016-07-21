@@ -1,6 +1,8 @@
 package io.lambdacloud.statement;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Label;
@@ -81,14 +83,25 @@ mv.visitLineNumber(36, l5);
 mv.visitVarInsn(ILOAD, 0);
 mv.visitInsn(IRETURN);
 	 */
-	@Override
-	public Type getType() {
-		return block.get(0).getType();
-	}
 	
 	@Override
 	public String toString() {
 		return "for("+this.init+";"+this.cond+";"+this.inc+") {"+this.block+"}";
+	}
+
+	@Override
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+
+		for(int i=0; i<this.block.size(); i++) {
+			ExprNode node = this.block.get(i);
+			Type retType = node.getType(stack);
+			if(null != retType)
+				return retType;
+		}
+		throw new RuntimeException("Cannot infer return type!");
 	}
 }
 

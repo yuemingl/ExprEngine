@@ -1,5 +1,8 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -26,10 +29,14 @@ public class SHLNode extends ExprNode {
 		right.genCode(mg);
 		mg.visitInsn(getType().getOpcode(Opcodes.ISHL));
 	}
-	
+
 	@Override
-	public Type getType() {
-		return Tools.typeConversion(left.getType(), right.getType());
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return Tools.typeConversion(left.getType(stack), right.getType(stack));
 	}
 	
 	public int test(int a, int b) {

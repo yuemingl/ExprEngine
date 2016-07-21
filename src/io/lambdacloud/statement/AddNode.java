@@ -4,6 +4,9 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 
 public class AddNode extends ExprNode {
@@ -14,7 +17,6 @@ public class AddNode extends ExprNode {
 		this.left.genLoadInsn(true);
 		this.right = right;
 		this.right.genLoadInsn(true);
-		//this.type = getType();
 	}
 	
 	public String toString() {
@@ -22,19 +24,26 @@ public class AddNode extends ExprNode {
 	}
 	
 	public void genCode(MethodGenHelper mg) {
+		Type myType = this.getType();
 		left.genCode(mg);
-		Tools.insertConversionInsn(mg, left.getType(), getType());
+		Tools.insertConversionInsn(mg, left.getType(), myType);
 		right.genCode(mg);
-		Tools.insertConversionInsn(mg, right.getType(), getType());
-		if(this.getType().getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
+		Tools.insertConversionInsn(mg, right.getType(), myType);
+		if(myType.getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
 		} else {
-			mg.visitInsn(getType().getOpcode(Opcodes.IADD));
+			mg.visitInsn(myType.getOpcode(Opcodes.IADD));
 		}
 	}
-	
+
 	@Override
-	public Type getType() {
-		return Tools.typeConversion(left.getType(), right.getType());
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		Type lType = left.getType(stack);
+		Type rType = right.getType(stack);
+		stack.pop();
+		return Tools.typeConversion(lType, rType);
 	}
 }

@@ -12,6 +12,8 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
@@ -67,12 +69,27 @@ public class ArrayAccessNode extends ExprNode {
 		return getType(this.indices.size());
 	}
 	
+	@Override
+	public Type getType(Deque<Object> stack) {
+		return getType(stack, this.indices.size());
+	}
+	
+	public Type getType(int dim) {
+		Deque<Object> stack = new LinkedList<Object>();
+		stack.push(this);
+		return getType(stack, dim);
+	}
+	
 	/**
 	 * 1,2,3...
 	 * @param dim
 	 * @return
 	 */
-	public Type getType(int dim) {
+	public Type getType(Deque<Object> stack, int dim) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
 		Type ret = var.getType();
 		ExprNode valNode = var.lastValue;
 		for(int i=0; i<dim; i++) {
@@ -83,7 +100,7 @@ public class ArrayAccessNode extends ExprNode {
 				if(valNode != null && valNode instanceof ListComprehensionNode) {
 					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
 					valNode = lstNode.getElementNode();
-					ret = valNode.getType();
+					ret = valNode.getType(stack);
 					if(ret.getSort() != Type.ARRAY)
 						return Type.getType(Object.class); //don't return primitive type
 				} else if(ret.getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
@@ -166,12 +183,12 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 				if(valNode != null && valNode instanceof ListComprehensionNode) {
 					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
 					valNode = lstNode.getElementNode();
-					aryType = valNode.getType();
+					aryType = valNode.getType(null);
 					if(aryType.getSort() == Type.ARRAY) {
 						//get primitive type instead of Object returned from getType(dim)
 						eleType = Tools.getElementType(aryType); 
 					} else if(valNode instanceof ListComprehensionNode) {
-						eleType = ((ListComprehensionNode)valNode).getElementNode().getType();
+						eleType = ((ListComprehensionNode)valNode).getElementNode().getType(null);
 					} else {
 						eleType = null;
 					}
@@ -186,13 +203,13 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 				
 				isRange = false;
 			} else {
-				if(valNode != null && valNode.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(valNode != null && valNode.getType(null).getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					idxS.genCode(mg);
 					idxE.genCode(mg);
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
-				} else if(valNode == null || valNode.getType().getSort() == Type.ARRAY) {
+				} else if(valNode == null || valNode.getType(null).getSort() == Type.ARRAY) {
 					VariableNode dstVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
 					
 					//_len = idxE - idxS + 1
@@ -202,11 +219,12 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 					mg.visitInsn(IADD);
 					
 					//dstVar = new ElementType[_len]
-					if(Tools.getElementType(dstVar.getType()).getSort() == Type.OBJECT ||
-							Tools.getElementType(dstVar.getType()).getSort() == Type.ARRAY) {
-						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(dstVar.getType()).getDescriptor());
+					Type dstType = dstVar.getType();
+					if(Tools.getElementType(dstType).getSort() == Type.OBJECT ||
+							Tools.getElementType(dstType).getSort() == Type.ARRAY) {
+						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(dstType).getDescriptor());
 					} else {
-						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(dstVar.getType(), true));
+						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(dstType, true));
 					}
 					mg.visitIntInsn(ASTORE, dstVar.idxLVT);
 					

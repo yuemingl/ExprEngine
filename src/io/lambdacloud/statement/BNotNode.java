@@ -3,6 +3,9 @@ package io.lambdacloud.statement;
 import static org.objectweb.asm.Opcodes.ICONST_M1;
 import static org.objectweb.asm.Opcodes.IXOR;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -21,17 +24,22 @@ public class BNotNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		Type myType = this.getType();
 		expr.genCode(mg);
-		if(getType().getSort() == Type.LONG)
+		if(myType.getSort() == Type.LONG)
 			mg.visitLdcInsn(new Long(-1L));
 		else
 			mg.visitInsn(ICONST_M1);
-		mg.visitInsn(getType().getOpcode(IXOR));
+		mg.visitInsn(myType.getOpcode(IXOR));
 	}
-	
+
 	@Override
-	public Type getType() {
-		return this.expr.getType();
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return this.expr.getType(stack);
 	}
 	
 	public int test(int a) {

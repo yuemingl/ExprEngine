@@ -1,5 +1,8 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -18,7 +21,8 @@ public class DescNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		if(getType().getSort() == Type.LONG) {
+		Type myType = this.getType();
+		if(myType.getSort() == Type.LONG) {
 			var.genCode(mg);
 			mg.visitInsn(Opcodes.DUP2);
 			mg.visitInsn(Opcodes.LCONST_1);
@@ -27,13 +31,17 @@ public class DescNode extends ExprNode {
 		} else
 			mg.visitIincInsn(var.idxLVT, -1);
 		if(genLoadInsn) {
-			mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), var.idxLVT);
+			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
 	}
-	
+
 	@Override
-	public Type getType() {
-		return this.var.getType();
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return this.var.getType(stack);
 	}
 	
 	public int test(int a) {

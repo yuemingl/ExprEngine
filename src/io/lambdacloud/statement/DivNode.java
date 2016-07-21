@@ -4,6 +4,9 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 
 public class DivNode extends ExprNode {
@@ -21,15 +24,20 @@ public class DivNode extends ExprNode {
 	}
 	
 	public void genCode(MethodGenHelper mg) {
+		Type myType = this.getType();
 		left.genCode(mg);
-		Tools.insertConversionInsn(mg, left.getType(), getType());
+		Tools.insertConversionInsn(mg, left.getType(), myType);
 		right.genCode(mg);
-		Tools.insertConversionInsn(mg, right.getType(), getType());
-		mg.visitInsn(getType().getOpcode(Opcodes.IDIV));
+		Tools.insertConversionInsn(mg, right.getType(), myType);
+		mg.visitInsn(myType.getOpcode(Opcodes.IDIV));
 	}
-	
+
 	@Override
-	public Type getType() {
-		return Tools.typeConversion(left.getType(), right.getType());
-	}	
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return Tools.typeConversion(left.getType(stack), right.getType(stack));
+	}
 }

@@ -1,5 +1,7 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -19,9 +21,13 @@ public class ConstantNode extends ExprNode {
 	public Integer getInt() {
 		return Integer.parseInt(this.value);
 	}
+	public Long getLong() {
+		return Long.parseLong(this.value);
+	}
 	public Boolean getBoolean() {
 		return "true".equalsIgnoreCase(this.value);
 	}
+	
 	public String getString() {
 		return this.value;
 	}
@@ -36,6 +42,11 @@ public class ConstantNode extends ExprNode {
 	}
 
 	@Override
+	public Type getType(Deque<Object> stack) {
+		return this.type;
+	}
+
+	@Override
 	public void setType(Type type) {
 		this.type = type;
 	}
@@ -45,13 +56,13 @@ public class ConstantNode extends ExprNode {
 			mg.visitLdcInsn(getDouble());
 		} else if(type.getSort() == Type.INT) {
 			mg.visitLdcInsn(getInt());
+		} else if(type.getSort() == Type.LONG) {
+			mg.visitLdcInsn(getLong());
 		} else if(type.getSort() == Type.BOOLEAN) {
 			mg.visitLdcInsn(getBoolean());
 		} else {
 			throw new RuntimeException("Nothing to generate!");
 		}
 	}
+
 }
-
-//dvr5grtry7r7ytttgtyrtyiybvvthbrrggyjhytyyfthgguytbyfderfbtjhibybfghguyhhtyhghbygjyjh ghghghftfgrttutyt6y6utu56j8ytu7k76lynb8hujiojkjy7ik66ujyttytytygjvybuhjbughhuuyyhiyu7oyytby4e2fthtjtuhngyjtyyhjhmghjnyguyhnyhjohkuykhkkhnujkjmiyhhjky,ujjgrtjjhghhmtg67u5766l6hyr6tr9ygyhyhguhtgfrdrwd5tgayha7wygerduhgjynghyjjyjtyjy978uyt5r5tujr57t7y6rr6tu
-

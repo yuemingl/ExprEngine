@@ -5,11 +5,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -26,8 +29,11 @@ public class FuncNode extends ExprNode {
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
 	
+	public static AtomicInteger seq = new AtomicInteger(0);
+	
 	public FuncNode(String name) {
 		this.name = name;
+		seq.getAndIncrement();
 	}
 
 	public void setParamTypes(Class<?>[] cls) {
@@ -37,13 +43,34 @@ public class FuncNode extends ExprNode {
 				e.getValue().setType(Type.getType(cls[i++]));
 		}
 	}
-	
 	public Type getRetType() {
-		getAndFixParameterTypes();
-		return this.body.get(this.body.size() - 1).getType();
+		Deque<Object> stack = new LinkedList<Object>();
+		return getRetType(stack);
+	}
+	
+	public Type getRetType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		getAndFixParameterTypes(stack);
+		for(int i=0; i<this.body.size(); i++) {
+			ExprNode node = this.body.get(i);
+			Type retType = node.getType(stack);
+			if(null != retType) {
+				stack.pop();
+				return retType;
+			}
+		}
+		throw new RuntimeException("Cannot infer return type!");
 	}
 	
 	public Type[] getAndFixParameterTypes() {
+		Deque<Object> stack = new LinkedList<Object>();
+		return getAndFixParameterTypes(stack);
+	}
+	
+	public Type[] getAndFixParameterTypes(Deque<Object> stack) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
 
 		for (Entry<String, VariableNode> e : this.localVarMap.entrySet()) {
@@ -60,7 +87,7 @@ public class FuncNode extends ExprNode {
 		Type[] ret = new Type[pList.size()];
 		int i = 0;
 		for (VariableNode node : pList) {
-			ret[i] = localVarMap.get(node.name).getType();
+			ret[i] = localVarMap.get(node.name).getType(stack);
 			i++;
 		}
 		
@@ -72,7 +99,7 @@ public class FuncNode extends ExprNode {
 	}
 
 	public String getFuncClassName() {
-		String ret = "FC"+name+this.hashCode();//TODO need better naming way
+		String ret = "FC"+name+this.seq.get();//TODO need better naming way
 		return ret;
 	}
 	
@@ -149,7 +176,11 @@ public class FuncNode extends ExprNode {
 
 	@Override
 	public Type getType() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Call getRetType() instead!");
+	}
+
+	@Override
+	public Type getType(Deque<Object> stack) {
+		throw new UnsupportedOperationException("Call getRetType() instead!");
 	}
 }

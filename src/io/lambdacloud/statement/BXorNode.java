@@ -4,6 +4,9 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 
 public class BXorNode extends ExprNode {
@@ -23,10 +26,14 @@ public class BXorNode extends ExprNode {
 		right.genCode(mg);
 		mg.visitInsn(getType().getOpcode(Opcodes.IXOR));
 	}
-	
+
 	@Override
-	public Type getType() {
-		return Tools.typeConversion(left.getType(), right.getType());
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return Tools.typeConversion(left.getType(stack), right.getType(stack));
 	}
 	
 	public int test(int a, int b) {

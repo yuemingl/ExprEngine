@@ -1,5 +1,7 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -42,13 +44,18 @@ public class StringCompareNode extends ExprNode {
 		
 	}
 	
+	public boolean test(String a, String b) {
+		return a.equals(b);
+	}
+
 	@Override
 	public Type getType() {
 		return Type.BOOLEAN_TYPE;
 	}
 
-	public boolean test(String a, String b) {
-		return a.equals(b);
+	@Override
+	public Type getType(Deque<Object> stack) {
+		return Type.BOOLEAN_TYPE;
 	}
 
 }

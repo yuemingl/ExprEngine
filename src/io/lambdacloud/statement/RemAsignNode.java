@@ -4,6 +4,9 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 
 public class RemAsignNode extends ExprNode {
@@ -19,18 +22,23 @@ public class RemAsignNode extends ExprNode {
 	}
 	
 	public void genCode(MethodGenHelper mg) {
+		Type myType = this.getType();
 		left.genCode(mg); //load
 		right.genCode(mg);
-		mg.visitInsn(getType().getOpcode(Opcodes.IREM));
-		mg.visitVarInsn(getType().getOpcode(Opcodes.ISTORE), left.idxLVT);
+		mg.visitInsn(myType.getOpcode(Opcodes.IREM));
+		mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), left.idxLVT);
 		if(genLoadInsn) {
-			mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), left.idxLVT);
+			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), left.idxLVT);
 		}
 	}
-	
+
 	@Override
-	public Type getType() {
-		return Tools.typeConversion(left.getType(), right.getType());
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return Tools.typeConversion(left.getType(stack), right.getType(stack));
 	}
 	
 	public int test(int x, int y) {

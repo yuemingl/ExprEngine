@@ -1,5 +1,7 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -23,6 +25,11 @@ public class StringNode extends ExprNode {
 	public Type getType() {
 		return Type.getType(String.class);
 	}
+
+	@Override
+	public Type getType(Deque<Object> stack) {
+		return Type.getType(String.class);
+	}	
 	
 	@Override
 	public String toString() {

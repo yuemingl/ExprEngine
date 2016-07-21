@@ -59,6 +59,9 @@ public class Tools {
 	}
 	
 	public static Type typeConversion(Type type1, Type type2) {
+		if(null == type1 || null == type2) {
+			return null;
+		}
 		int t1 = type1.getSort();
 		int t2 = type2.getSort();
 		if(t1 == Type.OBJECT && t2 == Type.OBJECT) {

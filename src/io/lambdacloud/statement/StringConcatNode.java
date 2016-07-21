@@ -1,5 +1,7 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -38,12 +40,19 @@ public class StringConcatNode extends ExprNode {
 		}
 		
 	}
+	
+	public String test(String a, String b) {
+		return a.concat(b);
+	}
+
 	@Override
 	public Type getType() {
 		return Type.getType(String.class);
-	}	
-	public String test(String a, String b) {
-		return a.concat(b);
+	}
+
+	@Override
+	public Type getType(Deque<Object> stack) {
+		return Type.getType(String.class);
 	}
 
 }

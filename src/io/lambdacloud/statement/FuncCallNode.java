@@ -7,6 +7,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Handle;
@@ -20,7 +22,10 @@ public class FuncCallNode extends ExprNode {
 	String fullClassName;
 	String methodName;
 	public List<ExprNode> args = new ArrayList<ExprNode>();
-	public boolean isDynamicCall;
+	
+	public boolean isDynamicCall; //true to use invodedynamic instruction
+	
+	public FuncNode refFuncNode;
 
 	public FuncCallNode(String fullClassName, String methodName, boolean isDynamicCall) {
 		this.fullClassName = fullClassName;
@@ -28,6 +33,20 @@ public class FuncCallNode extends ExprNode {
 		this.isDynamicCall = isDynamicCall;
 	}
 
+	public String getFullClassName() {
+		if(null != refFuncNode)
+			return this.refFuncNode.getFuncClassName();
+		else
+			return this.fullClassName;
+	}
+	
+	public String getMethodName() {
+		if(null != this.refFuncNode)
+			return this.refFuncNode.name;
+		else
+			return this.methodName;
+	}
+	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("call ").append(this.fullClassName).append(".").append(this.methodName).append("(");
@@ -56,7 +75,7 @@ public class FuncCallNode extends ExprNode {
 
 	public void genCode(MethodGenHelper mg) {
 
-		if (isDynamicCall) {
+		if (isDynamicCall) { //ExprTreeBuildWalker.funcMap must contain the key this.methodName
 			MethodType mt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class,
 					MethodType.class);
 
@@ -67,7 +86,7 @@ public class FuncCallNode extends ExprNode {
 			}
 			mg.visitInvokeDynamicInsn(this.methodName,
 					Type.getMethodDescriptor(this.getType(), this.getParameterTypes()), bootstrapHandle, new Object[0]);
-		} else {
+		} else { // 
 			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
 				//Find return type
@@ -95,11 +114,17 @@ public class FuncCallNode extends ExprNode {
 	}
 
 	@Override
-	public Type getType() {
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
 		if (isDynamicCall) {
 			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			fnode.setParamTypes(this.getParameterClassTypes());
-			return fnode.getRetType();
+			Type retType = fnode.getRetType(stack);
+			stack.pop();
+			return retType;
 		} else {
 			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
@@ -107,17 +132,21 @@ public class FuncCallNode extends ExprNode {
 				try {
 					c = Class.forName(fullClassName);
 					Method m = c.getMethod(methodName, this.getParameterClassTypes());
-					return Type.getType(m.getReturnType());
+					Type retType = Type.getType(m.getReturnType());
+					stack.pop();
+					return retType;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				return null;
 			} else {
-				return fnode.getRetType();
+				Type retType = fnode.getRetType(stack);
+				stack.pop();
+				return retType;
 			}
 		}
 	}
-
+	
 	public double test(double x) {
 		return Math.abs(x);
 	}

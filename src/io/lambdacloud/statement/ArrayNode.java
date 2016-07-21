@@ -1,6 +1,8 @@
 package io.lambdacloud.statement;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Type;
@@ -30,7 +32,6 @@ public class ArrayNode extends ExprNode {
 	public void genCode(MethodGenHelper mg) {
 		mg.visitLdcInsn(init.size());
 		
-		
 		Type eleType = init.get(0).getType();
 		if(init.size() > 1) {
 			for(int i=1; i<init.size(); i++)
@@ -52,17 +53,21 @@ public class ArrayNode extends ExprNode {
 		}
 	}
 	
+	public String toString() {
+		return this.init.toString();
+	}
+
 	@Override
-	public Type getType() {
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
 		Type eleType = init.get(0).getType();
 		if(init.size() > 1) {
 			for(int i=1; i<init.size(); i++)
 				eleType = Tools.typeConversion(eleType, init.get(i).getType());
 		}
 		return Tools.getArrayType(eleType);
-	}
-	
-	public String toString() {
-		return this.init.toString();
 	}
 }

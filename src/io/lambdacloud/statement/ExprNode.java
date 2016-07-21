@@ -1,5 +1,8 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
@@ -12,9 +15,15 @@ public abstract class ExprNode {
 
 	public abstract void genCode(MethodGenHelper mg);
 
-	public abstract Type getType();
+	public Type getType() {
+		Deque<Object> stack = new LinkedList<Object>();
+		return getType(stack);
+	}
+	
+	public abstract Type getType(Deque<Object> stack);
 
 	public void setType(Type type) {
+		throw new UnsupportedOperationException("Call getRetType() instead!");
 	}
 
 	public void freezeType(boolean isFreeze) {
@@ -34,9 +43,9 @@ public abstract class ExprNode {
 		return this.tag;
 	}
 
-	public String toString() {
-		return getType() + ":" + tag;
-	}
+//	public String toString() {
+//		return getType(1) + ":" + tag;
+//	}
 
 	/**
 	 * Generate LOAD instruction for assign like operators =, +=, -=, *=, /=,

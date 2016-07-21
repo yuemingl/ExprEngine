@@ -7,6 +7,8 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -66,6 +68,11 @@ public class GENode extends ExprNode {
 	
 	@Override
 	public Type getType() {
+		return Type.BOOLEAN_TYPE;
+	}
+
+	@Override
+	public Type getType(Deque<Object> stack) {
 		return Type.BOOLEAN_TYPE;
 	}
 

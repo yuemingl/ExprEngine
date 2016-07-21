@@ -1,5 +1,7 @@
 package io.lambdacloud.statement;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
@@ -70,12 +72,17 @@ public class VariableNode extends ExprNode {
 	}
 
 	@Override
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	@Override
 	public Type getType() {
 		return this.type;
 	}
-	
+
 	@Override
-	public void setType(Type type) {
-		this.type = type;
+	public Type getType(Deque<Object> stack) {
+		return this.type;
 	}
 }

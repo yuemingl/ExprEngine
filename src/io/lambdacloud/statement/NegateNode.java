@@ -4,6 +4,9 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 import org.objectweb.asm.Opcodes;
 
 public class NegateNode extends ExprNode {
@@ -22,9 +25,13 @@ public class NegateNode extends ExprNode {
 		mg.visitInsn(getType().getOpcode(Opcodes.INEG));
 		
 	}
-	
+
 	@Override
-	public Type getType() {
-		return this.expr.getType();
-	}
+	public Type getType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) return null;
+		stack.push(this);
+		
+		return this.expr.getType(stack);
+	}	
 }

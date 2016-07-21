@@ -48,7 +48,7 @@ public class ArrayAssignNode extends ExprNode {
 	}
 
 	@Override
-	public Type getType() {
+	public Type getType(Object tag) {
 		return getType(this.indices.size());
 	}
 	
@@ -58,21 +58,21 @@ public class ArrayAssignNode extends ExprNode {
 	 * @return
 	 */
 	public Type getType(int dim) {
-		Type ret = var.getType();
+		Type ret = var.getType(1);
 		for(int i=0; i<dim; i++) {
 			IndexPair p = this.indices.get(this.indices.size()-1-i);
 			if(null == p.idxE) {
-				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor()))
+				if(var.getType(1).getDescriptor().equals(Type.getType(List.class).getDescriptor()))
 					return Type.getType(Object.class); //TODO
 				else {
 					if(null == ret)
-						ret = Tools.getElementType(var.getType());
+						ret = Tools.getElementType(var.getType(1));
 					else
 						ret = Tools.getElementType(ret);
 				}
 			} else {
 				if(null == ret)
-					ret = var.getType();
+					ret = var.getType(1);
 			}
 		}
 		return ret;
@@ -90,9 +90,9 @@ public class ArrayAssignNode extends ExprNode {
 			
 			if(null == idxE) {
 				idxS.genCode(mg);
-				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(var.getType(1).getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
-				} else if(var.getType().getSort() == Type.ARRAY) {
+				} else if(var.getType(1).getSort() == Type.ARRAY) {
 					if(i == 0) {
 						value.genCode(mg);
 						mg.visitInsn(getType(this.indices.size()-i).getOpcode(IASTORE));
@@ -104,13 +104,13 @@ public class ArrayAssignNode extends ExprNode {
 				}
 				isRange = false;
 			} else {
-				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(var.getType(1).getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					idxS.genCode(mg);
 					idxE.genCode(mg);
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
-				} else if(var.getType().getSort() == Type.ARRAY) {
+				} else if(var.getType(1).getSort() == Type.ARRAY) {
 					VariableNode retVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
 					
 					SubNode sub = new SubNode(idxE, idxS);
@@ -118,11 +118,11 @@ public class ArrayAssignNode extends ExprNode {
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					
-					if(Tools.getElementType(retVar.getType()).getSort() == Type.OBJECT ||
-							Tools.getElementType(retVar.getType()).getSort() == Type.ARRAY) {
-						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(retVar.getType()).getDescriptor());
+					if(Tools.getElementType(retVar.getType(1)).getSort() == Type.OBJECT ||
+							Tools.getElementType(retVar.getType(1)).getSort() == Type.ARRAY) {
+						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(retVar.getType(1)).getDescriptor());
 					} else {
-						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(), true));
+						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(1), true));
 					}
 					mg.visitIntInsn(ASTORE, retVar.idxLVT);
 					

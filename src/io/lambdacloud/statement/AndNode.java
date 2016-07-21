@@ -5,6 +5,8 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -19,11 +21,11 @@ public class AndNode extends ExprNode {
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	public String toString() {
 		return left + " && " + right;
 	}
-	
+
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		left.genCode(mg);
@@ -39,12 +41,17 @@ public class AndNode extends ExprNode {
 		mg.visitInsn(ICONST_0);
 		mg.visitLabel(l2);
 	}
-	
+
 	@Override
 	public Type getType() {
 		return Type.BOOLEAN_TYPE;
 	}
-	
+
+	@Override
+	public Type getType(Deque<Object> stack) {
+		return Type.BOOLEAN_TYPE;
+	}
+
 	public boolean test(boolean a, boolean b) {
 		boolean c = a && b;
 		return c;
