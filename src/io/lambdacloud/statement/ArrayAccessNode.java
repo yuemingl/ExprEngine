@@ -76,7 +76,6 @@ public class ArrayAccessNode extends ExprNode {
 	
 	public Type getType(int dim) {
 		Deque<Object> stack = new LinkedList<Object>();
-		stack.push(this);
 		return getType(stack, dim);
 	}
 	
@@ -187,12 +186,12 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 				if(valNode != null && valNode instanceof ListComprehensionNode) {
 					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
 					valNode = lstNode.getElementNode();
-					aryType = valNode.getType(null);
+					aryType = valNode.getType();
 					if(aryType.getSort() == Type.ARRAY) {
 						//get primitive type instead of Object returned from getType(dim)
 						eleType = Tools.getElementType(aryType); 
 					} else if(valNode instanceof ListComprehensionNode) {
-						eleType = ((ListComprehensionNode)valNode).getElementNode().getType(null);
+						eleType = ((ListComprehensionNode)valNode).getElementNode().getType();
 					} else {
 						eleType = null;
 					}
@@ -207,13 +206,13 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 				
 				isRange = false;
 			} else {
-				if(valNode != null && valNode.getType(null).getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(valNode != null && valNode.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					idxS.genCode(mg);
 					idxE.genCode(mg);
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
-				} else if(valNode == null || valNode.getType(null).getSort() == Type.ARRAY) {
+				} else if(valNode == null || valNode.getType().getSort() == Type.ARRAY) {
 					VariableNode dstVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
 					
 					//_len = idxE - idxS + 1

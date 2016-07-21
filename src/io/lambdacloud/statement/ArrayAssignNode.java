@@ -3,12 +3,15 @@ package io.lambdacloud.statement;
 import static org.objectweb.asm.Opcodes.*;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.statement.ArrayAccessNode.IndexPair;
 
 /**
  * x = a[1]
@@ -48,8 +51,18 @@ public class ArrayAssignNode extends ExprNode {
 	}
 
 	@Override
-	public Type getType(Object tag) {
+	public Type getType() {
 		return getType(this.indices.size());
+	}
+	
+	@Override
+	public Type getType(Deque<Object> stack) {
+		return getType(stack, this.indices.size());
+	}
+	
+	public Type getType(int dim) {
+		Deque<Object> stack = new LinkedList<Object>();
+		return getType(stack, dim);
 	}
 	
 	/**
@@ -57,26 +70,46 @@ public class ArrayAssignNode extends ExprNode {
 	 * @param dim
 	 * @return
 	 */
-	public Type getType(int dim) {
-		Type ret = var.getType(1);
+	public Type getType(Deque<Object> stack, int dim) {
+		//circle check
+		if(stack.contains(this)) 
+			return null;
+		stack.push(this);
+		
+		Type ret = var.getType();
+		ExprNode valNode = var.lastValue;
 		for(int i=0; i<dim; i++) {
-			IndexPair p = this.indices.get(this.indices.size()-1-i);
+			int dimToIndex = this.indices.size()-1-i;
+			IndexPair p = this.indices.get(dimToIndex);
 			if(null == p.idxE) {
-				if(var.getType(1).getDescriptor().equals(Type.getType(List.class).getDescriptor()))
-					return Type.getType(Object.class); //TODO
-				else {
-					if(null == ret)
-						ret = Tools.getElementType(var.getType(1));
-					else
-						ret = Tools.getElementType(ret);
+				
+				if(valNode != null && valNode instanceof ListComprehensionNode) {
+					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
+					valNode = lstNode.getElementNode();
+					ret = valNode.getType(stack);
+					if(ret.getSort() != Type.ARRAY) {
+						stack.pop();
+						return Type.getType(Object.class); //don't return primitive type
+					}
+				} else if(ret.getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+					stack.pop();
+					return Type.getType(Object.class);
+				} else if(ret.getSort() == Type.ARRAY){
+					
+					ret = Tools.getElementType(ret);
+				} else {
+					//Do nothing
+					//throw new RuntimeException(ret.toString());
 				}
 			} else {
-				if(null == ret)
-					ret = var.getType(1);
+				//Do nothing
 			}
 		}
+		stack.pop();
 		return ret;
 	}
+	
+	//TODO need to be changed to ArrayAccessNode.getCode()
 	
 	public void genCode(MethodGenHelper mg) {
 		var.genCode(mg);
@@ -90,9 +123,9 @@ public class ArrayAssignNode extends ExprNode {
 			
 			if(null == idxE) {
 				idxS.genCode(mg);
-				if(var.getType(1).getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
-				} else if(var.getType(1).getSort() == Type.ARRAY) {
+				} else if(var.getType().getSort() == Type.ARRAY) {
 					if(i == 0) {
 						value.genCode(mg);
 						mg.visitInsn(getType(this.indices.size()-i).getOpcode(IASTORE));
@@ -104,13 +137,13 @@ public class ArrayAssignNode extends ExprNode {
 				}
 				isRange = false;
 			} else {
-				if(var.getType(1).getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
+				if(var.getType().getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
 					idxS.genCode(mg);
 					idxE.genCode(mg);
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					mg.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "subList", "(II)Ljava/util/List;", true);
-				} else if(var.getType(1).getSort() == Type.ARRAY) {
+				} else if(var.getType().getSort() == Type.ARRAY) {
 					VariableNode retVar = mg.newLocalVariable(var.name+"_ret_"+i, getType(this.indices.size()-i));
 					
 					SubNode sub = new SubNode(idxE, idxS);
@@ -118,11 +151,11 @@ public class ArrayAssignNode extends ExprNode {
 					mg.visitInsn(ICONST_1);
 					mg.visitInsn(IADD);
 					
-					if(Tools.getElementType(retVar.getType(1)).getSort() == Type.OBJECT ||
-							Tools.getElementType(retVar.getType(1)).getSort() == Type.ARRAY) {
-						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(retVar.getType(1)).getDescriptor());
+					if(Tools.getElementType(retVar.getType()).getSort() == Type.OBJECT ||
+							Tools.getElementType(retVar.getType()).getSort() == Type.ARRAY) {
+						mg.visitTypeInsn(ANEWARRAY, Tools.getElementType(retVar.getType()).getDescriptor());
 					} else {
-						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(1), true));
+						mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(retVar.getType(), true));
 					}
 					mg.visitIntInsn(ASTORE, retVar.idxLVT);
 					

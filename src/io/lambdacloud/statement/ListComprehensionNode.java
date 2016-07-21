@@ -3,6 +3,7 @@ package io.lambdacloud.statement;
 import static org.objectweb.asm.Opcodes.*;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,14 +31,22 @@ public class ListComprehensionNode extends ExprNode {
 		}
 
 		@Override
-		public Type getType(Object tag) {
+		public Type getType(Deque<Object> stack) {
+			//circle check
+			if(stack.contains(this)) 
+				return null;
+			
+			stack.push(this);
 			ExprNode bn = this.exprNode;
 			while(bn instanceof LForNode) {
 				bn = ((LForNode)bn).exprNode;
 			}
-			return bn.getType(1);
+			Type retType = bn.getType(stack);
+			stack.pop();
+			
+			return retType;
 		}
-		
+
 		public ExprNode getElementNode() {
 			ExprNode bn = this.exprNode;
 			while(bn instanceof LForNode) {
@@ -90,13 +99,14 @@ public class ListComprehensionNode extends ExprNode {
 				} else {
 					mg.visitIntInsn(ALOAD, mg.retNodeTag.idxLVT);
 					this.exprNode.genCode(mg); //Generate code for exprNode
-					if(this.getType(1).getSort() == Type.DOUBLE) {
+					Type myType = this.getType();
+					if(myType.getSort() == Type.DOUBLE) {
 						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-					} else if(this.getType(1).getSort() == Type.INT) {
+					} else if(myType.getSort() == Type.INT) {
 						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-					} else if(this.getType(1).getSort() == Type.LONG) {
+					} else if(myType.getSort() == Type.LONG) {
 						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-					} else if(this.getType(1).getSort() == Type.BOOLEAN) {
+					} else if(myType.getSort() == Type.BOOLEAN) {
 						mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
 					} else {
 						//do nothing
@@ -119,11 +129,11 @@ public class ListComprehensionNode extends ExprNode {
 			}
 			
 			
-			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), setNode.getType(1));
+			VariableNode setA = mg.newLocalVariable("setA"+seq.getAndIncrement(), setNode.getType());
 			VariableNode i = mg.newLocalVariable("i"+seq.getAndIncrement(), Type.getType(int.class));
 			VariableNode x = mg.varMap.get(varName);
 			//x is set to double by default. The type of x is corrected here.
-			x.setType(setA.getType(1).getElementType());
+			x.setType(setA.getType().getElementType());
 			
 			//[x+1 for x in setA]
 			setNode.genCode(mg);
@@ -145,9 +155,9 @@ public class ListComprehensionNode extends ExprNode {
 			//x = setA[i];
 			mg.visitVarInsn(ALOAD, setA.idxLVT);
 			mg.visitVarInsn(ILOAD, i.idxLVT);
-			mg.visitInsn(setA.getType(1).getElementType().getOpcode(IALOAD));
-			Tools.insertConversionInsn(mg, setA.getType(1).getElementType(), x.getType(1));
-			mg.visitIntInsn(x.getType(1).getOpcode(ISTORE), x.idxLVT);
+			mg.visitInsn(setA.getType().getElementType().getOpcode(IALOAD));
+			Tools.insertConversionInsn(mg, setA.getType().getElementType(), x.getType());
+			mg.visitIntInsn(x.getType().getOpcode(ISTORE), x.idxLVT);
 			
 			//ret.add(x+1);
 			//Pass ret to inner loop
@@ -160,13 +170,14 @@ public class ListComprehensionNode extends ExprNode {
 			} else {
 				mg.visitIntInsn(ALOAD, mg.retNodeTag.idxLVT);
 				this.exprNode.genCode(mg); //Generate code for exprNode
-				if(this.getType(1).getSort() == Type.DOUBLE) {
+				Type myType = this.getType();
+				if(myType.getSort() == Type.DOUBLE) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-				} else if(this.getType(1).getSort() == Type.INT) {
+				} else if(myType.getSort() == Type.INT) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-				} else if(this.getType(1).getSort() == Type.LONG) {
+				} else if(myType.getSort() == Type.LONG) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-				} else if(this.getType(1).getSort() == Type.BOOLEAN) {
+				} else if(myType.getSort() == Type.BOOLEAN) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
 				} else {
 					//do nothing
@@ -218,13 +229,14 @@ public class ListComprehensionNode extends ExprNode {
 			} else {
 				mg.visitIntInsn(ALOAD, mg.retNodeTag.idxLVT);
 				this.bodyExpr.genCode(mg); //Generate code for exprNode
-				if(this.getType(1).getSort() == Type.DOUBLE) {
+				Type myType = this.getType();
+				if(myType.getSort() == Type.DOUBLE) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-				} else if(this.getType(1).getSort() == Type.INT) {
+				} else if(myType.getSort() == Type.INT) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-				} else if(this.getType(1).getSort() == Type.LONG) {
+				} else if(myType.getSort() == Type.LONG) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-				} else if(this.getType(1).getSort() == Type.BOOLEAN) {
+				} else if(myType.getSort() == Type.BOOLEAN) {
 					mg.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
 				} else {
 					//do nothing
@@ -239,15 +251,22 @@ public class ListComprehensionNode extends ExprNode {
 		}
 		
 		@Override
-		public Type getType(Object tag) {
-			//return Tools.getArrayType(this.forIf.getType());
-			return this.bodyExpr.getType(1);
+		public Type getType(Deque<Object> stack) {
+			//circle check
+			if(stack.contains(this)) 
+				return null;
+			
+			stack.push(this);
+			Type retType = this.bodyExpr.getType(stack);
+			stack.pop();
+			
+			return retType;
 		}
 		
 	}
 	
 	@Override
-	public Type getType(Object tag) {
+	public Type getType(Deque<Object> stack) {
 		return Type.getType(List.class);
 	}
 	
