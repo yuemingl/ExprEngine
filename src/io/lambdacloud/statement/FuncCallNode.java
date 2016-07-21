@@ -25,7 +25,7 @@ public class FuncCallNode extends ExprNode {
 	
 	public boolean isDynamicCall; //true to use invodedynamic instruction
 	
-	public FuncNode refFuncNode;
+	public FuncDefNode refFuncNode;
 
 	public FuncCallNode(String fullClassName, String methodName, boolean isDynamicCall) {
 		this.fullClassName = fullClassName;
@@ -87,7 +87,7 @@ public class FuncCallNode extends ExprNode {
 			mg.visitInvokeDynamicInsn(this.methodName,
 					Type.getMethodDescriptor(this.getType(), this.getParameterTypes()), bootstrapHandle, new Object[0]);
 		} else { // 
-			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
+			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
 				//Find return type
 				Class<?> c;
@@ -103,6 +103,7 @@ public class FuncCallNode extends ExprNode {
 					e.printStackTrace();
 				}
 			} else {
+				fnode.setParamTypes(this.getParameterClassTypes());
 				Type retTy = fnode.getRetType();
 				for (int i = args.size() - 1; i >= 0; i--) {
 					args.get(i).genCode(mg);
@@ -121,13 +122,13 @@ public class FuncCallNode extends ExprNode {
 		stack.push(this);
 		
 		if (isDynamicCall) {
-			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
+			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			fnode.setParamTypes(this.getParameterClassTypes());
 			Type retType = fnode.getRetType(stack);
 			stack.pop();
 			return retType;
 		} else {
-			FuncNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
+			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
 				Class<?> c;
 				try {
@@ -142,6 +143,7 @@ public class FuncCallNode extends ExprNode {
 				stack.pop();
 				return null;
 			} else {
+				fnode.setParamTypes(this.getParameterClassTypes());
 				Type retType = fnode.getRetType(stack);
 				stack.pop();
 				return retType;

@@ -23,7 +23,7 @@ import io.lambdacloud.CodeGenerator;
 import io.lambdacloud.ExprClassLoader;
 import io.lambdacloud.MethodGenHelper;
 
-public class FuncNode extends ExprNode {
+public class FuncDefNode extends ExprNode {
 	public String name;
 	public Map<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
 
@@ -31,7 +31,7 @@ public class FuncNode extends ExprNode {
 	
 	public static AtomicInteger seq = new AtomicInteger(0);
 	
-	public FuncNode(String name) {
+	public FuncDefNode(String name) {
 		this.name = name;
 		seq.getAndIncrement();
 	}

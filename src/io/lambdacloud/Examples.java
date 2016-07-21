@@ -127,9 +127,10 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(exec("def fib(n) { if(n>1) {fib(n-1)+fib(n-2)} else {1}} fib(5)"));
+		//System.out.println(exec("def fib(n) { if(n>1) {fib(n-1)+fib(n-2)} else {1}} fib(5)"));
 		//System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
-		//System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y } plus(1.1,2.2) } plus(1,2)"));
+		System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+0.01 } plus(1.1,2.2) } plus(1,2)"));
+		///System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y } plus(1.1,2.2) } plus(1,2)"));
 			
 //		System.out.println(exec(
 //				"[ i+j for i in range(20) for j in range(i+1,20) if i+j == 32 ]"));
