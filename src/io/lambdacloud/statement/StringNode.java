@@ -8,6 +8,7 @@ import io.lambdacloud.MethodGenHelper;
 
 public class StringNode extends ExprNode {
 	public String strVal;
+	
 	public StringNode(String s) {
 		this.strVal = s;
 	}

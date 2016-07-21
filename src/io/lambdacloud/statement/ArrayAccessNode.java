@@ -87,7 +87,8 @@ public class ArrayAccessNode extends ExprNode {
 	 */
 	public Type getType(Deque<Object> stack, int dim) {
 		//circle check
-		if(stack.contains(this)) return null;
+		if(stack.contains(this)) 
+			return null;
 		stack.push(this);
 		
 		Type ret = var.getType();
@@ -101,10 +102,12 @@ public class ArrayAccessNode extends ExprNode {
 					ListComprehensionNode lstNode = (ListComprehensionNode)valNode;
 					valNode = lstNode.getElementNode();
 					ret = valNode.getType(stack);
-					if(ret.getSort() != Type.ARRAY)
+					if(ret.getSort() != Type.ARRAY) {
+						stack.pop();
 						return Type.getType(Object.class); //don't return primitive type
+					}
 				} else if(ret.getDescriptor().equals(Type.getType(List.class).getDescriptor())) {
-					
+					stack.pop();
 					return Type.getType(Object.class);
 				} else if(ret.getSort() == Type.ARRAY){
 					
@@ -117,6 +120,7 @@ public class ArrayAccessNode extends ExprNode {
 				//Do nothing
 			}
 		}
+		stack.pop();
 		return ret;
 	}
 	

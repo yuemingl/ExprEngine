@@ -1,29 +1,27 @@
 package io.lambdacloud.statement;
 
-import java.util.Deque;
-import java.util.LinkedList;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-public class IncNode extends ExprNode {
-	public VariableNode var;
-	
+public class IncNode extends UnaryOp {
+
 	public IncNode(VariableNode var) {
-		this.var = var;
+		this.expr = var;
 	}
-	
+
 	public String toString() {
-		return var + "++";
+		return expr + "++";
 	}
-	
+
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		VariableNode var = (VariableNode) expr;
+
 		Type myType = this.getType();
-		if(myType.getSort() == Type.LONG) {
-			var.genCode(mg);
+		if (myType.getSort() == Type.LONG) {
+			expr.genCode(mg);
 			mg.visitInsn(Opcodes.DUP2);
 			mg.visitInsn(Opcodes.LCONST_1);
 			mg.visitInsn(Opcodes.LADD);
@@ -31,26 +29,18 @@ public class IncNode extends ExprNode {
 		} else {
 			mg.visitIincInsn(var.idxLVT, 1);
 		}
-		if(genLoadInsn) {
+		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
 	}
 
-	@Override
-	public Type getType(Deque<Object> stack) {
-		//circle check
-		if(stack.contains(this)) return null;
-		stack.push(this);
-		
-		return this.var.getType(stack);
-	}
-	
 	public int test(int a) {
-		int c =  a++;
+		int c = a++;
 		return c;
 	}
+
 	public long test(long a) {
-		long c =  a++;
+		long c = a++;
 		return c;
 	}
 }

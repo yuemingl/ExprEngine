@@ -2,7 +2,6 @@ package io.lambdacloud.statement;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Label;
@@ -113,18 +112,23 @@ mv.visitInsn(IRETURN);
 	@Override
 	public Type getType(Deque<Object> stack) {
 		//circle check
-		if(stack.contains(this)) return null;
+		if(stack.contains(this)) 
+			return null;
 		stack.push(this);
 		
 		for(int i=0; i<ifBlockExprs.size(); i++) {
 			Type retType = ifBlockExprs.get(i).getType(stack);
-			if(null != retType)
+			if(null != retType) {
+				stack.pop();
 				return retType;
+			}
 		}
 		for(int i=0; i<elseBlockExprs.size(); i++) {
 			Type retType = elseBlockExprs.get(i).getType(stack);
-			if(null != retType)
+			if(null != retType) {
+				stack.pop();
 				return retType;
+			}
 		}
 		throw new RuntimeException("Cannot infer type for if statement: "+this.toString());
 	}

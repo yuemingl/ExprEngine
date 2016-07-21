@@ -13,9 +13,7 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-public class OrNode extends ExprNode {
-	public ExprNode left;
-	public ExprNode right;
+public class OrNode extends BinaryOp {
 	
 	public OrNode(ExprNode left, ExprNode right) {
 		this.left = left;
@@ -24,6 +22,7 @@ public class OrNode extends ExprNode {
 	public String toString() {
 		return left + " || " + right;
 	}
+	
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		left.genCode(mg);

@@ -13,8 +13,7 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-public class NotNode extends ExprNode {
-	public ExprNode expr;
+public class NotNode extends UnaryOp {
 	
 	public NotNode(ExprNode expr) {
 		this.expr = expr;

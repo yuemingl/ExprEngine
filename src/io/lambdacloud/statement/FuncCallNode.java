@@ -116,7 +116,8 @@ public class FuncCallNode extends ExprNode {
 	@Override
 	public Type getType(Deque<Object> stack) {
 		//circle check
-		if(stack.contains(this)) return null;
+		if(stack.contains(this)) 
+			return null;
 		stack.push(this);
 		
 		if (isDynamicCall) {
@@ -138,6 +139,7 @@ public class FuncCallNode extends ExprNode {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				stack.pop();
 				return null;
 			} else {
 				Type retType = fnode.getRetType(stack);

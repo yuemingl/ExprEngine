@@ -13,9 +13,7 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-public class AndNode extends ExprNode {
-	public ExprNode left;
-	public ExprNode right;
+public class AndNode extends BinaryOp {
 
 	public AndNode(ExprNode left, ExprNode right) {
 		this.left = left;

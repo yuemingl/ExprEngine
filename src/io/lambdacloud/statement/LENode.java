@@ -15,10 +15,8 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-public class LENode extends ExprNode {
-	public ExprNode left;
-	public ExprNode right;
-	
+public class LENode extends BinaryOp {
+
 	public LENode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.left.genLoadInsn(true);

@@ -11,14 +11,20 @@ public class UnaryOp extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException();
 	}
-
+	
 	@Override
 	public Type getType(Deque<Object> stack) {
-		// TODO Auto-generated method stub
-		return null;
+		//circle check
+		if(stack.contains(this)) 
+			return null;
+		
+		stack.push(this);
+		Type retType = this.expr.getType(stack);
+		stack.pop();
+		
+		return retType;
 	}
 
 }

@@ -15,21 +15,19 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
-public class LTNode extends ExprNode {
-	public ExprNode left;
-	public ExprNode right;
-	
+public class LTNode extends BinaryOp {
+
 	public LTNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.left.genLoadInsn(true);
 		this.right = right;
 		this.right.genLoadInsn(true);
 	}
-	
+
 	public String toString() {
 		return left + " < " + right;
 	}
-	
+
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		Type ty = Tools.typeConversion(left.getType(), right.getType());
@@ -37,7 +35,7 @@ public class LTNode extends ExprNode {
 		Tools.insertConversionInsn(mg, left.getType(), ty);
 		right.genCode(mg);
 		Tools.insertConversionInsn(mg, right.getType(), ty);
-		if(ty.getSort() == Type.DOUBLE) {
+		if (ty.getSort() == Type.DOUBLE) {
 			mg.visitInsn(DCMPG);
 			Label l1 = new Label();
 			mg.visitJumpInsn(IFGE, l1);
@@ -48,10 +46,9 @@ public class LTNode extends ExprNode {
 			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			mg.visitInsn(ICONST_0);
 			mg.visitLabel(l2);
-			//mv.visitInsn(Opcodes.NOP);
-			
-		}
-		else if(ty.getSort() == Type.INT) {
+			// mv.visitInsn(Opcodes.NOP);
+
+		} else if (ty.getSort() == Type.INT) {
 			Label l1 = new Label();
 			mg.visitJumpInsn(IF_ICMPGE, l1);
 			mg.visitInsn(ICONST_1);
@@ -61,12 +58,11 @@ public class LTNode extends ExprNode {
 			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			mg.visitInsn(ICONST_0);
 			mg.visitLabel(l2);
-			//mv.visitInsn(Opcodes.NOP);
-		}
-		else
+			// mv.visitInsn(Opcodes.NOP);
+		} else
 			throw new RuntimeException();
 	}
-	
+
 	@Override
 	public Type getType() {
 		return Type.BOOLEAN_TYPE;
@@ -76,14 +72,14 @@ public class LTNode extends ExprNode {
 	public Type getType(Deque<Object> stack) {
 		return Type.BOOLEAN_TYPE;
 	}
-	
+
 	public boolean test(double a, double b) {
-		boolean c =  a < b;
+		boolean c = a < b;
 		return c;
 	}
-	
+
 	public boolean test(int a, int b) {
-		boolean c =  a < b;
+		boolean c = a < b;
 		return c;
 	}
 }

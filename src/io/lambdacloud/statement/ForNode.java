@@ -2,7 +2,6 @@ package io.lambdacloud.statement;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Label;
@@ -98,8 +97,10 @@ mv.visitInsn(IRETURN);
 		for(int i=0; i<this.block.size(); i++) {
 			ExprNode node = this.block.get(i);
 			Type retType = node.getType(stack);
-			if(null != retType)
+			if(null != retType) {
+				stack.pop();
 				return retType;
+			}
 		}
 		throw new RuntimeException("Cannot infer return type!");
 	}
