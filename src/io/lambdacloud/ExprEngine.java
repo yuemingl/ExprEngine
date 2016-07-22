@@ -130,6 +130,7 @@ public class ExprEngine {
 	 * @return
 	 */
 	public static Object exec(String str) {
+		ExprTreeBuildWalker.funcMap.clear();
 		ExprTreeBuildWalker ew = parse(str);
 		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {

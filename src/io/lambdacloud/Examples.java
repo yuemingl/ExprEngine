@@ -127,9 +127,33 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
+		System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+100.0; } plus(x+y,2.0) } plus(1,2)"));
+		/*
+Call plus in scope global
+genCode: (II)D
+
+bootstrap: FCplus1.plus:(II)D
+genCode: (ID)D
+bootstrap: FCplus1.plus:(ID)D
+genCode: (DD)D
+bootstrap: FCplus1.plus:(DD)D
+genCode: (DD)D
+111.0
+		 */
+		System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+100.0; } plus(x+y+0.1,2.0) } plus(1,2)"));
+/*
+Call plus in scope global
+genCode: (II)D
+
+bootstrap: FCplus2.plus:(II)D
+genCode: (DD)D
+bootstrap: FCplus2.plus:(DD)D
+genCode: (DD)D
+111.4
+ */
 		//System.out.println(exec("def fib(n) { if(n>1) {fib(n-1)+fib(n-2)} else {1}} fib(5)"));
 		//System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
-		System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+0.01 } plus(1.1,2.2) } plus(1,2)"));
+		//stack overflow: System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+0.01 } plus(1.1,2.2) } plus(1,2)"));
 		///System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y } plus(1.1,2.2) } plus(1,2)"));
 			
 //		System.out.println(exec(
