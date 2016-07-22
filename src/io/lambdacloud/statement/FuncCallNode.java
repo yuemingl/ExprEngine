@@ -25,7 +25,8 @@ public class FuncCallNode extends ExprNode {
 	
 	public boolean isDynamicCall; //true to use invodedynamic instruction
 	
-	public FuncDefNode refFuncNode;
+	//This is used to determine if it is a dynamic call when generating code
+	public FuncDefNode refFuncDefNode;
 
 	public FuncCallNode(String fullClassName, String methodName, boolean isDynamicCall) {
 		this.fullClassName = fullClassName;
@@ -34,15 +35,15 @@ public class FuncCallNode extends ExprNode {
 	}
 
 	public String getFullClassName() {
-		if(null != refFuncNode)
-			return this.refFuncNode.getFuncClassName();
+		if(null != refFuncDefNode)
+			return this.refFuncDefNode.getFuncClassName();
 		else
 			return this.fullClassName;
 	}
 	
 	public String getMethodName() {
-		if(null != this.refFuncNode)
-			return this.refFuncNode.name;
+		if(null != this.refFuncDefNode)
+			return this.refFuncDefNode.name;
 		else
 			return this.methodName;
 	}
@@ -75,6 +76,13 @@ public class FuncCallNode extends ExprNode {
 
 	public void genCode(MethodGenHelper mg) {
 
+		if(null != this.refFuncDefNode) {
+			String sFuncCall = Type.getMethodDescriptor(this.getType(), this.getParameterTypes());
+			System.out.println(sFuncCall);
+			if(!this.refFuncDefNode.codeGenerated.containsKey(sFuncCall))
+				this.isDynamicCall = true;
+		}
+		
 		if (isDynamicCall) { //ExprTreeBuildWalker.funcMap must contain the key this.methodName
 			MethodType mt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class,
 					MethodType.class);
@@ -103,8 +111,7 @@ public class FuncCallNode extends ExprNode {
 					e.printStackTrace();
 				}
 			} else {
-				fnode.setParamTypes(this.getParameterClassTypes());
-				Type retTy = fnode.getRetType();
+				Type retTy = fnode.inferRetType(this.getParameterClassTypes());
 				for (int i = args.size() - 1; i >= 0; i--) {
 					args.get(i).genCode(mg);
 				}
@@ -123,8 +130,7 @@ public class FuncCallNode extends ExprNode {
 		
 		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
-			fnode.setParamTypes(this.getParameterClassTypes());
-			Type retType = fnode.getRetType(stack);
+			Type retType = fnode.inferRetType(stack, this.getParameterClassTypes());
 			stack.pop();
 			return retType;
 		} else {
@@ -143,8 +149,7 @@ public class FuncCallNode extends ExprNode {
 				stack.pop();
 				return null;
 			} else {
-				fnode.setParamTypes(this.getParameterClassTypes());
-				Type retType = fnode.getRetType(stack);
+				Type retType = fnode.inferRetType(stack, this.getParameterClassTypes());
 				stack.pop();
 				return retType;
 			}

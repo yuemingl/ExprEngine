@@ -858,29 +858,38 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			RangeNode node = new RangeNode(start, end, false);
 			currentScope().stack.push(node);
 		} else {
-			FuncDefNode fnode = funcMap.get(methodName);
+			FuncDefNode funcDef = funcMap.get(methodName);
 			if(DEBUG)
 				System.out.println("Call "+methodName+" in scope "+this.currentScope());
-			boolean isDynamicCall = false;
-			if(null != fnode && !fnode.name.equals(this.currentScope().toString())) {
-				className = "global";
-				isDynamicCall = true;
-			} else if(null != fnode && fnode.name.equals(this.currentScope().toString())) {
-				//This is the case that the recursively call of the function
-				
-				className = fnode.getFuncClassName();
-				isDynamicCall = false;
-			}
-			FuncCallNode fcnode = new FuncCallNode(className, methodName, isDynamicCall);
+			
+			List<ExprNode> args = new ArrayList<ExprNode>();
 			for(int i=0; i<ctx.expression().size(); i++) {
 				//System.out.println(ctx.expression(i).getText());
 				ExprNode arg = currentScope().stack.pop();
 				if(arg instanceof AssignNode) {
 					arg.genLoadInsn(true);
 				}
-				fcnode.args.add(arg);
+				args.add(arg);
 			}
-			currentScope().stack.push(fcnode);
+			
+			boolean isDynamicCall = false;
+			if(null != funcDef && !funcDef.name.equals(this.currentScope().toString())) {
+				className = "global";
+				isDynamicCall = true;
+			} else if(null != funcDef && funcDef.name.equals(this.currentScope().toString())) {
+				//This is the case that the recursively call of the function
+				//The body of the function is not available here see enterFuncDef()
+				className = funcDef.getFuncClassName();
+				isDynamicCall = false; //TODO We are not able to determine this here! We need to determine it at code generation phase
+			}
+			FuncCallNode funcCall = new FuncCallNode(className, methodName, isDynamicCall);
+			funcCall.args = args;
+			funcCall.refFuncDefNode = funcDef;
+			//Type body of funcDef has not been processed here if it is an recursive call
+			//funcDef.setParamTypes(funcCall.getParameterClassTypes());
+			//System.out.println(Type.getMethodDescriptor(funcCall.getType(), funcCall.getParameterTypes()));
+			//System.out.println(funcDef.getType().getDescriptor());
+			currentScope().stack.push(funcCall);
 		}
 	}
 	@Override public void exitList_comprehension(ExprGrammarParser.List_comprehensionContext ctx) {
@@ -1092,8 +1101,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 	
 	@Override public void enterFuncDef(ExprGrammarParser.FuncDefContext ctx) { 
+		//Add function level scope for stack and varMap
 		String funcName = ctx.IDENTIFIER(0).getText();
 		this.addScope(funcName);
+		
 		this.currentScope().stack.push(
 				VariableNode.newLocalVar(ctx.IDENTIFIER(0).getText(), Type.VOID_TYPE).setTag("S"));
 		FuncDefNode fnode = funcMap.get(funcName);
@@ -1105,32 +1116,37 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitFuncDef(ExprGrammarParser.FuncDefContext ctx) {
-		//TODO when enterFuncDef, do we need scope to switch stack and varMap into function local scope?
+		//When enterFuncDef() we need to add a new scope in function level for stack and varMap
+		//see enterFuncDef()
 		
 		String funcName = ctx.IDENTIFIER(0).getText();
 		FuncDefNode fNode = funcMap.get(funcName);
-//		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
-//			String paramName = ctx.IDENTIFIER(i).getText();
-//			VariableNode var = this.currentScope().varMap.get(paramName);
-//			fNode.localVarMap.put(paramName, var);
-//			//remove function parameters from varMap
-//			//TODO FixMe Consider scope?  like funName.paramName
-//			this.currentScope().varMap.remove(paramName);
-//		}
-		fNode.localVarMap.putAll(this.currentScope().varMap);
+		for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
+			String paramName = ctx.IDENTIFIER(i).getText();
+			fNode.paramNames.add(paramName);
+		}
+		fNode.funcVarMap.putAll(this.currentScope().varMap);
 		
 		ExprNode node = null;
+		
+		//TODO: remove stop flag, since we are using scope it is easy to determine the boundary of expressions
 		while(!this.currentScope().stack.isEmpty()) {
 			node = this.currentScope().stack.pop();
-			if("S".equals(node.getTag())) { //stop flag
+			if("S".equals(node.getTag())) { 
 				break;
 			} else {
 				fNode.body.add(node);
 			}
 		}
+		
+		//Put fNode in funcMap at the function enterFuncDef
+		//so recursive call of itself can be handled correctly
+		//by knowing the definition of function early
 		//funcMap.put(fNode.name, fNode);
+		
 		if(DEBUG)
 			System.out.println(fNode);
+		
 		this.popScope();
 	}
 	

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,55 +27,121 @@ import io.lambdacloud.MethodGenHelper;
 
 public class FuncDefNode extends ExprNode {
 	public String name;
-	public Map<String, VariableNode> localVarMap = new TreeMap<String, VariableNode>();
+	public Map<String, VariableNode> funcVarMap = new TreeMap<String, VariableNode>();
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
 	
 	public static AtomicInteger seq = new AtomicInteger(0);
 	
+	//Map between methodDescriptor => className
+	public Map<String, String> generatedClasses = new HashMap<String, String>();
+	//Parameter name declared
+	public List<String> paramNames = new ArrayList<String>();
+
 	public FuncDefNode(String name) {
 		this.name = name;
 		seq.getAndIncrement();
 	}
 
-	public void setParamTypes(Class<?>[] cls) {
-		int i=0;
-		for(Entry<String, VariableNode> e : localVarMap.entrySet()) {
-			if(e.getValue().isParameter())
-				e.getValue().setType(Type.getType(cls[i++]));
+	/**
+	 * @param paramClassTypes
+	 * @return old types
+	 */
+	public Map<String, Type> setParamTypes(Class<?>[] paramClassTypes) {
+		if(this.paramNames.size() != paramClassTypes.length) {
+			throw new RuntimeException("Wrong parameter types!");
 		}
-	}
-	public Type getRetType() {
-		Deque<Object> stack = new LinkedList<Object>();
-		return getRetType(stack);
+		Map<String, Type> oldType = new TreeMap<String, Type>();
+		for(int i=0; i<this.paramNames.size();i ++) {
+			String paramName = this.paramNames.get(i);
+			VariableNode paramNode = this.funcVarMap.get(paramName);
+			if(paramNode.isParameter()) {
+				oldType.put(paramName, paramNode.getType());
+				paramNode.setType(Type.getType(paramClassTypes[i]));
+			} else {
+				throw new RuntimeException(
+						"Parameter "+paramNode.toString()+" of "+this.name+" is not marked as parameter type!");
+			}
+		}
+		fixBodyExprTypes();
+		return oldType;
 	}
 	
-	public Type getRetType(Deque<Object> stack) {
+	public static void main(String[] args) {
+		//Map<String, Type> test = new TreeMap<String, Type>();
+		Map<String, Type> test = new LinkedHashMap<String, Type>();
+		test.put("x", Type.DOUBLE_TYPE);
+		test.put("a", Type.DOUBLE_TYPE);
+		test.put("y", Type.DOUBLE_TYPE);
+		for(Entry<String, Type> e : test.entrySet()) {
+			System.out.println(e.getKey());
+		}
+	}
+	
+	public Map<String, Type> setParamTypes(Map<String, Type> types) {
+		if(this.paramNames.size() != types.size()) {
+			throw new RuntimeException("Wrong parameter types: "+types.toString());
+		}
+		Map<String, Type> oldType = new TreeMap<String, Type>();
+		for(Entry<String, VariableNode> e : funcVarMap.entrySet()) {
+			if(e.getValue().isParameter()) { //check this flag too
+				oldType.put(e.getKey(), e.getValue().getType());
+				e.getValue().setType(types.get(e.getKey()));
+			}
+		}
+		fixBodyExprTypes();
+		return oldType;
+	}
+	
+	public Type inferRetType(Class<?>[] paramClassTypes) {
+		Deque<Object> stack = new LinkedList<Object>();
+		Type retType = inferRetType(stack, paramClassTypes);
+		return retType;
+	}
+	
+	public Type inferRetType(Deque<Object> stack, Class<?>[] paramClassTypes) {
 		//circle check
-		if(stack.contains(this)) return null;
+		if(stack.contains(this)) 
+			return null;
 		stack.push(this);
 		
-		getAndFixParameterTypes(stack);
+		Map<String, Type> oldType = this.setParamTypes(paramClassTypes);
+		//getAndFixParameterTypes(stack);
+		
 		for(int i=0; i<this.body.size(); i++) {
 			ExprNode node = this.body.get(i);
 			Type retType = node.getType(stack);
 			if(null != retType) {
+				
 				stack.pop();
+				
+				this.setParamTypes(oldType);
+				//getAndFixParameterTypes(stack);
+
 				return retType;
 			}
 		}
 		throw new RuntimeException("Cannot infer return type!");
 	}
 	
-	public Type[] getAndFixParameterTypes() {
-		Deque<Object> stack = new LinkedList<Object>();
-		return getAndFixParameterTypes(stack);
+	public void fixBodyExprTypes() {
+		//The type fix is based on localVarMap
+		//for AssignNode
+		for (int j = this.body.size()-1; j >= 0; j--) {
+			this.body.get(j).fixType();
+		}
 	}
 	
-	public Type[] getAndFixParameterTypes(Deque<Object> stack) {
+	public Type[] getParameterTypes() {
+		Deque<Object> stack = new LinkedList<Object>();
+		return getParameterTypes(stack);
+	}
+	
+	//TODO Do we need stack here?
+	public Type[] getParameterTypes(Deque<Object> stack) {
 		List<VariableNode> pList = new ArrayList<VariableNode>();
 
-		for (Entry<String, VariableNode> e : this.localVarMap.entrySet()) {
+		for (Entry<String, VariableNode> e : this.funcVarMap.entrySet()) {
 			if (e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
@@ -87,14 +155,10 @@ public class FuncDefNode extends ExprNode {
 		Type[] ret = new Type[pList.size()];
 		int i = 0;
 		for (VariableNode node : pList) {
-			ret[i] = localVarMap.get(node.name).getType(stack);
+			ret[i] = funcVarMap.get(node.name).getType(stack);
 			i++;
 		}
 		
-		for (int j = this.body.size()-1; j >= 0; j--) {
-			this.body.get(j).fixType();
-		}
-
 		return ret;
 	}
 
@@ -115,15 +179,16 @@ public class FuncDefNode extends ExprNode {
 			// Define method
 			int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 
-			
 			Type[] paramTypes = getAndFixParameterTypes();
-			Type retType = this.getRetType();
+			Type retType = this.inferRetType();
 
-			cgen.startMethod(access, name, Type.getMethodDescriptor(retType, paramTypes));
+			String methodDesc = Type.getMethodDescriptor(retType, paramTypes);
+			cgen.startMethod(access, name, methodDesc);
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv, localVarMap);
+			MethodGenHelper mg = new MethodGenHelper(mv, funcVarMap);
 			mg.updateLVTIndex(true);
 			cgen.startCode();
+			this.generatedClasses.put(methodDesc, className);
 			
 			// Generate code for all the expressions
 			for (int i = this.body.size()-1; i >= 0; i--) {
@@ -132,7 +197,7 @@ public class FuncDefNode extends ExprNode {
 			}
 
 			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
-			for (VariableNode var : localVarMap.values()) {
+			for (VariableNode var : funcVarMap.values()) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(), null, cgen.labelStart, cgen.lableEnd,
 						var.idxLVT);
 			}
@@ -158,13 +223,13 @@ public class FuncDefNode extends ExprNode {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
-
+		throw new UnsupportedOperationException("Call genFuncCode() instead!");
 	}
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("def ").append(name + "(");
-		for (Entry<String, VariableNode> e : localVarMap.entrySet()) {
+		for (Entry<String, VariableNode> e : funcVarMap.entrySet()) {
 			sb.append(e.getValue()).append(", ");
 		}
 		sb.append(") {\n");
@@ -176,7 +241,7 @@ public class FuncDefNode extends ExprNode {
 
 	@Override
 	public Type getType() {
-		throw new UnsupportedOperationException("Call getRetType() instead!");
+		return Type.getMethodType(this.inferRetType(), this.getAndFixParameterTypes());
 	}
 
 	@Override
