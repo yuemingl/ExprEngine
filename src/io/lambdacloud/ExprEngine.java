@@ -88,7 +88,9 @@ public class ExprEngine {
 		Class<?> c = ew.genClass(className, wirteFile, methodName, true);
 		Method m1 = null;
 		try {
-			m1 = c.getMethod(methodName, ew.getParameterClassTypes());
+			if(null != c) {
+				m1 = c.getMethod(methodName, ew.getParameterClassTypes());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -132,9 +134,10 @@ public class ExprEngine {
 	public static Object exec(String str) {
 		ExprTreeBuildWalker.funcMap.clear();
 		ExprTreeBuildWalker ew = parse(str);
-		Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
 		try {
-			return m1.invoke(null);
+			Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");
+			if(null != m1)
+				return m1.invoke(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

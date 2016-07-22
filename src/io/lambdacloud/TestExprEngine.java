@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TestExprEngine {
+	public static void main(String[] args){
+		testExprs();
+		test();
+	}
 	
 	public static void testExprs() {
 		//Test array access
@@ -444,11 +448,6 @@ public class TestExprEngine {
 			System.err.println(o1 + " != "+o2);
 			throw new RuntimeException("Assert fail!");
 		}
-	}
-	
-	public static void main(String[] args){
-		testExprs();
-		test();
 	}
 	
 	public static void myPrint(Object o) {

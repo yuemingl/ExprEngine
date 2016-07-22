@@ -292,6 +292,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public Class<?> genClass(String className, boolean writeFile, 
 			String methodName, boolean isStatic, Class<?>[] aryParameterTypes) {
 		try {
+			
+			if(currentScope().stack.isEmpty()) 
+				return null;
+			
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			CodeGenerator cgen = new CodeGenerator();
 			
@@ -874,7 +878,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			
 			boolean isDynamicCall = false;
 			if(null != funcDef && !funcDef.name.equals(this.currentScope().toString())) {
-				className = "global";
+				className = funcDef.getFuncClassName();//"global";
 				isDynamicCall = true;
 			} else if(null != funcDef && funcDef.name.equals(this.currentScope().toString())) {
 				//This is the case that the recursively call of the function
