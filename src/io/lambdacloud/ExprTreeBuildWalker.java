@@ -75,7 +75,7 @@ import io.lambdacloud.statement.VariableNode;
 import io.lambdacloud.statement.WhileNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 //	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 //	
 //	//Variable map which is generated after parsing

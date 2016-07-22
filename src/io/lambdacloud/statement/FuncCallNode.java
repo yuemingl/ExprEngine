@@ -78,9 +78,11 @@ public class FuncCallNode extends ExprNode {
 
 		if(null != this.refFuncDefNode) {
 			String sFuncCall = Type.getMethodDescriptor(this.getType(), this.getParameterTypes());
-			System.out.println(sFuncCall);
-			if(!this.refFuncDefNode.codeGenerated.containsKey(sFuncCall))
+			System.out.println("genCode: "+sFuncCall);
+			if(!this.refFuncDefNode.generatedClasses.containsKey(sFuncCall))
 				this.isDynamicCall = true;
+			else
+				this.isDynamicCall = false;
 		}
 		
 		if (isDynamicCall) { //ExprTreeBuildWalker.funcMap must contain the key this.methodName
@@ -130,7 +132,7 @@ public class FuncCallNode extends ExprNode {
 		
 		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
-			Type retType = fnode.inferRetType(stack, this.getParameterClassTypes());
+			Type retType = fnode.inferRetType(stack, this.getParameterTypes());
 			stack.pop();
 			return retType;
 		} else {
@@ -149,7 +151,7 @@ public class FuncCallNode extends ExprNode {
 				stack.pop();
 				return null;
 			} else {
-				Type retType = fnode.inferRetType(stack, this.getParameterClassTypes());
+				Type retType = fnode.inferRetType(stack, this.getParameterTypes());
 				stack.pop();
 				return retType;
 			}
