@@ -10,10 +10,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import Jama.Matrix;
+
 public class TestExprEngine {
 	public static void main(String[] args){
-		testExprs();
-		test();
+		Matrix m = new Matrix(new double[][]{{1,2},{3,4}});
+		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
+		((Matrix)exec("a+b", getMap("a",m,"b",n))).print(8,2);
+		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
+		
+//		System.out.println(exec("a.*b", getMap("a",1,"b",2)));
+////		System.out.println(exec("'aaa'+'bbb'"));
+//		System.out.println(exec("d=a+b; c='aaa'; d'", getMap("a",1,"b",2)));
+//		System.out.println(exec("c='aaa'; d=a+b; d'", getMap("a",1,"b",2)));
+//		System.out.println(exec("c='aaa'; d=a'+b; d", getMap("a",1,"b",2)));
+		
+//		testExprs();
+//		test();
 	}
 	
 	public static void testExprs() {
