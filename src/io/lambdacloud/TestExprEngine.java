@@ -480,6 +480,12 @@ public class TestExprEngine {
 			for(double d : a)
 				System.out.print(d+", ");
 			System.out.println("]");
+		} else if(o instanceof int[]) {
+			int[] a = (int[])o;
+			System.out.print("[");
+			for(int d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
 		} else {
 			System.out.println(o);
 		}
