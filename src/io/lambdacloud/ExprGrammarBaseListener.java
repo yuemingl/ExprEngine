@@ -438,6 +438,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArithmeticExpressionSOL(ExprGrammarParser.ArithmeticExpressionSOLContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionSOL(ExprGrammarParser.ArithmeticExpressionSOLContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBitExpressionAnd(ExprGrammarParser.BitExpressionAndContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -498,6 +510,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTranspose(ExprGrammarParser.TransposeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTranspose(ExprGrammarParser.TransposeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBitExpressionOr(ExprGrammarParser.BitExpressionOrContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -541,6 +565,18 @@ public class ExprGrammarBaseListener implements ExprGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArithmeticExpressionMul(ExprGrammarParser.ArithmeticExpressionMulContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArithmeticExpressionDMul(ExprGrammarParser.ArithmeticExpressionDMulContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionDMul(ExprGrammarParser.ArithmeticExpressionDMulContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

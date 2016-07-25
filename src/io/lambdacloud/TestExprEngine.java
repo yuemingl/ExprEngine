@@ -18,6 +18,16 @@ public class TestExprEngine {
 		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
 		((Matrix)exec("a+b", getMap("a",m,"b",n))).print(8,2);
 		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
+
+		
+		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+		Matrix A = new Matrix(array);
+		Matrix b = Matrix.random(3,1);
+		((Matrix)exec("a\\b", getMap("a",A,"b",b))).print(8,2);
+		Matrix x = A.solve(b);
+		x.print(8,2);
+		Matrix Residual = A.times(x).minus(b);
+		double rnorm = Residual.normInf();
 		
 //		System.out.println(exec("a.*b", getMap("a",1,"b",2)));
 ////		System.out.println(exec("'aaa'+'bbb'"));

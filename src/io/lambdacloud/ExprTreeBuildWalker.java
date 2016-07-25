@@ -65,6 +65,7 @@ import io.lambdacloud.statement.RemNode;
 import io.lambdacloud.statement.ReturnNode;
 import io.lambdacloud.statement.SHLNode;
 import io.lambdacloud.statement.SHRNode;
+import io.lambdacloud.statement.SolNode;
 import io.lambdacloud.statement.StringCompareNode;
 import io.lambdacloud.statement.StringConcatNode;
 import io.lambdacloud.statement.StringNode;
@@ -1162,6 +1163,21 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			node = new ReturnNode();
 		}
 		this.currentScope().stack.push(node);
+	}
+	
+	@Override public void exitTranspose(ExprGrammarParser.TransposeContext ctx) { 
+		System.out.println(ctx.getText());
+		
+	}
+
+	@Override public void exitArithmeticExpressionDMul(ExprGrammarParser.ArithmeticExpressionDMulContext ctx) { 
+		System.out.println(ctx.getText());
+	}
+	
+	@Override public void exitArithmeticExpressionSOL(ExprGrammarParser.ArithmeticExpressionSOLContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SolNode(v1, v2));
 	}
 
 }
