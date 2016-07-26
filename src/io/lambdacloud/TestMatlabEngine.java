@@ -16,6 +16,7 @@ public class TestMatlabEngine {
 		((Matrix)exec("a + b  ", getMap("a",m,"b",n))).print(8,2);
 		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
 		
+		myPrint(exec("[10.0 20.0 30.0]"));
 		
 		myPrint(exec("[1 2 3]"));
 		myPrint(exec("[1,2,3]"));
@@ -81,7 +82,10 @@ public class TestMatlabEngine {
 			for(int d : a)
 				System.out.print(d+", ");
 			System.out.println("]");
-		} else {
+		} else if(o instanceof Jama.Matrix) {
+			((Jama.Matrix)o).print(8, 2);;
+		}
+		else {
 			System.out.println(o);
 		}
 	}

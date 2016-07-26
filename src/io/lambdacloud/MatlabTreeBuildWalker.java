@@ -26,6 +26,7 @@ import io.lambdacloud.statement.ArrayNode;
 import io.lambdacloud.statement.ConstantNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.FuncDefNode;
+import io.lambdacloud.statement.MatrixNode;
 import io.lambdacloud.statement.VariableNode;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
@@ -417,12 +418,19 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) {
 		//System.out.println(ctx.getText());
+//		int dim = ctx.expression().size();
+//		ArrayNode node = new ArrayNode();
+//		for(int i=0; i<dim; i++) {
+//			node.addInitValues(currentScope().stack.pop());
+//		}
+//		currentScope().stack.push(node);
 		int dim = ctx.expression().size();
-		ArrayNode node = new ArrayNode();
+		MatrixNode node = new MatrixNode();
 		for(int i=0; i<dim; i++) {
 			node.addInitValues(currentScope().stack.pop());
 		}
 		currentScope().stack.push(node);
+
 	}
 	
 }
