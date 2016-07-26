@@ -113,5 +113,8 @@ variable_entity
  : IDENTIFIER                     # EntityVariable
  ;
 
- array_init : LBRK (expression (COMMA|WS+) )* expression? RBRK ;
+ array_init : LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK ;
+
+ expr_list : ( expression (COMMA|WS+) )* expression? ;
+ 
  

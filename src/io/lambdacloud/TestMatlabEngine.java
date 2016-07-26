@@ -11,10 +11,13 @@ import Jama.Matrix;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]"));
+
 		Matrix m = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
 		((Matrix)exec("a + b  ", getMap("a",m,"b",n))).print(8,2);
 		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
+		
 		
 		myPrint(exec("[10.0 20.0 30.0]"));
 		

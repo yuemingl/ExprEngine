@@ -17,7 +17,13 @@ import io.lambdacloud.MethodGenHelper;
 
 public class MatrixNode extends ExprNode {
 	public List<ExprNode> init = new ArrayList<ExprNode>();
-
+	public int rows = 0;
+	
+	//Construct a matrix from a one-dimensional packed array
+	public MatrixNode(int rows) {
+		this.rows = rows;
+	}
+	
 	public void addInitValues(ExprNode val) {
 		init.add(val);
 	}
@@ -31,6 +37,7 @@ public class MatrixNode extends ExprNode {
 	public Matrix test2() {
 		double[][] a = { {1, 2}, {3,4} };
 		Matrix m = new Matrix(a);
+		m.transpose();
 		return m;
 	}
 
@@ -60,9 +67,11 @@ public class MatrixNode extends ExprNode {
 			Tools.insertConversionInsn(mg, init.get(i).getType(), eleType);
 			mg.visitInsn(eleType.getOpcode(IASTORE));
 		}
-		mg.visitInsn(DUP);
-		mg.visitInsn(Opcodes.ARRAYLENGTH);
+		//mg.visitInsn(DUP);
+		//mg.visitInsn(Opcodes.ARRAYLENGTH);
+		mg.visitLdcInsn(rows);
 		mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
+		mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
 		
 		
 	}

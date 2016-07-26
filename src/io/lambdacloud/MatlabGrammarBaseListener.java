@@ -169,6 +169,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExpr_list(MatlabGrammarParser.Expr_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpr_list(MatlabGrammarParser.Expr_listContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

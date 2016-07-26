@@ -417,17 +417,19 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) {
-		//System.out.println(ctx.getText());
-//		int dim = ctx.expression().size();
-//		ArrayNode node = new ArrayNode();
-//		for(int i=0; i<dim; i++) {
-//			node.addInitValues(currentScope().stack.pop());
-//		}
-//		currentScope().stack.push(node);
-		int dim = ctx.expression().size();
-		MatrixNode node = new MatrixNode();
-		for(int i=0; i<dim; i++) {
-			node.addInitValues(currentScope().stack.pop());
+		System.out.println(ctx.getText());
+		
+		if(null == ctx.expr_list()) {
+			//empty matrix
+			throw new RuntimeException("empty matrix is not supported so far.");
+		}
+		int cols = ctx.expr_list(0).expression().size();
+		int rows = ctx.expr_list().size();
+		MatrixNode node = new MatrixNode(rows);
+		for(int i=0; i<cols; i++) {
+			for(int j=0; j<rows; j++) {
+				node.addInitValues(currentScope().stack.pop());
+			}
 		}
 		currentScope().stack.push(node);
 
