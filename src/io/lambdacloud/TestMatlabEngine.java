@@ -14,6 +14,11 @@ public class TestMatlabEngine {
 		Matrix m = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
 
+		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+		Matrix A = new Matrix(array);
+		Matrix b = Matrix.random(3,1);
+		
+		((Matrix)exec("A\\b", getMap("A",A,"b",b))).print(8,2);
 		
 		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]"));
 		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]'"));
