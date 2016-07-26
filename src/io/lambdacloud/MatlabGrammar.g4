@@ -74,7 +74,9 @@ DQUOTE : '"' ;
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
 COMMENT : '//' .+? ('\n'|EOF) -> skip ;
-WS : [ \r\t\u000C]+ -> skip ; //'\n' is not a WS
+SKIP_TOKEN : [\r\u000C]+ -> skip ; //'\n' is not a WS
+
+WS : [ \t] ;
 
 /* Parser rules */
 
@@ -98,9 +100,9 @@ arithmetic_expr
  ;
 
 numeric_entity 
- : integer_entity
- | float_entity
- | variable_entity
+ : WS* integer_entity WS*
+ | WS* float_entity WS*
+ | WS* variable_entity WS*
  ;
 
 integer_entity  : INTEGER        # EntityConstInteger ;
@@ -111,5 +113,5 @@ variable_entity
  : IDENTIFIER                     # EntityVariable
  ;
 
- array_init : LBRK (expression COMMA)* expression? RBRK ;
+ array_init : LBRK (expression (COMMA|WS+) )* expression? RBRK ;
  

@@ -25,7 +25,7 @@ public class MatlabGrammarParser extends Parser {
 		ADD_ASSIGN=30, SUB_ASSIGN=31, MUL_ASSIGN=32, DIV_ASSIGN=33, REM_ASSIGN=34, 
 		ASSIGN=35, LPAREN=36, RPAREN=37, LBRK=38, RBRK=39, LCB=40, RCB=41, INTEGER=42, 
 		FLOAT=43, IDENTIFIER=44, COMMA=45, COLON=46, SEMI=47, PERIOD=48, SQUOTE=49, 
-		DQUOTE=50, COMMENT=51, WS=52;
+		DQUOTE=50, COMMENT=51, SKIP_TOKEN=52, WS=53;
 	public static final int
 		RULE_prog = 0, RULE_expr_end = 1, RULE_statements = 2, RULE_expression = 3, 
 		RULE_arithmetic_expr = 4, RULE_numeric_entity = 5, RULE_integer_entity = 6, 
@@ -48,7 +48,8 @@ public class MatlabGrammarParser extends Parser {
 		"BOR", "BXOR", "BNOT", "SHL", "SHR", "USHR", "INC", "DESC", "ADD_ASSIGN", 
 		"SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "REM_ASSIGN", "ASSIGN", "LPAREN", 
 		"RPAREN", "LBRK", "RBRK", "LCB", "RCB", "INTEGER", "FLOAT", "IDENTIFIER", 
-		"COMMA", "COLON", "SEMI", "PERIOD", "SQUOTE", "DQUOTE", "COMMENT", "WS"
+		"COMMA", "COLON", "SEMI", "PERIOD", "SQUOTE", "DQUOTE", "COMMENT", "SKIP_TOKEN", 
+		"WS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -229,7 +230,7 @@ public class MatlabGrammarParser extends Parser {
 			{
 			setState(32);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRK) | (1L << INTEGER) | (1L << FLOAT) | (1L << IDENTIFIER))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRK) | (1L << INTEGER) | (1L << FLOAT) | (1L << IDENTIFIER) | (1L << WS))) != 0)) {
 				{
 				setState(28);
 				expression();
@@ -308,6 +309,7 @@ public class MatlabGrammarParser extends Parser {
 			case INTEGER:
 			case FLOAT:
 			case IDENTIFIER:
+			case WS:
 				_localctx = new ExprArithmeticContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
@@ -432,6 +434,7 @@ public class MatlabGrammarParser extends Parser {
 			case INTEGER:
 			case FLOAT:
 			case IDENTIFIER:
+			case WS:
 				{
 				_localctx = new ArithmeticExpressionEntityContext(_localctx);
 				_ctx = _localctx;
@@ -485,6 +488,10 @@ public class MatlabGrammarParser extends Parser {
 		public Integer_entityContext integer_entity() {
 			return getRuleContext(Integer_entityContext.class,0);
 		}
+		public List<TerminalNode> WS() { return getTokens(MatlabGrammarParser.WS); }
+		public TerminalNode WS(int i) {
+			return getToken(MatlabGrammarParser.WS, i);
+		}
 		public Float_entityContext float_entity() {
 			return getRuleContext(Float_entityContext.class,0);
 		}
@@ -508,32 +515,123 @@ public class MatlabGrammarParser extends Parser {
 	public final Numeric_entityContext numeric_entity() throws RecognitionException {
 		Numeric_entityContext _localctx = new Numeric_entityContext(_ctx, getState());
 		enterRule(_localctx, 10, RULE_numeric_entity);
+		int _la;
 		try {
-			setState(57);
-			switch (_input.LA(1)) {
-			case INTEGER:
+			int _alt;
+			setState(93);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,12,_ctx) ) {
+			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(54);
+				setState(57);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==WS) {
+					{
+					{
+					setState(54);
+					match(WS);
+					}
+					}
+					setState(59);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(60);
 				integer_entity();
+				setState(64);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1 ) {
+						{
+						{
+						setState(61);
+						match(WS);
+						}
+						} 
+					}
+					setState(66);
+					_errHandler.sync(this);
+					_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
+				}
 				}
 				break;
-			case FLOAT:
+			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(55);
+				setState(70);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==WS) {
+					{
+					{
+					setState(67);
+					match(WS);
+					}
+					}
+					setState(72);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(73);
 				float_entity();
+				setState(77);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1 ) {
+						{
+						{
+						setState(74);
+						match(WS);
+						}
+						} 
+					}
+					setState(79);
+					_errHandler.sync(this);
+					_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
+				}
 				}
 				break;
-			case IDENTIFIER:
+			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(56);
+				setState(83);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==WS) {
+					{
+					{
+					setState(80);
+					match(WS);
+					}
+					}
+					setState(85);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
+				setState(86);
 				variable_entity();
+				setState(90);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
+				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+					if ( _alt==1 ) {
+						{
+						{
+						setState(87);
+						match(WS);
+						}
+						} 
+					}
+					setState(92);
+					_errHandler.sync(this);
+					_alt = getInterpreter().adaptivePredict(_input,11,_ctx);
+				}
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -578,7 +676,7 @@ public class MatlabGrammarParser extends Parser {
 			_localctx = new EntityConstIntegerContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(59);
+			setState(95);
 			match(INTEGER);
 			}
 		}
@@ -624,7 +722,7 @@ public class MatlabGrammarParser extends Parser {
 			_localctx = new EntityConstFloatContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(61);
+			setState(97);
 			match(FLOAT);
 			}
 		}
@@ -670,7 +768,7 @@ public class MatlabGrammarParser extends Parser {
 			_localctx = new EntityVariableContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(63);
+			setState(99);
 			match(IDENTIFIER);
 			}
 		}
@@ -698,6 +796,10 @@ public class MatlabGrammarParser extends Parser {
 		public TerminalNode COMMA(int i) {
 			return getToken(MatlabGrammarParser.COMMA, i);
 		}
+		public List<TerminalNode> WS() { return getTokens(MatlabGrammarParser.WS); }
+		public TerminalNode WS(int i) {
+			return getToken(MatlabGrammarParser.WS, i);
+		}
 		public Array_initContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -720,36 +822,69 @@ public class MatlabGrammarParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(65);
+			setState(101);
 			match(LBRK);
-			setState(71);
+			setState(113);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(66);
+					setState(102);
 					expression();
-					setState(67);
-					match(COMMA);
+					setState(109);
+					switch (_input.LA(1)) {
+					case COMMA:
+						{
+						setState(103);
+						match(COMMA);
+						}
+						break;
+					case WS:
+						{
+						setState(105); 
+						_errHandler.sync(this);
+						_alt = 1;
+						do {
+							switch (_alt) {
+							case 1:
+								{
+								{
+								setState(104);
+								match(WS);
+								}
+								}
+								break;
+							default:
+								throw new NoViableAltException(this);
+							}
+							setState(107); 
+							_errHandler.sync(this);
+							_alt = getInterpreter().adaptivePredict(_input,13,_ctx);
+						} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+						}
+						break;
+					default:
+						throw new NoViableAltException(this);
+					}
 					}
 					} 
 				}
-				setState(73);
+				setState(115);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,7,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,15,_ctx);
 			}
-			setState(75);
+			setState(117);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRK) | (1L << INTEGER) | (1L << FLOAT) | (1L << IDENTIFIER))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRK) | (1L << INTEGER) | (1L << FLOAT) | (1L << IDENTIFIER) | (1L << WS))) != 0)) {
 				{
-				setState(74);
+				setState(116);
 				expression();
 				}
 			}
 
-			setState(77);
+			setState(119);
 			match(RBRK);
 			}
 		}
@@ -780,27 +915,37 @@ public class MatlabGrammarParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\66R\4\2\t\2\4\3\t"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\67|\4\2\t\2\4\3\t"+
 		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\3"+
 		"\2\3\2\3\2\3\3\6\3\33\n\3\r\3\16\3\34\3\4\3\4\5\4!\n\4\5\4#\n\4\3\5\3"+
 		"\5\5\5\'\n\5\3\6\3\6\3\6\3\6\3\6\3\6\5\6/\n\6\3\6\3\6\3\6\7\6\64\n\6\f"+
-		"\6\16\6\67\13\6\3\7\3\7\3\7\5\7<\n\7\3\b\3\b\3\t\3\t\3\n\3\n\3\13\3\13"+
-		"\3\13\3\13\7\13H\n\13\f\13\16\13K\13\13\3\13\5\13N\n\13\3\13\3\13\3\13"+
-		"\2\3\n\f\2\4\6\b\n\f\16\20\22\24\2\3\4\2\3\3\61\61Q\2\26\3\2\2\2\4\32"+
-		"\3\2\2\2\6\"\3\2\2\2\b&\3\2\2\2\n.\3\2\2\2\f;\3\2\2\2\16=\3\2\2\2\20?"+
-		"\3\2\2\2\22A\3\2\2\2\24C\3\2\2\2\26\27\5\6\4\2\27\30\7\2\2\3\30\3\3\2"+
+		"\6\16\6\67\13\6\3\7\7\7:\n\7\f\7\16\7=\13\7\3\7\3\7\7\7A\n\7\f\7\16\7"+
+		"D\13\7\3\7\7\7G\n\7\f\7\16\7J\13\7\3\7\3\7\7\7N\n\7\f\7\16\7Q\13\7\3\7"+
+		"\7\7T\n\7\f\7\16\7W\13\7\3\7\3\7\7\7[\n\7\f\7\16\7^\13\7\5\7`\n\7\3\b"+
+		"\3\b\3\t\3\t\3\n\3\n\3\13\3\13\3\13\3\13\6\13l\n\13\r\13\16\13m\5\13p"+
+		"\n\13\7\13r\n\13\f\13\16\13u\13\13\3\13\5\13x\n\13\3\13\3\13\3\13\2\3"+
+		"\n\f\2\4\6\b\n\f\16\20\22\24\2\3\4\2\3\3\61\61\u0083\2\26\3\2\2\2\4\32"+
+		"\3\2\2\2\6\"\3\2\2\2\b&\3\2\2\2\n.\3\2\2\2\f_\3\2\2\2\16a\3\2\2\2\20c"+
+		"\3\2\2\2\22e\3\2\2\2\24g\3\2\2\2\26\27\5\6\4\2\27\30\7\2\2\3\30\3\3\2"+
 		"\2\2\31\33\t\2\2\2\32\31\3\2\2\2\33\34\3\2\2\2\34\32\3\2\2\2\34\35\3\2"+
 		"\2\2\35\5\3\2\2\2\36 \5\b\5\2\37!\5\4\3\2 \37\3\2\2\2 !\3\2\2\2!#\3\2"+
 		"\2\2\"\36\3\2\2\2\"#\3\2\2\2#\7\3\2\2\2$\'\5\n\6\2%\'\5\24\13\2&$\3\2"+
 		"\2\2&%\3\2\2\2\'\t\3\2\2\2()\b\6\1\2)*\7&\2\2*+\5\n\6\2+,\7\'\2\2,/\3"+
 		"\2\2\2-/\5\f\7\2.(\3\2\2\2.-\3\2\2\2/\65\3\2\2\2\60\61\f\5\2\2\61\62\7"+
 		"\4\2\2\62\64\5\n\6\6\63\60\3\2\2\2\64\67\3\2\2\2\65\63\3\2\2\2\65\66\3"+
-		"\2\2\2\66\13\3\2\2\2\67\65\3\2\2\28<\5\16\b\29<\5\20\t\2:<\5\22\n\2;8"+
-		"\3\2\2\2;9\3\2\2\2;:\3\2\2\2<\r\3\2\2\2=>\7,\2\2>\17\3\2\2\2?@\7-\2\2"+
-		"@\21\3\2\2\2AB\7.\2\2B\23\3\2\2\2CI\7(\2\2DE\5\b\5\2EF\7/\2\2FH\3\2\2"+
-		"\2GD\3\2\2\2HK\3\2\2\2IG\3\2\2\2IJ\3\2\2\2JM\3\2\2\2KI\3\2\2\2LN\5\b\5"+
-		"\2ML\3\2\2\2MN\3\2\2\2NO\3\2\2\2OP\7)\2\2P\25\3\2\2\2\13\34 \"&.\65;I"+
-		"M";
+		"\2\2\2\66\13\3\2\2\2\67\65\3\2\2\28:\7\67\2\298\3\2\2\2:=\3\2\2\2;9\3"+
+		"\2\2\2;<\3\2\2\2<>\3\2\2\2=;\3\2\2\2>B\5\16\b\2?A\7\67\2\2@?\3\2\2\2A"+
+		"D\3\2\2\2B@\3\2\2\2BC\3\2\2\2C`\3\2\2\2DB\3\2\2\2EG\7\67\2\2FE\3\2\2\2"+
+		"GJ\3\2\2\2HF\3\2\2\2HI\3\2\2\2IK\3\2\2\2JH\3\2\2\2KO\5\20\t\2LN\7\67\2"+
+		"\2ML\3\2\2\2NQ\3\2\2\2OM\3\2\2\2OP\3\2\2\2P`\3\2\2\2QO\3\2\2\2RT\7\67"+
+		"\2\2SR\3\2\2\2TW\3\2\2\2US\3\2\2\2UV\3\2\2\2VX\3\2\2\2WU\3\2\2\2X\\\5"+
+		"\22\n\2Y[\7\67\2\2ZY\3\2\2\2[^\3\2\2\2\\Z\3\2\2\2\\]\3\2\2\2]`\3\2\2\2"+
+		"^\\\3\2\2\2_;\3\2\2\2_H\3\2\2\2_U\3\2\2\2`\r\3\2\2\2ab\7,\2\2b\17\3\2"+
+		"\2\2cd\7-\2\2d\21\3\2\2\2ef\7.\2\2f\23\3\2\2\2gs\7(\2\2ho\5\b\5\2ip\7"+
+		"/\2\2jl\7\67\2\2kj\3\2\2\2lm\3\2\2\2mk\3\2\2\2mn\3\2\2\2np\3\2\2\2oi\3"+
+		"\2\2\2ok\3\2\2\2pr\3\2\2\2qh\3\2\2\2ru\3\2\2\2sq\3\2\2\2st\3\2\2\2tw\3"+
+		"\2\2\2us\3\2\2\2vx\5\b\5\2wv\3\2\2\2wx\3\2\2\2xy\3\2\2\2yz\7)\2\2z\25"+
+		"\3\2\2\2\23\34 \"&.\65;BHOU\\_mosw";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
