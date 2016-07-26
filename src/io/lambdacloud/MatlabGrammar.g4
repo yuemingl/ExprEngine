@@ -94,7 +94,9 @@ expression
  ;
 
 arithmetic_expr
- : arithmetic_expr ADD arithmetic_expr       # ArithmeticExpressionAdd
+ : arithmetic_expr SQUOTE                    # Transpose
+ | arithmetic_expr SOL arithmetic_expr       # ArithmeticExpressionSOL
+ | arithmetic_expr ADD arithmetic_expr       # ArithmeticExpressionAdd
  | LPAREN arithmetic_expr RPAREN             # ArithmeticExpressionParens
  | numeric_entity                            # ArithmeticExpressionEntity
  ;

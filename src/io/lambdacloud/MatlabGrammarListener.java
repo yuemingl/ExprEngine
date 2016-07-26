@@ -64,6 +64,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprArrayInit(MatlabGrammarParser.ExprArrayInitContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionSOL}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionSOL}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -87,6 +99,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Transpose}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterTranspose(MatlabGrammarParser.TransposeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Transpose}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitTranspose(MatlabGrammarParser.TransposeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionAdd}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.

@@ -1,4 +1,4 @@
-package io.lambdacloud.statement;
+package io.lambdacloud.statement.matrix;
 
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -14,6 +14,8 @@ import org.objectweb.asm.Type;
 
 import Jama.Matrix;
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.statement.ExprNode;
+import io.lambdacloud.statement.Tools;
 
 public class MatrixNode extends ExprNode {
 	public List<ExprNode> init = new ArrayList<ExprNode>();

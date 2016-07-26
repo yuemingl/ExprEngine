@@ -1,9 +1,12 @@
-package io.lambdacloud.statement;
+package io.lambdacloud.statement.matrix;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.statement.BinaryOp;
+import io.lambdacloud.statement.ExprNode;
+import io.lambdacloud.statement.Tools;
 
 public class SolNode extends BinaryOp {
 	public SolNode(ExprNode left, ExprNode right) {
