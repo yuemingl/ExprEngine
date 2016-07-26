@@ -28,7 +28,7 @@ import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.FuncDefNode;
 import io.lambdacloud.statement.VariableNode;
 import io.lambdacloud.statement.matrix.MatrixNode;
-import io.lambdacloud.statement.matrix.SolNode;
+import io.lambdacloud.statement.matrix.SolveNode;
 import io.lambdacloud.statement.matrix.TransposeNode;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
@@ -445,9 +445,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //		System.out.println(ctx.getText());
 //	}
 	
-	@Override public void exitArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx) {
+	@Override public void exitArithmeticExpressionSolve(MatlabGrammarParser.ArithmeticExpressionSolveContext ctx) {
 		ExprNode v2 = currentScope().stack.pop();
 		ExprNode v1 = currentScope().stack.pop();
-		currentScope().stack.push(new SolNode(v1, v2));
+		currentScope().stack.push(new SolveNode(v1, v2));
 	}
 }

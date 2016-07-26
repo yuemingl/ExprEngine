@@ -54,13 +54,13 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { }
+	@Override public void enterTranspose(MatlabGrammarParser.TransposeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { }
+	@Override public void exitTranspose(MatlabGrammarParser.TransposeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -78,13 +78,25 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx) { }
+	@Override public void enterExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx) { }
+	@Override public void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArithmeticExpressionSolve(MatlabGrammarParser.ArithmeticExpressionSolveContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionSolve(MatlabGrammarParser.ArithmeticExpressionSolveContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -109,18 +121,6 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTranspose(MatlabGrammarParser.TransposeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTranspose(MatlabGrammarParser.TransposeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

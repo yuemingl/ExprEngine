@@ -8,8 +8,8 @@ import io.lambdacloud.statement.BinaryOp;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.Tools;
 
-public class SolNode extends BinaryOp {
-	public SolNode(ExprNode left, ExprNode right) {
+public class SolveNode extends BinaryOp {
+	public SolveNode(ExprNode left, ExprNode right) {
 		this.left = left;
 		this.left.genLoadInsn(true);
 		this.right = right;

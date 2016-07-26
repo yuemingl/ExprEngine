@@ -53,7 +53,7 @@ import io.lambdacloud.statement.LTNode;
 import io.lambdacloud.statement.ListComprehensionNode;
 import io.lambdacloud.statement.ListComprehensionNode.LForNode;
 import io.lambdacloud.statement.ListComprehensionNode.LIfNode;
-import io.lambdacloud.statement.matrix.SolNode;
+import io.lambdacloud.statement.matrix.SolveNode;
 import io.lambdacloud.statement.MulAsignNode;
 import io.lambdacloud.statement.MultNode;
 import io.lambdacloud.statement.NEQNode;
@@ -1177,7 +1177,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitArithmeticExpressionSOL(ExprGrammarParser.ArithmeticExpressionSOLContext ctx) {
 		ExprNode v2 = currentScope().stack.pop();
 		ExprNode v1 = currentScope().stack.pop();
-		currentScope().stack.push(new SolNode(v1, v2));
+		currentScope().stack.push(new SolveNode(v1, v2));
 	}
 
 }

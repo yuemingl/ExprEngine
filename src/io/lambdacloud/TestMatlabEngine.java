@@ -16,6 +16,7 @@ public class TestMatlabEngine {
 
 		
 		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]"));
+		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]'"));
 		myPrint(exec("A'", getMap("A",m)));
 
 //		((Matrix)exec("a + b  ", getMap("a",m,"b",n))).print(8,2);
