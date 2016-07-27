@@ -17,12 +17,12 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.Tools;
 
-public class MatrixNode extends ExprNode {
+public class MatrixInitNode extends ExprNode {
 	public List<ExprNode> init = new ArrayList<ExprNode>();
 	public int rows = 0;
 	
 	//Construct a matrix from a one-dimensional packed array
-	public MatrixNode(int rows) {
+	public MatrixInitNode(int rows) {
 		this.rows = rows;
 	}
 	

@@ -97,6 +97,7 @@ expression
 arithmetic_expr
  : arithmetic_expr SOL arithmetic_expr       # ArithmeticExpressionSolve
  | arithmetic_expr ADD arithmetic_expr       # ArithmeticExpressionAdd
+ | arithmetic_expr COLON arithmetic_expr     # ArithmeticExpressionRange
  | LPAREN arithmetic_expr RPAREN             # ArithmeticExpressionParens
  | numeric_entity                            # ArithmeticExpressionEntity
  ;
@@ -113,10 +114,12 @@ float_entity    : FLOAT          # EntityConstFloat   ;
 
 variable_entity 
  : IDENTIFIER                     # EntityVariable
+ | IDENTIFIER func_args           # EntityArrayAccess
  ;
 
- array_init : LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK ;
+array_init : LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK ;
 
- expr_list : ( expression (COMMA|WS+) )* expression? ;
- 
- 
+expr_list : ( expression (COMMA|WS+) )* expression? ;
+
+func_args : LPAREN expr_list RPAREN ;
+

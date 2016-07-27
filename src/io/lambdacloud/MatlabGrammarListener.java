@@ -100,6 +100,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionEntity(MatlabGrammarParser.ArithmeticExpressionEntityContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionRange}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionRange}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionParens}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -170,6 +182,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code EntityArrayAccess}
+	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
+	 * @param ctx the parse tree
+	 */
+	void enterEntityArrayAccess(MatlabGrammarParser.EntityArrayAccessContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code EntityArrayAccess}
+	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
+	 * @param ctx the parse tree
+	 */
+	void exitEntityArrayAccess(MatlabGrammarParser.EntityArrayAccessContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#array_init}.
 	 * @param ctx the parse tree
 	 */
@@ -189,4 +213,14 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr_list(MatlabGrammarParser.Expr_listContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#func_args}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunc_args(MatlabGrammarParser.Func_argsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#func_args}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunc_args(MatlabGrammarParser.Func_argsContext ctx);
 }

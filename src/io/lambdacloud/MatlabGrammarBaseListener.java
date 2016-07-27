@@ -114,6 +114,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -186,6 +198,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterEntityArrayAccess(MatlabGrammarParser.EntityArrayAccessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntityArrayAccess(MatlabGrammarParser.EntityArrayAccessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArray_init(MatlabGrammarParser.Array_initContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -205,6 +229,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpr_list(MatlabGrammarParser.Expr_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunc_args(MatlabGrammarParser.Func_argsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunc_args(MatlabGrammarParser.Func_argsContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

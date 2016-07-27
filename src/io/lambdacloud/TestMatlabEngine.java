@@ -18,13 +18,16 @@ public class TestMatlabEngine {
 		Matrix A = new Matrix(array);
 		Matrix b = Matrix.random(3,1);
 		
-		myPrint(exec("[1. .2 3.]"));
+		myPrint(exec("A(1,1:2)", getMap("A",array)));
+		//myPrint(exec("A(1,1)", getMap("A",A)));
 		
-		((Matrix)exec("A\\b", getMap("A",A,"b",b))).print(8,2);
-		
-		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]"));
-		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]'"));
-		myPrint(exec("A'", getMap("A",m)));
+//		myPrint(exec("[1. .2 3.]"));
+//		
+//		((Matrix)exec("A\\b", getMap("A",A,"b",b))).print(8,2);
+//		
+//		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]"));
+//		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]'"));
+//		myPrint(exec("A'", getMap("A",m)));
 
 //		((Matrix)exec("a + b  ", getMap("a",m,"b",n))).print(8,2);
 //		//System.out.println(exec("a+b", getMap("a",2,"b",3)));

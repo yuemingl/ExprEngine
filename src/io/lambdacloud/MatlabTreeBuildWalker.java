@@ -21,13 +21,17 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.ExprGrammarParser.Array_indexContext;
+import io.lambdacloud.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.statement.AddNode;
+import io.lambdacloud.statement.ArrayAccessNode;
 import io.lambdacloud.statement.ArrayNode;
 import io.lambdacloud.statement.ConstantNode;
 import io.lambdacloud.statement.ExprNode;
 import io.lambdacloud.statement.FuncDefNode;
+import io.lambdacloud.statement.RangeNode;
 import io.lambdacloud.statement.VariableNode;
-import io.lambdacloud.statement.matrix.MatrixNode;
+import io.lambdacloud.statement.matrix.MatrixInitNode;
 import io.lambdacloud.statement.matrix.SolveNode;
 import io.lambdacloud.statement.matrix.TransposeNode;
 
@@ -427,7 +431,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		int cols = ctx.expr_list(0).expression().size();
 		int rows = ctx.expr_list().size();
-		MatrixNode node = new MatrixNode(rows);
+		MatrixInitNode node = new MatrixInitNode(rows);
 		for(int i=0; i<cols; i++) {
 			for(int j=0; j<rows; j++) {
 				node.addInitValues(currentScope().stack.pop());
@@ -450,4 +454,36 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		ExprNode v1 = currentScope().stack.pop();
 		currentScope().stack.push(new SolveNode(v1, v2));
 	}
+	
+	@Override public void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx) {
+		ExprNode idxE = this.currentScope().stack.pop();
+		ExprNode idxS = this.currentScope().stack.pop();
+		RangeNode node = new RangeNode(idxS, idxE, true);
+		currentScope().stack.push(node);
+	}
+	
+	@Override public void exitEntityArrayAccess(MatlabGrammarParser.EntityArrayAccessContext ctx) { 
+		String varName = ctx.IDENTIFIER().getText();
+		VariableNode var = this.currentScope().varMap.get(varName);
+		if(null == var) {
+			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
+			currentScope().varMap.put(varName, var);
+		}
+		
+		ArrayAccessNode node = new ArrayAccessNode(var);
+		for(int i=ctx.func_args().expr_list().expression().size()-1; i>=0; i--) {
+			//ExpressionContext aic = ctx.func_args().expr_list().expression(i);
+			ExprNode idxS = this.currentScope().stack.pop();
+			ExprNode idxE = null;
+			if(idxS instanceof RangeNode) {
+				RangeNode range = (RangeNode)idxS;
+				idxS = range.start;
+				idxE = range.end; //end+1 =>new AddNode(end, 1)
+			}
+			node.addIndex(idxS, idxE);
+		}
+
+		this.currentScope().stack.push(node);
+	}
+
 }

@@ -10,9 +10,9 @@ import org.objectweb.asm.Opcodes;
 import io.lambdacloud.MethodGenHelper;
 
 public class RangeNode extends ExprNode {
-	ExprNode start;
-	ExprNode end;
-	boolean includeEnd;
+	public ExprNode start;
+	public ExprNode end;
+	public boolean includeEnd;
 	
 	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
 		this.start = start;
