@@ -15,8 +15,8 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.ExprTreeBuildWalker;
 import io.lambdacloud.MethodGenHelper;
-import io.lambdacloud.exprengine.ExprTreeBuildWalker;
 
 public class FuncCallNode extends ExprNode {
 	String fullClassName;
@@ -88,8 +88,9 @@ public class FuncCallNode extends ExprNode {
 		if (isDynamicCall) { //ExprTreeBuildWalker.funcMap must contain the key this.methodName
 			MethodType mt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class,
 					MethodType.class);
-
-			Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, "io/lambdacloud/ExprTreeBuildWalker",
+			
+			Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, 
+					Type.getType(ExprTreeBuildWalker.class).getInternalName(), //"io/lambdacloud/ExprTreeBuildWalker"
 					"bootstrap", mt.toMethodDescriptorString());
 			for (int i = args.size() - 1; i >= 0; i--) {
 				args.get(i).genCode(mg);

@@ -2,7 +2,7 @@ package io.lambdacloud.test;
 
 import static io.lambdacloud.ExprEngine.*;
 import io.lambdacloud.ExprEngine;
-import io.lambdacloud.exprengine.ExprTreeBuildWalker;
+import io.lambdacloud.ExprTreeBuildWalker;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -15,20 +15,20 @@ import Jama.Matrix;
 
 public class TestExprEngine {
 	public static void main(String[] args){
-		Matrix m = new Matrix(new double[][]{{1,2},{3,4}});
-		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
-		((Matrix)exec("a+b", getMap("a",m,"b",n))).print(8,2);
-		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
-
-		
-		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
-		Matrix A = new Matrix(array);
-		Matrix b = Matrix.random(3,1);
-		((Matrix)exec("a\\b", getMap("a",A,"b",b))).print(8,2);
-		Matrix x = A.solve(b);
-		x.print(8,2);
-		Matrix Residual = A.times(x).minus(b);
-		double rnorm = Residual.normInf();
+//		Matrix m = new Matrix(new double[][]{{1,2},{3,4}});
+//		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
+//		((Matrix)exec("a+b", getMap("a",m,"b",n))).print(8,2);
+//		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
+//
+//		
+//		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+//		Matrix A = new Matrix(array);
+//		Matrix b = Matrix.random(3,1);
+//		((Matrix)exec("a\\b", getMap("a",A,"b",b))).print(8,2);
+//		Matrix x = A.solve(b);
+//		x.print(8,2);
+//		Matrix Residual = A.times(x).minus(b);
+//		double rnorm = Residual.normInf();
 		
 //		System.out.println(exec("a.*b", getMap("a",1,"b",2)));
 ////		System.out.println(exec("'aaa'+'bbb'"));
@@ -36,8 +36,8 @@ public class TestExprEngine {
 //		System.out.println(exec("c='aaa'; d=a+b; d'", getMap("a",1,"b",2)));
 //		System.out.println(exec("c='aaa'; d=a'+b; d", getMap("a",1,"b",2)));
 		
-//		testExprs();
-//		test();
+		testExprs();
+		test();
 	}
 	
 	public static void testExprs() {
@@ -166,13 +166,13 @@ public class TestExprEngine {
 		exec("println('Begin test:'); print(1); print(2.0); println(true)");
 		exec("println(\"hello world!\")");
 		
-		assertEqual(exec("i+io.lambdacloud.TestExprEngine.arrayArgFunc(ary)", 
+		assertEqual(exec("i+io.lambdacloud.test.TestExprEngine.arrayArgFunc(ary)", 
 				getMap(
 						"i",10, 
 						"ary",new int[]{3,4,5}
 					)), 13);
 		
-		assertEqual(exec("io.lambdacloud.TestExprEngine.arrayArgFunc(ary)",new Object[]{ new int[]{3,4,5} }), 3);
+		assertEqual(exec("io.lambdacloud.test.TestExprEngine.arrayArgFunc(ary)",new Object[]{ new int[]{3,4,5} }), 3);
 
 		assertEqual(exec("Math.abs(i+j)",new Object[]{-0.5,-0.7}), 1.2);
 		assertEqual(exec("Math.max(i,j)",new double[]{5.0,5.1}), 5.1);

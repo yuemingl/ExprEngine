@@ -16,7 +16,7 @@ import org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.CodeGenerator;
 import io.lambdacloud.ExprClassLoader;
-import io.lambdacloud.exprengine.ExprTreeBuildWalker;
+import io.lambdacloud.ExprTreeBuildWalker;
 
 import static io.lambdacloud.ExprEngine.genStaticMethod;
 import static io.lambdacloud.ExprEngine.parse;
