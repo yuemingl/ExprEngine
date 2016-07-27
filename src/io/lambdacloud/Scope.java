@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import io.lambdacloud.statement.ExprNode;
-import io.lambdacloud.statement.VariableNode;
+import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.VariableNode;
 
 public class Scope {
 	private String name;
