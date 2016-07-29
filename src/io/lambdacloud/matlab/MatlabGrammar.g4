@@ -1,7 +1,7 @@
 grammar MatlabGrammar;
 
 @header {
-package io.lambdacloud;
+package io.lambdacloud.matlab;
 }
 
 /* Lexical rules */
@@ -12,8 +12,13 @@ MUL : '*' ;
 DIV : '/' ;
 REM : '%' ;
 POW : '**' ;
-DMUL : '.*' ;
 SOL : '\\' ;
+
+DADD : '.+' ;
+DSUB : '.-' ;
+DMUL : '.*' ;
+DRDIV : './' ;
+DLDIV : '.\\' ;
 
 AND : 'and' | '&&' ;
 OR  : 'or' | '||' ;
@@ -91,15 +96,25 @@ statements
 expression
  : arithmetic_expr       # ExprArithmetic
  | array_init            # ExprArrayInit
- | expression SQUOTE     # Transpose
  ;
 
 arithmetic_expr
- : arithmetic_expr SOL arithmetic_expr       # ArithmeticExpressionSolve
- | arithmetic_expr ADD arithmetic_expr       # ArithmeticExpressionAdd
- | arithmetic_expr COLON arithmetic_expr     # ArithmeticExpressionRange
- | LPAREN arithmetic_expr RPAREN             # ArithmeticExpressionParens
- | numeric_entity                            # ArithmeticExpressionEntity
+ : arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSolve
+ | arithmetic_expr SQUOTE                     # Transpose
+ | SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
+ | arithmetic_expr POW arithmetic_expr        # ArithmeticExpressionPow
+ | arithmetic_expr MUL arithmetic_expr        # ArithmeticExpressionMul
+ | arithmetic_expr DMUL arithmetic_expr       # ArithmeticExpressionDMul
+ | arithmetic_expr DIV arithmetic_expr        # ArithmeticExpressionDiv
+ | arithmetic_expr DLDIV arithmetic_expr       # ArithmeticExpressionDLDiv
+ | arithmetic_expr DRDIV arithmetic_expr       # ArithmeticExpressionDRDiv
+ | arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSOL
+ | arithmetic_expr REM arithmetic_expr        # ArithmeticExpressionRem
+ | arithmetic_expr (ADD|DADD) arithmetic_expr # ArithmeticExpressionAdd
+ | arithmetic_expr (SUB|DSUB) arithmetic_expr # ArithmeticExpressionSub
+ | arithmetic_expr COLON arithmetic_expr      # ArithmeticExpressionRange
+ | LPAREN arithmetic_expr RPAREN              # ArithmeticExpressionParens
+ | numeric_entity                             # ArithmeticExpressionEntity
  ;
 
 numeric_entity 

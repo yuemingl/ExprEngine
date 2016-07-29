@@ -1,6 +1,7 @@
 package io.lambdacloud.node.arithmetric;
 
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
@@ -18,8 +19,13 @@ public class NegateNode extends UnaryOp {
 	}
 
 	public void genCode(MethodGenHelper mg) {
+		Type myType = this.getType();
 		expr.genCode(mg);
-		mg.visitInsn(getType().getOpcode(Opcodes.INEG));
-
+		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "uminus", "()LJama/Matrix;", false);
+		} else {
+			mg.visitInsn(getType().getOpcode(Opcodes.INEG));
+		}
+		
 	}
 }

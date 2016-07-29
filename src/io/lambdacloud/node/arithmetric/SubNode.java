@@ -26,6 +26,10 @@ public class SubNode extends BinaryOp {
 		Tools.insertConversionInsn(mg, left.getType(), myType);
 		right.genCode(mg);
 		Tools.insertConversionInsn(mg, right.getType(), myType);
-		mg.visitInsn(myType.getOpcode(Opcodes.ISUB));
+		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "minus", "(LJama/Matrix;)LJama/Matrix;", false);
+		} else {
+			mg.visitInsn(myType.getOpcode(Opcodes.ISUB));
+		}
 	}
 }

@@ -41,8 +41,16 @@ import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.arithmetric.AddNode;
+import io.lambdacloud.node.arithmetric.DivNode;
+import io.lambdacloud.node.arithmetric.MultNode;
+import io.lambdacloud.node.arithmetric.NegateNode;
+import io.lambdacloud.node.arithmetric.SubNode;
 import io.lambdacloud.node.array.ArrayAccessNode;
 import io.lambdacloud.node.array.ArrayNode;
+import io.lambdacloud.node.matrix.MatrixAccessNode;
+import io.lambdacloud.node.matrix.MatrixDLDivNode;
+import io.lambdacloud.node.matrix.MatrixDMulNode;
+import io.lambdacloud.node.matrix.MatrixDRDivNode;
 import io.lambdacloud.node.matrix.MatrixInitNode;
 import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.matrix.TransposeNode;
@@ -421,11 +429,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitProg(MatlabGrammarParser.ProgContext ctx) { 
 	}
 	
-	@Override public void exitArithmeticExpressionAdd(MatlabGrammarParser.ArithmeticExpressionAddContext ctx) {
-		ExprNode v2 = currentScope().stack.pop();
-		ExprNode v1 = currentScope().stack.pop();
-		currentScope().stack.push(new AddNode(v1, v2));
-	}
 	@Override public void exitEntityConstInteger(MatlabGrammarParser.EntityConstIntegerContext ctx) {
 		//System.out.println("exitConstInteger"+ctx.getText());
 		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
@@ -482,9 +485,21 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			currentScope().varMap.put(varName, var);
 		}
 		
-		ArrayAccessNode node = new ArrayAccessNode(var);
+//		ArrayAccessNode node = new ArrayAccessNode(var);
+//		for(int i=ctx.func_args().expr_list().expression().size()-1; i>=0; i--) {
+//			//ExpressionContext aic = ctx.func_args().expr_list().expression(i);
+//			ExprNode idxS = this.currentScope().stack.pop();
+//			ExprNode idxE = null;
+//			if(idxS instanceof RangeNode) {
+//				RangeNode range = (RangeNode)idxS;
+//				idxS = range.start;
+//				idxE = range.end; //end+1 =>new AddNode(end, 1)
+//			}
+//			node.addIndex(idxS, idxE);
+//		}
+		
+		MatrixAccessNode node = new MatrixAccessNode(var);
 		for(int i=ctx.func_args().expr_list().expression().size()-1; i>=0; i--) {
-			//ExpressionContext aic = ctx.func_args().expr_list().expression(i);
 			ExprNode idxS = this.currentScope().stack.pop();
 			ExprNode idxE = null;
 			if(idxS instanceof RangeNode) {
@@ -496,6 +511,52 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 
 		this.currentScope().stack.push(node);
+	}
+	
+	@Override public void exitArithmeticExpressionAdd(MatlabGrammarParser.ArithmeticExpressionAddContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new AddNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionSub(MatlabGrammarParser.ArithmeticExpressionSubContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SubNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionMul(MatlabGrammarParser.ArithmeticExpressionMulContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MultNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionDiv(MatlabGrammarParser.ArithmeticExpressionDivContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new DivNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionDMul(MatlabGrammarParser.ArithmeticExpressionDMulContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MatrixDMulNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionDLDiv(MatlabGrammarParser.ArithmeticExpressionDLDivContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MatrixDLDivNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionDRDiv(MatlabGrammarParser.ArithmeticExpressionDRDivContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MatrixDRDivNode(v1, v2));
+	}
+	@Override public void exitArithmeticExpressionNegationEntity(MatlabGrammarParser.ArithmeticExpressionNegationEntityContext ctx) {
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new NegateNode(v1));
+		
+	}
+	
+	@Override public void exitArithmeticExpressionEntity(MatlabGrammarParser.ArithmeticExpressionEntityContext ctx) {
+		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
+		//Do nothing
 	}
 
 }

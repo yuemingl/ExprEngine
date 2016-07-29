@@ -15,11 +15,27 @@ public class TestMatlabEngine {
 		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
 
 		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+		double[][] array2 = {{1.,2.,3},{1.,1.,1.},{2.,2.,2.}};
 		Matrix A = new Matrix(array);
+		Matrix B = new Matrix(array2);
 		Matrix b = Matrix.random(3,1);
 		
-		myPrint(exec("A(1,1:2)", getMap("A",array)));
-		//myPrint(exec("A(1,1)", getMap("A",A)));
+		myPrint(exec("-A", getMap("A",A)));
+		myPrint(exec("A+B", getMap("A",A,"B",B)));
+		myPrint(exec("A-B", getMap("A",A,"B",B)));
+		myPrint(exec("A*B", getMap("A",A,"B",B)));
+		myPrint(exec("B/A", getMap("A",A,"B",B)));
+		myPrint(exec("A\\B", getMap("A",A,"B",B)));
+		myPrint(exec("A.*B", getMap("A",A,"B",B)));
+		myPrint(exec("A.\\B", getMap("A",A,"B",B)));
+		myPrint(exec("A./B", getMap("A",A,"B",B)));
+		
+		
+		//myPrint(exec("A(1,1:2)", getMap("A",array)));
+		
+		//myPrint(exec("A(1,1:2)", getMap("A",array)));
+		//myPrint(exec("A(1:2,1:2)", getMap("A",A)));
+		//myPrint(exec("A(1:2,2)", getMap("A",A)));
 		
 //		myPrint(exec("[1. .2 3.]"));
 //		

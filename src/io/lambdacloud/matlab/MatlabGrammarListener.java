@@ -40,17 +40,17 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitStatements(MatlabGrammarParser.StatementsContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code Transpose}
+	 * Enter a parse tree produced by the {@code ExprArithmetic}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterTranspose(MatlabGrammarParser.TransposeContext ctx);
+	void enterExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code Transpose}
+	 * Exit a parse tree produced by the {@code ExprArithmetic}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitTranspose(MatlabGrammarParser.TransposeContext ctx);
+	void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprArrayInit}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
@@ -64,17 +64,29 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprArrayInit(MatlabGrammarParser.ExprArrayInitContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprArithmetic}
-	 * labeled alternative in {@link MatlabGrammarParser#expression}.
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionDLDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx);
+	void enterArithmeticExpressionDLDiv(MatlabGrammarParser.ArithmeticExpressionDLDivContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprArithmetic}
-	 * labeled alternative in {@link MatlabGrammarParser#expression}.
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionDLDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx);
+	void exitArithmeticExpressionDLDiv(MatlabGrammarParser.ArithmeticExpressionDLDivContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionSOL}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionSOL}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionSOL(MatlabGrammarParser.ArithmeticExpressionSOLContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionSolve}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
@@ -87,6 +99,90 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionSolve(MatlabGrammarParser.ArithmeticExpressionSolveContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionPow}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionPow(MatlabGrammarParser.ArithmeticExpressionPowContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionPow}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionPow(MatlabGrammarParser.ArithmeticExpressionPowContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionRem}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionRem(MatlabGrammarParser.ArithmeticExpressionRemContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionRem}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionRem(MatlabGrammarParser.ArithmeticExpressionRemContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionParens}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionParens}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Transpose}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterTranspose(MatlabGrammarParser.TransposeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Transpose}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitTranspose(MatlabGrammarParser.TransposeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionDiv(MatlabGrammarParser.ArithmeticExpressionDivContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionDiv(MatlabGrammarParser.ArithmeticExpressionDivContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionMul}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionMul(MatlabGrammarParser.ArithmeticExpressionMulContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionMul}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionMul(MatlabGrammarParser.ArithmeticExpressionMulContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionDMul}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionDMul(MatlabGrammarParser.ArithmeticExpressionDMulContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionDMul}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionDMul(MatlabGrammarParser.ArithmeticExpressionDMulContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
@@ -112,17 +208,41 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionParens}
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx);
+	void enterArithmeticExpressionNegationEntity(MatlabGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionParens}
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitArithmeticExpressionParens(MatlabGrammarParser.ArithmeticExpressionParensContext ctx);
+	void exitArithmeticExpressionNegationEntity(MatlabGrammarParser.ArithmeticExpressionNegationEntityContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionSub}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionSub(MatlabGrammarParser.ArithmeticExpressionSubContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionSub}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionSub(MatlabGrammarParser.ArithmeticExpressionSubContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionDRDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionDRDiv(MatlabGrammarParser.ArithmeticExpressionDRDivContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionDRDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionDRDiv(MatlabGrammarParser.ArithmeticExpressionDRDivContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionAdd}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
