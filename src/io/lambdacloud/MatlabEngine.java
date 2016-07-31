@@ -3,6 +3,7 @@ package io.lambdacloud;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -286,8 +287,30 @@ public class MatlabEngine {
 	public static void main(String[] args) {
 		BufferedReader br = null;
 		if (args.length != 1) {
-			System.out.println("ExprEngine 1.0");
-			System.out.println("Usage: java -jar ExprEngine.jar <filename>");
+			System.out.println("MatlabEngine 1.0");
+			System.out.print(">>");
+			
+			try {
+				br = new BufferedReader(new InputStreamReader(System.in));
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					System.out.print(">>");
+					if(line.trim().length() != 0) {
+						Object rlt = exec(line);
+						if(null != rlt)
+							myPrint(rlt);
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (br != null)
+						br.close();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
 			return;
 		}
 		try {
@@ -307,6 +330,27 @@ public class MatlabEngine {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
+		}
+	}
+	
+	public static void myPrint(Object o) {
+		if(o instanceof double[]) {
+			double[] a = (double[])o;
+			System.out.print("[");
+			for(double d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
+		} else if(o instanceof int[]) {
+			int[] a = (int[])o;
+			System.out.print("[");
+			for(int d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
+		} else if(o instanceof Jama.Matrix) {
+			((Jama.Matrix)o).print(8, 2);;
+		}
+		else {
+			System.out.println(o);
 		}
 	}
 }
