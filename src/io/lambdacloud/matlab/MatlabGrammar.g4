@@ -87,7 +87,7 @@ WS : [ \t] ;
 
 prog : statements EOF ;
 
-expr_end : (SEMI | '\n')+ ;
+expr_end : WS* (SEMI | '\n')+ WS*;
 
 statements
  : statement* (expression expr_end?)?
