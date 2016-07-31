@@ -144,6 +144,6 @@ expr_list : ( expression (COMMA|WS+) )* expression? ;
 func_args : LPAREN expr_list RPAREN ;
 
 assign_expr
- : IDENTIFIER ASSIGN expression # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
+ : WS* IDENTIFIER WS* ASSIGN expression # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
  ;
 
