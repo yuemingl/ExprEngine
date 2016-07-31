@@ -54,6 +54,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprAssign2(MatlabGrammarParser.ExprAssign2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprAssign2(MatlabGrammarParser.ExprAssign2Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -66,13 +78,13 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprArrayInit(MatlabGrammarParser.ExprArrayInitContext ctx) { }
+	@Override public void enterExprAssign1(MatlabGrammarParser.ExprAssign1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprArrayInit(MatlabGrammarParser.ExprArrayInitContext ctx) { }
+	@Override public void exitExprAssign1(MatlabGrammarParser.ExprAssign1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -246,6 +258,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprArrayInit(MatlabGrammarParser.ExprArrayInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprArrayInit(MatlabGrammarParser.ExprArrayInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionDRDiv(MatlabGrammarParser.ArithmeticExpressionDRDivContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -361,6 +385,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunc_args(MatlabGrammarParser.Func_argsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExprAssign(MatlabGrammarParser.ExprAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -19,16 +19,26 @@ public class TestMatlabEngine {
 		Matrix A = new Matrix(array);
 		Matrix B = new Matrix(array2);
 		Matrix b = Matrix.random(3,1);
+
+		//myPrint(exec("a=[1 2; 3 4];b=[2 3; 4 5]; a+b"));
+		myPrint(exec("a=[1 2; 3 4]; b=[2 3; 4 5]; a+b"));
+
 		
-		myPrint(exec("-A", getMap("A",A)));
-		myPrint(exec("A+B", getMap("A",A,"B",B)));
-		myPrint(exec("A-B", getMap("A",A,"B",B)));
-		myPrint(exec("A*B", getMap("A",A,"B",B)));
-		myPrint(exec("B/A", getMap("A",A,"B",B)));
-		myPrint(exec("A\\B", getMap("A",A,"B",B)));
-		myPrint(exec("A.*B", getMap("A",A,"B",B)));
-		myPrint(exec("A.\\B", getMap("A",A,"B",B)));
-		myPrint(exec("A./B", getMap("A",A,"B",B)));
+//		myPrint(exec("A(0:2,1:2)+B(0:2,1:2)", getMap("A",A,"B",B)));
+//		myPrint(exec("A(1:2,1:2)-B(1:2,1:2)", getMap("A",A,"B",B)));
+//		myPrint(exec("A(1:2,1:2)*B(1:2,1:2)", getMap("A",A,"B",B)));
+//		myPrint(exec("A(1:2,1:2).*B(1:2,1:2)", getMap("A",A,"B",B)));
+//		myPrint(exec("A(1:2,1:2)./B(1:2,1:2)", getMap("A",A,"B",B)));
+		
+//		myPrint(exec("-A", getMap("A",A)));
+//		myPrint(exec("A+B", getMap("A",A,"B",B)));
+//		myPrint(exec("A-B", getMap("A",A,"B",B)));
+//		myPrint(exec("A*B", getMap("A",A,"B",B)));
+//		myPrint(exec("B/A", getMap("A",A,"B",B)));
+//		myPrint(exec("A\\B", getMap("A",A,"B",B)));
+//		myPrint(exec("A.*B", getMap("A",A,"B",B)));
+//		myPrint(exec("A.\\B", getMap("A",A,"B",B)));
+//		myPrint(exec("A./B", getMap("A",A,"B",B)));
 		
 		
 		//myPrint(exec("A(1,1:2)", getMap("A",array)));

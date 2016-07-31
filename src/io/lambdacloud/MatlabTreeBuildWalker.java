@@ -21,6 +21,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.exprengine.ExprGrammarParser;
 import io.lambdacloud.exprengine.ExprGrammarParser.Array_indexContext;
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
@@ -35,6 +36,7 @@ import io.lambdacloud.matlab.MatlabGrammarParser.EntityVariableContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.ProgContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.TransposeContext;
+import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.FuncDefNode;
@@ -438,7 +440,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) {
-		System.out.println(ctx.getText());
+		//System.out.println(ctx.getText());
 		
 		if(null == ctx.expr_list()) {
 			//empty matrix
@@ -557,6 +559,16 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitArithmeticExpressionEntity(MatlabGrammarParser.ArithmeticExpressionEntityContext ctx) {
 		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
 		//Do nothing
+	}
+	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) {
+		String varName = ctx.IDENTIFIER().getText();
+		ExprNode value = this.currentScope().stack.pop();
+		VariableNode var = this.currentScope().varMap.get(varName);
+		if(null == var) {
+			var = VariableNode.newLocalVar(varName, value.getType());
+			this.currentScope().varMap.put(varName, var);
+		}
+		this.currentScope().stack.push(new AssignNode(var, value));
 	}
 
 }

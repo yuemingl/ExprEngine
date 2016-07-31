@@ -63,7 +63,7 @@ public class MatrixAccessNode extends ExprNode {
 		}
 		
 		mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(IIII)LJama/Matrix;", false);
-		mg.visitInsn(ARETURN);
+		//mg.visitInsn(ARETURN);
 
 	}
 	

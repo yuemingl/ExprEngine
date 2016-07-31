@@ -90,12 +90,16 @@ prog : statements EOF ;
 expr_end : (SEMI | '\n')+ ;
 
 statements
- : (expression expr_end?)?
+ : statement* (expression expr_end?)?
+ ;
+
+statement
+ : assign_expr expr_end                                       # ExprAssign2
  ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
- | array_init            # ExprArrayInit
+ | assign_expr           # ExprAssign1
  ;
 
 arithmetic_expr
@@ -114,6 +118,7 @@ arithmetic_expr
  | arithmetic_expr (SUB|DSUB) arithmetic_expr # ArithmeticExpressionSub
  | arithmetic_expr COLON arithmetic_expr      # ArithmeticExpressionRange
  | LPAREN arithmetic_expr RPAREN              # ArithmeticExpressionParens
+ | array_init                                 # ExprArrayInit
  | numeric_entity                             # ArithmeticExpressionEntity
  ;
 
@@ -137,4 +142,8 @@ array_init : LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK ;
 expr_list : ( expression (COMMA|WS+) )* expression? ;
 
 func_args : LPAREN expr_list RPAREN ;
+
+assign_expr
+ : IDENTIFIER ASSIGN expression # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
+ ;
 
