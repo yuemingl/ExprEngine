@@ -137,11 +137,11 @@ variable_entity
  | IDENTIFIER func_args           # EntityArrayAccess
  ;
 
-array_init : LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK ;
+array_init : WS* LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK WS*;
 
 expr_list : ( expression (COMMA|WS+) )* expression? ;
 
-func_args : LPAREN expr_list RPAREN ;
+func_args : WS* LPAREN expr_list RPAREN WS*;
 
 assign_expr
  : WS* IDENTIFIER WS* ASSIGN expression # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
