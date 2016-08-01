@@ -94,9 +94,11 @@ statements
  ;
 
 statement
- : assign_expr expr_end                                       # ExprAssign2
- | 'function' WS* array_init? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) statements 'end'   # FuncDef
+ : assign_expr expr_end   # ExprAssign2
+ | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expressions 'end' expr_end   # FuncDef
  ;
+
+expressions : (expression expr_end)* expression? ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
@@ -151,6 +153,7 @@ aa_index : expression | COLON ;
 //func_args : WS* LPAREN ( expression (COMMA|WS+) )* expression? RPAREN WS*;
 
 func_def_args : WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS* ;
+func_def_return : WS* (IDENTIFIER|array_init) WS* ;
 
 assign_expr : WS* IDENTIFIER WS* ASSIGN expression                             # ExprAssign ;
 

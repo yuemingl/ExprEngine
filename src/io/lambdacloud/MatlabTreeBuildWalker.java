@@ -645,10 +645,15 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		
 		ExprNode node = null;
 		
-		//TODO: remove stop flag, since we are using scope it is easy to determine the boundary of expressions
+		
 		while(!this.currentScope().stack.isEmpty()) {
 			node = this.currentScope().stack.pop();
 			fNode.body.add(node);
+		}
+		//has return variable specified
+		if(null != ctx.func_def_return()) {
+			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
+			fNode.body.add(0, retNode);
 		}
 		
 		//Put fNode in funcMap at the function enterFuncDef()
