@@ -54,13 +54,13 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprAssign2(MatlabGrammarParser.ExprAssign2Context ctx) { }
+	@Override public void enterExpr2(MatlabGrammarParser.Expr2Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprAssign2(MatlabGrammarParser.ExprAssign2Context ctx) { }
+	@Override public void exitExpr2(MatlabGrammarParser.Expr2Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

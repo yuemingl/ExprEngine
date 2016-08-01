@@ -94,7 +94,7 @@ statements
  ;
 
 statement
- : assign_expr expr_end   # ExprAssign2
+ : expression expr_end   # Expr2
  | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expressions 'end' expr_end   # FuncDef
  ;
 

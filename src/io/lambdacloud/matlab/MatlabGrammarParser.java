@@ -364,21 +364,21 @@ public class MatlabGrammarParser extends Parser {
 			if ( listener instanceof MatlabGrammarListener ) ((MatlabGrammarListener)listener).exitFuncDef(this);
 		}
 	}
-	public static class ExprAssign2Context extends StatementContext {
-		public Assign_exprContext assign_expr() {
-			return getRuleContext(Assign_exprContext.class,0);
+	public static class Expr2Context extends StatementContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public Expr_endContext expr_end() {
 			return getRuleContext(Expr_endContext.class,0);
 		}
-		public ExprAssign2Context(StatementContext ctx) { copyFrom(ctx); }
+		public Expr2Context(StatementContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof MatlabGrammarListener ) ((MatlabGrammarListener)listener).enterExprAssign2(this);
+			if ( listener instanceof MatlabGrammarListener ) ((MatlabGrammarListener)listener).enterExpr2(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof MatlabGrammarListener ) ((MatlabGrammarListener)listener).exitExprAssign2(this);
+			if ( listener instanceof MatlabGrammarListener ) ((MatlabGrammarListener)listener).exitExpr2(this);
 		}
 	}
 
@@ -390,13 +390,18 @@ public class MatlabGrammarParser extends Parser {
 			int _alt;
 			setState(96);
 			switch (_input.LA(1)) {
+			case SUB:
+			case LPAREN:
+			case LBRK:
+			case INTEGER:
+			case FLOAT:
 			case IDENTIFIER:
 			case WS:
-				_localctx = new ExprAssign2Context(_localctx);
+				_localctx = new Expr2Context(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(68);
-				assign_expr();
+				expression();
 				setState(69);
 				expr_end();
 				}
@@ -2429,7 +2434,7 @@ public class MatlabGrammarParser extends Parser {
 		"\63\3\2\2\2\63\67\3\2\2\2\64\66\7=\2\2\65\64\3\2\2\2\669\3\2\2\2\67\65"+
 		"\3\2\2\2\678\3\2\2\28\5\3\2\2\29\67\3\2\2\2:<\5\b\5\2;:\3\2\2\2<?\3\2"+
 		"\2\2=;\3\2\2\2=>\3\2\2\2>D\3\2\2\2?=\3\2\2\2@B\5\f\7\2AC\5\4\3\2BA\3\2"+
-		"\2\2BC\3\2\2\2CE\3\2\2\2D@\3\2\2\2DE\3\2\2\2E\7\3\2\2\2FG\5$\23\2GH\5"+
+		"\2\2BC\3\2\2\2CE\3\2\2\2D@\3\2\2\2DE\3\2\2\2E\7\3\2\2\2FG\5\f\7\2GH\5"+
 		"\4\3\2Hc\3\2\2\2IM\7\4\2\2JK\5\"\22\2KL\7+\2\2LN\3\2\2\2MJ\3\2\2\2MN\3"+
 		"\2\2\2NR\3\2\2\2OQ\7=\2\2PO\3\2\2\2QT\3\2\2\2RP\3\2\2\2RS\3\2\2\2SU\3"+
 		"\2\2\2TR\3\2\2\2UY\7\64\2\2VX\7=\2\2WV\3\2\2\2X[\3\2\2\2YW\3\2\2\2YZ\3"+

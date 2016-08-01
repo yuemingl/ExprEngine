@@ -20,8 +20,9 @@ public class TestMatlabEngine {
 		Matrix B = new Matrix(array2);
 		Matrix b = Matrix.random(3,1);
 
-		myPrint(exec("function [c d] = myfun(a, b)\n c=a+b; d=a-b\n end\n myfun(10,100)"));
-		myPrint(exec("function c = myfun(a, b)\n a+b \n end\n myfun(10,100)"));
+		myPrint(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"));
+		myPrint(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"));
+		myPrint(exec("function c = myfun(a, b)\na+b\nend\nmyfun(10,100)"));
 //		myPrint(exec("fun(1, 1)"));
 //		myPrint(exec("a=[1, 2; 3, 4];  a(1, 1)"));
 //		

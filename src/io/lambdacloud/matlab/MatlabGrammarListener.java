@@ -40,17 +40,17 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitStatements(MatlabGrammarParser.StatementsContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprAssign2}
+	 * Enter a parse tree produced by the {@code Expr2}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprAssign2(MatlabGrammarParser.ExprAssign2Context ctx);
+	void enterExpr2(MatlabGrammarParser.Expr2Context ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprAssign2}
+	 * Exit a parse tree produced by the {@code Expr2}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprAssign2(MatlabGrammarParser.ExprAssign2Context ctx);
+	void exitExpr2(MatlabGrammarParser.Expr2Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FuncDef}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
