@@ -17,28 +17,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.exprengine.ExprGrammarParser;
-import io.lambdacloud.exprengine.ExprGrammarParser.Array_indexContext;
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
-import io.lambdacloud.matlab.MatlabGrammarParser.ArithmeticExpressionAddContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.ArithmeticExpressionRangeContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.ArithmeticExpressionSolveContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.Array_initContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.EntityArrayAccessContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.EntityConstFloatContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.EntityConstIntegerContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.EntityVariableContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.ProgContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.TransposeContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
@@ -47,8 +37,6 @@ import io.lambdacloud.node.arithmetric.DivNode;
 import io.lambdacloud.node.arithmetric.MultNode;
 import io.lambdacloud.node.arithmetric.NegateNode;
 import io.lambdacloud.node.arithmetric.SubNode;
-import io.lambdacloud.node.array.ArrayAccessNode;
-import io.lambdacloud.node.array.ArrayNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.node.matrix.MatrixDLDivNode;
 import io.lambdacloud.node.matrix.MatrixDMulNode;
@@ -71,7 +59,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	protected Class<?> defaultParameterTypeOrInterface = null;
 	protected Map<String, Class<?>> mapParameterTypes = null;
 
-	public static HashMap<String, FuncDefNode> funcMap = new HashMap<String, FuncDefNode>();
+	//public static HashMap<String, FuncDefNode> funcMap = new HashMap<String, FuncDefNode>();
 	public MatlabTreeBuildWalker() {
 		scope.push(new Scope("global"));
 	}
@@ -100,7 +88,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
 		
-		FuncDefNode fnode = funcMap.get(name);
+		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(name);
 		fnode.setParamTypes(type.parameterArray());
 		String tt = type.toMethodDescriptorString();
 		if(DEBUG)
@@ -442,12 +430,12 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) {
 		//System.out.println(ctx.getText());
 		
-		if(null == ctx.expr_list()) {
+		if(null == ctx.ai_list()) {
 			//empty matrix
 			throw new RuntimeException("empty matrix is not supported so far.");
 		}
-		int cols = ctx.expr_list(0).expression().size();
-		int rows = ctx.expr_list().size();
+		int cols = ctx.ai_list(0).expression().size();
+		int rows = ctx.ai_list().size();
 		MatrixInitNode node = new MatrixInitNode(rows);
 		for(int i=0; i<cols; i++) {
 			for(int j=0; j<rows; j++) {
@@ -479,8 +467,80 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(node);
 	}
 	
-	@Override public void exitEntityArrayAccess(MatlabGrammarParser.EntityArrayAccessContext ctx) { 
-		String varName = ctx.IDENTIFIER().getText();
+	@Override public void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
+		System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
+		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
+		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+		if(null != func) {
+			String methodName = varName;
+			
+			StringBuilder sb = new StringBuilder();
+			//for(int i= ctx.IDENTIFIER().size()-1; i>0; i--) {
+			for(int i=0; i<ctx.array_access().IDENTIFIER().size()-1; i++) {
+				TerminalNode node = ctx.array_access().IDENTIFIER(i);
+				sb.append(".").append(node.getText());
+			}
+			String className = sb.length()>0?sb.delete(0, 1).toString():"";
+			//Class name transform
+			if(className.equalsIgnoreCase("math"))
+				className = "java.lang.Math";
+			else if( methodName.equalsIgnoreCase("print")
+					|| methodName.equalsIgnoreCase("println") 
+					//|| methodName.equalsIgnoreCase("range")
+				  ) {
+					className = "io.lambdacloud.BytecodeSupport";
+			} else if(className.length() == 0){
+				className = "io.lambdacloud.BytecodeSupport";
+			}
+			
+			//Method name transform
+			if(methodName.equalsIgnoreCase("range")) {
+//				ExprNode start = null;
+//				ExprNode end = currentScope().stack.pop();
+//				if(ctx.expression().size() > 1) {
+//					start = currentScope().stack.pop();
+//				}
+//				RangeNode node = new RangeNode(start, end, false);
+//				currentScope().stack.push(node);
+			} else {
+				FuncDefNode funcDef = ExprTreeBuildWalker.funcMap.get(methodName);
+				if(DEBUG)
+					System.out.println("Call "+methodName+" in scope "+this.currentScope());
+				
+				List<ExprNode> args = new ArrayList<ExprNode>();
+				for(int i=0; i<ctx.array_access().aa_index().size(); i++) {
+					//System.out.println(ctx.expression(i).getText());
+					ExprNode arg = currentScope().stack.pop();
+					if(arg instanceof AssignNode) {
+						arg.genLoadInsn(true);
+					}
+					args.add(arg);
+				}
+				
+				boolean isDynamicCall = false;
+				if(null != funcDef && !funcDef.name.equals(this.currentScope().toString())) {
+					className = funcDef.getFuncClassName();//"global";
+					isDynamicCall = true;
+				} else if(null != funcDef && funcDef.name.equals(this.currentScope().toString())) {
+					//This is the case that the recursively call of the function
+					//The body of the function is not available here see enterFuncDef()
+					className = funcDef.getFuncClassName();
+					isDynamicCall = false; //TODO We are not able to determine this here! We need to determine it at code generation phase
+				}
+				FuncCallNode funcCall = new FuncCallNode(className, methodName, isDynamicCall);
+				funcCall.args = args;
+				funcCall.refFuncDefNode = funcDef;
+				//Type body of funcDef has not been processed here if it is an recursive call
+				//funcDef.setParamTypes(funcCall.getParameterClassTypes());
+				//System.out.println(Type.getMethodDescriptor(funcCall.getType(), funcCall.getParameterTypes()));
+				//System.out.println(funcDef.getType().getDescriptor());
+				currentScope().stack.push(funcCall);
+			}
+			
+			
+			return;
+		}
+		
 		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
@@ -501,7 +561,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //		}
 		
 		MatrixAccessNode node = new MatrixAccessNode(var);
-		for(int i=ctx.func_args().expr_list().expression().size()-1; i>=0; i--) {
+		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
 			ExprNode idxS = this.currentScope().stack.pop();
 			ExprNode idxE = null;
 			if(idxS instanceof RangeNode) {
@@ -570,5 +630,48 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		this.currentScope().stack.push(new AssignNode(var, value));
 	}
-
+	@Override public void exitFuncDef(MatlabGrammarParser.FuncDefContext ctx) {
+		System.out.println(ctx.getText());
+		//When enterFuncDef() we need to add a new scope in function level for stack and varMap
+		//see enterFuncDef()
+		
+		String funcName = ctx.IDENTIFIER().getText();
+		FuncDefNode fNode = ExprTreeBuildWalker.funcMap.get(funcName);
+		for(int i=0; i<ctx.func_def_args().IDENTIFIER().size(); i++) {
+			String paramName = ctx.func_def_args().IDENTIFIER(i).getText();
+			fNode.paramNames.add(paramName);
+		}
+		fNode.funcVarMap.putAll(this.currentScope().varMap);
+		
+		ExprNode node = null;
+		
+		//TODO: remove stop flag, since we are using scope it is easy to determine the boundary of expressions
+		while(!this.currentScope().stack.isEmpty()) {
+			node = this.currentScope().stack.pop();
+			fNode.body.add(node);
+		}
+		
+		//Put fNode in funcMap at the function enterFuncDef()
+		//so recursive call of itself can be handled correctly
+		//by knowing the definition of function early
+		//funcMap.put(fNode.name, fNode);
+		
+		if(DEBUG)
+			System.out.println(fNode);
+		
+		this.popScope();
+	}
+	@Override public void enterFuncDef(MatlabGrammarParser.FuncDefContext ctx) {
+		//Add function level scope for stack and varMap
+		String funcName = ctx.IDENTIFIER().getText();
+		this.addScope(funcName);
+		
+		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(funcName);
+		if(null != fnode) {
+			throw new RuntimeException("Function "+funcName+" already defined!");
+		} else {
+			ExprTreeBuildWalker.funcMap.put(funcName, new FuncDefNode(funcName));
+		}
+	}
+	
 }

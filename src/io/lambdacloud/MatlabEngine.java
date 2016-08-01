@@ -135,7 +135,7 @@ public class MatlabEngine {
 	 * @return
 	 */
 	public static Object exec(String str) {
-		MatlabTreeBuildWalker.funcMap.clear();
+		ExprTreeBuildWalker.funcMap.clear();
 		MatlabTreeBuildWalker ew = parse(str);
 		try {
 			Method m1 = genStaticMethod(ew, "GenClass1", true, "apply");

@@ -95,6 +95,7 @@ statements
 
 statement
  : assign_expr expr_end                                       # ExprAssign2
+ | 'function' WS* array_init? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) statements 'end'   # FuncDef
  ;
 
 expression
@@ -103,8 +104,8 @@ expression
  ;
 
 arithmetic_expr
- : arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSolve
- | arithmetic_expr SQUOTE                     # Transpose
+ : arithmetic_expr SQUOTE                     # Transpose
+ | arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSolve
  | SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
  | arithmetic_expr POW arithmetic_expr        # ArithmeticExpressionPow
  | arithmetic_expr MUL arithmetic_expr        # ArithmeticExpressionMul
@@ -128,22 +129,28 @@ numeric_entity
  | WS* variable_entity WS*
  ;
 
-integer_entity  : INTEGER        # EntityConstInteger ;
-
-float_entity    : FLOAT          # EntityConstFloat   ;
-
-variable_entity 
+integer_entity
+ : INTEGER                        # EntityConstInteger 
+ ;
+float_entity
+ : FLOAT                          # EntityConstFloat   
+ ;
+variable_entity
  : IDENTIFIER                     # EntityVariable
- | IDENTIFIER func_args           # EntityArrayAccess
+ | array_access                   # ArrayAccessOrFuncCall
  ;
 
-array_init : WS* LBRK ( expr_list WS* SEMI WS* )* expr_list RBRK WS*;
+array_init : WS* LBRK ( ai_list WS* SEMI WS* )* ai_list RBRK WS* ;
+ai_list : ( expression (COMMA|WS+) )* expression? ;
+ 
+array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN ( aa_index COMMA )* aa_index? RPAREN WS* ;
+aa_index : expression | COLON ;
 
-expr_list : ( expression (COMMA|WS+) )* expression? ;
+// Use array_access instead for function call
+//func_call : IDENTIFIER (PERIOD IDENTIFIER)* func_args                        # FuncCall ;
+//func_args : WS* LPAREN ( expression (COMMA|WS+) )* expression? RPAREN WS*;
 
-func_args : WS* LPAREN expr_list RPAREN WS*;
+func_def_args : WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS* ;
 
-assign_expr
- : WS* IDENTIFIER WS* ASSIGN expression # ExprAssign //Using 'IDENTIFIER', EntityVariable() will not be called
- ;
+assign_expr : WS* IDENTIFIER WS* ASSIGN expression                             # ExprAssign ;
 

@@ -20,10 +20,18 @@ public class TestMatlabEngine {
 		Matrix B = new Matrix(array2);
 		Matrix b = Matrix.random(3,1);
 
-		//myPrint(exec("a=[1 2; 3 4];b=[2 3; 4 5]; a+b"));
-		myPrint(exec("a=[1 2; 3 4];  b=[2 3; 4 5]; a+b"));
+		myPrint(exec("function myfun(a, b)\n a+b \n end myfun(10,100)"));
+		myPrint(exec("fun(1, 1)"));
+		myPrint(exec("a=[1, 2; 3, 4];  a(1, 1)"));
+		
+		myPrint(exec("a=[1 2; 3 4];  a(1, 1)"));
+		myPrint(exec("a=[1 2; 3 4];  a(1,1)"));
+		
+//		//white space test
+//		//myPrint(exec("a=[1 2; 3 4];b=[2 3; 4 5]; a+b"));
+//		myPrint(exec("a=[1 2; 3 4];  b=[2 3; 4 5]; a+b"));
 		myPrint(exec("a=  [1 2; 3 4]; a +  [2 3; 4 5]  ;  "));
-
+//
 		
 //		myPrint(exec("A(0:2,1:2)+B(0:2,1:2)", getMap("A",A,"B",B)));
 //		myPrint(exec("A(1:2,1:2)-B(1:2,1:2)", getMap("A",A,"B",B)));
