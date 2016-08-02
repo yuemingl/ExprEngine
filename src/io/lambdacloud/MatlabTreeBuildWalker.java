@@ -726,6 +726,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//print the expression
 		ExprNode expr = this.currentScope().stack.pop();
 		expr.genLoadInsn(true);
+		//TODO change 'println' to an internal name to indicate that it returns the type the same as the argument
 		FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
 		DupNode dupNode = new DupNode(expr);
 		funcCall.args.add(dupNode);
