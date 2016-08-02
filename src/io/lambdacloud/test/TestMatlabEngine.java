@@ -20,11 +20,16 @@ public class TestMatlabEngine {
 		Matrix A = new Matrix(array);
 		Matrix B = new Matrix(array2);
 		Matrix b = Matrix.random(3,1);
-		
+
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4);
 		
+		assertEqual(exec("A(:,1:2)", getMap("A",A)), A.getMatrix(0,2,1,2));
+		assertEqual(exec("A=[1 2;3 4]\n A(:,0)"), getMatrix(1,3));
+		assertEqual(exec("A=[1 2;3 4]\n A(1,:)"), getMatrix(3,4).transpose());
+		assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
+
 		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), getMatrix(110,-90));
 		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), getMatrix(110,-90));
 		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)"), getMatrix(110,-90));

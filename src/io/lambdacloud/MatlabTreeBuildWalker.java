@@ -474,6 +474,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
 		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+		//Function call
 		if(null != func) {
 			String methodName = varName;
 			
@@ -544,6 +545,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			return;
 		}
 		
+		//------Array Access------
 		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
@@ -565,14 +567,19 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		
 		MatrixAccessNode node = new MatrixAccessNode(var);
 		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
-			ExprNode idxS = this.currentScope().stack.pop();
-			ExprNode idxE = null;
-			if(idxS instanceof RangeNode) {
-				RangeNode range = (RangeNode)idxS;
-				idxS = range.start;
-				idxE = range.end; //end+1 =>new AddNode(end, 1)
+			if(null != ctx.array_access().aa_index(i).COLON()) {
+				//Access all rows or columns
+				node.addIndex(null, null);
+			} else {
+				ExprNode idxS = this.currentScope().stack.pop();
+				ExprNode idxE = null;
+				if(idxS instanceof RangeNode) {
+					RangeNode range = (RangeNode)idxS;
+					idxS = range.start;
+					idxE = range.end; //end+1 =>new AddNode(end, 1)
+				}
+				node.addIndex(idxS, idxE);
 			}
-			node.addIndex(idxS, idxE);
 		}
 
 		this.currentScope().stack.push(node);

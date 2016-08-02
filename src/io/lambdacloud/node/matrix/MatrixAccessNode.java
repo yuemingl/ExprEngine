@@ -55,11 +55,27 @@ public class MatrixAccessNode extends ExprNode {
 		}
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair ip = this.indices.get(i);
-			ip.idxS.genCode(mg);
-			if(null == ip.idxE) 
-				mg.visitInsn(Opcodes.DUP);
-			else
-				ip.idxE.genCode(mg);
+			if(null == ip.idxS) {
+				mg.visitInsn(Opcodes.ICONST_0);
+				var.genCode(mg);
+				if(i == 1) {
+					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getColumnDimension", "()I", false);
+					mg.visitInsn(Opcodes.ICONST_1);
+					mg.visitInsn(Opcodes.ISUB);
+				} else if(i == 0) {
+					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getRowDimension", "()I", false);
+					mg.visitInsn(Opcodes.ICONST_1);
+					mg.visitInsn(Opcodes.ISUB);
+				}
+				else
+					throw new RuntimeException();
+			} else {
+				ip.idxS.genCode(mg);
+				if(null == ip.idxE) 
+					mg.visitInsn(Opcodes.DUP);
+				else
+					ip.idxE.genCode(mg);
+			}
 		}
 		
 		mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(IIII)LJama/Matrix;", false);
