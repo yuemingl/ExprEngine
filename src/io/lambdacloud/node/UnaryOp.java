@@ -26,5 +26,8 @@ public class UnaryOp extends ExprNode {
 		
 		return retType;
 	}
-
+	
+	public void fixType() {
+		expr.fixType();
+	}
 }

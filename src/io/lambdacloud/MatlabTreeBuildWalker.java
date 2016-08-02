@@ -28,6 +28,7 @@ import io.lambdacloud.matlab.MatlabGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
+import io.lambdacloud.node.DupNode;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
@@ -632,6 +633,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		this.currentScope().stack.push(new AssignNode(var, value));
 	}
+	
 	@Override public void exitFuncDef(MatlabGrammarParser.FuncDefContext ctx) {
 		//When enterFuncDef() we need to add a new scope in function level for stack and varMap
 		//see enterFuncDef()
@@ -651,17 +653,20 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			node = this.currentScope().stack.pop();
 			fNode.body.add(node);
 		}
-		//has return variable specified
-		if(null != ctx.func_def_return()) {
+		
+		//Determine the return expression
+		if(null != ctx.func_def_return()) { //It has return variable specified
 			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
 			fNode.body.add(0, retNode);
-		} else {
+		} else { //The last expression is the return value
 			ExprNode lastExpr = fNode.body.get(0);
 			if(lastExpr instanceof FuncCallNode) {
 				FuncCallNode funcCallNode = (FuncCallNode)lastExpr;
 				if(funcCallNode.getMethodName().equals("println")) {
 					//TODO use DupNode?
-					fNode.body.add(0, funcCallNode.args.get(0));
+					DupNode dupNode = new DupNode(funcCallNode.args.get(0));
+					funcCallNode.args.set(0, dupNode);
+					//fNode.body.add(0, funcCallNode.args.get(0));
 					//System.out.println(funcCallNode);
 				}
 			}
@@ -707,9 +712,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			ExprNode expr = this.currentScope().stack.pop();
 			expr.genLoadInsn(true);
 			FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
-			funcCall.args.add(expr);
+			DupNode dupNode = new DupNode(expr);
+			funcCall.args.add(dupNode);
 			this.currentScope().stack.push(funcCall);
-			this.currentScope().stack.push(expr);
 		}
 	}
 	
@@ -721,7 +726,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		ExprNode expr = this.currentScope().stack.pop();
 		expr.genLoadInsn(true);
 		FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
-		funcCall.args.add(expr);
+		DupNode dupNode = new DupNode(expr);
+		funcCall.args.add(dupNode);
 		this.currentScope().stack.push(funcCall);
 	}
 

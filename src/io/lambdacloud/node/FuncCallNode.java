@@ -139,6 +139,9 @@ public class FuncCallNode extends ExprNode {
 		} else {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
+				if(this.methodName.equals("println")) {
+					return this.args.get(0).getType();
+				}
 				Class<?> c;
 				try {
 					c = Class.forName(fullClassName);

@@ -11,6 +11,12 @@ import Jama.Matrix;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)");
+		
+		test();
+	}
+	
+	public static void test() {
 		Matrix m = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix n = new Matrix(new double[][]{{10,20},{30,40}});
 

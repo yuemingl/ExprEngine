@@ -28,4 +28,8 @@ public class BinaryOp extends ExprNode {
 		
 		return Tools.typeConversion(lType, rType);
 	}
+	public void fixType() {
+		left.fixType();
+		right.fixType();
+	}
 }
