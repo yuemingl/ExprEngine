@@ -78,7 +78,7 @@ public class FuncCallNode extends ExprNode {
 
 		if(null != this.refFuncDefNode) {
 			String sFuncCall = Type.getMethodDescriptor(this.getType(), this.getParameterTypes());
-			System.out.println("genCode: "+sFuncCall);
+			//System.out.println("FuncCallNode: genCode: "+sFuncCall);
 			if(!this.refFuncDefNode.generatedClasses.containsKey(sFuncCall))
 				this.isDynamicCall = true;
 			else
@@ -161,5 +161,11 @@ public class FuncCallNode extends ExprNode {
 	
 	public double test(double x) {
 		return Math.abs(x);
+	}
+	
+	public void fixType() {
+		for(ExprNode arg : args) {
+			arg.fixType();
+		}
 	}
 }

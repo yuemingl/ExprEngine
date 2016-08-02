@@ -133,7 +133,7 @@ import io.lambdacloud.node.string.StringConcatNode;
 import io.lambdacloud.node.string.StringNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 //	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 //	
 //	//Variable map which is generated after parsing

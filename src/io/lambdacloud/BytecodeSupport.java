@@ -21,9 +21,32 @@ public class BytecodeSupport {
 	public static void print(boolean str) {
 		System.out.print(str);
 	}
-	public static void println(Object str) {
-		System.out.println(str);
+	
+	public static void println(Object o) {
+		if(o instanceof double[]) {
+			double[] a = (double[])o;
+			System.out.print("[");
+			for(double d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
+		} else if(o instanceof int[]) {
+			int[] a = (int[])o;
+			System.out.print("[");
+			for(int d : a)
+				System.out.print(d+", ");
+			System.out.println("]");
+		} else if(o instanceof Jama.Matrix) {
+			((Jama.Matrix)o).print(8, 2);
+		}
+		else {
+			System.out.println(o);
+		}
 	}
+
+	public static void println(Jama.Matrix o) {
+		o.print(8, 2);
+	}
+	
 	public static void println(String str) {
 		System.out.println(str);
 	}
@@ -97,4 +120,5 @@ public class BytecodeSupport {
 	public static int len(List<?> l) {
 		return l.size();
 	}
+
 }

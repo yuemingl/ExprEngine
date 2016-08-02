@@ -25,6 +25,7 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.exprengine.ExprGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
+import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
@@ -46,7 +47,7 @@ import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.matrix.TransposeNode;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 //	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 //	
 //	//Variable map which is generated after parsing
@@ -86,21 +87,22 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		return this.scope.pop();
 	}
 	
-	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
-		
-		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(name);
-		fnode.setParamTypes(type.parameterArray());
-		String tt = type.toMethodDescriptorString();
-		if(DEBUG)
-			System.out.println("bootstrap: "+fnode.getFuncClassName()+"."+name+":"+tt);
-		//tt = tt.replaceAll("\\(|\\)", "_");
-		Class<?> cls = fnode.genFuncCode(true);
-		
-		MethodHandle mh = MethodHandles.lookup().findStatic(cls, name,
-		MethodType.methodType(type.returnType(),type.parameterArray()));
-
-		return new ConstantCallSite(mh);
-	}
+//	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
+//		
+//		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(name);
+//		fnode.setParamTypes(type.parameterArray());
+//		String tt = type.toMethodDescriptorString();
+//		//if(DEBUG)
+//			System.out.println("bootstrap11: "+fnode.getFuncClassName()+"."+name+":"+tt);
+//		
+//		//tt = tt.replaceAll("\\(|\\)", "_");
+//		Class<?> cls = fnode.genFuncCode(true);
+//		
+//		MethodHandle mh = MethodHandles.lookup().findStatic(cls, name,
+//		MethodType.methodType(type.returnType(),type.parameterArray()));
+//
+//		return new ConstantCallSite(mh);
+//	}
 	
 	public void printInfo() {
 		System.out.println("Parameters:");
@@ -468,7 +470,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	@Override public void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
-		System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
+		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
 		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
 		if(null != func) {
@@ -621,7 +623,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Do nothing
 	}
 	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) {
-		String varName = ctx.IDENTIFIER().getText();
+		String varName = ctx.assign_expr().IDENTIFIER().getText();
 		ExprNode value = this.currentScope().stack.pop();
 		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
@@ -631,7 +633,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		this.currentScope().stack.push(new AssignNode(var, value));
 	}
 	@Override public void exitFuncDef(MatlabGrammarParser.FuncDefContext ctx) {
-		System.out.println(ctx.getText());
 		//When enterFuncDef() we need to add a new scope in function level for stack and varMap
 		//see enterFuncDef()
 		
@@ -654,6 +655,16 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		if(null != ctx.func_def_return()) {
 			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
 			fNode.body.add(0, retNode);
+		} else {
+			ExprNode lastExpr = fNode.body.get(0);
+			if(lastExpr instanceof FuncCallNode) {
+				FuncCallNode funcCallNode = (FuncCallNode)lastExpr;
+				if(funcCallNode.getMethodName().equals("println")) {
+					//TODO use DupNode?
+					fNode.body.add(0, funcCallNode.args.get(0));
+					//System.out.println(funcCallNode);
+				}
+			}
 		}
 		
 		//Put fNode in funcMap at the function enterFuncDef()
@@ -678,5 +689,40 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			ExprTreeBuildWalker.funcMap.put(funcName, new FuncDefNode(funcName));
 		}
 	}
+	@Override public void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx) {
+		//System.out.println("exitExprStatement>>>>----"+ctx.getText()+"----<<<<");
+	}
 	
+	@Override public void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { 
+		//System.out.println("exitExprArithmetic>>>>"+ctx.getText()+"<<<<");
+	}
+	
+	@Override public void exitExprStatements(MatlabGrammarParser.ExprStatementsContext ctx) {
+		//System.out.println("exitExprStatements>>>>"+ctx.getText()+"<<<<");
+		ExpressionContext lastExpr = ctx.expression();
+		if(null != lastExpr) {
+			if(null != ctx.expr_end() && ctx.expr_end().SEMI().size()>0)
+				return;
+			//print the LAST expression
+			ExprNode expr = this.currentScope().stack.pop();
+			expr.genLoadInsn(true);
+			FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
+			funcCall.args.add(expr);
+			this.currentScope().stack.push(funcCall);
+			this.currentScope().stack.push(expr);
+		}
+	}
+	
+	@Override public void exitExprWithExprEnd(MatlabGrammarParser.ExprWithExprEndContext ctx) {
+		//System.out.println("exitExprWithExprEnd>>>>"+ctx.getText()+"<<<<");
+		if(null != ctx.expr_end() && ctx.expr_end().SEMI().size()>0)
+			return;
+		//print the expression
+		ExprNode expr = this.currentScope().stack.pop();
+		expr.genLoadInsn(true);
+		FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
+		funcCall.args.add(expr);
+		this.currentScope().stack.push(funcCall);
+	}
+
 }

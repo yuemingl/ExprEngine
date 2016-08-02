@@ -87,22 +87,22 @@ WS : [ \t] ;
 
 prog : statements EOF ;
 
-expr_end : WS* (SEMI | '\n')+ WS*;
+expr_end : WS* (SEMI|'\n')+ WS*;
 
 statements
- : statement* (expression expr_end?)?
+ : statement* (expression expr_end?)?   # ExprStatements
  ;
 
 statement
- : expression expr_end   # Expr2
- | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expressions 'end' expr_end   # FuncDef
+ : expression_with_expr_end   # ExprStatement
+ | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expression_with_expr_end* 'end' expr_end   # FuncDef
  ;
 
-expressions : (expression expr_end)* expression? ;
+expression_with_expr_end : expression expr_end   # ExprWithExprEnd ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
- | assign_expr           # ExprAssign1
+ | assign_expr           # ExprAssign
  ;
 
 arithmetic_expr
@@ -153,7 +153,7 @@ aa_index : expression | COLON ;
 //func_args : WS* LPAREN ( expression (COMMA|WS+) )* expression? RPAREN WS*;
 
 func_def_args : WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS* ;
-func_def_return : WS* (IDENTIFIER|array_init) WS* ;
+func_def_return : WS* (variable_entity|array_init) WS* ;
 
-assign_expr : WS* IDENTIFIER WS* ASSIGN expression                             # ExprAssign ;
+assign_expr : WS* IDENTIFIER WS* ASSIGN expression ;
 

@@ -19,10 +19,28 @@ public class TestMatlabEngine {
 		Matrix A = new Matrix(array);
 		Matrix B = new Matrix(array2);
 		Matrix b = Matrix.random(3,1);
+		
+		exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)");
+		//exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)");
+		//exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)");
+		//exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10.,100.)");
+		
+		//exec("function myfun(a)\n a+1\n a+2; end\n myfun(1)");
+		//exec("function myfun(a)\n a+1\n a+2\n end\n myfun(1)");
+		//exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1);");
+		//exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1)");
+		
+//		exec("A=[1 2; 3 4]; b=[3 5]; A\\b");
+//		exec("A=[1 2; 3 4]\n b=[3 5]\n A\\b");
+		
+//		exec("a=2\n a");
+//		exec("a=2; a");
+//		exec("100+1; 200+1;");
+//		exec("10+1\n 20+1");
 
-		myPrint(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"));
-		myPrint(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"));
-		myPrint(exec("function c = myfun(a, b)\na+b\nend\nmyfun(10,100)"));
+//		myPrint(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"));
+//		myPrint(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"));
+//		myPrint(exec("function c = myfun(a, b)\na+b\nend\nmyfun(10,100)"));
 //		myPrint(exec("fun(1, 1)"));
 //		myPrint(exec("a=[1, 2; 3, 4];  a(1, 1)"));
 //		
@@ -41,15 +59,15 @@ public class TestMatlabEngine {
 //		myPrint(exec("A(1:2,1:2).*B(1:2,1:2)", getMap("A",A,"B",B)));
 //		myPrint(exec("A(1:2,1:2)./B(1:2,1:2)", getMap("A",A,"B",B)));
 		
-//		myPrint(exec("-A", getMap("A",A)));
-//		myPrint(exec("A+B", getMap("A",A,"B",B)));
-//		myPrint(exec("A-B", getMap("A",A,"B",B)));
-//		myPrint(exec("A*B", getMap("A",A,"B",B)));
-//		myPrint(exec("B/A", getMap("A",A,"B",B)));
-//		myPrint(exec("A\\B", getMap("A",A,"B",B)));
-//		myPrint(exec("A.*B", getMap("A",A,"B",B)));
-//		myPrint(exec("A.\\B", getMap("A",A,"B",B)));
-//		myPrint(exec("A./B", getMap("A",A,"B",B)));
+		assertEqual(exec("-A",    getMap("A",A)),       A.uminus());
+		assertEqual(exec("A+B",   getMap("A",A,"B",B)), A.plus(B));
+		assertEqual(exec("A-B",   getMap("A",A,"B",B)), A.minus(B));
+		assertEqual(exec("A*B",   getMap("A",A,"B",B)), A.times(B));
+		assertEqual(exec("B/A",   getMap("A",A,"B",B)), A.solve(B));
+		assertEqual(exec("A\\B",  getMap("A",A,"B",B)), A.solve(B));
+		assertEqual(exec("A.*B",  getMap("A",A,"B",B)), A.arrayTimes(B));
+		assertEqual(exec("A.\\B", getMap("A",A,"B",B)), A.arrayLeftDivide(B));
+		assertEqual(exec("A./B",  getMap("A",A,"B",B)), A.arrayRightDivide(B));
 		
 		
 		//myPrint(exec("A(1,1:2)", getMap("A",array)));
@@ -58,25 +76,33 @@ public class TestMatlabEngine {
 		//myPrint(exec("A(1:2,1:2)", getMap("A",A)));
 		//myPrint(exec("A(1:2,2)", getMap("A",A)));
 		
-//		myPrint(exec("[1. .2 3.]"));
-//		
-//		((Matrix)exec("A\\b", getMap("A",A,"b",b))).print(8,2);
-//		
-//		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]"));
-//		myPrint(exec("[1 2 3; 4 5 6; 7 8 9]'"));
-//		myPrint(exec("A'", getMap("A",m)));
+		assertEqual(exec("[1. .2 3.]"), getMatrix(1,0.2,3));
+		
+		assertEqual(exec("A\\b", getMap("A",A,"b",b)), A.solve(b));
+		
+		assertEqual(exec("[1 2 3; 4 5 6; 7 8 10]"), A);
+		assertEqual(exec("[1 2 3; 4 5 6; 7 8 10]'"), A.transpose());
+		assertEqual(exec("A'", getMap("A",m)), m.transpose());
 
-//		((Matrix)exec("a + b  ", getMap("a",m,"b",n))).print(8,2);
-//		//System.out.println(exec("a+b", getMap("a",2,"b",3)));
-//		
-//		
-//		myPrint(exec("[10.0 20.0 30.0]"));
-//		
-//		myPrint(exec("[1 2 3]"));
-//		myPrint(exec("[1,2,3]"));
-//		myPrint(exec("[1, 2, 3]"));
-//		myPrint(exec("[1  2   3]"));
-//		myPrint(exec("[1,  2  ,  3]"));
+		assertEqual(exec("a + b  ", getMap("a",m,"b",n)), m.plus(n));
+		assertEqual(exec("a+b", getMap("a",2,"b",3)), 5);
+		
+		
+		assertEqual(exec("[10.0 20.0 30.0]"), getMatrix(10,20,30));
+		
+		assertEqual(exec("[1 2 3]"), getMatrix(1,2,3));
+		assertEqual(exec("[1,2,3]"), getMatrix(1,2,3));
+		assertEqual(exec("[1, 2, 3]"), getMatrix(1,2,3));
+		assertEqual(exec("[1  2   3]"), getMatrix(1,2,3));
+		assertEqual(exec("[1,  2  ,  3]"), getMatrix(1,2,3));
+	}
+	
+	public static Jama.Matrix getMatrix(double ...args) {
+		return new Jama.Matrix(args, args.length);
+	}
+	
+	public static Jama.Matrix getRow(double[][] args) {
+		return new Jama.Matrix(args);
 	}
 	
 	public static void assertEqual(Object o1, Object o2) {
@@ -116,6 +142,12 @@ public class TestMatlabEngine {
 				assertEqual(l1.get(i), l2.get(i));
 			}
 			return;
+		} else if(o1 instanceof Jama.Matrix && o2 instanceof Jama.Matrix) {
+			Jama.Matrix m1 = (Jama.Matrix)o1;
+			Jama.Matrix m2 = (Jama.Matrix)o2;
+			double norm = m1.minus(m2).norm2();
+			if(norm <1e-8)
+				return;
 		}
 		if(!o1.equals(o2)) {
 			System.err.println(o1 + " != "+o2);

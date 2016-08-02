@@ -30,27 +30,29 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExpr_end(MatlabGrammarParser.Expr_endContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MatlabGrammarParser#statements}.
+	 * Enter a parse tree produced by the {@code ExprStatements}
+	 * labeled alternative in {@link MatlabGrammarParser#statements}.
 	 * @param ctx the parse tree
 	 */
-	void enterStatements(MatlabGrammarParser.StatementsContext ctx);
+	void enterExprStatements(MatlabGrammarParser.ExprStatementsContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MatlabGrammarParser#statements}.
+	 * Exit a parse tree produced by the {@code ExprStatements}
+	 * labeled alternative in {@link MatlabGrammarParser#statements}.
 	 * @param ctx the parse tree
 	 */
-	void exitStatements(MatlabGrammarParser.StatementsContext ctx);
+	void exitExprStatements(MatlabGrammarParser.ExprStatementsContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code Expr2}
+	 * Enter a parse tree produced by the {@code ExprStatement}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpr2(MatlabGrammarParser.Expr2Context ctx);
+	void enterExprStatement(MatlabGrammarParser.ExprStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code Expr2}
+	 * Exit a parse tree produced by the {@code ExprStatement}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpr2(MatlabGrammarParser.Expr2Context ctx);
+	void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FuncDef}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
@@ -64,15 +66,17 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitFuncDef(MatlabGrammarParser.FuncDefContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MatlabGrammarParser#expressions}.
+	 * Enter a parse tree produced by the {@code ExprWithExprEnd}
+	 * labeled alternative in {@link MatlabGrammarParser#expression_with_expr_end}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpressions(MatlabGrammarParser.ExpressionsContext ctx);
+	void enterExprWithExprEnd(MatlabGrammarParser.ExprWithExprEndContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MatlabGrammarParser#expressions}.
+	 * Exit a parse tree produced by the {@code ExprWithExprEnd}
+	 * labeled alternative in {@link MatlabGrammarParser#expression_with_expr_end}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpressions(MatlabGrammarParser.ExpressionsContext ctx);
+	void exitExprWithExprEnd(MatlabGrammarParser.ExprWithExprEndContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprArithmetic}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
@@ -86,17 +90,17 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprAssign1}
+	 * Enter a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprAssign1(MatlabGrammarParser.ExprAssign1Context ctx);
+	void enterExprAssign(MatlabGrammarParser.ExprAssignContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprAssign1}
+	 * Exit a parse tree produced by the {@code ExprAssign}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprAssign1(MatlabGrammarParser.ExprAssign1Context ctx);
+	void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionDLDiv}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
@@ -420,15 +424,13 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitFunc_def_return(MatlabGrammarParser.Func_def_returnContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprAssign}
-	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#assign_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprAssign(MatlabGrammarParser.ExprAssignContext ctx);
+	void enterAssign_expr(MatlabGrammarParser.Assign_exprContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprAssign}
-	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#assign_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx);
+	void exitAssign_expr(MatlabGrammarParser.Assign_exprContext ctx);
 }
