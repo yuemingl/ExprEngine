@@ -662,13 +662,14 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			ExprNode lastExpr = fNode.body.get(0);
 			if(lastExpr instanceof FuncCallNode) {
 				FuncCallNode funcCallNode = (FuncCallNode)lastExpr;
-				if(funcCallNode.getMethodName().equals("println")) {
-					//TODO use DupNode?
-					DupNode dupNode = new DupNode(funcCallNode.args.get(0));
-					funcCallNode.args.set(0, dupNode);
-					//fNode.body.add(0, funcCallNode.args.get(0));
-					//System.out.println(funcCallNode);
-				}
+				//this is handled in exitExprWithExprEnd()
+//				if(funcCallNode.getMethodName().equals("println")) {
+//					//TODO use DupNode?
+//					DupNode dupNode = new DupNode(funcCallNode.args.get(0));
+//					funcCallNode.args.set(0, dupNode);
+//					//fNode.body.add(0, funcCallNode.args.get(0));
+//					//System.out.println(funcCallNode);
+//				}
 			}
 		}
 		
