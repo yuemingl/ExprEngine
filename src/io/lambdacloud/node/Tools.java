@@ -59,27 +59,32 @@ public class Tools {
 	}
 	
 	public static Type typeConversion(Type type1, Type type2) {
-		if(null == type1 || null == type2) {
+		if(null == type1 && null == type2) {
 			return null;
-		}
-		int t1 = type1.getSort();
-		int t2 = type2.getSort();
-		if(t1 == Type.OBJECT && t2 == Type.OBJECT) {
+		} else if(null == type1) {
+			return type2;
+		} else if(null == type2) {
 			return type1;
-		} else if(t1 == Type.ARRAY && t2 ==Type.ARRAY) {
-			return type1;
-		} else if(t1 == Type.DOUBLE || t2 == Type.DOUBLE) {
-			return Type.getType(double.class);
-		} else if(t1 == Type.FLOAT || t2 == Type.FLOAT) {
-			return Type.getType(float.class);
-		} else if(t1 == Type.LONG || t2 == Type.LONG) {
-			return Type.getType(long.class);
-		} else if(t1 == Type.INT || t2 == Type.INT) {
-			return Type.getType(int.class);
-		} else if(t1 == Type.BOOLEAN && t2 == Type.BOOLEAN) {
-			return Type.getType(boolean.class);
 		} else {
-			throw new RuntimeException("Cannot convert type "+type1+" and "+type2+"!");
+			int t1 = type1.getSort();
+			int t2 = type2.getSort();
+			if(t1 == Type.OBJECT && t2 == Type.OBJECT) {
+				return type1;
+			} else if(t1 == Type.ARRAY && t2 ==Type.ARRAY) {
+				return type1;
+			} else if(t1 == Type.DOUBLE || t2 == Type.DOUBLE) {
+				return Type.getType(double.class);
+			} else if(t1 == Type.FLOAT || t2 == Type.FLOAT) {
+				return Type.getType(float.class);
+			} else if(t1 == Type.LONG || t2 == Type.LONG) {
+				return Type.getType(long.class);
+			} else if(t1 == Type.INT || t2 == Type.INT) {
+				return Type.getType(int.class);
+			} else if(t1 == Type.BOOLEAN && t2 == Type.BOOLEAN) {
+				return Type.getType(boolean.class);
+			} else {
+				throw new RuntimeException("Cannot convert type "+type1+" and "+type2+"!");
+			}
 		}
 	}
 	
