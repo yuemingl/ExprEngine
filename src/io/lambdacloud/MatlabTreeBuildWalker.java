@@ -1,11 +1,6 @@
 package io.lambdacloud;
 
 import java.io.FileOutputStream;
-import java.lang.invoke.CallSite;
-import java.lang.invoke.ConstantCallSite;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +27,7 @@ import io.lambdacloud.node.DupNode;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
+import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.arithmetric.AddNode;
@@ -39,6 +35,15 @@ import io.lambdacloud.node.arithmetric.DivNode;
 import io.lambdacloud.node.arithmetric.MultNode;
 import io.lambdacloud.node.arithmetric.NegateNode;
 import io.lambdacloud.node.arithmetric.SubNode;
+import io.lambdacloud.node.comparion.EQNode;
+import io.lambdacloud.node.comparion.GENode;
+import io.lambdacloud.node.comparion.GTNode;
+import io.lambdacloud.node.comparion.LENode;
+import io.lambdacloud.node.comparion.LTNode;
+import io.lambdacloud.node.logical.AndNode;
+import io.lambdacloud.node.logical.NEQNode;
+import io.lambdacloud.node.logical.NotNode;
+import io.lambdacloud.node.logical.OrNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.node.matrix.MatrixDLDivNode;
 import io.lambdacloud.node.matrix.MatrixDMulNode;
@@ -756,5 +761,66 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		funcCall.args.add(dupNode);
 		this.currentScope().stack.push(funcCall);
 	}
+	
+	@Override public void exitLogicalExpressionAnd(MatlabGrammarParser.LogicalExpressionAndContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new AndNode(v1, v2));
+	}
+	
+	@Override public void exitLogicalExpressionOr(MatlabGrammarParser.LogicalExpressionOrContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new OrNode(v1, v2));
+	}
+	
+	@Override public void exitLogicalExpressionEntity(MatlabGrammarParser.LogicalExpressionEntityContext ctx) {
+		currentScope().stack.push(new NotNode(currentScope().stack.pop()));
+	}
+	
+	//@Override public void exitLogicalExpressionInParen(MatlabGrammarParser.LogicalExpressionInParenContext ctx) { }
+	//@Override public void exitComparisonExpression(MatlabGrammarParser.ComparisonExpressionContext ctx) { }
+	@Override public void exitComparisonArithmeticExpression(MatlabGrammarParser.ComparisonArithmeticExpressionContext ctx) {
+		String op = ctx.comp_operator().getText();
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		if(op.equals(">")) {
+			currentScope().stack.push(new GTNode(v1, v2));
+		} else if(op.equals(">=")) {
+			currentScope().stack.push(new GENode(v1, v2));
+		} else if(op.equals("<")) {
+			currentScope().stack.push(new LTNode(v1, v2));
+		} else if(op.equals("<=")) {
+			currentScope().stack.push(new LENode(v1, v2));
+		} else if(op.equals("==")) {
+			currentScope().stack.push(new EQNode(v1, v2));
+		} else if(op.equals("!=")) {
+			currentScope().stack.push(new NEQNode(v1, v2));
+		}
+	}
+	
+	@Override public void exitEntityLogicalConst(MatlabGrammarParser.EntityLogicalConstContext ctx) {
+		currentScope().stack.push(new ConstantNode(ctx.getText(),Type.BOOLEAN_TYPE));
+	}
+	
+	@Override public void exitExprIf(MatlabGrammarParser.ExprIfContext ctx) {
+		IfNode ifnode = new IfNode();
+		//System.out.println("exitExprIf: >>>"+ctx.getText()+"<<<");
 
+		if(null != ctx.else_body()) { //else branch
+			//System.out.println("else:  "+ctx.else_body().getText());
+			for(int i=ctx.else_body().expression_with_expr_end().size()-1; i>=0; i--) {
+				ifnode.elseBlockExprs.add(currentScope().stack.pop());
+			}
+		}
+		for(int i=ctx.if_cond_and_body().size()-1; i>=0; i--) {
+			//System.out.println("if/elseif:  "+ctx.if_cond_and_body(i).getText());
+			for(int j=ctx.if_cond_and_body(i).expression_with_expr_end().size(); j>0; j--) {
+				ifnode.ifBlockExprs.add(currentScope().stack.pop());
+			}
+			//System.out.println("conditon: "+ctx.if_cond_and_body(i).logical_expr().getText());
+			ifnode.condition = currentScope().stack.pop();
+		}
+		currentScope().stack.push(ifnode);
+	}
 }
