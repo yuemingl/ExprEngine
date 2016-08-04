@@ -113,3 +113,51 @@ https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/TestExprEn
 ###### Grammar
 https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/ExprGrammar.g4
 
+#Matlab Grammar
+#### Usage in Java
+```java
+MatlabEngine.exec("A=[1 2;3 4]; b=[3 4]'; A\\b");
+```
+### Command Line Tools ( MatlabEngine.main(String[] args) )
+#### Example 1
+```matlab
+function [a, b] =myfun(a, b)
+  a+b;
+end
+myfun(1,2)
+```
+#### Example 2
+```matlab
+function [c d] = myfun(a, b)
+	c=a+b
+	d=a-b
+end
+myfun(10,100)
+myfun(10.1,100.1)
+```
+#### Example 3
+```matlab
+function myfun(a, b)
+        c=a+b
+        d=a-b
+	[c d; d c]
+end
+myfun(10,100);
+myfun(10.1,100.1);
+```
+#### Example 4
+```matlab
+A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]
+A(:, 0:2:8)
+A(1, 0:2:8)
+A(:, 9)
+B=A(0:2,0:2)
+
+C=[5 4 8; 4 4 7; 2 1 1]
+b=A(:,3)
+C\b
+
+```
+#### More Matlab examples
+https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/test/TestMatlabEngine.java
+https://github.com/yuemingl/ExprEngine/tree/master/test_matlab
