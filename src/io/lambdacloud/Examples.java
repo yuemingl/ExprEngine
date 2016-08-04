@@ -137,7 +137,15 @@ public class Examples {
 		System.out.println("Fibonacci(46)="+exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(46)"));
 		System.out.println("Time: "+(System.currentTimeMillis()-startTime)+"ms");
 
+		startTime = System.currentTimeMillis();
+		System.out.println("Fibonacci(46)="+fib(46));
+		System.out.println("Time: "+(System.currentTimeMillis()-startTime)+"ms");
 		//runAll();
+	}
+	
+	public static long fib(int n) {
+		if(n <= 1) return 1L;
+		else return fib(n-1)+fib(n-2);
 	}
 	
 	public static void runAll() {
