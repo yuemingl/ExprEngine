@@ -10,6 +10,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import io.lambdacloud.test.TestExprEngine;
+
 public class Examples {
 
 	/**
@@ -127,6 +129,12 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
+		// Put them together to test for function definition across call of exec()
+		//System.out.println(exec("def test(x,y) { x+y }"));
+		//System.out.println(exec("test(1,2)"));
+		//-----------------------------------------------------------------------
+
+		
 		System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+100.0; } plus(x+y,2.0) } plus(1,2)"));
 		/*
 Call plus in scope global
@@ -151,57 +159,57 @@ bootstrap: FCplus2.plus:(DD)D
 genCode: (DD)D
 111.4
  */
-		//System.out.println(exec("def fib(n) { if(n>1) {fib(n-1)+fib(n-2)} else {1}} fib(5)"));
-		//System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
+		System.out.println(exec("def fib(n) { if(n>1) {fib(n-1)+fib(n-2)} else {1}} fib(5)"));
+		System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
 		//stack overflow: System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y+0.01 } plus(1.1,2.2) } plus(1,2)"));
-		///System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y } plus(1.1,2.2) } plus(1,2)"));
+		//System.out.println(exec("def plus(x, y) { if(x+y>10) { return x+y } plus(1.1,2.2) } plus(1,2)"));
 			
 //		System.out.println(exec(
 //				"[ i+j for i in range(20) for j in range(i+1,20) if i+j == 32 ]"));
 				
-//		//Put the algorithm logic in the expression without considering types
-//		//Pass typed parameters in and compile the algorithm with most efficient
-//		//Bytecode
-//		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
-//				TestExprEngine.getMap(
-//						"a", new double[]{1,2,3},
-//						"b", new double[]{1,1,1},
-//						"r", 0.0,
-//						"N", 3
-//						)));
-//		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
-//				TestExprEngine.getMap(
-//						"a", new int[]{1,2,3},
-//						"b", new int[]{1,1,1},
-//						"r", 0,
-//						"N", 3
-//						)));
+		//Put the algorithm logic in the expression without considering types
+		//Pass typed parameters in and compile the algorithm with most efficient
+		//Bytecode
+		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
+				TestExprEngine.getMap(
+						"a", new double[]{1,2,3},
+						"b", new double[]{1,1,1},
+						"r", 0.0,
+						"N", 3
+						)));
+		System.out.println(exec("for(i=0;i<N;i++) { r += a[i]*b[i] } r", 
+				TestExprEngine.getMap(
+						"a", new int[]{1,2,3},
+						"b", new int[]{1,1,1},
+						"r", 0,
+						"N", 3
+						)));
 
 //		System.out.println(exec("def fun1(x, y) { x+y }"));
 //		System.out.println(exec("fun1(1,1)+fun1(3,4)"));
 		
 		
 		
-		//System.out.println(exec("if (x>0) { return 1 } x ", new int[]{2}));
-		//System.out.println(exec("def test(n) {if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
-		//System.out.println(exec("def test(n) {a=0; if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
+		System.out.println(exec("if (x>0) { return 1 } x ", new int[]{2}));
+		System.out.println(exec("def test(n) {if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
+		System.out.println(exec("def test(n) {a=0; if(n<5) { return n; } else  {a=n+1} a+100 } test(7)"));
 
-		//System.out.println(exec("def fun1(x, y) { x+y } def fun2(x,y) {x-y} fun2(1,1)"));
+		System.out.println(exec("def fun1(x, y) { x+y } def fun2(x,y) {x-y} fun2(1,1)"));
 
-		//System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
-		//System.out.println(exec("def fun1(x, y) { a=x+y; b=x-y; if(a<10) {fun1(a,b)} else{a} } fun1(1,1)"));
+		System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(5)"));
+		System.out.println(exec("def fun1(x, y) { a=x+y; b=x-y; if(a<10) {fun1(a,b)} else{a} } fun1(1,1)"));
 		
-		//System.out.println(exec("def fun1(x, y) { x+y } fun1(1,1)+fun1(3,4)"));
-		//System.out.println(exec("a=x+y; a-1",new int[]{1,2}));
-		//System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); a+1"));
-		//System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } b=fun1(1,2); b+1"));
-		//System.out.println(exec("def fun1(x, y) { x+y } fun1(2.5,1)"));
-		//System.out.println(exec("def fun1(x, y) { x+y } r=0; for(i=0;i<10;i++) { r+=fun1(1,i)+fun1(2,i) } r"));
-		//System.out.println(exec("def fun1(x, y) { x+y } r=0; for(i=0;i<10;i++) { r+=fun1(1,i) } r"));
+		System.out.println(exec("def fun1(x, y) { x+y } fun1(1,1)+fun1(3,4)"));
+		System.out.println(exec("a=x+y; a-1",new int[]{1,2}));
+		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); a+1"));
+		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } b=fun1(1,2); b+1"));
+		System.out.println(exec("def fun1(x, y) { x+y } fun1(2.5,1)"));
+		System.out.println(exec("def fun1(x, y) { x+y } r=0; for(i=0;i<10;i++) { r+=fun1(1,i)+fun1(2,i) } r"));
+		System.out.println(exec("def fun1(x, y) { x+y } r=0; for(i=0;i<10;i++) { r+=fun1(1,i) } r"));
 		//bootstrap 3 times? System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)+fun1(3,4)"));
-		//System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
-		//System.out.println(exec("def fun1(x, y) { x+y } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
-		//System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)"));
+		System.out.println(exec("def fun1(x, y) { a=x+y; a-1 } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
+		System.out.println(exec("def fun1(x, y) { x+y } a=fun1(1,2); b=fun1(1.5,2.5); a+b"));
+		System.out.println(exec("def fun1(x, y) { x+y } fun1(1.5,2.5)+fun1(1,1)"));
 
 		//bug		System.out.println(exec("x**2", new int[]{5}));
 		
@@ -222,33 +230,33 @@ genCode: (DD)D
 		
 //		System.out.println(exec("sum([x for x in 1:3])"));
 		
-//		System.out.println(exec("a=[1,2,3]; sum(a)"));
-//		System.out.println(exec("sum([1,2,3])"));
+		//System.out.println(exec("a=[1,2,3]; sum(a)"));
+		//System.out.println(exec("sum([1,2,3])"));
 		//System.out.println(exec("'abc'+10"));
 
-//		//System.out.println(exec("a=10:20; for(i=0;i<10;i++) { b+=a[i] } b"));
-//		System.out.println(exec("a=10:20; for(i=0;i<10;i++) { b+=a[i] } b",new int[]{0}));
-//		System.out.println(exec("b=0; a=10:20; for(i=0;i<10;i++) { b+=a[i] } b"));
-//		
-//		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1:2][0][1]")); //mixed type: array in list
-//
-//		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
-//
-//		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
-//
-//		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1][0]")); //mixed type: array in list
-//
-//		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]"));
-//		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]"));
-//		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"));
-//		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
-//		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]=20; a")));
-//		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]=20; a")));
+		//System.out.println(exec("a=10:20; for(i=0;i<10;i++) { b+=a[i] } b"));
+		System.out.println(exec("a=10:20; for(i=0;i<10;i++) { b+=a[i] } b",new int[]{0}));
+		System.out.println(exec("b=0; a=10:20; for(i=0;i<10;i++) { b+=a[i] } b"));
+		
+		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1:2][0][1]")); //mixed type: array in list
 
-//		ex1();
-//		ex2();
-//		ex3();
-//		ex4();
+		System.out.println(exec("a=[ [10*x+y for x in 1:3] for y in 4:6]; a[2][1]"));
+
+		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
+
+		System.out.println(exec("a=[[x,x+1] for x in 1:3]; a[1][0]")); //mixed type: array in list
+
+		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]"));
+		System.out.println(exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]"));
+		System.out.println(exec("a=[[1,2],[3,4,5]]; b=a[0]; b[0]"));
+		System.out.println(exec("a=[[1 for col in range(3)] for row in range(2)]; a[0]"));
+		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[0][1]=20; a")));
+		System.out.println(Arrays.deepToString((int[][])exec("a=[[1,2,3],[4,5,6],[7,8,9]]; a[1:2][1][0]=20; a")));
+
+		ex1();
+		ex2();
+		ex3();
+		ex4();
 //		int x=5,y=3;
 //		System.out.println(x*y%2);
 	}

@@ -12,7 +12,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
 
-import io.lambdacloud.statement.VariableNode;
+import io.lambdacloud.node.VariableNode;
 
 public class MethodGenHelper {
 	private MethodVisitor mv;

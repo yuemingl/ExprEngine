@@ -22,60 +22,118 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.Opcodes;
 
-import io.lambdacloud.ExprGrammarParser.Array_indexContext;
-import io.lambdacloud.ExprGrammarParser.List_comp_for_ifContext;
-import io.lambdacloud.statement.AddAsignNode;
-import io.lambdacloud.statement.AddNode;
-import io.lambdacloud.statement.AndNode;
-import io.lambdacloud.statement.ArrayAccessNode;
-import io.lambdacloud.statement.ArrayAssignNode;
-import io.lambdacloud.statement.ArrayNode;
-import io.lambdacloud.statement.AssignNode;
-import io.lambdacloud.statement.BAndNode;
-import io.lambdacloud.statement.BNotNode;
-import io.lambdacloud.statement.BOrNode;
-import io.lambdacloud.statement.BXorNode;
-import io.lambdacloud.statement.ConstantNode;
-import io.lambdacloud.statement.DescNode;
-import io.lambdacloud.statement.DivAsignNode;
-import io.lambdacloud.statement.DivNode;
-import io.lambdacloud.statement.EQNode;
-import io.lambdacloud.statement.ExprNode;
-import io.lambdacloud.statement.ForNode;
-import io.lambdacloud.statement.FuncCallNode;
-import io.lambdacloud.statement.FuncDefNode;
-import io.lambdacloud.statement.GENode;
-import io.lambdacloud.statement.GTNode;
-import io.lambdacloud.statement.IfNode;
-import io.lambdacloud.statement.IncNode;
-import io.lambdacloud.statement.LENode;
-import io.lambdacloud.statement.LTNode;
-import io.lambdacloud.statement.ListComprehensionNode;
-import io.lambdacloud.statement.ListComprehensionNode.LForNode;
-import io.lambdacloud.statement.ListComprehensionNode.LIfNode;
-import io.lambdacloud.statement.MulAsignNode;
-import io.lambdacloud.statement.MultNode;
-import io.lambdacloud.statement.NEQNode;
-import io.lambdacloud.statement.NegateNode;
-import io.lambdacloud.statement.NotNode;
-import io.lambdacloud.statement.OrNode;
-import io.lambdacloud.statement.RangeNode;
-import io.lambdacloud.statement.RemAsignNode;
-import io.lambdacloud.statement.RemNode;
-import io.lambdacloud.statement.ReturnNode;
-import io.lambdacloud.statement.SHLNode;
-import io.lambdacloud.statement.SHRNode;
-import io.lambdacloud.statement.StringCompareNode;
-import io.lambdacloud.statement.StringConcatNode;
-import io.lambdacloud.statement.StringNode;
-import io.lambdacloud.statement.SubAsignNode;
-import io.lambdacloud.statement.SubNode;
-import io.lambdacloud.statement.USHRNode;
-import io.lambdacloud.statement.VariableNode;
-import io.lambdacloud.statement.WhileNode;
+import io.lambdacloud.exprengine.ExprGrammarBaseListener;
+import io.lambdacloud.exprengine.ExprGrammarParser;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionAddContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionDMulContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionDivContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionEntityContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionIncDecContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionMulContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionNegationEntityContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionPowContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionRemContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionSOLContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ArithmeticExpressionSubContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.Array_indexContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.Array_initContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionAndContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionNotContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionOrContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionShlContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionShrContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionUshrContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.BitExpressionXorContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ComparisonArithmeticExpressionContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ComparisonStringExpressionContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.EntityArrayAccessContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.EntityConstFloatContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.EntityConstIntegerContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.EntityLogicalConstContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.EntityVariableContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprAddAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprArithmeticContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprArrayAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprArrayGenContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprDivAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprForContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprIfContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprMulAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprRemAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprReturnContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprStringContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprSubAssignContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprSumContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ExprWhileContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.FuncCallContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.FuncDefContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.List_comp_for_ifContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.List_comprehensionContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.LogicalExpressionAndContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.LogicalExpressionEntityContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.LogicalExpressionNotContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.LogicalExpressionOrContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.ProgContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.StatementBlockContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.StatementsContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.StringConcatContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.StringConstContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.StringEntityContext;
+import io.lambdacloud.exprengine.ExprGrammarParser.TransposeContext;
+import io.lambdacloud.node.AssignNode;
+import io.lambdacloud.node.ConstantNode;
+import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.ForNode;
+import io.lambdacloud.node.FuncCallNode;
+import io.lambdacloud.node.FuncDefNode;
+import io.lambdacloud.node.IfNode;
+import io.lambdacloud.node.ListComprehensionNode;
+import io.lambdacloud.node.RangeNode;
+import io.lambdacloud.node.ReturnNode;
+import io.lambdacloud.node.VariableNode;
+import io.lambdacloud.node.WhileNode;
+import io.lambdacloud.node.ListComprehensionNode.LForNode;
+import io.lambdacloud.node.ListComprehensionNode.LIfNode;
+import io.lambdacloud.node.arithmetric.AddAsignNode;
+import io.lambdacloud.node.arithmetric.AddNode;
+import io.lambdacloud.node.arithmetric.DescNode;
+import io.lambdacloud.node.arithmetric.DivAsignNode;
+import io.lambdacloud.node.arithmetric.DivNode;
+import io.lambdacloud.node.arithmetric.IncNode;
+import io.lambdacloud.node.arithmetric.MulAsignNode;
+import io.lambdacloud.node.arithmetric.MultNode;
+import io.lambdacloud.node.arithmetric.NegateNode;
+import io.lambdacloud.node.arithmetric.RemAsignNode;
+import io.lambdacloud.node.arithmetric.RemNode;
+import io.lambdacloud.node.arithmetric.SubAsignNode;
+import io.lambdacloud.node.arithmetric.SubNode;
+import io.lambdacloud.node.array.ArrayAccessNode;
+import io.lambdacloud.node.array.ArrayAssignNode;
+import io.lambdacloud.node.array.ArrayNode;
+import io.lambdacloud.node.binary.BAndNode;
+import io.lambdacloud.node.binary.BNotNode;
+import io.lambdacloud.node.binary.BOrNode;
+import io.lambdacloud.node.binary.BXorNode;
+import io.lambdacloud.node.binary.SHLNode;
+import io.lambdacloud.node.binary.SHRNode;
+import io.lambdacloud.node.binary.USHRNode;
+import io.lambdacloud.node.comparion.EQNode;
+import io.lambdacloud.node.comparion.GENode;
+import io.lambdacloud.node.comparion.GTNode;
+import io.lambdacloud.node.comparion.LENode;
+import io.lambdacloud.node.comparion.LTNode;
+import io.lambdacloud.node.logical.AndNode;
+import io.lambdacloud.node.logical.NEQNode;
+import io.lambdacloud.node.logical.NotNode;
+import io.lambdacloud.node.logical.OrNode;
+import io.lambdacloud.node.matrix.SolveNode;
+import io.lambdacloud.node.string.StringCompareNode;
+import io.lambdacloud.node.string.StringConcatNode;
+import io.lambdacloud.node.string.StringNode;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 //	public Deque<ExprNode> stack = new LinkedList<ExprNode>();
 //	
 //	//Variable map which is generated after parsing
@@ -292,6 +350,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public Class<?> genClass(String className, boolean writeFile, 
 			String methodName, boolean isStatic, Class<?>[] aryParameterTypes) {
 		try {
+			
+			if(currentScope().stack.isEmpty()) 
+				return null;
+			
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			CodeGenerator cgen = new CodeGenerator();
 			
@@ -874,7 +936,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			
 			boolean isDynamicCall = false;
 			if(null != funcDef && !funcDef.name.equals(this.currentScope().toString())) {
-				className = "global";
+				className = funcDef.getFuncClassName();//"global";
 				isDynamicCall = true;
 			} else if(null != funcDef && funcDef.name.equals(this.currentScope().toString())) {
 				//This is the case that the recursively call of the function
@@ -1158,6 +1220,21 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			node = new ReturnNode();
 		}
 		this.currentScope().stack.push(node);
+	}
+	
+	@Override public void exitTranspose(ExprGrammarParser.TransposeContext ctx) { 
+		System.out.println(ctx.getText());
+		
+	}
+
+	@Override public void exitArithmeticExpressionDMul(ExprGrammarParser.ArithmeticExpressionDMulContext ctx) { 
+		System.out.println(ctx.getText());
+	}
+	
+	@Override public void exitArithmeticExpressionSOL(ExprGrammarParser.ArithmeticExpressionSOLContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SolveNode(v1, v2));
 	}
 
 }
