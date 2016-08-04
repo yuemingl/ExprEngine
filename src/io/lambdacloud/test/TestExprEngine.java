@@ -35,6 +35,8 @@ public class TestExprEngine {
 //		System.out.println(exec("c='aaa'; d=a+b; d'", getMap("a",1,"b",2)));
 //		System.out.println(exec("c='aaa'; d=a'+b; d", getMap("a",1,"b",2)));
 		
+//		exec("println('Begin test:'); print(1); print(2.0); println(true)");
+//		assertEqual(exec("while (x<y) {x=x+1;} x", new int[]{1,4}), 4);
 		testExprs();
 		test();
 	}
