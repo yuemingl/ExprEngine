@@ -87,7 +87,7 @@ WS : [ \t] ;
 
 prog : statements EOF ;
 
-expr_end : WS* (SEMI|'\n')+ WS*;
+expr_end : (WS* (SEMI|'\n') WS*)+;
 
 statements
  : statement* (expression expr_end?)?   # ExprStatements
@@ -95,14 +95,21 @@ statements
 
 statement
  : expression_with_expr_end   # ExprStatement
- | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expression_with_expr_end* 'end' expr_end   # FuncDef
+ | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
  ;
 
-expression_with_expr_end : expression expr_end   # ExprWithExprEnd ;
+expression_with_expr_end
+ : expression expr_end   # ExprWithExprEnd
+ | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
+ ;
+
+if_cond_and_body : logical_expr expr_end expression_with_expr_end* ;
+else_body : expression_with_expr_end* ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
  | assign_expr           # ExprAssign
+ | logical_expr          # ExprLogical
  ;
 
 arithmetic_expr
@@ -156,4 +163,25 @@ func_def_args : WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*
 func_def_return : WS* (variable_entity|array_init) WS* ;
 
 assign_expr : WS* IDENTIFIER WS* ASSIGN expression ;
+
+/////////////////////////
+
+logical_expr
+ : comparison_expr                   # ComparisonExpression
+ | logical_expr AND logical_expr     # LogicalExpressionAnd
+ | logical_expr OR logical_expr      # LogicalExpressionOr
+ | NOT logical_expr                  # LogicalExpressionNot
+ | LPAREN logical_expr RPAREN        # LogicalExpressionInParen
+ | logical_entity                    # LogicalExpressionEntity
+ ;
+
+ comparison_expr 
+ : arithmetic_expr comp_operator arithmetic_expr                      # ComparisonArithmeticExpression
+// | string_expr ( (WS* EQ WS*) | (WS* NEQ WS*) ) string_ex           # ComparisonStringExpression
+ ;
+
+comp_operator 
+ : GT | GE | LT | LE | EQ | NEQ ;
+
+logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 
