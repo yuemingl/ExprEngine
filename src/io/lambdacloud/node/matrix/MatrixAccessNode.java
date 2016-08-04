@@ -10,6 +10,7 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import Jama.Matrix;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -53,33 +54,52 @@ public class MatrixAccessNode extends ExprNode {
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException();
 		}
+		
+		int type = 0x0;
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair ip = this.indices.get(i);
 			if(null == ip.idxS) {
 				mg.visitInsn(Opcodes.ICONST_0);
 				var.genCode(mg);
 				if(i == 1) {
-					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getColumnDimension", "()I", false);
+					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getRowDimension", "()I", false);
 					mg.visitInsn(Opcodes.ICONST_1);
 					mg.visitInsn(Opcodes.ISUB);
 				} else if(i == 0) {
-					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getRowDimension", "()I", false);
+					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getColumnDimension", "()I", false);
 					mg.visitInsn(Opcodes.ICONST_1);
 					mg.visitInsn(Opcodes.ISUB);
 				}
 				else
 					throw new RuntimeException();
 			} else {
-				ip.idxS.genCode(mg);
-				if(null == ip.idxE) 
-					mg.visitInsn(Opcodes.DUP);
-				else
-					ip.idxE.genCode(mg);
+				if(ip.idxS instanceof RangeNode) {
+					if(i == 1) {
+						ip.idxS.genCode(mg);
+						type |= 0x1;
+					} else if(i == 0) {
+						ip.idxS.genCode(mg);
+						type |= 0x2;
+					} else
+						throw new RuntimeException();
+				} else {
+					ip.idxS.genCode(mg);
+					if(null == ip.idxE) 
+						mg.visitInsn(Opcodes.DUP);
+					else
+						ip.idxE.genCode(mg);
+				}
 			}
 		}
-		
-		mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(IIII)LJama/Matrix;", false);
-		//mg.visitInsn(ARETURN);
+		if(type == 0x0)
+			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(IIII)LJama/Matrix;", false);
+		else if(type == 0x1)
+			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "([III)LJama/Matrix;", false);
+		else if(type == 0x2)
+			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(II[I)LJama/Matrix;", false);
+		else if(type == 0x3)
+			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "([I[I)LJama/Matrix;", false);
+			
 
 	}
 	

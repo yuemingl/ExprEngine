@@ -11,19 +11,39 @@ import Jama.Matrix;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		
 		test();
 	}
 	
 	public static void test() {
 		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
 		double[][] array2 = {{1.,2.,3},{1.,1.,1.},{2.,2.,2.}};
+		double[][] array3 = {{1,2,3,4,5,6},{11,22,33,44,55,66}};
 		Matrix A = new Matrix(array);
 		Matrix B = new Matrix(array2);
+		Matrix C = new Matrix(array3);
 		Matrix b = Matrix.random(3,1);
 
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4);
+
+		assertEqual(exec("C ( 1, 1:3:5 )", getMap("C",C)), C.getMatrix(1,1, new int[]{1,4}));
+		assertEqual(exec("C(0, 0:2:5)", getMap("C",C)), C.getMatrix(0,0, new int[]{0,2,4}));
+		assertEqual(exec("C(:, 0:2:5)", getMap("C",C)), C.getMatrix(0,1, new int[]{0,2,4}));
+		
+		assertEqual(exec("C(   :  , :  )", getMap("C",C)), C);
+		assertEqual(exec("C(:  , :)", getMap("C",C)), C);
+		assertEqual(exec("C(:, :)", getMap("C",C)), C);
+		assertEqual(exec("C(:,:)", getMap("C",C)), C);
+
+		assertEqual(exec("0.0 : 0.5 : 1.6"), new double[]{0,0.5,1,1.5});
+		assertEqual(exec("0.0 : 0.5 : 1.4"), new double[]{0,0.5,1});
+		assertEqual(exec("0.0 : 0.5 : 1.5"), new double[]{0,0.5,1,1.5});
+		assertEqual(exec("1:2:6"), new int[]{1,3,5});
+		assertEqual(exec("1:2:5"), new int[]{1,3,5});
+		assertEqual(exec("1:5"), new int[]{1,2,3,4,5});
+
 		
 		assertEqual(exec("A(:,1:2)", getMap("A",A)), A.getMatrix(0,2,1,2));
 		assertEqual(exec("A=[1 2;3 4]\n A(:,0)"), getMatrix(1,3));

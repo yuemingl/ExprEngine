@@ -464,9 +464,20 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	@Override public void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx) {
-		ExprNode idxE = this.currentScope().stack.pop();
-		ExprNode idxS = this.currentScope().stack.pop();
-		RangeNode node = new RangeNode(idxS, idxE, true);
+		//System.out.println("exitArithmeticExpressionRange "+ctx.getText());
+		RangeNode node = null;
+		if(ctx.arithmetic_expr().size() == 2) {
+			ExprNode idxE = this.currentScope().stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
+			node = new RangeNode(idxS, idxE, true);
+		} else if(ctx.arithmetic_expr().size() == 3) {
+			ExprNode idxE = this.currentScope().stack.pop();
+			ExprNode idxStep = this.currentScope().stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
+			node = new RangeNode(idxS, idxStep, idxE, true);
+		} else {
+			throw new RuntimeException("Range node error: "+ ctx.getText());
+		}
 		currentScope().stack.push(node);
 	}
 	
@@ -574,9 +585,15 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				ExprNode idxS = this.currentScope().stack.pop();
 				ExprNode idxE = null;
 				if(idxS instanceof RangeNode) {
+					//Pass start and end index directly into MatrixAccessNode for optimization purpose
+					//(no array is generated for the range)
 					RangeNode range = (RangeNode)idxS;
-					idxS = range.start;
-					idxE = range.end; //end+1 =>new AddNode(end, 1)
+					if(range.step == null) {
+						idxS = range.start;
+						idxE = range.end; //end+1 =>new AddNode(end, 1)
+					} else {
+						//do nothing, let indS be the range node
+					}
 				}
 				node.addIndex(idxS, idxE);
 			}

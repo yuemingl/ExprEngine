@@ -119,7 +119,7 @@ arithmetic_expr
  | arithmetic_expr REM arithmetic_expr        # ArithmeticExpressionRem
  | arithmetic_expr (ADD|DADD) arithmetic_expr # ArithmeticExpressionAdd
  | arithmetic_expr (SUB|DSUB) arithmetic_expr # ArithmeticExpressionSub
- | arithmetic_expr COLON arithmetic_expr      # ArithmeticExpressionRange
+ | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr      # ArithmeticExpressionRange
  | LPAREN arithmetic_expr RPAREN              # ArithmeticExpressionParens
  | array_init                                 # ExprArrayInit
  | numeric_entity                             # ArithmeticExpressionEntity
@@ -142,10 +142,10 @@ variable_entity
  | array_access                   # ArrayAccessOrFuncCall
  ;
 
-array_init : WS* LBRK ( ai_list WS* SEMI WS* )* ai_list RBRK WS* ;
+array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
 ai_list : ( expression (COMMA|WS+) )* expression? ;
  
-array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN ( aa_index COMMA )* aa_index? RPAREN WS* ;
+array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
 aa_index : expression | COLON ;
 
 // Use array_access instead for function call
