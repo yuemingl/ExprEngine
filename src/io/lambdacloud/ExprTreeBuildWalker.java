@@ -616,8 +616,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	}
 
 	@Override public void exitEntityConstInteger(ExprGrammarParser.EntityConstIntegerContext ctx) {
-		//System.out.println("exitConstInteger"+ctx.getText());
-		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
+		//System.out.println("exitConstInteger: "+ctx.getText());
+		String s = ctx.getText();
+		if(s.endsWith("L"))
+			currentScope().stack.push(new ConstantNode(s.substring(0, s.length()-1), Type.LONG_TYPE));
+		else
+			currentScope().stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
 	}
 	@Override public void exitEntityConstFloat(ExprGrammarParser.EntityConstFloatContext ctx) { 
 		//System.out.println("exitEntityConstFloat:"+ctx.getText());

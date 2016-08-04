@@ -50,8 +50,7 @@ public class LENode extends BinaryOp {
 			mg.visitInsn(ICONST_0);
 			mg.visitLabel(l2);
 			//mv.visitInsn(Opcodes.NOP);
-		}
-		else if(ty.getSort() == Type.INT) {
+		} else if(ty.getSort() == Type.INT) {
 			Label l1 = new Label();
 			mg.visitJumpInsn(IF_ICMPGT, l1);
 			mg.visitInsn(ICONST_1);
@@ -62,6 +61,17 @@ public class LENode extends BinaryOp {
 			mg.visitInsn(ICONST_0);
 			mg.visitLabel(l2);
 			//mv.visitInsn(Opcodes.NOP);
+		} else if(ty.getSort() == Type.LONG) {
+			mg.visitInsn(Opcodes.LCMP);
+			Label l1 = new Label();
+			mg.visitJumpInsn(IFGT, l1);
+			mg.visitInsn(ICONST_1);
+			Label l2 = new Label();
+			mg.visitJumpInsn(GOTO, l2);
+			mg.visitLabel(l1);
+			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+			mg.visitInsn(ICONST_0);
+			mg.visitLabel(l2);
 		}
 		else
 			throw new RuntimeException();
@@ -83,6 +93,11 @@ public class LENode extends BinaryOp {
 	}
 	
 	public boolean test(int a, int b) {
+		boolean c =  a <= b;
+		return c;
+	}
+	
+	public boolean test(long a, long b) {
 		boolean c =  a <= b;
 		return c;
 	}

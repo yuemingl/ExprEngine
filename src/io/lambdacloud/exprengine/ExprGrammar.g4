@@ -1,7 +1,7 @@
 grammar ExprGrammar;
 
 @header {
-package io.lambdacloud;
+package io.lambdacloud.exprengine;
 }
 
 /* Lexical rules */
@@ -59,7 +59,7 @@ RCB : '}' ;
 
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
-INTEGER : [0-9]+ ;
+INTEGER : [0-9]+'L'? ;
 FLOAT : [0-9]*'.'[0-9]+ ;
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 

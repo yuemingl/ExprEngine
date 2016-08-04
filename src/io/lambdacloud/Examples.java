@@ -129,6 +129,18 @@ public class Examples {
 	}
 	
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
+		System.out.println(exec("def fib(n) { if(n<=1) {1L} else {fib(n-1)+fib(n-2)} } fib(46)"));
+		System.out.println("Fibonacci(46) time(ms):"+(System.currentTimeMillis()-startTime));
+
+		startTime = System.currentTimeMillis();
+		System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(46)"));
+		System.out.println("Fibonacci(46) time(ms):"+(System.currentTimeMillis()-startTime));
+
+		//runAll();
+	}
+	
+	public static void runAll() {
 		// Put them together to test for function definition across call of exec()
 		//System.out.println(exec("def test(x,y) { x+y }"));
 		//System.out.println(exec("test(1,2)"));
