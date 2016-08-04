@@ -94,4 +94,16 @@ public class MatrixInitNode extends ExprNode {
 	public Type getType(Deque<Object> stack) {
 		return Type.getType(Jama.Matrix.class);
 	}
+	
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		for (int i = init.size() - 1; i >= 0; i--) {
+			this.init.get(i).fixType(stack);
+		}
+		stack.pop();
+	}	
 }

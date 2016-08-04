@@ -12,6 +12,8 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
+import io.lambdacloud.node.array.ArrayAccessNode.IndexPair;
+
 import static org.objectweb.asm.Opcodes.*;
 
 public class MatrixAccessNode extends ExprNode {
@@ -113,5 +115,21 @@ public class MatrixAccessNode extends ExprNode {
 	@Override
 	public Type getType(Deque<Object> stack) {
 		return Type.getType(Jama.Matrix.class);
+	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		for(int i=this.indices.size()-1; i>=0; i--) {
+			IndexPair p = this.indices.get(i);
+			ExprNode idxS = p.idxS;
+			ExprNode idxE = p.idxE;
+			if(null != idxS) idxS.fixType(stack);
+			if(null != idxE) idxE.fixType(stack);
+		}
+		stack.pop();
 	}
 }

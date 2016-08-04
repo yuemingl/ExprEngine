@@ -65,4 +65,8 @@ public class ConstantNode extends ExprNode {
 		}
 	}
 
+	@Override
+	public void fixType(Deque<Object> stack) {
+	}
+
 }

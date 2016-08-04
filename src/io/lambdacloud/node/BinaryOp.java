@@ -28,8 +28,15 @@ public class BinaryOp extends ExprNode {
 		
 		return Tools.typeConversion(lType, rType);
 	}
-	public void fixType() {
-		left.fixType();
-		right.fixType();
+	
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		left.fixType(stack);
+		right.fixType(stack);
+		stack.pop();
 	}
 }

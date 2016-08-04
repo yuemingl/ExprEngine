@@ -104,6 +104,29 @@ mv.visitInsn(IRETURN);
 		}
 		throw new RuntimeException("Cannot infer return type!");
 	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+
+		for(int i=init.size()-1; i>=0; i--) {
+			init.get(i).fixType(stack);
+		}
+		
+		for(int i=block.size()-1; i>=0; i--) {
+			block.get(i).fixType(stack);
+		}
+		
+		for(int i=inc.size()-1; i>=0; i--) {
+			inc.get(i).fixType(stack);
+		}
+		cond.fixType(stack);
+		
+		stack.pop();
+	}
 }
 
 

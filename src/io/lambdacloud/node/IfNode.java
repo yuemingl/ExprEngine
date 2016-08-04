@@ -95,18 +95,6 @@ mv.visitInsn(IRETURN);
 			return "if("+this.condition+") {"+this.ifBlockExprs+"}";
 		else
 			return "if("+this.condition+") {"+this.ifBlockExprs+"} else {"+this.elseBlockExprs+"}";
-	}	
-	
-	public void fixType() {
-		this.condition.fixType();
-		for(ExprNode e : this.ifBlockExprs) {
-			e.fixType();
-		}
-		if(null != this.elseBlockExprs) {
-			for(ExprNode e : this.elseBlockExprs) {
-				e.fixType();
-			}
-		}
 	}
 
 	@Override
@@ -131,5 +119,22 @@ mv.visitInsn(IRETURN);
 			}
 		}
 		throw new RuntimeException("Cannot infer type for if statement: "+this.toString());
+	}
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		this.condition.fixType(stack);
+		for(ExprNode e : this.ifBlockExprs) {
+			e.fixType(stack);
+		}
+		if(null != this.elseBlockExprs) {
+			for(ExprNode e : this.elseBlockExprs) {
+				e.fixType(stack);
+			}
+		}
+		stack.pop();
 	}
 }

@@ -58,5 +58,10 @@ public abstract class ExprNode {
 	}
 
 	public void fixType() {
+		Deque<Object> stack = new LinkedList<Object>();
+		fixType(stack);
 	}
+
+	public abstract void fixType(Deque<Object> stack);
+
 }

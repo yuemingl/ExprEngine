@@ -140,8 +140,7 @@ public class FuncCallNode extends ExprNode {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
 				if(this.methodName.equals("println")) {
-					//For expression without semi colon, println is added automatically
-					//The argument type is returned in this case
+					//For expression which ended with ';' println(arg) is added automatically. The type of arg is returned in this case
 					if(this.args.get(0) instanceof DupNode) {
 						return this.args.get(0).getType(stack);
 					}

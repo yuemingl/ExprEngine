@@ -201,6 +201,17 @@ public class ListComprehensionNode extends ExprNode {
 		public String toString() {
 			return "[ "+this.exprNode+" for "+this.varName+" in "+this.setNode+" ]";
 		}
+
+		@Override
+		public void fixType(Deque<Object> stack) {
+			//circle check
+			if(stack.contains(this)) 
+				return;
+			stack.push(this);
+			this.setNode.fixType(stack);
+			this.exprNode.fixType(stack);
+			stack.pop();
+		}
 	}
 	
 	public ListComprehensionNode() {
@@ -261,6 +272,17 @@ public class ListComprehensionNode extends ExprNode {
 			stack.pop();
 			
 			return retType;
+		}
+
+		@Override
+		public void fixType(Deque<Object> stack) {
+			//circle check
+			if(stack.contains(this)) 
+				return;
+			stack.push(this);
+			this.bodyExpr.fixType(stack);
+			this.condExpr.fixType(stack);
+			stack.pop();
 		}
 		
 	}
@@ -333,5 +355,15 @@ public class ListComprehensionNode extends ExprNode {
 	
 	public static void main(String[] args) {
 		System.out.println(Type.getType(double[][][].class).getElementType());
+	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		this.forNode.fixType(stack);
+		stack.pop();
 	}
 }

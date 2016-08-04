@@ -204,5 +204,21 @@ public class ArrayAssignNode extends ExprNode {
 	public static void main(String[] args) {
 		System.out.println(Type.getType(double[].class).getElementType());
 	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		for(int i=this.indices.size()-1; i>=0; i--) {
+			IndexPair p = this.indices.get(i);
+			ExprNode idxS = p.idxS;
+			ExprNode idxE = p.idxE;
+			if(null != idxS) idxS.fixType(stack);
+			if(null != idxE) idxE.fixType(stack);
+		}
+		stack.pop();
+	}
 	
 }

@@ -57,4 +57,15 @@ public class StringConcatNode extends ExprNode {
 		return Type.getType(String.class);
 	}
 
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		left.fixType(stack);
+		right.fixType(stack);
+		stack.pop();
+	}
+
 }

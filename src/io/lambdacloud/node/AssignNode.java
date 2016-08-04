@@ -54,7 +54,14 @@ public class AssignNode extends BinaryOp {
 		return retType;
 	}
 
-	public void fixType() {
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		right.fixType(stack);
+		stack.pop();
+		
 		left.setType(right.getType());
 	}
 }

@@ -37,4 +37,8 @@ public class StringNode extends ExprNode {
 	public String toString() {
 		return this.strVal;
 	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+	}
 }

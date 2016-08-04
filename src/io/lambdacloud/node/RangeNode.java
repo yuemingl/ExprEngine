@@ -80,9 +80,13 @@ public class RangeNode extends ExprNode {
 	public Type getType(Deque<Object> stack) {
 		if(null == this.end)
 			return Tools.getArrayType(start.getType(stack));
-		else if(null == this.step)
-			return Tools.getArrayType(Tools.typeConversion(start.getType(stack), end.getType(stack)));
-		else {
+		else if(null == this.step) {
+			if(null != start)
+				return Tools.getArrayType(Tools.typeConversion(start.getType(stack), end.getType(stack)));
+			else
+				return Tools.getArrayType(end.getType(stack));
+				
+		} else {
 			Type eleType = Tools.typeConversion(start.getType(), step.getType(stack));
 			eleType = Tools.typeConversion(eleType, end.getType(stack));
 			return Tools.getArrayType(eleType);
@@ -121,5 +125,20 @@ public class RangeNode extends ExprNode {
 				return "["+start+", "+step+", "+end+")";
 		}
 			
+	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		if(null != this.start)
+			this.start.fixType(stack);
+		if(null != this.end)
+			this.end.fixType(stack);
+		if(null != this.step)
+			this.step.fixType(stack);
+		stack.pop();
 	}
 }

@@ -26,8 +26,14 @@ public class UnaryOp extends ExprNode {
 		
 		return retType;
 	}
-	
-	public void fixType() {
-		expr.fixType();
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		expr.fixType(stack);
+		stack.pop();
 	}
 }

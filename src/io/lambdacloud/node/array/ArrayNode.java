@@ -14,6 +14,7 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
+import io.lambdacloud.node.array.ArrayAccessNode.IndexPair;
 
 /**
  * Array initialize, for example: [1,2,3]
@@ -75,5 +76,17 @@ public class ArrayNode extends ExprNode {
 		stack.pop();
 
 		return retType;
+	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		for (int i = init.size() - 1; i >= 0; i--) {
+			this.init.get(i).fixType(stack);
+		}
+		stack.pop();
 	}
 }
