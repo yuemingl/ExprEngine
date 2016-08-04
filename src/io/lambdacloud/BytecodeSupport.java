@@ -1,27 +1,30 @@
 package io.lambdacloud;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BytecodeSupport {
-	public static void print(Object str) {
-		System.out.print(str);
+	public static void print(Object o) {
+		System.out.print(o);
 	}
-	public static void print(String str) {
-		System.out.print(str);
+	public static void print(String o) {
+		System.out.print(o);
 	}
-	public static void print(int str) {
-		System.out.print(str);
+	public static void print(int o) {
+		System.out.print(o);
 	}
-	public static void print(double str) {
-		System.out.print(str);
+	public static void print(double o) {
+		System.out.print(o);
 	}
-	public static void print(long str) {
-		System.out.print(str);
+	public static void print(long o) {
+		System.out.print(o);
 	}
-	public static void print(boolean str) {
-		System.out.print(str);
+	public static void print(boolean o) {
+		System.out.print(o);
 	}
 	
+	
+	//------------------
 	public static void println(Object o) {
 		if(o instanceof double[]) {
 			double[] a = (double[])o;
@@ -47,26 +50,43 @@ public class BytecodeSupport {
 		o.print(8, 2);
 	}
 	
-	public static void println(String str) {
-		System.out.println(str);
+	public static void println(String o) {
+		System.out.println(o);
 	}
-	public static void println(int str) {
-		System.out.println(str);
+	public static void println(int o) {
+		System.out.println(o);
 	}
-	public static void println(long str) {
-		System.out.println(str);
+	
+	public static void println(int[] o) {
+		System.out.print("array: [");
+		for(int d : o)
+			System.out.print(d+" ");
+		System.out.println("]");
 	}
-	public static void println(double str) {
-		System.out.println(str);
+	
+	public static void println(long o) {
+		System.out.println(o);
 	}
-	public static void println(boolean str) {
-		System.out.println(str);
+	public static void println(double o) {
+		System.out.println(o);
+	}
+
+	public static void println(double[] o) {
+		System.out.print("array: [");
+		for(double d : o)
+			System.out.print(d+" ");
+		System.out.println("]");
+	}
+
+	public static void println(boolean o) {
+		System.out.println(o);
 	}
 	
 	public static void print(String format, Object ...params) {
 		
 	}
 	
+	//-----------------------
 	public static int[] range(int s) {
 		int[] ret = new int[s];
 		for(int i=0; i<s; i++) {
@@ -75,6 +95,7 @@ public class BytecodeSupport {
 		return ret;
 	}
 	
+	//[s,e)
 	public static int[] range(int s, int e) {
 		int[] ret = new int[e-s];
 		for(int i=s; i<e; i++) {
@@ -82,13 +103,52 @@ public class BytecodeSupport {
 		}
 		return ret;
 	}
+
+	//[s : step : e)
+	public static int[] range(int s, int step, int e) {
+		int n = (e-s)/step;
+		int rem = (e-s)%step;
+		n = (rem==0) ? n : n+1;
+
+		int[] ret = new int[n];
+		for(int i=0; i<n; i++, s+=step) {
+			ret[i] = s;
+		}
+		return ret;
+	}
 	
+	//[s,e]
 	public static int[] range2(int s, int e) {
 		int[] ret = new int[e-s+1];
 		for(int i=s; i<=e; i++) {
 			ret[i-s] = i;
 		}
 		return ret;
+	}
+
+	//[s : step : e]
+	public static int[] range2(int s, int step, int e) {
+		int n = 1 + (e-s)/step;
+		int[] ret = new int[n];
+		for(int i=0; i<n; i++, s+=step) {
+			ret[i] = s;
+		}
+		return ret;
+	}
+	
+	public static double[] range(double s, double step, double e) {
+		List<Double> ret = new ArrayList<Double>();
+		for(double i=s; i<=e; i+=step) {
+			ret.add(i);
+		}
+		double[] dret = new double[ret.size()];
+		for(int i=0; i<ret.size(); i++)
+			dret[i] = ret.get(i);
+		return dret;
+	}
+	
+	public static double[] range2(double s, double step, double e) {
+		return range(s, step, e);
 	}
 	
 	public static int sum(int[] args) {
