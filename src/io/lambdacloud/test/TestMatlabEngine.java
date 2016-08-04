@@ -11,7 +11,9 @@ import Jama.Matrix;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		
+		//exec("if 1>2; 1+2; 2+2; elseif 2>3; 0+1; elseif 3>4; 1+2; else 2+3; 3/4; 5*7; end");
+		//exec("if 1>2; 1; elseif 1<2; 4; end");
+
 		test();
 	}
 	
@@ -27,6 +29,22 @@ public class TestMatlabEngine {
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
+		
+//		assertEqual(exec("if 1>2; 3;   \nelse\n 4\n end"),4);
+//		assertEqual(exec("if 1>2; 3\n else\n 4\n end"),4);
+		
+		assertEqual(exec("if 1>2; 3\n else 4\n end"),4);
+		assertEqual(exec(" if 1>2; 3\n else 4\n end"),4);
+		assertEqual(exec(" if 1>2; 3\n else 4\n end "),4);
+		assertEqual(exec("if 1>2; 3\n else 4\n end"),4);
+		assertEqual(exec("if 1<2; 3\n else 4\n end"),3);
+		
+		assertEqual(exec("1 > 2"), false);
+		assertEqual(exec("1 >= 2"), false);
+		assertEqual(exec("1 < 2"), true);
+		assertEqual(exec("1 <= 2"), true);
+		assertEqual(exec("1 == 2"), false);
+		assertEqual(exec("1 != 2"), true);
 		
 		assertEqual(exec("[10.0 20.0 30.0]'"), getMatrix(10,20,30));
 
