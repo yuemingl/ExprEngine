@@ -83,14 +83,16 @@ public class FuncDefNode extends ExprNode {
 		}
 	}
 
-	public Map<String, Type> setParamTypes(Map<String, Type> types) {
+	//Bugfix: add stack for 'e.getValue().getType(stack)' to 
+	//prevent stack overflow
+	public Map<String, Type> setParamTypes(Deque<Object> stack, Map<String, Type> types) {
 		if (this.paramNames.size() != types.size()) {
 			throw new RuntimeException("Wrong parameter types: " + types.toString());
 		}
 		Map<String, Type> oldType = new TreeMap<String, Type>();
 		for (Entry<String, VariableNode> e : funcVarMap.entrySet()) {
 			if (e.getValue().isParameter()) { // check this flag too
-				oldType.put(e.getKey(), e.getValue().getType());
+				oldType.put(e.getKey(), e.getValue().getType(stack));
 				e.getValue().setType(types.get(e.getKey()));
 			}
 		}
@@ -130,7 +132,7 @@ public class FuncDefNode extends ExprNode {
 
 				stack.pop();
 
-				this.setParamTypes(oldType);
+				this.setParamTypes(stack, oldType);
 				// getAndFixParameterTypes(stack);
 
 				return retType;
@@ -139,12 +141,14 @@ public class FuncDefNode extends ExprNode {
 		throw new RuntimeException("Cannot infer return type!");
 	}
 
+	//this is introduced by fixing AssignNode 
 	public void fixBodyExprTypes() {
-		// The type fix is based on localVarMap
-		// for AssignNode
-		for (int j = this.body.size() - 1; j >= 0; j--) {
-			this.body.get(j).fixType();
-		}
+		//
+//		// The type fix is based on localVarMap
+//		// for AssignNode
+//		for (int j = this.body.size() - 1; j >= 0; j--) {
+//			this.body.get(j).fixType();
+//		}
 	}
 
 	public Type[] getParameterTypes() {
@@ -240,5 +244,10 @@ public class FuncDefNode extends ExprNode {
 	@Override
 	public Type getType(Deque<Object> stack) {
 		throw new UnsupportedOperationException("Call getRetType() instead!");
+	}
+
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//Do nothing
 	}
 }
