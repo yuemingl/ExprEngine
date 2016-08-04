@@ -22,11 +22,22 @@ public class TestMatlabEngine {
 		Matrix A = new Matrix(array);
 		Matrix B = new Matrix(array2);
 		Matrix C = new Matrix(array3);
-		Matrix b = Matrix.random(3,1);
+		Matrix b = Matrix.random(3,1); //column vector
 
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
-		Matrix d = getMatrix(3,4);
+		Matrix d = getMatrix(3,4); //column vector
+		
+		assertEqual(exec("[10.0 20.0 30.0]'"), getMatrix(10,20,30));
+
+		Matrix D = new Matrix(
+				new double[]{1,2,3,4,5,6,7,8,9,10,
+						11,12,13,14,15,16,17,18,19,20,
+						21,22,23,24,25,26,27,28,29,30},
+				10).transpose();
+		
+		assertEqual(exec("A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]; A(0, 0:1)"), 
+				D.getMatrix(0, 0, 0, 1));
 
 		assertEqual(exec("C ( 1, 1:3:5 )", getMap("C",C)), C.getMatrix(1,1, new int[]{1,4}));
 		assertEqual(exec("C(0, 0:2:5)", getMap("C",C)), C.getMatrix(0,0, new int[]{0,2,4}));
@@ -50,26 +61,26 @@ public class TestMatlabEngine {
 		assertEqual(exec("A=[1 2;3 4]\n A(1,:)"), getMatrix(3,4).transpose());
 		assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
 
-		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), getMatrix(110,-90));
-		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), getMatrix(110,-90));
-		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)"), getMatrix(110,-90));
-		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10.,100.)"), getMatrix(110,-90));
+		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), getMatrix(110,-90).transpose());
+		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), getMatrix(110,-90).transpose());
+		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)"), getMatrix(110,-90).transpose());
+		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10.,100.)"), getMatrix(110,-90).transpose());
 		
 		assertEqual(exec("function myfun(a)\n a+1\n a+2; end\n myfun(1)"), 3);
 		assertEqual(exec("function myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 3);
 		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1);"), 1);
 		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 1);
 		
-		assertEqual(exec("M=[1 2; 3 4]; d=[3 4]; M\\d"), M.solve(d));
-		assertEqual(exec("M=[1 2; 3 4]\n d=[3 4]\n M\\d"), M.solve(d));
+		assertEqual(exec("M=[1 2; 3 4]\n d=[3 4]'\n M\\d"), M.solve(d));
+		assertEqual(exec("M=[1 2; 3 4]; d=[3 4]'; M\\d"), M.solve(d));
 		
 		assertEqual(exec("a=2\n a"), 2);
 		assertEqual(exec("a=2; a"), 2);
 		assertEqual(exec("100+1; 200+1;"), 201);
 		assertEqual(exec("10+1\n 20+1"), 21);
 
-		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"), getMatrix(110,-90));
-		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"), getMatrix(110,-90));
+		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"), getMatrix(110,-90).transpose());
+		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"), getMatrix(110,-90).transpose());
 		assertEqual(exec("function c = myfun(a, b)\nc=a+b\nend\nmyfun(10,100)"),110);
 		
 //		myPrint(exec("fun(1, 1)"));
@@ -109,7 +120,7 @@ public class TestMatlabEngine {
 		assertEqual(exec("A(2,1:2)", getMap("A",A)), A.getMatrix(2,2,1,2));
 		assertEqual(exec("A(1:2,2)", getMap("A",A)), A.getMatrix(1,2,2,2));
 		
-		assertEqual(exec("[1. .2 3.]"), getMatrix(1,0.2,3));
+		assertEqual(exec("[1. .2 3.]"), getMatrix(1,0.2,3).transpose());
 		
 		assertEqual(exec("A\\b", getMap("A",A,"b",b)), A.solve(b));
 		
@@ -121,13 +132,13 @@ public class TestMatlabEngine {
 		assertEqual(exec("a+b", getMap("a",2,"b",3)), 5);
 		
 		
-		assertEqual(exec("[10.0 20.0 30.0]"), getMatrix(10,20,30));
+		assertEqual(exec("[10.0 20.0 30.0]"), getMatrix(10,20,30).transpose());
 		
-		assertEqual(exec("[1 2 3]"), getMatrix(1,2,3));
-		assertEqual(exec("[1,2,3]"), getMatrix(1,2,3));
-		assertEqual(exec("[1, 2, 3]"), getMatrix(1,2,3));
-		assertEqual(exec("[1  2   3]"), getMatrix(1,2,3));
-		assertEqual(exec("[1,  2  ,  3]"), getMatrix(1,2,3));
+		assertEqual(exec("[1 2 3]"), getMatrix(1,2,3).transpose());
+		assertEqual(exec("[1,2,3]"), getMatrix(1,2,3).transpose());
+		assertEqual(exec("[1, 2, 3]"), getMatrix(1,2,3).transpose());
+		assertEqual(exec("[1  2   3]"), getMatrix(1,2,3).transpose());
+		assertEqual(exec("[1,  2  ,  3]"), getMatrix(1,2,3).transpose());
 	}
 	
 	public static Jama.Matrix getMatrix(double ...args) {

@@ -439,7 +439,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		int cols = ctx.ai_list(0).expression().size();
 		int rows = ctx.ai_list().size();
-		MatrixInitNode node = new MatrixInitNode(rows);
+		MatrixInitNode node = new MatrixInitNode(cols);
 		for(int i=0; i<cols; i++) {
 			for(int j=0; j<rows; j++) {
 				node.addInitValues(currentScope().stack.pop());

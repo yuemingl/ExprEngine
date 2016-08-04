@@ -19,11 +19,16 @@ import io.lambdacloud.node.Tools;
 
 public class MatrixInitNode extends ExprNode {
 	public List<ExprNode> init = new ArrayList<ExprNode>();
-	public int rows = 0;
+	public int nCols = 0;
 	
-	//Construct a matrix from a one-dimensional packed array
-	public MatrixInitNode(int rows) {
-		this.rows = rows;
+	/**
+	 * Construct a matrix from a one-dimensional array with matlab style
+	 * e.g. A=[1 2 3; 4 5 6] is a 2 rows by 3 columns matrix
+	 * 
+	 * @param nCols
+	 */
+	public MatrixInitNode(int nCols) {
+		this.nCols = nCols;
 	}
 	
 	public void addInitValues(ExprNode val) {
@@ -50,6 +55,7 @@ public class MatrixInitNode extends ExprNode {
 
 		mg.visitLdcInsn(init.size());
 
+		//Get element type
 		Type eleType = init.get(0).getType();
 		if (init.size() > 1) {
 			for (int i = 1; i < init.size(); i++)
@@ -61,6 +67,7 @@ public class MatrixInitNode extends ExprNode {
 			eleType = Type.DOUBLE_TYPE;
 			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.DOUBLE_TYPE, false));
 		}
+		
 		int idx = 0;
 		for (int i = init.size() - 1; i >= 0; i--) {
 			mg.visitInsn(DUP);
@@ -69,9 +76,10 @@ public class MatrixInitNode extends ExprNode {
 			Tools.insertConversionInsn(mg, init.get(i).getType(), eleType);
 			mg.visitInsn(eleType.getOpcode(IASTORE));
 		}
+		
 		//mg.visitInsn(DUP);
 		//mg.visitInsn(Opcodes.ARRAYLENGTH);
-		mg.visitLdcInsn(rows);
+		mg.visitLdcInsn(nCols);
 		mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
 		mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
 		
