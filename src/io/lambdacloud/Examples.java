@@ -140,7 +140,8 @@ public class Examples {
 		startTime = System.currentTimeMillis();
 		System.out.println("Fibonacci(46)="+fib(46));
 		System.out.println("Time: "+(System.currentTimeMillis()-startTime)+"ms");
-		//runAll();
+		
+		runAll();
 	}
 	
 	public static long fib(int n) {
