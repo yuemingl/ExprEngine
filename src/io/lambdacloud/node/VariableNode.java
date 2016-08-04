@@ -77,12 +77,18 @@ public class VariableNode extends ExprNode {
 	}
 
 	@Override
-	public Type getType() {
+	public Type getType(Deque<Object> stack) {
+		/////////////Use this to avoid fixType() call
+		if(null != this.lastValue)
+			return this.lastValue.getType(stack);
+		///////////////////////////////
 		return this.type;
 	}
 
 	@Override
-	public Type getType(Deque<Object> stack) {
-		return this.type;
+	public void fixType(Deque<Object> stack) {
+		if(null != this.lastValue)
+			this.lastValue.fixType(stack);
+		
 	}
 }
