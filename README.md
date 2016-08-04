@@ -119,6 +119,9 @@ https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/ExprGramma
 MatlabEngine.exec("A=[1 2;3 4]; b=[3 4]'; A\\b");
 ```
 ### Command Line Tools ( MatlabEngine.main(String[] args) )
+```shell
+java -jar MatlabEngine.jar file.m
+```
 #### Example 1
 ```matlab
 function [a, b] =myfun(a, b)
