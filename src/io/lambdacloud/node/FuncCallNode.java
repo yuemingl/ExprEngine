@@ -140,7 +140,12 @@ public class FuncCallNode extends ExprNode {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
 				if(this.methodName.equals("println")) {
-					return this.args.get(0).getType();
+					//For expression without semi colon, println is added automatically
+					//The argument type is returned in this case
+					if(this.args.get(0) instanceof DupNode) {
+						return this.args.get(0).getType(stack);
+					}
+					return Type.VOID_TYPE;
 				}
 				Class<?> c;
 				try {
@@ -166,9 +171,15 @@ public class FuncCallNode extends ExprNode {
 		return Math.abs(x);
 	}
 	
-	public void fixType() {
+	@Override
+	public void fixType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
 		for(ExprNode arg : args) {
-			arg.fixType();
+			arg.fixType(stack);
 		}
+		stack.pop();
 	}
 }
