@@ -130,12 +130,12 @@ public class Examples {
 	
 	public static void main(String[] args) {
 		long startTime = System.currentTimeMillis();
-		System.out.println(exec("def fib(n) { if(n<=1) {1L} else {fib(n-1)+fib(n-2)} } fib(46)"));
-		System.out.println("Fibonacci(46) time(ms):"+(System.currentTimeMillis()-startTime));
+		System.out.println("Fibonacci(46)="+exec("def fib(n) { if(n<=1) {1L} else {fib(n-1)+fib(n-2)} } fib(46)"));
+		System.out.println("Time: "+(System.currentTimeMillis()-startTime)+"ms");
 
 		startTime = System.currentTimeMillis();
-		System.out.println(exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(46)"));
-		System.out.println("Fibonacci(46) time(ms):"+(System.currentTimeMillis()-startTime));
+		System.out.println("Fibonacci(46)="+exec("def fib(n) { if(n<=1) {1} else {fib(n-1)+fib(n-2)} } fib(46)"));
+		System.out.println("Time: "+(System.currentTimeMillis()-startTime)+"ms");
 
 		//runAll();
 	}
