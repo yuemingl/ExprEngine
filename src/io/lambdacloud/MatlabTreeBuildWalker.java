@@ -663,25 +663,43 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		this.currentScope().stack.push(new AssignNode(var, value));
 	}
 	
+	@Override public void exitFuncDefNameArgs(MatlabGrammarParser.FuncDefNameArgsContext ctx) { 
+		//Add function level scope for stack and varMap
+		String funcName = ctx.IDENTIFIER(0).getText();
+		//this.addScope(funcName);
+		
+		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(funcName);
+		if(null != fnode) {
+			throw new RuntimeException("Function "+funcName+" already defined!");
+		} else {
+			fnode = new FuncDefNode(funcName);
+			ExprTreeBuildWalker.funcMap.put(funcName, fnode);
+			for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
+				String paramName = ctx.IDENTIFIER(i).getText();
+				fnode.paramNames.add(paramName);
+				//Bugfix: put param node into varMap too!
+				VariableNode paramNode = currentScope().varMap.get(paramName);
+				if(null == paramNode)
+					paramNode = VariableNode.newParameter(paramName, Type.DOUBLE_TYPE);
+				currentScope().varMap.put(paramName, paramNode);
+			}
+			fnode.funcVarMap.putAll(currentScope().varMap);
+		}
+	}
+
 	@Override public void exitFuncDef(MatlabGrammarParser.FuncDefContext ctx) {
 		//When enterFuncDef() we need to add a new scope in function level for stack and varMap
 		//see enterFuncDef()
+		String funcName = ctx.func_name_args().getTokens(MatlabGrammarParser.IDENTIFIER).get(0).getText();
+		//System.out.println("exitFuncDef: "+ctx.func_name_args().getTokens(MatlabGrammarParser.IDENTIFIER).get(0).getText());
 		
-		String funcName = ctx.IDENTIFIER().getText();
 		FuncDefNode fNode = ExprTreeBuildWalker.funcMap.get(funcName);
-		for(int i=0; i<ctx.func_def_args().IDENTIFIER().size(); i++) {
-			String paramName = ctx.func_def_args().IDENTIFIER(i).getText();
-			fNode.paramNames.add(paramName);
-		}
-		fNode.funcVarMap.putAll(this.currentScope().varMap);
-		
-		ExprNode node = null;
-		
-		
 		while(!this.currentScope().stack.isEmpty()) {
-			node = this.currentScope().stack.pop();
+			ExprNode node = this.currentScope().stack.pop();
 			fNode.body.add(node);
 		}
+		//Bugfix: Don't forget to put vars in local funcVarMap
+		fNode.funcVarMap.putAll(currentScope().varMap);
 		
 		//Determine the return expression
 		if(null != ctx.func_def_return()) { //It has return variable specified
@@ -712,18 +730,14 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		
 		this.popScope();
 	}
+	
 	@Override public void enterFuncDef(MatlabGrammarParser.FuncDefContext ctx) {
 		//Add function level scope for stack and varMap
-		String funcName = ctx.IDENTIFIER().getText();
+		String funcName = ctx.func_name_args().getTokens(MatlabGrammarParser.IDENTIFIER).get(0).getText();
 		this.addScope(funcName);
-		
-		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(funcName);
-		if(null != fnode) {
-			throw new RuntimeException("Function "+funcName+" already defined!");
-		} else {
-			ExprTreeBuildWalker.funcMap.put(funcName, new FuncDefNode(funcName));
-		}
+		//See exitFuncDefNameArgs()
 	}
+	
 	@Override public void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx) {
 		//System.out.println("exitExprStatement>>>>----"+ctx.getText()+"----<<<<");
 	}
