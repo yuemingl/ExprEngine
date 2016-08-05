@@ -95,7 +95,7 @@ statements
 
 statement
  : expression_with_expr_end   # ExprStatement
- | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
+ | 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
  ;
 
 expression_with_expr_end
@@ -159,7 +159,7 @@ aa_index : expression | COLON ;
 //func_call : IDENTIFIER (PERIOD IDENTIFIER)* func_args                        # FuncCall ;
 //func_args : WS* LPAREN ( expression (COMMA|WS+) )* expression? RPAREN WS*;
 
-func_def_args : WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS* ;
+func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
 
 assign_expr : WS* IDENTIFIER WS* ASSIGN expression ;
