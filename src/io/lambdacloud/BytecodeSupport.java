@@ -25,7 +25,7 @@ public class BytecodeSupport {
 	
 	
 	//------------------
-	public static void println(Object o) {
+	public static Object println(Object o) {
 		if(o instanceof double[]) {
 			double[] a = (double[])o;
 			System.out.print("[");
@@ -44,46 +44,55 @@ public class BytecodeSupport {
 		else {
 			System.out.println(o);
 		}
+		return o;
 	}
 
-	public static void println(Jama.Matrix o) {
+	public static Jama.Matrix println(Jama.Matrix o) {
 		o.print(8, 2);
+		return o;
 	}
 	
-	public static void println(String o) {
+	public static String println(String o) {
 		System.out.println(o);
+		return o;
 	}
-	public static void println(int o) {
+	public static int println(int o) {
 		System.out.println(o);
+		return o;
 	}
 	
-	public static void println(int[] o) {
+	public static int[] println(int[] o) {
 		System.out.print("array: [");
 		for(int d : o)
 			System.out.print(d+" ");
 		System.out.println("]");
+		return o;
 	}
 	
-	public static void println(long o) {
+	public static long println(long o) {
 		System.out.println(o);
+		return o;
 	}
-	public static void println(double o) {
+	public static double println(double o) {
 		System.out.println(o);
+		return o;
 	}
 
-	public static void println(double[] o) {
+	public static double[] println(double[] o) {
 		System.out.print("array: [");
 		for(double d : o)
 			System.out.print(d+" ");
 		System.out.println("]");
+		return o;
 	}
 
-	public static void println(boolean o) {
+	public static boolean println(boolean o) {
 		System.out.println(o);
+		return o;
 	}
 	
 	public static void print(String format, Object ...params) {
-		
+		//TODO
 	}
 	
 	//-----------------------
