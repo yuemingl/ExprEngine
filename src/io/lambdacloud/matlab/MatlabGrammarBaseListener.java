@@ -474,13 +474,13 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunc_def_args(MatlabGrammarParser.Func_def_argsContext ctx) { }
+	@Override public void enterFuncDefNameArgs(MatlabGrammarParser.FuncDefNameArgsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunc_def_args(MatlabGrammarParser.Func_def_argsContext ctx) { }
+	@Override public void exitFuncDefNameArgs(MatlabGrammarParser.FuncDefNameArgsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
