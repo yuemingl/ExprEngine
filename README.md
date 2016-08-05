@@ -60,8 +60,8 @@ System.out.println(exec("[[1 for col in range(3)] for row in range(2)]"));
 
 //Function and Recursive Function Call
 long startTime = System.currentTimeMillis();
-System.out.println(exec("def fib(n) { if(n<=1) {1L} else {fib(n-1)+fib(n-2)} } fib(46)"));
-System.out.println("Fibonacci(46) time(ms):"+(System.currentTimeMillis()-startTime));
+System.out.println("Fibonacci(46)="+exec("def fib(n) { if(n<=1) {1L} else {fib(n-1)+fib(n-2)} } fib(46)"));
+System.out.println("Time: "+(System.currentTimeMillis()-startTime)+"ms");
 //Output:
 //Fibonacci(46)=2971215073
 //Time: 9022ms
