@@ -1,10 +1,10 @@
-function r = fib(n)
+function fib(n)
   if n<=1
-    r=1;  
+    1;  
   else 
-    r=fib(n-1)+fib(n-2);  
+    fib(n-1)+fib(n-2)  
   end
 end
 
-fib(42)
+fib(5)
 
