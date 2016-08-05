@@ -23,13 +23,36 @@ public class IfNode extends ExprNode {
 			Label elseBranch = new Label();
 			mg.visitJumpInsn(Opcodes.IFEQ, elseBranch);
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
-				ifBlockExprs.get(i).genCode(mg);
+				ExprNode node = ifBlockExprs.get(i);
+				
+				if(i>0 && (node instanceof AssignNode || node instanceof FuncCallNode)) {
+					if(node instanceof FuncCallNode)
+						((FuncCallNode)node).isPopReturn = true;
+					else
+						node.genLoadInsn(false);
+					node.genCode(mg);
+				} else if(i==0) {
+					node.genCode(mg);//Leave the last expression on the stack
+				} else {
+					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
+				}
 			}
 			Label ifend = new Label();
 			mg.visitJumpInsn(Opcodes.GOTO, ifend);
 			mg.visitLabel(elseBranch);
 			for(int i=elseBlockExprs.size()-1; i>=0; i--) {
-				elseBlockExprs.get(i).genCode(mg);
+				ExprNode node = elseBlockExprs.get(i);
+				if(i>0 && (node instanceof AssignNode || node instanceof FuncCallNode)) {
+					if(node instanceof FuncCallNode)
+						((FuncCallNode)node).isPopReturn = true;
+					else
+						node.genLoadInsn(false);
+					node.genCode(mg);
+				} else if(i==0) {
+					node.genCode(mg);//Leave the last expression on the stack
+				} else {
+					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
+				}
 			}
 			mg.visitLabel(ifend);
 		} else {
@@ -37,7 +60,19 @@ public class IfNode extends ExprNode {
 			Label ifend = new Label();
 			mg.visitJumpInsn(Opcodes.IFEQ, ifend);
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
-				ifBlockExprs.get(i).genCode(mg);
+				ExprNode node = ifBlockExprs.get(i);
+				//Clear stack in this case
+				if(node instanceof AssignNode || node instanceof FuncCallNode) {
+					if(node instanceof FuncCallNode)
+						((FuncCallNode)node).isPopReturn = true;
+					else
+						node.genLoadInsn(false);
+					node.genCode(mg);
+				} else if(i==0) {
+					node.genCode(mg);
+				} else {
+					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
+				}
 			}
 			mg.visitLabel(ifend);
 		}
