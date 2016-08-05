@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import Jama.Matrix;
+import io.lambdacloud.MatlabEngine;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
@@ -30,8 +31,12 @@ public class TestMatlabEngine {
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
 		
-//		assertEqual(exec("if 1>2; 3;   \nelse\n 4\n end"),4);
-//		assertEqual(exec("if 1>2; 3\n else\n 4\n end"),4);
+		assertEqual(exec("function fib(n), if n<=1; 1; else fib(n-1)+fib(n-2); end; end; fib(42)"),433494437);
+		assertEqual(exec("function fib(n) if n<=1; 1; else fib(n-1)+fib(n-2); end end fib(42)"),433494437);
+		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
+
+		assertEqual(exec("if 1>2; 3;   \nelse\n 4\n end"),4);
+		assertEqual(exec("if 1>2; 3\n else\n 4\n end"),4);
 		
 		assertEqual(exec("if 1>2; 3\n else 4\n end"),4);
 		assertEqual(exec(" if 1>2; 3\n else 4\n end"),4);
