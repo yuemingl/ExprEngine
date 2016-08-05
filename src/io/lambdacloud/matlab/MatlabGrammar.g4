@@ -95,7 +95,7 @@ statements
 
 statement
  : expression_with_expr_end   # ExprStatement
- | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args ('\n'|COMMA) expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
+ | 'function' (func_def_return ASSIGN)? WS* IDENTIFIER WS* func_def_args (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
  ;
 
 expression_with_expr_end
