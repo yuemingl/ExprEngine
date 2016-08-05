@@ -24,6 +24,7 @@ public class FuncCallNode extends ExprNode {
 	public List<ExprNode> args = new ArrayList<ExprNode>();
 	
 	public boolean isDynamicCall; //true to use invodedynamic instruction
+	public boolean isPopReturn = false;
 	
 	//This is used to determine if it is a dynamic call when generating code
 	public FuncDefNode refFuncDefNode;
@@ -95,8 +96,13 @@ public class FuncCallNode extends ExprNode {
 			for (int i = args.size() - 1; i >= 0; i--) {
 				args.get(i).genCode(mg);
 			}
+			Type retType = this.getType();
 			mg.visitInvokeDynamicInsn(this.methodName,
-					Type.getMethodDescriptor(this.getType(), this.getParameterTypes()), bootstrapHandle, new Object[0]);
+					Type.getMethodDescriptor(retType, this.getParameterTypes()), bootstrapHandle, new Object[0]);
+			if(retType.getSort() != Type.VOID && this.isPopReturn) {
+				mg.visitInsn(Opcodes.POP);
+			}
+				
 		} else { // 
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
@@ -110,6 +116,9 @@ public class FuncCallNode extends ExprNode {
 					}
 					mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
 							Type.getMethodDescriptor(m), false);
+					if(m.getReturnType() != void.class && this.isPopReturn) {
+						mg.visitInsn(Opcodes.POP);
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -120,6 +129,9 @@ public class FuncCallNode extends ExprNode {
 				}
 				mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
 						Type.getMethodDescriptor(retTy, this.getParameterTypes()), false);
+				if(retTy.getSort() != Type.VOID && this.isPopReturn) {
+					mg.visitInsn(Opcodes.POP);
+				}
 			}
 		}
 	}
@@ -139,13 +151,13 @@ public class FuncCallNode extends ExprNode {
 		} else {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			if(fnode == null) {
-				if(this.methodName.equals("println")) {
-					//For expression which ended with ';' println(arg) is added automatically. The type of arg is returned in this case
-					if(this.args.get(0) instanceof DupNode) {
-						return this.args.get(0).getType(stack);
-					}
-					return Type.VOID_TYPE;
-				}
+//				if(this.methodName.equals("println")) {
+//					//For expression which ended with ';' println(arg) is added automatically. The type of arg is returned in this case
+//					if(this.args.get(0) instanceof DupNode) {
+//						return this.args.get(0).getType(stack);
+//					}
+//					return Type.VOID_TYPE;
+//				}
 				Class<?> c;
 				try {
 					c = Class.forName(fullClassName);
