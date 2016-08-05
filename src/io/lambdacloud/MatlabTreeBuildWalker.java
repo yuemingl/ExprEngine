@@ -357,10 +357,22 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 
 			
 			//Generate code for all the expressions
+			ExprNode expr = null;
 			while(!currentScope().stack.isEmpty()) {
-				ExprNode expr = currentScope().stack.pollLast();
+				expr = currentScope().stack.pollLast();
+//				if(currentScope().stack.size() == 0) {
+//					//The last expression
+//					if(expr instanceof FuncCallNode) {
+//						((FuncCallNode)expr).isPopReturn = false; //false by default
+//					} else if(expr instanceof AssignNode) {
+//						//expr.genLoadInsn(true);
+//						//see exitProg()
+//					}
+//				}
 				expr.genCode(mg);
 			}
+
+			
 			
 			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			if(!isStatic)
@@ -756,8 +768,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			ExprNode expr = this.currentScope().stack.pop();
 			expr.genLoadInsn(true);
 			FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
-			DupNode dupNode = new DupNode(expr);
-			funcCall.args.add(dupNode);
+//Don't use DupNode to avoid one element pushed on the top of stack
+//			DupNode dupNode = new DupNode(expr);
+//			funcCall.args.add(dupNode);
+			funcCall.args.add(expr);
 			this.currentScope().stack.push(funcCall);
 		}
 	}
@@ -771,8 +785,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		expr.genLoadInsn(true);
 		//TODO change 'println' to an internal name to indicate that it returns the type the same as the argument
 		FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
-		DupNode dupNode = new DupNode(expr);
-		funcCall.args.add(dupNode);
+		//Don't use DupNode to avoid one element pushed on the top of stack
+//		DupNode dupNode = new DupNode(expr);
+//		funcCall.args.add(dupNode);
+		funcCall.args.add(expr);
 		this.currentScope().stack.push(funcCall);
 	}
 	
