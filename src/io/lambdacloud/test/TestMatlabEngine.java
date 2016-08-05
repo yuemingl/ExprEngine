@@ -31,9 +31,22 @@ public class TestMatlabEngine {
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
 		
+		assertEqual(MatlabEngine.exec("if n<=1; r=5;r;1\n else 5; 6+7\n 100\n 9; 8; end",new int[]{8}), 8);
+		assertEqual(MatlabEngine.exec("if n<=1; r=5\n else s=8\n end",new int[]{8}), 8);
+		assertEqual(MatlabEngine.exec("if n<=1; r=5;r;1\n else 7; 9; 8\n end",new int[]{8}), 8);
+		assertEqual(MatlabEngine.exec("if n<=1; r=5;r;1\n else 7; 9; 8; end",new int[]{8}), 8);
+		assertEqual(MatlabEngine.exec("r=0; if n<=1; r=5\n end r",new int[]{0}), 5);
+		assertEqual(MatlabEngine.exec("r=0; if n<=1; r=5; end r",new int[]{0}), 5);
+		System.out.println(MatlabEngine.exec("1+1; 2\n r=9"));
+
+		assertEqual(exec("function s=fun(n) s=n+1\n end fun(5);"),6);
+		
 		assertEqual(exec("function fib(n), if n<=1; 1; else fib(n-1)+fib(n-2); end; end; fib(42)"),433494437);
 		assertEqual(exec("function fib(n) if n<=1; 1; else fib(n-1)+fib(n-2); end end fib(42)"),433494437);
 		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
+		//This case is hard to fix
+		//the stack frame is not balanced
+		//assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2)\n end end\n fib(42)"),433494437);
 
 		assertEqual(exec("if 1>2; 3;   \nelse\n 4\n end"),4);
 		assertEqual(exec("if 1>2; 3\n else\n 4\n end"),4);
