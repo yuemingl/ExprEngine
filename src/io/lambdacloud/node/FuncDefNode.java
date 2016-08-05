@@ -138,7 +138,8 @@ public class FuncDefNode extends ExprNode {
 				return retType;
 			}
 		}
-		throw new RuntimeException("Cannot infer return type!");
+		return null; //null indicate that we cannot infer return type
+		//throw new RuntimeException("Cannot infer return type!");
 	}
 
 	//this is introduced by fixing AssignNode 
