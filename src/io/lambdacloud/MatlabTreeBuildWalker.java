@@ -11,19 +11,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import io.lambdacloud.exprengine.ExprGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
-import io.lambdacloud.node.DupNode;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
@@ -129,6 +128,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			if(e.getValue().isParameter())
 				pList.add(e.getValue());
 		}
+		//Sort argument names
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
@@ -331,7 +331,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
+			//bugfix: sort argument names for non-function script
+			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
+			sortedVarMap.putAll(currentScope().varMap);
+			MethodGenHelper mg = new MethodGenHelper(mv, sortedVarMap);
+//			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
 			
 //			int index = 1;
 //			if(isStatic) index = 0;
@@ -686,6 +690,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		} else {
 			fnode = new FuncDefNode(funcName);
 			ExprTreeBuildWalker.funcMap.put(funcName, fnode);
+			
+			for(VariableNode var : currentScope().varMap.values()) {
+				var.setAsLocalVar();
+			}
 			for(int i=1; i<ctx.IDENTIFIER().size(); i++) {
 				String paramName = ctx.IDENTIFIER(i).getText();
 				fnode.paramNames.add(paramName);
@@ -693,6 +701,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				VariableNode paramNode = currentScope().varMap.get(paramName);
 				if(null == paramNode)
 					paramNode = VariableNode.newParameter(paramName, Type.DOUBLE_TYPE);
+				paramNode.setAsParameter();
 				currentScope().varMap.put(paramName, paramNode);
 			}
 			fnode.funcVarMap.putAll(currentScope().varMap);

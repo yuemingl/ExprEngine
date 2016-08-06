@@ -2,6 +2,9 @@ package io.lambdacloud.node;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -23,7 +26,8 @@ import io.lambdacloud.MethodGenHelper;
 
 public class FuncDefNode extends ExprNode {
 	public String name;
-	public Map<String, VariableNode> funcVarMap = new TreeMap<String, VariableNode>();
+	//public Map<String, VariableNode> funcVarMap = new TreeMap<String, VariableNode>();
+	public Map<String, VariableNode> funcVarMap = new LinkedHashMap<String, VariableNode>();
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
 
@@ -194,7 +198,15 @@ public class FuncDefNode extends ExprNode {
 			}
 
 			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
-			for (VariableNode var : funcVarMap.values()) {
+			List<VariableNode> nodeList = new ArrayList<VariableNode>();
+			nodeList.addAll(funcVarMap.values());
+			Collections.sort(nodeList, new Comparator<VariableNode>() {
+				@Override
+				public int compare(VariableNode o1, VariableNode o2) {
+					return o1.idxLVT - o2.idxLVT;
+				}
+			});
+			for (VariableNode var : nodeList) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(), null, cgen.labelStart, cgen.lableEnd,
 						var.idxLVT);
 			}
