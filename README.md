@@ -147,13 +147,17 @@ myfun(10.1,100.1)
 ```
 #### Example 3
 ```matlab
-function myfun(a, b)
-        c=a+b
-        d=a-b
-	[c d; d c]
+function fib(n, r)
+  A=[1 1; 1 0];
+  if n<1
+    r;
+  else  
+    r=A*r;
+    fib(n-1, r);
+  end
 end
-myfun(10,100);
-myfun(10.1,100.1);
+
+fib(42, [1 1]')
 ```
 #### Example 4
 ```matlab
