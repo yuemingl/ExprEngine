@@ -38,6 +38,8 @@ public class MethodGenHelper {
 			var.idxLVT = idxLVTGen;
 			if(var.getType().getSort() == Type.DOUBLE)
 				idxLVTGen += 2;
+//			else if(var.getType().getSort() == Type.OBJECT)
+//				idxLVTGen += 2; //64bit JVM
 			else
 				idxLVTGen++;
 		}
@@ -47,6 +49,8 @@ public class MethodGenHelper {
 			var.idxLVT = idxLVTGen;
 			if(var.getType().getSort() == Type.DOUBLE)
 				idxLVTGen += 2;
+//			else if(var.getType().getSort() == Type.OBJECT)
+//				idxLVTGen += 2; //64bit JVM
 			else
 				idxLVTGen++;
 		}
