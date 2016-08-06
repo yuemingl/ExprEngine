@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -411,7 +412,11 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
+			//bugfix: sort argument names for non-function script
+			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
+			sortedVarMap.putAll(currentScope().varMap);
+			MethodGenHelper mg = new MethodGenHelper(mv, sortedVarMap);
+//			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
 			
 //			int index = 1;
 //			if(isStatic) index = 0;
