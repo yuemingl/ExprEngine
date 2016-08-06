@@ -30,6 +30,21 @@ public class TestMatlabEngine {
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
+
+		//Test order of parameters in function arguments
+		assertEqual(exec("function fib(r, n); A=[1 1; 1 0]; if n<1; r; else r=A*r; fib(r, n-1); end end fib([1 1]', 5)"), 
+				new Jama.Matrix(new double[]{13,8},2));
+		assertEqual(exec("function fib(a, n); A=[1 1; 1 0]; if n<1; a; else a=A*a; fib(a, n-1); end end fib([1 1]', 5)"),
+				new Jama.Matrix(new double[]{13,8},2));
+		assertEqual(exec("function myfun(b, a); a-b; end myfun(3,1)"),-2);
+		assertEqual(exec("function myfun(a, b); b-a; end myfun(3,1)"),-2);
+		assertEqual(exec("function s=fun(n) s=n+1\n end fun(5);"),6);
+		
+		//Test order of parameters in the generated function
+		assertEqual(exec("b-a",   getMap("a",1,"b",3)), 2);
+		assertEqual(exec("a-b",   getMap("a",1,"b",3)), -2);
+		assertEqual(exec("B/A",   getMap("A",A,"B",B)), A.solve(B));
+
 		
 		assertEqual(MatlabEngine.exec("if n<=1; r=5;r;1\n else 5; 6+7\n 100\n 9; 8; end",new int[]{8}), 8);
 		assertEqual(MatlabEngine.exec("if n<=1; r=5\n else s=8\n end",new int[]{8}), 8);
@@ -143,7 +158,7 @@ public class TestMatlabEngine {
 		assertEqual(exec("A+B",   getMap("A",A,"B",B)), A.plus(B));
 		assertEqual(exec("A-B",   getMap("A",A,"B",B)), A.minus(B));
 		assertEqual(exec("A*B",   getMap("A",A,"B",B)), A.times(B));
-		assertEqual(exec("B/A",   getMap("A",A,"B",B)), A.solve(B));
+//		assertEqual(exec("B/A",   getMap("A",A,"B",B)), A.solve(B));
 		assertEqual(exec("A\\B",  getMap("A",A,"B",B)), A.solve(B));
 		assertEqual(exec("A.*B",  getMap("A",A,"B",B)), A.arrayTimes(B));
 		assertEqual(exec("A.\\B", getMap("A",A,"B",B)), A.arrayLeftDivide(B));

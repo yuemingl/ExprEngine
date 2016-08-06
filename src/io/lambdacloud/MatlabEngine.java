@@ -273,7 +273,8 @@ public class MatlabEngine {
 		try {
 			List<String> argNames = new ArrayList<String>();
 			argNames.addAll(args.keySet());
-			Collections.sort(argNames);
+			
+			Collections.sort(argNames); //sort argument names
 			Object[] params = new Object[argNames.size()];
 			for (int i = 0; i < params.length; i++)
 				params[i] = args.get(argNames.get(i));

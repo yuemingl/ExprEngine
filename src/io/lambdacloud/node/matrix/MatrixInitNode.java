@@ -48,6 +48,10 @@ public class MatrixInitNode extends ExprNode {
 		return m;
 	}
 
+	public static void test3() {
+		Jama.Matrix mat = new Jama.Matrix(new double[]{1,2,3,4}, 4).transpose();
+	}
+	
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");

@@ -8,4 +8,4 @@ function fib(n, r)
   end
 end
 
-fib(5, [1 1]')
+fib(42, [1 1]')
