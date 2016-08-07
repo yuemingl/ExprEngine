@@ -849,7 +849,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	@Override public void exitExprFor(MatlabGrammarParser.ExprForContext ctx) { 
-		System.out.println("exitExprFor: "+ctx.getText());
+		//System.out.println("exitExprFor: "+ctx.getText());
 		String varName = ctx.IDENTIFIER().getText();
 		
 		ForNode forNode = new ForNode();
@@ -878,7 +878,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	@Override public void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx) {
-		System.out.println("exitExprRange: "+ctx.getText());
+		//System.out.println("exitExprRange: "+ctx.getText());
 		RangeNode node = null;
 		if(ctx.arithmetic_expr().size() == 2) {
 			ExprNode idxE = this.currentScope().stack.pop();
