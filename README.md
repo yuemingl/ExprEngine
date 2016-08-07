@@ -130,13 +130,7 @@ MatlabEngine.exec("A=[1 2;3 4]; b=[3 4]'; A\\b");
 java -jar MatlabEngine.jar file.m
 ```
 #### Example 1
-```matlab
-function [a, b] =myfun(a, b)
-  a+b;
-end
-myfun(1,2)
-```
-#### Example 2
+In this example, it shows how the optimaztion of the compiler for function 'myfun' works. Actually, the function 'myfun' is compiled twice. The first compilation generates 'myfun' with integer type of parameters. The second compilation generated 'myfun' with double type of parameters.
 ```matlab
 function [c d] = myfun(a, b)
 	c=a+b
@@ -145,21 +139,47 @@ end
 myfun(10,100)
 myfun(10.1,100.1)
 ```
-#### Example 3
+#### Example 2
+This example shows how fast it can be reached for computing Fibonacci sequence at n=46. It takes about 2 minutes on Matlab R2016. However, it takes only 9 seconds for us. The experiment is conducted on a 2.2 GHz i7 CPU with Mac OS X Yosemite. 
 ```matlab
-function fib(n, r)
-  A=[1 1; 1 0];
-  if n<1
-    r;
-  else  
-    r=A*r;
-    fib(n-1, r);
+function r=fib(n)
+  if n<=1
+    r=1L;
+  else 
+    r=fib(n-1)+fib(n-2);
   end
 end
 
-fib(42, [1 1]')
+tic
+fib(46)
+toc
+```
+```shell
+2971215073
+Elapsed time is 9188 ms.
+```
+#### Example 3
+Iterative version with matrix form for computing Fibonacci sequence.
+```matlab
+A=[1 1; 1 0];
+b=[1 1]';
+
+tic
+for i=1:46
+  b=A*b;
+end
+toc
+
+b
+```
+```shell
+Elapsed time is 1 ms.
+
+ 4807526976.00
+ 2971215073.00
 ```
 #### Example 4
+Some matrix operations.
 ```matlab
 A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]
 A(:, 0:2:8)
@@ -170,6 +190,44 @@ B=A(0:2,0:2)
 C=[5 4 8; 4 4 7; 2 1 1]
 b=A(:,3)
 C\b
+```
+```shell
+      1.00      2.00      3.00      4.00      5.00      6.00      7.00      8.00      9.00     10.00
+     11.00     12.00     13.00     14.00     15.00     16.00     17.00     18.00     19.00     20.00
+     21.00     22.00     23.00     24.00     25.00     26.00     27.00     28.00     29.00     30.00
+
+
+      1.00      3.00      5.00      7.00      9.00
+     11.00     13.00     15.00     17.00     19.00
+     21.00     23.00     25.00     27.00     29.00
+
+
+     11.00     13.00     15.00     17.00     19.00
+
+
+     10.00
+     20.00
+     30.00
+
+
+      1.00      2.00      3.00
+     11.00     12.00     13.00
+     21.00     22.00     23.00
+
+
+      5.00      4.00      8.00
+      4.00      4.00      7.00
+      2.00      1.00      1.00
+
+
+      4.00
+     14.00
+     24.00
+
+
+      7.43
+     26.57
+    -17.43
 
 ```
 #### More Matlab examples
