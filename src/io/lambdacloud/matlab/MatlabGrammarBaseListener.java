@@ -54,13 +54,13 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprStatement(MatlabGrammarParser.ExprStatementContext ctx) { }
+	@Override public void enterTicToc(MatlabGrammarParser.TicTocContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx) { }
+	@Override public void exitTicToc(MatlabGrammarParser.TicTocContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -85,6 +85,42 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExprFor(MatlabGrammarParser.ExprForContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExprStatement(MatlabGrammarParser.ExprStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTic(MatlabGrammarParser.TicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTic(MatlabGrammarParser.TicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterToc(MatlabGrammarParser.TocContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitToc(MatlabGrammarParser.TocContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

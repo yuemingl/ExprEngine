@@ -42,17 +42,17 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprStatements(MatlabGrammarParser.ExprStatementsContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprStatement}
+	 * Enter a parse tree produced by the {@code TicToc}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprStatement(MatlabGrammarParser.ExprStatementContext ctx);
+	void enterTicToc(MatlabGrammarParser.TicTocContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprStatement}
+	 * Exit a parse tree produced by the {@code TicToc}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx);
+	void exitTicToc(MatlabGrammarParser.TicTocContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FuncDef}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
@@ -77,6 +77,38 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExprFor(MatlabGrammarParser.ExprForContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprStatement}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprStatement(MatlabGrammarParser.ExprStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprStatement}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#tic}.
+	 * @param ctx the parse tree
+	 */
+	void enterTic(MatlabGrammarParser.TicContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#tic}.
+	 * @param ctx the parse tree
+	 */
+	void exitTic(MatlabGrammarParser.TicContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#toc}.
+	 * @param ctx the parse tree
+	 */
+	void enterToc(MatlabGrammarParser.TocContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#toc}.
+	 * @param ctx the parse tree
+	 */
+	void exitToc(MatlabGrammarParser.TocContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprWithExprEnd}
 	 * labeled alternative in {@link MatlabGrammarParser#expression_with_expr_end}.
