@@ -9,6 +9,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.node.arithmetric.AddAsignNode;
+import io.lambdacloud.node.arithmetric.DivAsignNode;
+import io.lambdacloud.node.arithmetric.MulAsignNode;
+import io.lambdacloud.node.arithmetric.SubAsignNode;
 
 public class IfNode extends ExprNode {
 	public ExprNode condition;
@@ -25,7 +29,13 @@ public class IfNode extends ExprNode {
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
 				ExprNode node = ifBlockExprs.get(i);
 				
-				if(i>0 && (node instanceof AssignNode || node instanceof FuncCallNode)) {
+				if(i>0 && (node instanceof AssignNode || 
+						node instanceof FuncCallNode ||
+						node instanceof AddAsignNode ||
+						node instanceof SubAsignNode ||
+						node instanceof MulAsignNode ||
+						node instanceof DivAsignNode
+					)) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
 					else
@@ -42,7 +52,13 @@ public class IfNode extends ExprNode {
 			mg.visitLabel(elseBranch);
 			for(int i=elseBlockExprs.size()-1; i>=0; i--) {
 				ExprNode node = elseBlockExprs.get(i);
-				if(i>0 && (node instanceof AssignNode || node instanceof FuncCallNode)) {
+				if(i>0 && (node instanceof AssignNode || 
+						node instanceof FuncCallNode ||
+						node instanceof AddAsignNode ||
+						node instanceof SubAsignNode ||
+						node instanceof MulAsignNode ||
+						node instanceof DivAsignNode
+						)) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
 					else
@@ -62,7 +78,13 @@ public class IfNode extends ExprNode {
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
 				ExprNode node = ifBlockExprs.get(i);
 				//Clear stack in this case
-				if(node instanceof AssignNode || node instanceof FuncCallNode) {
+				if(node instanceof AssignNode || 
+						node instanceof FuncCallNode ||
+						node instanceof AddAsignNode ||
+						node instanceof SubAsignNode ||
+						node instanceof MulAsignNode ||
+						node instanceof DivAsignNode
+						) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
 					else
