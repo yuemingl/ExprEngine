@@ -24,13 +24,16 @@ import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.ForNode;
 import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
+import io.lambdacloud.node.arithmetric.AddAsignNode;
 import io.lambdacloud.node.arithmetric.AddNode;
 import io.lambdacloud.node.arithmetric.DivNode;
+import io.lambdacloud.node.arithmetric.IncNode;
 import io.lambdacloud.node.arithmetric.MultNode;
 import io.lambdacloud.node.arithmetric.NegateNode;
 import io.lambdacloud.node.arithmetric.SubNode;
@@ -484,24 +487,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new SolveNode(v1, v2));
 	}
 	
-	@Override public void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx) {
-		//System.out.println("exitArithmeticExpressionRange "+ctx.getText());
-		RangeNode node = null;
-		if(ctx.arithmetic_expr().size() == 2) {
-			ExprNode idxE = this.currentScope().stack.pop();
-			ExprNode idxS = this.currentScope().stack.pop();
-			node = new RangeNode(idxS, idxE, true);
-		} else if(ctx.arithmetic_expr().size() == 3) {
-			ExprNode idxE = this.currentScope().stack.pop();
-			ExprNode idxStep = this.currentScope().stack.pop();
-			ExprNode idxS = this.currentScope().stack.pop();
-			node = new RangeNode(idxS, idxStep, idxE, true);
-		} else {
-			throw new RuntimeException("Range node error: "+ ctx.getText());
-		}
-		currentScope().stack.push(node);
-	}
-	
 	@Override public void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
@@ -862,4 +847,52 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		currentScope().stack.push(ifnode);
 	}
+	
+	@Override public void exitExprFor(MatlabGrammarParser.ExprForContext ctx) { 
+		System.out.println("exitExprFor: "+ctx.getText());
+		String varName = ctx.IDENTIFIER().getText();
+		
+		ForNode forNode = new ForNode();
+		for(int i=ctx.expression_with_expr_end().size()-1;i>=0;i--) {
+			forNode.block.add(this.currentScope().stack.pop());
+		}
+		
+		RangeNode rangeNode = (RangeNode)this.currentScope().stack.pop();
+		
+		VariableNode varNode = this.currentScope().varMap.get(varName);
+		if(null == varNode) {
+			varNode = VariableNode.newLocalVar(varName,rangeNode.getType().getElementType());
+			this.currentScope().varMap.put(varName, varNode);
+		} else {
+			varNode.setAsLocalVar();
+		}
+		varNode.setType(rangeNode.getType().getElementType());
+		forNode.init.add(new AssignNode(varNode, rangeNode.start));
+		forNode.cond = new LENode(varNode, rangeNode.end);
+		if(null != rangeNode.step)
+			forNode.inc.add(new AddAsignNode(varNode, rangeNode.step));
+		else
+			forNode.inc.add(new IncNode(varNode));
+		this.currentScope().stack.push(forNode);
+		
+	}
+	
+	@Override public void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx) {
+		System.out.println("exitExprRange: "+ctx.getText());
+		RangeNode node = null;
+		if(ctx.arithmetic_expr().size() == 2) {
+			ExprNode idxE = this.currentScope().stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
+			node = new RangeNode(idxS, idxE, true);
+		} else if(ctx.arithmetic_expr().size() == 3) {
+			ExprNode idxE = this.currentScope().stack.pop();
+			ExprNode idxStep = this.currentScope().stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
+			node = new RangeNode(idxS, idxStep, idxE, true);
+		} else {
+			throw new RuntimeException("Range node error: "+ ctx.getText());
+		}
+		currentScope().stack.push(node);
+	}
+
 }
