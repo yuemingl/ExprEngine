@@ -66,6 +66,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitFuncDef(MatlabGrammarParser.FuncDefContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprFor}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprFor(MatlabGrammarParser.ExprForContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprFor}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprFor(MatlabGrammarParser.ExprForContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprWithExprEnd}
 	 * labeled alternative in {@link MatlabGrammarParser#expression_with_expr_end}.
 	 * @param ctx the parse tree
@@ -145,6 +157,30 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExprLogical(MatlabGrammarParser.ExprLogicalContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprRange1}
+	 * labeled alternative in {@link MatlabGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprRange1}
+	 * labeled alternative in {@link MatlabGrammarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprRange}
+	 * labeled alternative in {@link MatlabGrammarParser#range_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprRange(MatlabGrammarParser.ExprRangeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprRange}
+	 * labeled alternative in {@link MatlabGrammarParser#range_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionDLDiv}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
@@ -277,18 +313,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionEntity(MatlabGrammarParser.ArithmeticExpressionEntityContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ArithmeticExpressionRange}
-	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ArithmeticExpressionRange}
-	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitArithmeticExpressionRange(MatlabGrammarParser.ArithmeticExpressionRangeContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionNegationEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
