@@ -38,8 +38,10 @@ public class MethodGenHelper {
 			var.idxLVT = idxLVTGen;
 			if(var.getType().getSort() == Type.DOUBLE)
 				idxLVTGen += 2;
+			else if(var.getType().getSort() == Type.LONG)
+			idxLVTGen += 2;
 //			else if(var.getType().getSort() == Type.OBJECT)
-//				idxLVTGen += 2; //64bit JVM
+//			idxLVTGen += 2; //64bit JVM
 			else
 				idxLVTGen++;
 		}
@@ -49,11 +51,21 @@ public class MethodGenHelper {
 			var.idxLVT = idxLVTGen;
 			if(var.getType().getSort() == Type.DOUBLE)
 				idxLVTGen += 2;
+			else if(var.getType().getSort() == Type.LONG)
+			idxLVTGen += 2;
 //			else if(var.getType().getSort() == Type.OBJECT)
 //				idxLVTGen += 2; //64bit JVM
 			else
 				idxLVTGen++;
 		}
+	}
+	
+	public void test() {
+		long a=1;
+		double b=1.0;
+		System.out.println(a);
+		System.out.println(b);
+		
 	}
 	
 	public VariableNode newLocalVariable(String varName, Type type) {
