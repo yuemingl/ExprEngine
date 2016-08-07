@@ -144,22 +144,39 @@ This example shows how fast it can be reached for computing Fibonacci sequence a
 ```matlab
 function r=fib(n)
   if n<=1
-    r=1;
+    r=1L;
   else 
     r=fib(n-1)+fib(n-2);
   end
 end
+
+tic
 fib(46)
+toc
+```
+```shell
+2971215073
+Elapsed time is 9188 ms.
 ```
 #### Example 3
 Iterative version with matrix form for computing Fibonacci sequence.
 ```matlab
 A=[1 1; 1 0];
 b=[1 1]';
+
+tic
 for i=1:46
   b=A*b;
 end
+toc
+
 b
+```
+```shell
+Elapsed time is 1 ms.
+
+ 4807526976.00
+ 2971215073.00
 ```
 #### Example 4
 Some matrix operations.
