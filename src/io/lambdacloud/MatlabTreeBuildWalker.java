@@ -53,6 +53,7 @@ import io.lambdacloud.node.matrix.MatrixDRDivNode;
 import io.lambdacloud.node.matrix.MatrixInitNode;
 import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.matrix.TransposeNode;
+import io.lambdacloud.node.string.StringNode;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	public static boolean DEBUG = false;
@@ -448,7 +449,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	@Override public void exitEntityConstInteger(MatlabGrammarParser.EntityConstIntegerContext ctx) {
 		//System.out.println("exitConstInteger"+ctx.getText());
-		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
+		String s = ctx.getText();
+		if(s.endsWith("L"))
+			currentScope().stack.push(new ConstantNode(s.substring(0, s.length()-1), Type.LONG_TYPE));
+		else
+			currentScope().stack.push(new ConstantNode(ctx.getText(), Type.INT_TYPE));
 	}
 	@Override public void exitEntityConstFloat(MatlabGrammarParser.EntityConstFloatContext ctx) { 
 		//System.out.println("exitEntityConstFloat:"+ctx.getText());
@@ -893,6 +898,37 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			throw new RuntimeException("Range node error: "+ ctx.getText());
 		}
 		currentScope().stack.push(node);
+	}
+	
+	@Override public void exitTicToc(MatlabGrammarParser.TicTocContext ctx) {
+		String varName = "__curTime__";
+		if(null != ctx.tic()) {
+			VariableNode var = VariableNode.newLocalVar(varName, Type.LONG_TYPE);
+			this.currentScope().varMap.put(var.name, var);
+			FuncCallNode funcCall = new FuncCallNode(System.class.getName(), "currentTimeMillis", false);
+			AssignNode a = new AssignNode(var, funcCall);
+			this.currentScope().stack.push(a);
+		}
+		if(null != ctx.toc()) {
+			VariableNode var = this.currentScope().varMap.get(varName);
+			FuncCallNode funcCallCurTime = new FuncCallNode(System.class.getName(), "currentTimeMillis", false);
+			SubNode timeDiffNode = new SubNode(funcCallCurTime, var);
+			FuncCallNode printNode = new FuncCallNode(BytecodeSupport.class.getName(), "print", false);
+			printNode.args.add(timeDiffNode);
+			
+			StringNode ms1 = new StringNode("Elapsed time is ");
+			FuncCallNode print_ms1 = new FuncCallNode(BytecodeSupport.class.getName(), "print", false);
+			print_ms1.args.add(ms1);
+
+			StringNode ms2 = new StringNode(" ms.");
+			FuncCallNode print_ms2 = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
+			print_ms2.args.add(ms2);
+			
+			this.currentScope().stack.push(print_ms1);
+			this.currentScope().stack.push(printNode);
+			this.currentScope().stack.push(print_ms2);
+			
+		}
 	}
 
 }
