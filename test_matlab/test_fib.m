@@ -6,5 +6,6 @@ function fib(n)
   end
 end
 
+tic
 fib(5)
-
+toc

@@ -31,6 +31,12 @@ public class TestMatlabEngine {
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
 
+//		assertEqual(exec("function r=fib(r, n); A=[1 1; 1 0]; if n<1; r=1; else r=A*r; r=fib(r, n-1); end end fib([1 1]', 5)"), 
+//		new Jama.Matrix(new double[]{13,8},2));
+
+		assertEqual(exec("tic; toc; 1"),1);
+		assertEqual(exec("tic; 9+10\n toc; 1"),1);
+
 		assertEqual(exec("[1 2; 3 4] + [11 22; 33 44]"), getMatrix(new double[][]{{12,24},{36,48}}));
 		assertEqual(exec("for i=1:2:10; i\n end"), null);
 		assertEqual(exec("for i=1:10; i\n end"), null);
