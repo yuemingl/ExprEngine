@@ -96,7 +96,9 @@ statements
 statement
  : expression_with_expr_end   # ExprStatement
  | 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
+ | 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # ExprFor
  ;
+
 
 expression_with_expr_end
  : expression expr_end   # ExprWithExprEnd
@@ -110,7 +112,10 @@ expression
  : arithmetic_expr       # ExprArithmetic
  | assign_expr           # ExprAssign
  | logical_expr          # ExprLogical
+ | range_expr            # ExprRange1
  ;
+
+range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # ExprRange;
 
 arithmetic_expr
  : arithmetic_expr SQUOTE                     # Transpose
@@ -126,7 +131,6 @@ arithmetic_expr
  | arithmetic_expr REM arithmetic_expr        # ArithmeticExpressionRem
  | arithmetic_expr (ADD|DADD) arithmetic_expr # ArithmeticExpressionAdd
  | arithmetic_expr (SUB|DSUB) arithmetic_expr # ArithmeticExpressionSub
- | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr      # ArithmeticExpressionRange
  | LPAREN arithmetic_expr RPAREN              # ArithmeticExpressionParens
  | array_init                                 # ExprArrayInit
  | numeric_entity                             # ArithmeticExpressionEntity
@@ -142,7 +146,7 @@ integer_entity
  : INTEGER                        # EntityConstInteger 
  ;
 float_entity
- : FLOAT                          # EntityConstFloat   
+ : FLOAT                          # EntityConstFloat
  ;
 variable_entity
  : IDENTIFIER                     # EntityVariable
@@ -151,7 +155,7 @@ variable_entity
 
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
 ai_list : ( expression (COMMA|WS+) )* expression? ;
- 
+
 array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
 aa_index : expression | COLON ;
 
