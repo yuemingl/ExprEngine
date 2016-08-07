@@ -94,11 +94,14 @@ statements
  ;
 
 statement
- : expression_with_expr_end   # ExprStatement
+ : WS* (tic | toc) WS* expr_end? # TicToc
  | 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
  | 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # ExprFor
+ | expression_with_expr_end   # ExprStatement
  ;
 
+tic : 'tic' ;
+toc : 'toc' ;
 
 expression_with_expr_end
  : expression expr_end   # ExprWithExprEnd
