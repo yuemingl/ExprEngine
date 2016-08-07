@@ -31,6 +31,11 @@ public class TestMatlabEngine {
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
 
+		assertEqual(exec("[1 2; 3 4] + [11 22; 33 44]"), getMatrix(new double[][]{{12,24},{36,48}}));
+		assertEqual(exec("for i=1:2:10; i\n end"), null);
+		assertEqual(exec("for i=1:10; i\n end"), null);
+		assertEqual(exec("for i=1:10; i; end"), null);
+
 		//Test order of parameters in function arguments
 		assertEqual(exec("function fib(r, n); A=[1 1; 1 0]; if n<1; r; else r=A*r; fib(r, n-1); end end fib([1 1]', 5)"), 
 				new Jama.Matrix(new double[]{13,8},2));
@@ -196,11 +201,12 @@ public class TestMatlabEngine {
 		return new Jama.Matrix(args, args.length);
 	}
 	
-	public static Jama.Matrix getRow(double[][] args) {
+	public static Jama.Matrix getMatrix(double[][] args) {
 		return new Jama.Matrix(args);
 	}
 	
 	public static void assertEqual(Object o1, Object o2) {
+		if(null == o1 && null == o2) return;
 		if(o1 instanceof int[][] && o2 instanceof int[][]) {
 			int[][] o11 = (int[][])o1;
 			int[][] o22 = (int[][])o2;
