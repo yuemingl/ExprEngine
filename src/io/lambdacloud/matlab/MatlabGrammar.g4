@@ -85,19 +85,20 @@ WS : [ \t] ;
 
 /* Parser rules */
 
-prog : statements EOF ;
+prog : statement_block EOF ;
+
+statement_block
+ : statement* (expression expr_end?)? ;
 
 expr_end : (WS* (SEMI|'\n') WS*)+;
 
-statements
- : statement* (expression expr_end?)?   # ExprStatements
- ;
-
 statement
- : WS* (tic | toc) WS* expr_end? # TicToc
- | 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # FuncDef
- | 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr (expr_end|(WS* COMMA WS*))? expression_with_expr_end* 'end' WS* expr_end?   # ExprFor
- | expression_with_expr_end   # ExprStatement
+ : WS* (tic | toc) WS* expr_end?   # TicToc
+ | WS* 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # FuncDef
+ | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
+ | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # ExprFor
+ | WS* 'while' logical_expr (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # ExprWhile
+ | expression_with_expr_end   # ExprWithExprEnd1
  ;
 
 tic : 'tic' ;
@@ -105,15 +106,14 @@ toc : 'toc' ;
 
 expression_with_expr_end
  : expression expr_end   # ExprWithExprEnd
- | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
  ;
 
-if_cond_and_body : logical_expr expr_end expression_with_expr_end* ;
-else_body : expression_with_expr_end* ;
+if_cond_and_body : logical_expr expr_end statement_block ;
+else_body : statement_block ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
- | assign_expr           # ExprAssign
+ | assign_expr           # ExprAssign1
  | logical_expr          # ExprLogical
  | range_expr            # ExprRange1
  ;
@@ -169,8 +169,6 @@ aa_index : expression | COLON ;
 func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
 
-assign_expr : WS* IDENTIFIER WS* ASSIGN expression ;
-
 /////////////////////////
 
 logical_expr
@@ -192,3 +190,13 @@ comp_operator
 
 logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 
+///////////////////////////
+assign_expr
+ : WS* IDENTIFIER WS* ASSIGN expression   # ExprAssign
+ | WS* IDENTIFIER WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ASSIGN expression # ExprArrayAssign
+ | variable_entity MUL_ASSIGN expression   # ExprMulAssign
+ | variable_entity DIV_ASSIGN expression   # ExprDivAssign
+ | variable_entity REM_ASSIGN expression   # ExprRemAssign
+ | variable_entity ADD_ASSIGN expression   # ExprAddAssign
+ | variable_entity SUB_ASSIGN expression   # ExprSubAssign
+ ;
