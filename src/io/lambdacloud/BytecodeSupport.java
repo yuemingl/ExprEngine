@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BytecodeSupport {
+	public static String getMyName() {
+		return BytecodeSupport.class.getName().replaceAll("\\.", "/");
+	}
+	
 	public static void print(Object o) {
 		System.out.print(o);
 	}
@@ -189,5 +193,21 @@ public class BytecodeSupport {
 	public static int len(List<?> l) {
 		return l.size();
 	}
-
+	
+	public static void setMatrix(Jama.Matrix A, int[] r, int[] c, double v) {
+		Jama.Matrix t = new Jama.Matrix(r.length, c.length, v);
+		A.setMatrix(r, c, t);
+	}
+	public static void setMatrix(Jama.Matrix A, int[] r, int j0, int j1, double v) {
+		Jama.Matrix t = new Jama.Matrix(r.length, j1-j0+1, v);
+		A.setMatrix(r, j0, j1, t);
+	}
+	public static void setMatrix(Jama.Matrix A, int i0, int i1, int[] c, double v) {
+		Jama.Matrix t = new Jama.Matrix(i1-i0+1, c.length, v);
+		A.setMatrix(i0, i1, c, t);
+	}
+	public static void setMatrix(Jama.Matrix A, int i0, int i1, int j0, int j1, double v) {
+		Jama.Matrix t = new Jama.Matrix(i1-i0+1, j1-j0+1, v);
+		A.setMatrix(i0, i1, j0, j1, t);
+	}
 }
