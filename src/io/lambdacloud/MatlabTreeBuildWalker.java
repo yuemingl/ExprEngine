@@ -18,9 +18,10 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.exprengine.ExprGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
-import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
+import io.lambdacloud.matlab.MatlabGrammarParser.Expr_endContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
@@ -30,12 +31,17 @@ import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.VariableNode;
+import io.lambdacloud.node.WhileNode;
 import io.lambdacloud.node.arithmetric.AddAsignNode;
 import io.lambdacloud.node.arithmetric.AddNode;
+import io.lambdacloud.node.arithmetric.DivAsignNode;
 import io.lambdacloud.node.arithmetric.DivNode;
 import io.lambdacloud.node.arithmetric.IncNode;
+import io.lambdacloud.node.arithmetric.MulAsignNode;
 import io.lambdacloud.node.arithmetric.MultNode;
 import io.lambdacloud.node.arithmetric.NegateNode;
+import io.lambdacloud.node.arithmetric.RemAsignNode;
+import io.lambdacloud.node.arithmetric.SubAsignNode;
 import io.lambdacloud.node.arithmetric.SubNode;
 import io.lambdacloud.node.comparion.EQNode;
 import io.lambdacloud.node.comparion.GENode;
@@ -47,6 +53,7 @@ import io.lambdacloud.node.logical.NEQNode;
 import io.lambdacloud.node.logical.NotNode;
 import io.lambdacloud.node.logical.OrNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
+import io.lambdacloud.node.matrix.MatrixAssignNode;
 import io.lambdacloud.node.matrix.MatrixDLDivNode;
 import io.lambdacloud.node.matrix.MatrixDMulNode;
 import io.lambdacloud.node.matrix.MatrixDRDivNode;
@@ -659,7 +666,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Do nothing
 	}
 	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) {
-		String varName = ctx.assign_expr().IDENTIFIER().getText();
+		String varName = ctx.IDENTIFIER().getText();
 		ExprNode value = this.currentScope().stack.pop();
 		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
@@ -749,35 +756,34 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//See exitFuncDefNameArgs()
 	}
 	
-	@Override public void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx) {
-		//System.out.println("exitExprStatement>>>>----"+ctx.getText()+"----<<<<");
-	}
+//	@Override public void exitExprStatement(MatlabGrammarParser.ExprStatementContext ctx) {
+//		//System.out.println("exitExprStatement>>>>----"+ctx.getText()+"----<<<<");
+//	}
 	
 	@Override public void exitExprArithmetic(MatlabGrammarParser.ExprArithmeticContext ctx) { 
 		//System.out.println("exitExprArithmetic>>>>"+ctx.getText()+"<<<<");
 	}
 	
-	@Override public void exitExprStatements(MatlabGrammarParser.ExprStatementsContext ctx) {
-		//System.out.println("exitExprStatements>>>>"+ctx.getText()+"<<<<");
-		ExpressionContext lastExpr = ctx.expression();
-		if(null != lastExpr) {
-			if(null != ctx.expr_end() && ctx.expr_end().SEMI().size()>0)
-				return;
-			//print the LAST expression
-			ExprNode expr = this.currentScope().stack.pop();
-			expr.genLoadInsn(true);
-			FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
-//Don't use DupNode to avoid one element pushed on the top of stack
-//			DupNode dupNode = new DupNode(expr);
-//			funcCall.args.add(dupNode);
-			funcCall.args.add(expr);
-			this.currentScope().stack.push(funcCall);
-		}
-	}
-	
-	@Override public void exitExprWithExprEnd(MatlabGrammarParser.ExprWithExprEndContext ctx) {
-		//System.out.println("exitExprWithExprEnd>>>>"+ctx.getText()+"<<<<");
-		if(null != ctx.expr_end() && ctx.expr_end().SEMI().size()>0)
+//	@Override public void exitExprStatements(MatlabGrammarParser.ExprStatementsContext ctx) {
+//		//System.out.println("exitExprStatements>>>>"+ctx.getText()+"<<<<");
+//		ExpressionContext lastExpr = ctx.expression();
+//		if(null != lastExpr) {
+//			if(null != ctx.expr_end() && ctx.expr_end().SEMI().size()>0)
+//				return;
+//			//print the LAST expression
+//			ExprNode expr = this.currentScope().stack.pop();
+//			expr.genLoadInsn(true);
+//			FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
+////Don't use DupNode to avoid one element pushed on the top of stack
+////			DupNode dupNode = new DupNode(expr);
+////			funcCall.args.add(dupNode);
+//			funcCall.args.add(expr);
+//			this.currentScope().stack.push(funcCall);
+//		}
+//	}
+
+	private void processExprEnd(Expr_endContext ctx) {
+		if(null!=ctx && ctx.SEMI().size()>0)
 			return;
 		//print the expression
 		ExprNode expr = this.currentScope().stack.pop();
@@ -789,6 +795,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //		funcCall.args.add(dupNode);
 		funcCall.args.add(expr);
 		this.currentScope().stack.push(funcCall);
+		
+	}
+	@Override public void exitExprWithExprEnd(MatlabGrammarParser.ExprWithExprEndContext ctx) {
+		//System.out.println("exitExprWithExprEnd>>>>"+ctx.getText()+"<<<<");
+		processExprEnd(ctx.expr_end());
 	}
 	
 	@Override public void exitLogicalExpressionAnd(MatlabGrammarParser.LogicalExpressionAndContext ctx) {
@@ -838,15 +849,25 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 
 		if(null != ctx.else_body()) { //else branch
 			//System.out.println("else:  "+ctx.else_body().getText());
-			for(int i=ctx.else_body().expression_with_expr_end().size()-1; i>=0; i--) {
+			for(int i=ctx.else_body().statement_block().statement().size()-1; i>=0; i--) {
 				ifnode.elseBlockExprs.add(currentScope().stack.pop());
+			}
+			if(null != ctx.else_body().statement_block().expression()) {
+				ifnode.elseBlockExprs.add(currentScope().stack.pop());
+				//processExprEnd(ctx.else_body().statement_block().expr_end());
+
 			}
 		}
 		for(int i=ctx.if_cond_and_body().size()-1; i>=0; i--) {
 			//System.out.println("if/elseif:  "+ctx.if_cond_and_body(i).getText());
-			for(int j=ctx.if_cond_and_body(i).expression_with_expr_end().size(); j>0; j--) {
+			for(int j=ctx.if_cond_and_body(i).statement_block().statement().size(); j>0; j--) {
 				ifnode.ifBlockExprs.add(currentScope().stack.pop());
 			}
+			if(null != ctx.if_cond_and_body(i).statement_block().expression()) {
+				ifnode.ifBlockExprs.add(currentScope().stack.pop());
+				//processExprEnd(ctx.if_cond_and_body(i).statement_block().expr_end());
+			}
+				
 			//System.out.println("conditon: "+ctx.if_cond_and_body(i).logical_expr().getText());
 			ifnode.condition = currentScope().stack.pop();
 		}
@@ -858,9 +879,14 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		String varName = ctx.IDENTIFIER().getText();
 		
 		ForNode forNode = new ForNode();
-		for(int i=ctx.expression_with_expr_end().size()-1;i>=0;i--) {
+		for(int i=ctx.statement_block().statement().size()-1;i>=0;i--) {
 			forNode.block.add(this.currentScope().stack.pop());
 		}
+		if(null != ctx.statement_block().expression()) {
+			forNode.block.add(this.currentScope().stack.pop());
+			//this.processExprEnd(ctx.statement_block().expr_end());
+		}
+			
 		
 		RangeNode rangeNode = (RangeNode)this.currentScope().stack.pop();
 		
@@ -929,6 +955,92 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			this.currentScope().stack.push(print_ms2);
 			
 		}
+	}
+	@Override public void exitStatement_block(MatlabGrammarParser.Statement_blockContext ctx) {
+		//System.out.println("exitStatement_block: "+ctx.getText());
+		if(null != ctx.expression())
+			processExprEnd(ctx.expr_end());
+	}
+
+	@Override public void exitExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx) {
+		String varName = ctx.IDENTIFIER().getText();
+		VariableNode var = this.currentScope().varMap.get(varName);
+		if(null == var) {
+			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double?
+			currentScope().varMap.put(varName, var);
+		}
+		ExprNode value = this.currentScope().stack.pop();
+		
+		MatrixAssignNode node = new MatrixAssignNode(var, value);
+		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
+			if(null != ctx.aa_index(i).COLON()) {
+				//Access all rows or columns
+				node.addIndex(null, null);
+			} else {
+				ExprNode idxS = this.currentScope().stack.pop();
+				ExprNode idxE = null;
+				if(idxS instanceof RangeNode) {
+					//Pass start and end index directly into MatrixAccessNode for optimization purpose
+					//(no array is generated for the range)
+					RangeNode range = (RangeNode)idxS;
+					if(range.step == null) {
+						idxS = range.start;
+						idxE = range.end; //end+1 =>new AddNode(end, 1)
+					} else {
+						//do nothing, let indS be the range node
+					}
+				}
+				node.addIndex(idxS, idxE);
+			}
+		}
+
+		this.currentScope().stack.push(node);
+	}
+	
+	@Override public void exitExprMulAssign(MatlabGrammarParser.ExprMulAssignContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new MulAsignNode((VariableNode)v1,v2));
+	}
+	
+	@Override public void exitExprDivAssign(MatlabGrammarParser.ExprDivAssignContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new DivAsignNode((VariableNode)v1,v2));
+	}
+	
+	@Override public void exitExprRemAssign(MatlabGrammarParser.ExprRemAssignContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new RemAsignNode((VariableNode)v1,v2));
+	}
+	
+	@Override public void exitExprAddAssign(MatlabGrammarParser.ExprAddAssignContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new AddAsignNode((VariableNode)v1,v2));
+	}
+	
+	@Override public void exitExprSubAssign(MatlabGrammarParser.ExprSubAssignContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new SubAsignNode((VariableNode)v1,v2));
+	}
+	
+//	@Override public void enterExprWhile(MatlabGrammarParser.ExprWhileContext ctx) { 
+//		this.addScope("while");
+//	}
+	
+	@Override public void exitExprWhile(MatlabGrammarParser.ExprWhileContext ctx) {
+		WhileNode wn = new WhileNode();
+		for(int i=ctx.statement_block().statement().size()-1; i>=0; i--) {
+			wn.block.add(currentScope().stack.pop());
+		}
+		if(null != ctx.statement_block().expression()) {
+			wn.block.add(currentScope().stack.pop());
+		}
+		wn.condition = currentScope().stack.pop();
+		currentScope().stack.push(wn);
 	}
 
 }
