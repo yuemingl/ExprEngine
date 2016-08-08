@@ -9,6 +9,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.node.arithmetric.AddAsignNode;
+import io.lambdacloud.node.arithmetric.DivAsignNode;
+import io.lambdacloud.node.arithmetric.MulAsignNode;
+import io.lambdacloud.node.arithmetric.SubAsignNode;
 
 public class WhileNode extends ExprNode {
 	public ExprNode condition;
@@ -22,7 +26,26 @@ public class WhileNode extends ExprNode {
 		Label labelBlock = new Label();
 		mg.visitLabel(labelBlock);
 		for(int i=block.size()-1; i>=0; i--) {
-			block.get(i).genCode(mg);
+			ExprNode node = block.get(i);
+			if(node instanceof AssignNode || 
+					node instanceof FuncCallNode ||
+					node instanceof AddAsignNode ||
+					node instanceof SubAsignNode ||
+					node instanceof MulAsignNode ||
+					node instanceof DivAsignNode ||
+					node instanceof IfNode ||
+					node instanceof WhileNode ||
+					node instanceof FuncDefNode ||
+					node instanceof ForNode
+				) {
+					if(node instanceof FuncCallNode)
+						((FuncCallNode)node).isPopReturn = true;
+					else
+						node.genLoadInsn(false);
+					node.genCode(mg);
+				} else {
+					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
+				}
 		}
 		
 		mg.visitLabel(labelCondition);
@@ -64,19 +87,20 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		//circle check
-		if(stack.contains(this)) return null;
-		stack.push(this);
-
-		for(int i=0; i<this.block.size(); i++) {
-			ExprNode node = this.block.get(i);
-			Type retType = node.getType(stack);
-			if(null != retType) {
-				stack.pop();
-				return retType;
-			}
-		}
-		throw new RuntimeException("Cannot infer return type!");
+		return Type.VOID_TYPE;
+//		//circle check
+//		if(stack.contains(this)) return null;
+//		stack.push(this);
+//
+//		for(int i=0; i<this.block.size(); i++) {
+//			ExprNode node = this.block.get(i);
+//			Type retType = node.getType(stack);
+//			if(null != retType) {
+//				stack.pop();
+//				return retType;
+//			}
+//		}
+//		throw new RuntimeException("Cannot infer return type!");
 	}
 	@Override
 	public void fixType(Deque<Object> stack) {

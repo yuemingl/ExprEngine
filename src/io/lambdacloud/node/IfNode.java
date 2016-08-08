@@ -34,7 +34,11 @@ public class IfNode extends ExprNode {
 						node instanceof AddAsignNode ||
 						node instanceof SubAsignNode ||
 						node instanceof MulAsignNode ||
-						node instanceof DivAsignNode
+						node instanceof DivAsignNode ||
+						node instanceof IfNode ||
+						node instanceof WhileNode ||
+						node instanceof FuncDefNode ||
+						node instanceof ForNode
 					)) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
@@ -57,7 +61,11 @@ public class IfNode extends ExprNode {
 						node instanceof AddAsignNode ||
 						node instanceof SubAsignNode ||
 						node instanceof MulAsignNode ||
-						node instanceof DivAsignNode
+						node instanceof DivAsignNode ||
+						node instanceof IfNode ||
+						node instanceof WhileNode ||
+						node instanceof FuncDefNode ||
+						node instanceof ForNode
 						)) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
@@ -83,7 +91,11 @@ public class IfNode extends ExprNode {
 						node instanceof AddAsignNode ||
 						node instanceof SubAsignNode ||
 						node instanceof MulAsignNode ||
-						node instanceof DivAsignNode
+						node instanceof DivAsignNode ||
+						node instanceof IfNode ||
+						node instanceof WhileNode ||
+						node instanceof FuncDefNode ||
+						node instanceof ForNode
 						) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
