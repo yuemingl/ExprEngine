@@ -123,22 +123,18 @@ range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # Ex
 
 arithmetic_expr
  : arithmetic_expr SQUOTE                     # Transpose
- | arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSolve
  | WS* SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
  | arithmetic_expr (POW|BXOR) arithmetic_expr        # ArithmeticExpressionPow
- | arithmetic_expr DIV arithmetic_expr        # ArithmeticExpressionDiv
- | arithmetic_expr DLDIV arithmetic_expr       # ArithmeticExpressionDLDiv
- | arithmetic_expr DRDIV arithmetic_expr       # ArithmeticExpressionDRDiv
- | arithmetic_expr MUL arithmetic_expr        # ArithmeticExpressionMul
- | arithmetic_expr DMUL arithmetic_expr       # ArithmeticExpressionDMul
- | arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSOL
+ | arithmetic_expr mul_div_operator arithmetic_expr        # ArithmeticExpressionMulDiv
  | arithmetic_expr REM arithmetic_expr        # ArithmeticExpressionRem
- | arithmetic_expr (SUB|DSUB) arithmetic_expr # ArithmeticExpressionSub
- | arithmetic_expr (ADD|DADD) arithmetic_expr # ArithmeticExpressionAdd
+ | arithmetic_expr add_sub_operator arithmetic_expr # ArithmeticExpressionAddSub
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
  | array_init                                 # ExprArrayInit
  | numeric_entity                             # ArithmeticExpressionEntity
  ;
+
+add_sub_operator : SUB | DSUB | ADD | DADD ;
+mul_div_operator : SOL | DIV | DLDIV | DRDIV | MUL | DMUL ;
 
 numeric_entity 
  : WS* integer_entity WS*
