@@ -41,6 +41,7 @@ import io.lambdacloud.node.arithmetric.MulAsignNode;
 import io.lambdacloud.node.arithmetric.MultNode;
 import io.lambdacloud.node.arithmetric.NegateNode;
 import io.lambdacloud.node.arithmetric.RemAsignNode;
+import io.lambdacloud.node.arithmetric.RemNode;
 import io.lambdacloud.node.arithmetric.SubAsignNode;
 import io.lambdacloud.node.arithmetric.SubNode;
 import io.lambdacloud.node.comparion.EQNode;
@@ -393,7 +394,16 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			if(!isStatic)
 				mg.visitLocalVariable("this", "L"+className+";", 
 						null, cgen.labelStart, cgen.lableEnd, 0);
-			for(VariableNode var : currentScope().varMap.values()) {
+			
+			List<VariableNode> nodeList = new ArrayList<VariableNode>();
+			nodeList.addAll(currentScope().varMap.values());
+			Collections.sort(nodeList, new Comparator<VariableNode>() {
+				@Override
+				public int compare(VariableNode o1, VariableNode o2) {
+					return o1.idxLVT - o2.idxLVT;
+				}
+			});
+			for(VariableNode var : nodeList) {
 				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
 						null, cgen.labelStart, cgen.lableEnd, var.idxLVT);
 			}
@@ -503,8 +513,12 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
 		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+		VariableNode var = this.currentScope().varMap.get(varName);
+		Class<?> paramType = null;
+		if(null != mapParameterTypes)
+			paramType = mapParameterTypes.get(varName);
 		//Function call
-		if(null != func) {
+		if( null != func || (var == null && null == paramType) ) {
 			String methodName = varName;
 			
 			StringBuilder sb = new StringBuilder();
@@ -575,7 +589,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		
 		//------Array Access------
-		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
 			var = VariableNode.newParameter(varName, Type.getType(int[].class)); //default to double
 			currentScope().varMap.put(varName, var);
@@ -658,9 +671,14 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitArithmeticExpressionNegationEntity(MatlabGrammarParser.ArithmeticExpressionNegationEntityContext ctx) {
 		ExprNode v1 = currentScope().stack.pop();
 		currentScope().stack.push(new NegateNode(v1));
-		
 	}
 	
+	@Override public void exitArithmeticExpressionRem(MatlabGrammarParser.ArithmeticExpressionRemContext ctx) { 
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new RemNode(v1, v2));
+	}
+
 	@Override public void exitArithmeticExpressionEntity(MatlabGrammarParser.ArithmeticExpressionEntityContext ctx) {
 		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
 		//Do nothing
@@ -1042,5 +1060,18 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		wn.condition = currentScope().stack.pop();
 		currentScope().stack.push(wn);
 	}
-
+	
+	@Override public void exitArithmeticExpressionPow(MatlabGrammarParser.ArithmeticExpressionPowContext ctx) {
+		ExprNode pow = this.currentScope().stack.pop();
+		ExprNode base = this.currentScope().stack.pop();
+//		pow.setType(Type.DOUBLE_TYPE);
+//		base.setType(Type.DOUBLE_TYPE);
+//		base.freezeType(true);
+		FuncCallNode fnode = new FuncCallNode(BytecodeSupport.class.getName(), "pow", false);
+		//reverse the order
+		fnode.args.add(pow);
+		fnode.args.add(base);
+		currentScope().stack.push(fnode);
+	}
+	
 }
