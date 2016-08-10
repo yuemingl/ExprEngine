@@ -65,7 +65,7 @@ RCB : '}' ;
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
 INTEGER : [0-9]+'L'? ;
-FLOAT : [0-9]*'.'[0-9]* ;
+FLOAT : ([0-9]*'.'[0-9]+) | ([0-9]+'.'[0-9]*) ;
 IDENTIFIER : [a-zA-Z_][a-zA-Z_0-9]* ;
 
 COMMA : ',' ;
@@ -94,6 +94,7 @@ expr_end : (WS* (SEMI|'\n') WS*)+;
 
 statement
  : WS* (tic | toc) WS* expr_end?   # TicToc
+ | WS* 'nargin' WS* expr_end?   # NArgIn
  | WS* 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
  | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # ExprFor
@@ -123,18 +124,18 @@ range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # Ex
 arithmetic_expr
  : arithmetic_expr SQUOTE                     # Transpose
  | arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSolve
- | SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
- | arithmetic_expr POW arithmetic_expr        # ArithmeticExpressionPow
- | arithmetic_expr MUL arithmetic_expr        # ArithmeticExpressionMul
- | arithmetic_expr DMUL arithmetic_expr       # ArithmeticExpressionDMul
+ | WS* SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
+ | arithmetic_expr (POW|BXOR) arithmetic_expr        # ArithmeticExpressionPow
  | arithmetic_expr DIV arithmetic_expr        # ArithmeticExpressionDiv
  | arithmetic_expr DLDIV arithmetic_expr       # ArithmeticExpressionDLDiv
  | arithmetic_expr DRDIV arithmetic_expr       # ArithmeticExpressionDRDiv
+ | arithmetic_expr MUL arithmetic_expr        # ArithmeticExpressionMul
+ | arithmetic_expr DMUL arithmetic_expr       # ArithmeticExpressionDMul
  | arithmetic_expr SOL arithmetic_expr        # ArithmeticExpressionSOL
  | arithmetic_expr REM arithmetic_expr        # ArithmeticExpressionRem
- | arithmetic_expr (ADD|DADD) arithmetic_expr # ArithmeticExpressionAdd
  | arithmetic_expr (SUB|DSUB) arithmetic_expr # ArithmeticExpressionSub
- | LPAREN arithmetic_expr RPAREN              # ArithmeticExpressionParens
+ | arithmetic_expr (ADD|DADD) arithmetic_expr # ArithmeticExpressionAdd
+ | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
  | array_init                                 # ExprArrayInit
  | numeric_entity                             # ArithmeticExpressionEntity
  ;
@@ -175,8 +176,8 @@ logical_expr
  : comparison_expr                   # ComparisonExpression
  | logical_expr AND logical_expr     # LogicalExpressionAnd
  | logical_expr OR logical_expr      # LogicalExpressionOr
- | NOT logical_expr                  # LogicalExpressionNot
- | LPAREN logical_expr RPAREN        # LogicalExpressionInParen
+ | WS* NOT logical_expr                  # LogicalExpressionNot
+ | WS* LPAREN logical_expr RPAREN WS*       # LogicalExpressionInParen
  | logical_entity                    # LogicalExpressionEntity
  ;
 
@@ -194,9 +195,9 @@ logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 assign_expr
  : WS* IDENTIFIER WS* ASSIGN expression   # ExprAssign
  | WS* IDENTIFIER WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ASSIGN expression # ExprArrayAssign
- | variable_entity MUL_ASSIGN expression   # ExprMulAssign
- | variable_entity DIV_ASSIGN expression   # ExprDivAssign
- | variable_entity REM_ASSIGN expression   # ExprRemAssign
- | variable_entity ADD_ASSIGN expression   # ExprAddAssign
- | variable_entity SUB_ASSIGN expression   # ExprSubAssign
+ | WS* variable_entity WS* MUL_ASSIGN expression   # ExprMulAssign
+ | WS* variable_entity WS* DIV_ASSIGN expression   # ExprDivAssign
+ | WS* variable_entity WS* REM_ASSIGN expression   # ExprRemAssign
+ | WS* variable_entity WS* ADD_ASSIGN expression   # ExprAddAssign
+ | WS* variable_entity WS* SUB_ASSIGN expression   # ExprSubAssign
  ;
