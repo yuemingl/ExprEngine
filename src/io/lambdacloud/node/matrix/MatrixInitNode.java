@@ -57,9 +57,15 @@ public class MatrixInitNode extends ExprNode {
 		mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 		mg.visitInsn(DUP);
 
-		mg.visitLdcInsn(init.size());
-
 		//Get element type
+		if(init.size() == 0) {
+			mg.visitLdcInsn(0);
+			mg.visitLdcInsn(0);
+			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "(II)V", false);
+			return;
+		}
+		
+		mg.visitLdcInsn(init.size());
 		Type eleType = init.get(0).getType();
 		if (init.size() > 1) {
 			for (int i = 1; i < init.size(); i++)
