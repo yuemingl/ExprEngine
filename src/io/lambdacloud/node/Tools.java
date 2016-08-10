@@ -68,9 +68,9 @@ public class Tools {
 		} else {
 			int t1 = type1.getSort();
 			int t2 = type2.getSort();
-			if(t1 == Type.OBJECT && t2 == Type.OBJECT) {
+			if(t1 == Type.OBJECT || t2 == Type.OBJECT) {
 				return type1;
-			} else if(t1 == Type.ARRAY && t2 ==Type.ARRAY) {
+			} else if(t1 == Type.ARRAY || t2 ==Type.ARRAY) {
 				return type1;
 			} else if(t1 == Type.DOUBLE || t2 == Type.DOUBLE) {
 				return Type.getType(double.class);
