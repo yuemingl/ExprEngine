@@ -52,6 +52,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitTicToc(MatlabGrammarParser.TicTocContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code NArgIn}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNArgIn(MatlabGrammarParser.NArgInContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NArgIn}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNArgIn(MatlabGrammarParser.NArgInContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code FuncDef}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree

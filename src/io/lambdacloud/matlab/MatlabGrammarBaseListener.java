@@ -66,6 +66,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNArgIn(MatlabGrammarParser.NArgInContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNArgIn(MatlabGrammarParser.NArgInContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFuncDef(MatlabGrammarParser.FuncDefContext ctx) { }
 	/**
 	 * {@inheritDoc}
