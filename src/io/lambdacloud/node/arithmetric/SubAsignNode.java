@@ -24,8 +24,12 @@ public class SubAsignNode extends BinaryOp {
 		Type myType = this.getType();
 		left.genCode(mg); // load
 		right.genCode(mg);
-		mg.visitInsn(myType.getOpcode(Opcodes.ISUB));
-		mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
+		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "minusEquals", "(LJama/Matrix;)LJama/Matrix;", false);
+		} else {
+			mg.visitInsn(myType.getOpcode(Opcodes.ISUB));
+			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
+		}
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
