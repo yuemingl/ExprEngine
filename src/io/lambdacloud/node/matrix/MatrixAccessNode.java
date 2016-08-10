@@ -1,5 +1,7 @@
 package io.lambdacloud.node.matrix;
 
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+
 import java.util.ArrayList;
 import java.util.Deque;
 
@@ -8,15 +10,17 @@ import org.objectweb.asm.Type;
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import Jama.Matrix;
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.RangeNode;
+import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
-import io.lambdacloud.node.array.ArrayAccessNode.IndexPair;
-
-import static org.objectweb.asm.Opcodes.*;
 
 public class MatrixAccessNode extends ExprNode {
+	public static int INDEX_BASE = 1;
+	
 	public VariableNode var;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
@@ -52,11 +56,17 @@ public class MatrixAccessNode extends ExprNode {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		var.genCode(mg);
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException();
 		}
 		
+		if(this.indices.size() == 1 && null == this.indices.get(0).idxS) {
+			FuncCallNode func = new FuncCallNode(BytecodeSupport.class.getName(),"matToVec", false);
+			func.args.add(var);
+			func.genCode(mg);
+			return;
+		}
+		var.genCode(mg);
 		int type = 0x0;
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair ip = this.indices.get(i);
@@ -76,20 +86,36 @@ public class MatrixAccessNode extends ExprNode {
 					throw new RuntimeException();
 			} else {
 				if(ip.idxS instanceof RangeNode) {
+					if(INDEX_BASE == 1) {
+						((RangeNode)ip.idxS).INDEX_SHIFT=1;
+					}
 					if(i == 1) {
 						ip.idxS.genCode(mg);
+						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 						type |= 0x1;
 					} else if(i == 0) {
 						ip.idxS.genCode(mg);
+						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 						type |= 0x2;
 					} else
 						throw new RuntimeException();
 				} else {
 					ip.idxS.genCode(mg);
+					Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
+					if(INDEX_BASE == 1) {
+						mg.visitInsn(Opcodes.ICONST_1);
+						mg.visitInsn(Opcodes.ISUB);
+					}
 					if(null == ip.idxE) 
 						mg.visitInsn(Opcodes.DUP);
-					else
+					else {
 						ip.idxE.genCode(mg);
+						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
+						if(INDEX_BASE == 1) {
+							mg.visitInsn(Opcodes.ICONST_1);
+							mg.visitInsn(Opcodes.ISUB);
+						}
+					}
 				}
 			}
 		}
@@ -101,8 +127,6 @@ public class MatrixAccessNode extends ExprNode {
 			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(II[I)LJama/Matrix;", false);
 		else if(type == 0x3)
 			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "([I[I)LJama/Matrix;", false);
-			
-
 	}
 	
 	public Matrix test(Matrix A) {

@@ -14,6 +14,7 @@ public class RangeNode extends ExprNode {
 	public ExprNode end;
 	public ExprNode step;
 	public boolean includeEnd;
+	public int INDEX_SHIFT = 0;
 	
 	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
 		this.start = start;
@@ -30,13 +31,13 @@ public class RangeNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		String type2 = "(II)[I";
-		String type3 = "(III)[I";
+		String type2 = "(III)[I";
+		String type3 = "(IIII)[I";
 		Type retType = this.getType();
 		Type myType = retType.getElementType();
 		if(myType.getSort() == Type.DOUBLE) {
-			type2 = "(DD)[D";
-			type3 = "(DDD)[D";
+			type2 = "(DDI)[D";
+			type3 = "(DDDI)[D";
 		}
 		try {
 			if(start != null) {
@@ -45,6 +46,10 @@ public class RangeNode extends ExprNode {
 					Tools.insertConversionInsn(mg, start.getType(), myType);
 					end.genCode(mg);
 					Tools.insertConversionInsn(mg, end.getType(), myType);
+					if(INDEX_SHIFT == 0)
+						mg.visitInsn(Opcodes.ICONST_0);
+					else
+						mg.visitInsn(Opcodes.ICONST_1);
 					if(this.includeEnd)
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range2", 
 								type2, false);
@@ -58,6 +63,10 @@ public class RangeNode extends ExprNode {
 					Tools.insertConversionInsn(mg, step.getType(), myType);
 					end.genCode(mg);
 					Tools.insertConversionInsn(mg, end.getType(), myType);
+					if(INDEX_SHIFT == 0)
+						mg.visitInsn(Opcodes.ICONST_0);
+					else
+						mg.visitInsn(Opcodes.ICONST_1);
 					//handled [s,step,e] and [s,step,e)
 					if(this.includeEnd)
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range2", 
@@ -67,8 +76,12 @@ public class RangeNode extends ExprNode {
 								type3, false);				}
 			} else {
 				end.genCode(mg);
+				if(INDEX_SHIFT == 0)
+					mg.visitInsn(Opcodes.ICONST_0);
+				else
+					mg.visitInsn(Opcodes.ICONST_1);
 				mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
-						"(I)[I", false);
+						"(II)[I", false);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

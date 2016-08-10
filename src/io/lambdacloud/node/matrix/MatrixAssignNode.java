@@ -78,6 +78,9 @@ public class MatrixAssignNode extends ExprNode {
 						throw new RuntimeException();
 				} else {
 					if(ip.idxS instanceof RangeNode) {
+						if(MatrixAccessNode.INDEX_BASE == 1) {
+							((RangeNode)ip.idxS).INDEX_SHIFT=1;
+						}
 						if(i == 1) {
 							ip.idxS.genCode(mg);
 							type |= 0x1;
@@ -88,10 +91,19 @@ public class MatrixAssignNode extends ExprNode {
 							throw new RuntimeException();
 					} else {
 						ip.idxS.genCode(mg);
+						if(MatrixAccessNode.INDEX_BASE == 1) {
+							mg.visitInsn(Opcodes.ICONST_1);
+							mg.visitInsn(Opcodes.ISUB);
+						}
 						if(null == ip.idxE) 
 							mg.visitInsn(Opcodes.DUP);
-						else
+						else {
 							ip.idxE.genCode(mg);
+							if(MatrixAccessNode.INDEX_BASE == 1) {
+								mg.visitInsn(Opcodes.ICONST_1);
+								mg.visitInsn(Opcodes.ISUB);
+							}
+						}
 					}
 				}
 			}
