@@ -6,6 +6,7 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.BinaryOp;
 import io.lambdacloud.node.ExprNode;
+import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 
 public class DivAsignNode extends BinaryOp {
@@ -22,10 +23,19 @@ public class DivAsignNode extends BinaryOp {
 		VariableNode var = (VariableNode) left;
 
 		Type myType = this.getType();
-		left.genCode(mg); // load
+		left.genCode(mg);
+		Tools.insertConversionInsn(mg, left.getType(), myType);
 		right.genCode(mg);
-		mg.visitInsn(myType.getOpcode(Opcodes.IDIV));
-		mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
+		Tools.insertConversionInsn(mg, right.getType(), myType);
+		
+		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "solve", "(LJama/Matrix;)LJama/Matrix;", false);
+			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
+		} else {
+			mg.visitInsn(myType.getOpcode(Opcodes.IDIV));
+			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
+		}
+		
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
