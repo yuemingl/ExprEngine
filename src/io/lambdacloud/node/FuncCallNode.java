@@ -99,7 +99,10 @@ public class FuncCallNode extends ExprNode {
 			mg.visitInvokeDynamicInsn(this.methodName,
 					Type.getMethodDescriptor(retType, this.getParameterTypes()), bootstrapHandle, new Object[0]);
 			if(retType.getSort() != Type.VOID && this.isPopReturn) {
-				mg.visitInsn(Opcodes.POP);
+				if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
+					mg.visitInsn(Opcodes.POP2);
+				else
+					mg.visitInsn(Opcodes.POP);
 			}
 				
 		} else { // 
@@ -110,26 +113,37 @@ public class FuncCallNode extends ExprNode {
 				try {
 					c = Class.forName(fullClassName);
 					Method m = c.getMethod(methodName, this.getParameterClassTypes());
+					//Class<?>[] argTypes = m.getParameterTypes();
 					for (int i = args.size() - 1; i >= 0; i--) {
-						args.get(i).genCode(mg);
+						//auto type conversion
+						ExprNode arg = args.get(i);
+						arg.genCode(mg);
+						//Tools.insertConversionInsn(mg, arg.getType(), Type.getType(argTypes[i]));
 					}
 					mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
 							Type.getMethodDescriptor(m), false);
-					if(m.getReturnType() != void.class && this.isPopReturn) {
-						mg.visitInsn(Opcodes.POP);
+					Type retType = Type.getType(m.getReturnType());
+					if(retType.getSort() != Type.VOID && this.isPopReturn) {
+						if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
+							mg.visitInsn(Opcodes.POP2);
+						else
+							mg.visitInsn(Opcodes.POP);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
-				Type retTy = fnode.inferRetType(this.getParameterClassTypes());
+				Type retType = fnode.inferRetType(this.getParameterClassTypes());
 				for (int i = args.size() - 1; i >= 0; i--) {
 					args.get(i).genCode(mg);
 				}
 				mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
-						Type.getMethodDescriptor(retTy, this.getParameterTypes()), false);
-				if(retTy.getSort() != Type.VOID && this.isPopReturn) {
-					mg.visitInsn(Opcodes.POP);
+						Type.getMethodDescriptor(retType, this.getParameterTypes()), false);
+				if(retType.getSort() != Type.VOID && this.isPopReturn) {
+					if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
+						mg.visitInsn(Opcodes.POP2);
+					else
+						mg.visitInsn(Opcodes.POP);
 				}
 			}
 		}
