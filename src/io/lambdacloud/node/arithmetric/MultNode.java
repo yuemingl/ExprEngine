@@ -22,13 +22,31 @@ public class MultNode extends BinaryOp {
 
 	public void genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
-		left.genCode(mg);
-		Tools.insertConversionInsn(mg, left.getType(), myType);
-		right.genCode(mg);
-		Tools.insertConversionInsn(mg, right.getType(), myType);
+		Type lt = left.getType();
+		Type rt = right.getType();
 		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
-			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "times", "(LJama/Matrix;)LJama/Matrix;", false);
+			if(lt.getSort() == Type.OBJECT && rt.getSort() == Type.OBJECT) {
+				left.genCode(mg);
+				right.genCode(mg);
+				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "times", "(LJama/Matrix;)LJama/Matrix;", false);
+			} else if(lt.getSort() == Type.OBJECT) {
+				left.genCode(mg);
+				right.genCode(mg);
+				Tools.insertConversionInsn(mg, rt, Type.DOUBLE_TYPE);
+				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "times", "(D)LJama/Matrix;", false);
+			} else if(rt.getSort() == Type.OBJECT) {
+				right.genCode(mg);
+				left.genCode(mg);
+				Tools.insertConversionInsn(mg, lt, Type.DOUBLE_TYPE);
+				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "times", "(D)LJama/Matrix;", false);
+			} else {
+				throw new RuntimeException();
+			}
 		} else {
+			left.genCode(mg);
+			Tools.insertConversionInsn(mg, left.getType(), myType);
+			right.genCode(mg);
+			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IMUL));
 		}
 	}
