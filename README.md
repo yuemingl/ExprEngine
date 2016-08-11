@@ -140,7 +140,7 @@ myfun(10,100)
 myfun(10.1,100.1)
 ```
 #### Example 2
-This example shows how fast it can be reached for computing Fibonacci sequence at n=46. It takes about 2 minutes on Matlab R2016. However, it takes only 9 seconds for us. The experiment is conducted on a 2.2 GHz i7 CPU with Mac OS X Yosemite. 
+This example shows how fast it can be reached for computing Fibonacci sequence at n=46. It takes about 4 minutes on Matlab R2016. However, it takes only 9 seconds for us. The experiment is conducted on a 2.2 GHz i7 CPU with Mac OS X Yosemite. 
 ```matlab
 function r=fib(n)
   if n<=1
