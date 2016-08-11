@@ -1,5 +1,7 @@
 package io.lambdacloud.node.arithmetric;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -40,7 +42,18 @@ public class DivAsignNode extends BinaryOp {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
 		}
 	}
-
+	
+	
+	@Override
+	public Type getType(Deque<Object> stack) {
+		if(left.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()) ||
+			right.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()) ) {
+			return Type.getType(Jama.Matrix.class);
+		}
+		return Type.DOUBLE_TYPE;
+	}
+	
+	
 	public int test(int x, int y) {
 		x /= y * y;
 		return x;

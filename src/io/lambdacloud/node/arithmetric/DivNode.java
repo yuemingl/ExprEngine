@@ -1,5 +1,7 @@
 package io.lambdacloud.node.arithmetric;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -22,18 +24,24 @@ public class DivNode extends BinaryOp {
 
 	public void genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
+		left.genCode(mg);
+		Tools.insertConversionInsn(mg, left.getType(), myType);
+		right.genCode(mg);
+		Tools.insertConversionInsn(mg, right.getType(), myType);
 		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
-			right.genCode(mg);
-			Tools.insertConversionInsn(mg, right.getType(), myType);
-			left.genCode(mg);
-			Tools.insertConversionInsn(mg, left.getType(), myType);
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "solve", "(LJama/Matrix;)LJama/Matrix;", false);
 		} else {
-			left.genCode(mg);
-			Tools.insertConversionInsn(mg, left.getType(), myType);
-			right.genCode(mg);
-			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IDIV));
 		}
 	}
+	
+	@Override
+	public Type getType(Deque<Object> stack) {
+		if(left.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()) ||
+			right.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()) ) {
+			return Type.getType(Jama.Matrix.class);
+		}
+		return Type.DOUBLE_TYPE;
+	}
+
 }
