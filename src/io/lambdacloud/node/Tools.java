@@ -69,19 +69,21 @@ public class Tools {
 			int t1 = type1.getSort();
 			int t2 = type2.getSort();
 			if(t1 == Type.OBJECT || t2 == Type.OBJECT) {
-				return type1;
+				if(t1 == Type.OBJECT) return type1;
+				else return type2;
 			} else if(t1 == Type.ARRAY || t2 ==Type.ARRAY) {
-				return type1;
+				if(t1 == Type.ARRAY) return type1;
+				else return type2;
 			} else if(t1 == Type.DOUBLE || t2 == Type.DOUBLE) {
-				return Type.getType(double.class);
+				return Type.DOUBLE_TYPE;
 			} else if(t1 == Type.FLOAT || t2 == Type.FLOAT) {
-				return Type.getType(float.class);
+				return Type.FLOAT_TYPE;
 			} else if(t1 == Type.LONG || t2 == Type.LONG) {
-				return Type.getType(long.class);
+				return Type.LONG_TYPE;
 			} else if(t1 == Type.INT || t2 == Type.INT) {
-				return Type.getType(int.class);
+				return Type.INT_TYPE;
 			} else if(t1 == Type.BOOLEAN && t2 == Type.BOOLEAN) {
-				return Type.getType(boolean.class);
+				return Type.BOOLEAN_TYPE;
 			} else {
 				throw new RuntimeException("Cannot convert type "+type1+" and "+type2+"!");
 			}
