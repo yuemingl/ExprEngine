@@ -362,5 +362,13 @@ public class BytecodeSupport {
 		return r.transpose();
 	}
 	
+	public static Jama.Matrix plus(Jama.Matrix A, double d) {
+		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
+		return A.plus(r);
+	}
+	public static Jama.Matrix minus(Jama.Matrix A, double d) {
+		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
+		return A.minus(r);
+	}
 	
 }
