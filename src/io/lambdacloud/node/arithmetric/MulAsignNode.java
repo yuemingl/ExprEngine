@@ -3,6 +3,7 @@ package io.lambdacloud.node.arithmetric;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.BinaryOp;
 import io.lambdacloud.node.ExprNode;
@@ -13,6 +14,8 @@ public class MulAsignNode extends BinaryOp {
 	public MulAsignNode(VariableNode left, ExprNode right) {
 		this.left = left;
 		this.right = right;
+		
+		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
 	}
 
 	public String toString() {
@@ -22,26 +25,43 @@ public class MulAsignNode extends BinaryOp {
 	public void genCode(MethodGenHelper mg) {
 		VariableNode var = (VariableNode) left;
 		Type myType = this.getType();
+		Type lt = left.getType();
+		Type rt = right.getType();
+
 		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
-			if(right.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
-				left.genCode(mg); // load
+			if(lt.getSort() == Type.OBJECT && rt.getSort() == Type.OBJECT) {
+				left.genCode(mg);
 				right.genCode(mg);
 				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "times", "(LJama/Matrix;)LJama/Matrix;", false);
-				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
-			} else {
+			} else if(lt.getSort() == Type.OBJECT) {
 				left.genCode(mg); // load
 				right.genCode(mg);
 				Tools.insertConversionInsn(mg, right.getType(), Type.DOUBLE_TYPE);
 				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "timesEquals", "(D)LJama/Matrix;", false);
+			} else if(rt.getSort() == Type.OBJECT) {
+				right.genCode(mg);
+				left.genCode(mg);
+				Tools.insertConversionInsn(mg, lt, Type.DOUBLE_TYPE);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "times", "(LJama/Matrix;D)LJama/Matrix;", false);
+				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(rt.getDescriptor()));
+				
+				var.setType(myType); // Change the variable type here for later reference of the variable
+				
+			} else {
+				throw new RuntimeException();
 			}
 		} else {
-			left.genCode(mg); // load
+			left.genCode(mg);
+			Tools.insertConversionInsn(mg, left.getType(), myType);
 			right.genCode(mg);
+			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IMUL));
-			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.idxLVT);
+			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
+			
+			var.setType(myType); // Change the variable type here for later reference of the variable
 		}
 		if (genLoadInsn) {
-			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
+			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
 		}
 	}
 
