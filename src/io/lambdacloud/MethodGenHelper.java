@@ -1,5 +1,6 @@
 package io.lambdacloud;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -17,6 +18,7 @@ import io.lambdacloud.node.VariableNode;
 public class MethodGenHelper {
 	private MethodVisitor mv;
 	public Map<String, VariableNode> varMap;
+	private boolean isStatic = true;
 	private int idxLVTGen = 0;
 	
 	
@@ -29,35 +31,41 @@ public class MethodGenHelper {
 		this.varMap = varMap;
 	}
 
-	public void updateLVTIndex(boolean isStatic) {
-		idxLVTGen = 1;
-		if(isStatic) idxLVTGen = 0;
+	public void updateLVTIndex() {
+		if(isStatic) 
+			idxLVTGen = 0;
+		else 
+			idxLVTGen = 1;
 		for(Entry<String, VariableNode> e : varMap.entrySet()) {
 			if(e.getValue().isLocalVar()) continue;
 			VariableNode var = e.getValue();
-			var.idxLVT = idxLVTGen;
-			if(var.getType().getSort() == Type.DOUBLE)
-				idxLVTGen += 2;
-			else if(var.getType().getSort() == Type.LONG)
-			idxLVTGen += 2;
-//			else if(var.getType().getSort() == Type.OBJECT)
-//			idxLVTGen += 2; //64bit JVM
-			else
-				idxLVTGen++;
+			ArrayList<String> varTypes = var.getVarTypes();
+			for(String typeDesc : varTypes) {
+				var.setLVTIndex(typeDesc, idxLVTGen);
+				if(typeDesc.equals("D") || typeDesc.equals("J"))
+					idxLVTGen += 2;
+				else
+					idxLVTGen++;
+			}
 		}
 		for(Entry<String, VariableNode> e : varMap.entrySet()) {
 			if(e.getValue().isParameter()) continue;
 			VariableNode var = e.getValue();
-			var.idxLVT = idxLVTGen;
-			if(var.getType().getSort() == Type.DOUBLE)
-				idxLVTGen += 2;
-			else if(var.getType().getSort() == Type.LONG)
-			idxLVTGen += 2;
-//			else if(var.getType().getSort() == Type.OBJECT)
-//				idxLVTGen += 2; //64bit JVM
-			else
-				idxLVTGen++;
+			ArrayList<String> varTypes = var.getVarTypes();
+			for(String typeDesc : varTypes) {
+				var.setLVTIndex(typeDesc, idxLVTGen);
+				if(typeDesc.equals("D") || typeDesc.equals("J"))
+					idxLVTGen += 2;
+				else
+					idxLVTGen++;
+			}
 		}
+
+	}
+	
+	public void initLVTIndex(boolean isStatic) {
+		this.isStatic = isStatic;
+		updateLVTIndex();
 	}
 	
 	public void test() {
@@ -70,11 +78,12 @@ public class MethodGenHelper {
 	
 	public VariableNode newLocalVariable(String varName, Type type) {
 		VariableNode node = VariableNode.newLocalVar(varName, type);
-		node.idxLVT = this.idxLVTGen;
-		if(node.getType().getSort() == Type.DOUBLE)
-			this.idxLVTGen += 2;
+		String typeDesc = type.getDescriptor();
+		node.setLVTIndex(typeDesc, this.idxLVTGen);
+		if(typeDesc.equals("D") || typeDesc.equals("J"))
+			idxLVTGen += 2;
 		else
-			this.idxLVTGen++;
+			idxLVTGen++;
 		if(null != this.varMap.get(varName))
 			throw new RuntimeException("Local variable '"+varName+"' exist!");
 		this.varMap.put(varName, node);
