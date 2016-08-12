@@ -279,6 +279,10 @@ public class BytecodeSupport {
 		Jama.Matrix r = new Jama.Matrix(new double[]{m.getRowDimension(), m.getColumnDimension()},2).transpose();
 		return r;
 	}
+	public static Jama.Matrix size(double a) {
+		Jama.Matrix r = new Jama.Matrix(new double[]{1},1).transpose();
+		return r;
+	}
 	public static int length(Jama.Matrix m) {
 		return Math.max(m.getRowDimension(), m.getColumnDimension());
 	}
@@ -369,6 +373,49 @@ public class BytecodeSupport {
 	public static Jama.Matrix minus(Jama.Matrix A, double d) {
 		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
 		return A.minus(r);
+	}
+	public static Jama.Matrix times(Jama.Matrix A, double d) {
+		return A.times(d);
+	}
+	public static Jama.Matrix rem(Jama.Matrix A, Jama.Matrix B) {
+		double[][] r = new double[A.getRowDimension()][A.getColumnDimension()];
+		for(int i=r.length-1; i>=0; i--)
+			for(int j=r[0].length-1; j>=0; j--) {
+				r[i][j] = A.get(i, j)%B.get(i, j);
+			}
+		return new Jama.Matrix(r);
+	}
+	public static Jama.Matrix rem(Jama.Matrix A, double d) {
+		double[][] r = new double[A.getRowDimension()][A.getColumnDimension()];
+		for(int i=r.length-1; i>=0; i--)
+			for(int j=r[0].length-1; j>=0; j--) {
+				r[i][j] = A.get(i, j)%d;
+			}
+		return new Jama.Matrix(r);
+	}
+	public static Jama.Matrix rem(double d, Jama.Matrix A) {
+		double[][] r = new double[A.getRowDimension()][A.getColumnDimension()];
+		for(int i=r.length-1; i>=0; i--)
+			for(int j=r[0].length-1; j>=0; j--) {
+				r[i][j] = d%A.get(i, j);
+			}
+		return new Jama.Matrix(r);
+	}
+	public static double triu(double a) {
+		return 0;
+	}
+	public static Jama.Matrix eye(double a) {
+		return eye((int)a);
+	}
+	public static Jama.Matrix triu(Jama.Matrix A) {
+		double[][] data = A.getArrayCopy();
+		int n = A.getRowDimension();
+		for(int i=0; i<n; i++) {
+			for(int j=0; j<i; j++) {
+				data[i][j] = 0;
+			}
+		}
+		return new Jama.Matrix(data);
 	}
 	
 }
