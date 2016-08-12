@@ -234,9 +234,7 @@ C\b
 Gaussian Elimination
 ```matlab
 function GE(A)
-  sz=size(A);
-  m=sz(1,1);
-  n=sz(1,2);
+  [m,n]=size(A);
   U=A;
   for j=1:n-1
     U(j+1:n,j)=(1/U(j,j))*U(j+1:n,j);
