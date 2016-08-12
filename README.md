@@ -248,6 +248,16 @@ end
 
 GE([1 2 3; 4 5 6; 7 8 9]);
 ```
+```shell
+      1.00      0.00      0.00
+      4.00      1.00      0.00
+      7.00      2.00      1.00
+
+
+      1.00      2.00      3.00
+      0.00     -3.00     -6.00
+      0.00      0.00      0.00
+```
 #### More Matlab examples
 https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/test/TestMatlabEngine.java
 https://github.com/yuemingl/ExprEngine/tree/master/test_matlab
