@@ -158,6 +158,10 @@ public class FuncCallNode extends ExprNode {
 		
 		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
+			
+			//We need specify parameter types before inferring return type
+			fnode.setParamTypes(this.getParameterTypes());
+			
 			Type retType = fnode.inferRetType(stack, this.getParameterTypes());
 			stack.pop();
 			return retType;
@@ -196,13 +200,13 @@ public class FuncCallNode extends ExprNode {
 	}
 	
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
 		for(ExprNode arg : args) {
-			arg.fixType(stack);
+			arg.updateType(stack);
 		}
 		stack.pop();
 	}
