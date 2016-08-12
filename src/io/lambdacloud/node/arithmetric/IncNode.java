@@ -27,12 +27,12 @@ public class IncNode extends UnaryOp {
 			mg.visitInsn(Opcodes.DUP2);
 			mg.visitInsn(Opcodes.LCONST_1);
 			mg.visitInsn(Opcodes.LADD);
-			mg.visitVarInsn(Opcodes.LSTORE, var.idxLVT);
+			mg.visitVarInsn(Opcodes.LSTORE, var.getLVTIndex());
 		} else {
-			mg.visitIincInsn(var.idxLVT, 1);
+			mg.visitIincInsn(var.getLVTIndex(), 1);
 		}
 		if (genLoadInsn) {
-			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.idxLVT);
+			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex());
 		}
 	}
 
