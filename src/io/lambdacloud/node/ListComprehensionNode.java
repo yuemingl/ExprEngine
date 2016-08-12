@@ -203,13 +203,13 @@ public class ListComprehensionNode extends ExprNode {
 		}
 
 		@Override
-		public void fixType(Deque<Object> stack) {
+		public void updateType(Deque<Object> stack) {
 			//circle check
 			if(stack.contains(this)) 
 				return;
 			stack.push(this);
-			this.setNode.fixType(stack);
-			this.exprNode.fixType(stack);
+			this.setNode.updateType(stack);
+			this.exprNode.updateType(stack);
 			stack.pop();
 		}
 	}
@@ -275,13 +275,13 @@ public class ListComprehensionNode extends ExprNode {
 		}
 
 		@Override
-		public void fixType(Deque<Object> stack) {
+		public void updateType(Deque<Object> stack) {
 			//circle check
 			if(stack.contains(this)) 
 				return;
 			stack.push(this);
-			this.bodyExpr.fixType(stack);
-			this.condExpr.fixType(stack);
+			this.bodyExpr.updateType(stack);
+			this.condExpr.updateType(stack);
 			stack.pop();
 		}
 		
@@ -313,7 +313,7 @@ public class ListComprehensionNode extends ExprNode {
 		mg.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false);
 		mg.visitVarInsn(ASTORE, ret.idxLVT);
 		
-		//Gen code for 'forIf' by providing the return list 'ret'
+		//Gen code for 'for ... if ...' in list comprehension by providing the return list 'ret'
 		mg.retNodeTag = ret;
 		this.forNode.genCode(mg);
 		
@@ -358,12 +358,12 @@ public class ListComprehensionNode extends ExprNode {
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
-		this.forNode.fixType(stack);
+		this.forNode.updateType(stack);
 		stack.pop();
 	}
 }

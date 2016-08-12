@@ -79,13 +79,13 @@ public class ArrayNode extends ExprNode {
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
 		for (int i = init.size() - 1; i >= 0; i--) {
-			this.init.get(i).fixType(stack);
+			this.init.get(i).updateType(stack);
 		}
 		stack.pop();
 	}

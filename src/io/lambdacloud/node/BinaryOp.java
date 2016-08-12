@@ -30,13 +30,13 @@ public class BinaryOp extends ExprNode {
 	}
 	
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
-		left.fixType(stack);
-		right.fixType(stack);
+		left.updateType(stack);
+		right.updateType(stack);
 		stack.pop();
 	}
 }

@@ -141,17 +141,17 @@ public class RangeNode extends ExprNode {
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
 		if(null != this.start)
-			this.start.fixType(stack);
+			this.start.updateType(stack);
 		if(null != this.end)
-			this.end.fixType(stack);
+			this.end.updateType(stack);
 		if(null != this.step)
-			this.step.fixType(stack);
+			this.step.updateType(stack);
 		stack.pop();
 	}
 }

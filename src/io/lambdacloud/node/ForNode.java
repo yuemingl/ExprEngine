@@ -133,24 +133,24 @@ mv.visitInsn(IRETURN);
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
 
 		for(int i=init.size()-1; i>=0; i--) {
-			init.get(i).fixType(stack);
+			init.get(i).updateType(stack);
 		}
 		
 		for(int i=block.size()-1; i>=0; i--) {
-			block.get(i).fixType(stack);
+			block.get(i).updateType(stack);
 		}
 		
 		for(int i=inc.size()-1; i>=0; i--) {
-			inc.get(i).fixType(stack);
+			inc.get(i).updateType(stack);
 		}
-		cond.fixType(stack);
+		cond.updateType(stack);
 		
 		stack.pop();
 	}

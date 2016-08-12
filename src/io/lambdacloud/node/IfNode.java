@@ -194,18 +194,18 @@ mv.visitInsn(IRETURN);
 		throw new RuntimeException("Cannot infer type for if statement: "+this.toString());
 	}
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
-		this.condition.fixType(stack);
+		this.condition.updateType(stack);
 		for(ExprNode e : this.ifBlockExprs) {
-			e.fixType(stack);
+			e.updateType(stack);
 		}
 		if(null != this.elseBlockExprs) {
 			for(ExprNode e : this.elseBlockExprs) {
-				e.fixType(stack);
+				e.updateType(stack);
 			}
 		}
 		stack.pop();

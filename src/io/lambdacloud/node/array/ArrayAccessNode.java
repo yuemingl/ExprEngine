@@ -290,7 +290,7 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
@@ -299,8 +299,8 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 			IndexPair p = this.indices.get(i);
 			ExprNode idxS = p.idxS;
 			ExprNode idxE = p.idxE;
-			if(null != idxS) idxS.fixType(stack);
-			if(null != idxE) idxE.fixType(stack);
+			if(null != idxS) idxS.updateType(stack);
+			if(null != idxE) idxE.updateType(stack);
 		}
 		stack.pop();
 	}

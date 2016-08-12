@@ -438,7 +438,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 //				else
 //					index++;
 //			}
-			mg.updateLVTIndex(isStatic);
+			mg.initLVTIndex(isStatic);
 
 			
 			//Generate code for all the expressions

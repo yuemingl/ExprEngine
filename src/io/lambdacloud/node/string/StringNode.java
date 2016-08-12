@@ -39,6 +39,6 @@ public class StringNode extends ExprNode {
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 	}
 }
