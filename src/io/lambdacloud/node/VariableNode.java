@@ -52,7 +52,8 @@ public class VariableNode extends ExprNode {
 	
 	public void addValue(ExprNode val) {
 		this.valueList.add(val);
-		this.mapLVTIndex.put(val.getType().getDescriptor(), -1);
+		if(null != val.getType())
+			this.mapLVTIndex.put(val.getType().getDescriptor(), -1);
 		this.type = val.getType();
 	}
 	

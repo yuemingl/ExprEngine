@@ -7,6 +7,6 @@ function r=fib(n)
 end
 
 tic
-fib(46)
+fib(37)
 toc
 
