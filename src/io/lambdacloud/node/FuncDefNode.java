@@ -149,11 +149,11 @@ public class FuncDefNode extends ExprNode {
 	//this is introduced by fixing AssignNode 
 	public void fixBodyExprTypes() {
 		//
-//		// The type fix is based on localVarMap
-//		// for AssignNode
-//		for (int j = this.body.size() - 1; j >= 0; j--) {
-//			this.body.get(j).fixType();
-//		}
+		// The type fix is based on localVarMap
+		// for AssignNode
+		for (int j = this.body.size() - 1; j >= 0; j--) {
+			this.body.get(j).updateType();
+		}
 	}
 
 	public Type[] getParameterTypes() {
@@ -187,7 +187,7 @@ public class FuncDefNode extends ExprNode {
 			cgen.startMethod(access, name, methodDesc);
 			MethodVisitor mv = cgen.getMV();
 			MethodGenHelper mg = new MethodGenHelper(mv, funcVarMap);
-			mg.updateLVTIndex(true);
+			mg.initLVTIndex(true);
 			cgen.startCode();
 			this.generatedClasses.put(methodDesc, className);
 
@@ -203,12 +203,15 @@ public class FuncDefNode extends ExprNode {
 			Collections.sort(nodeList, new Comparator<VariableNode>() {
 				@Override
 				public int compare(VariableNode o1, VariableNode o2) {
-					return o1.idxLVT - o2.idxLVT;
+					return o1.getLVTIndex() - o2.getLVTIndex();
 				}
 			});
-			for (VariableNode var : nodeList) {
-				mg.visitLocalVariable(var.name, var.getType().getDescriptor(), null, cgen.labelStart, cgen.lableEnd,
-						var.idxLVT);
+			for(VariableNode var : nodeList) {
+				ArrayList<String> varTypes = var.getVarTypes();
+				for(String typeDesc : varTypes) {
+					mg.visitLocalVariable(var.getName(typeDesc), typeDesc,
+							null, cgen.labelStart, cgen.lableEnd, var.getLVTIndex(typeDesc));
+				}
 			}
 
 			mg.visitMaxs(-1, -1); // Auto generated
@@ -260,7 +263,11 @@ public class FuncDefNode extends ExprNode {
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//Do nothing
+	}
+	
+	public static void test(int a, int b) {
+		
 	}
 }
