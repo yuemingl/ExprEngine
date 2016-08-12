@@ -54,6 +54,19 @@ public class MatrixAccessNode extends ExprNode {
 		return var+sb.toString();
 	}
 
+	private boolean isAccessElement() {
+		if(this.indices.size() == 2) {
+			ExprNode idx1S = this.indices.get(0).idxS;
+			ExprNode idx1E = this.indices.get(0).idxE;
+			ExprNode idx2S = this.indices.get(1).idxS;
+			ExprNode idx2E = this.indices.get(1).idxE;
+			if(!(idx1S instanceof RangeNode) && null == idx1E &&
+				!(idx2S instanceof RangeNode) && null == idx2E ) {
+				return true;
+			}
+		}
+		return false;
+	}
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		if(this.indices.size() > 2) {
@@ -66,7 +79,27 @@ public class MatrixAccessNode extends ExprNode {
 			func.genCode(mg);
 			return;
 		}
+		
 		var.genCode(mg);
+
+		if(isAccessElement()) {
+			ExprNode idx1S = this.indices.get(1).idxS;
+			ExprNode idx2S = this.indices.get(0).idxS;
+			idx1S.genCode(mg);
+			Tools.insertConversionInsn(mg, idx1S.getType(), Type.INT_TYPE);
+			if(INDEX_BASE == 1) {
+				mg.visitInsn(Opcodes.ICONST_1);
+				mg.visitInsn(Opcodes.ISUB);
+			}
+			idx2S.genCode(mg);
+			Tools.insertConversionInsn(mg, idx2S.getType(), Type.INT_TYPE);
+			if(INDEX_BASE == 1) {
+				mg.visitInsn(Opcodes.ICONST_1);
+				mg.visitInsn(Opcodes.ISUB);
+			}
+			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
+			return;
+		}
 		int type = 0x0;
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair ip = this.indices.get(i);
@@ -110,7 +143,7 @@ public class MatrixAccessNode extends ExprNode {
 						mg.visitInsn(Opcodes.DUP);
 					else {
 						ip.idxE.genCode(mg);
-						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
+						Tools.insertConversionInsn(mg, ip.idxE.getType(), Type.INT_TYPE);
 						if(INDEX_BASE == 1) {
 							mg.visitInsn(Opcodes.ICONST_1);
 							mg.visitInsn(Opcodes.ISUB);
@@ -138,11 +171,14 @@ public class MatrixAccessNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		return Type.getType(Jama.Matrix.class);
+		if(this.isAccessElement())
+			return Type.DOUBLE_TYPE;
+		else
+			return Type.getType(Jama.Matrix.class);
 	}
 
 	@Override
-	public void fixType(Deque<Object> stack) {
+	public void updateType(Deque<Object> stack) {
 		//circle check
 		if(stack.contains(this)) 
 			return;
@@ -151,8 +187,8 @@ public class MatrixAccessNode extends ExprNode {
 			IndexPair p = this.indices.get(i);
 			ExprNode idxS = p.idxS;
 			ExprNode idxE = p.idxE;
-			if(null != idxS) idxS.fixType(stack);
-			if(null != idxE) idxE.fixType(stack);
+			if(null != idxS) idxS.updateType(stack);
+			if(null != idxE) idxE.updateType(stack);
 		}
 		stack.pop();
 	}
