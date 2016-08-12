@@ -202,20 +202,20 @@ public class Tools {
 		return Type.getType(arrayType.getDescriptor().substring(1));
 	}
 	
-	public static int getNextIndexLVT(Map<String, VariableNode> localVarMap, 
-			Map<String, VariableNode> paramMap, Type type) {
-		int idx = 0;
-		for(Entry<String, VariableNode> e : localVarMap.entrySet()) {
-			if(e.getValue().idxLVT > idx) idx = e.getValue().idxLVT;
-		}
-		for(Entry<String, VariableNode> e : paramMap.entrySet()) {
-			if(e.getValue().idxLVT > idx) idx = e.getValue().idxLVT;
-		}
-		if(type.getSort() == Type.DOUBLE)
-			return idx+2;
-		else
-			return idx+1;
-	}
+//	public static int getNextIndexLVT(Map<String, VariableNode> localVarMap, 
+//			Map<String, VariableNode> paramMap, Type type) {
+//		int idx = 0;
+//		for(Entry<String, VariableNode> e : localVarMap.entrySet()) {
+//			if(e.getValue().idxLVT > idx) idx = e.getValue().idxLVT;
+//		}
+//		for(Entry<String, VariableNode> e : paramMap.entrySet()) {
+//			if(e.getValue().idxLVT > idx) idx = e.getValue().idxLVT;
+//		}
+//		if(type.getSort() == Type.DOUBLE)
+//			return idx+2;
+//		else
+//			return idx+1;
+//	}
 	
 	public static double[] listToDoubleArray(List<Double> list) {
 		double[] ret = new double[list.size()];
