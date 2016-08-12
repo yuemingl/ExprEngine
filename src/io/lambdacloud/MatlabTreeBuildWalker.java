@@ -124,13 +124,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	public void printInfo() {
 		System.out.println("Parameters:");
 		for(VariableNode n : currentScope().varMap.values()) {
-			if(n.isParameter())
-				System.out.println(n.name+": "+n.getType().getDescriptor());
+			if(n.isParameter()) System.out.println(n.toString());
 		}
 		System.out.println("Local Variables:");
 		for(VariableNode n : currentScope().varMap.values()) {
-			if(n.isLocalVar())
-				System.out.println(n.name+": "+n.getType().getDescriptor());
+			if(n.isLocalVar()) System.out.println(n.toString());
 		}
 	}
 	
@@ -144,7 +142,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		
@@ -154,13 +152,13 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			
 			//Fix parameter types according the passed in types
 			if(null == mapParameterTypes)
-				throw new RuntimeException("Need parameter for variable: "+node.name);
-			Class<?> cls = mapParameterTypes.get(node.name);
+				throw new RuntimeException("Need parameter for variable: "+node.getName());
+			Class<?> cls = mapParameterTypes.get(node.getName());
 			if(null == cls)
-				throw new RuntimeException("Need parameter for variable: "+node.name);
-			node.setType(Type.getType(mapParameterTypes.get(node.name)));
+				throw new RuntimeException("Need parameter for variable: "+node.getName());
+			node.setType(Type.getType(mapParameterTypes.get(node.getName())));
 			
-			ret[i] = Type.getType(mapParameterTypes.get(node.name));
+			ret[i] = Type.getType(mapParameterTypes.get(node.getName()));
 			
 			i++;
 		}
@@ -176,7 +174,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		
@@ -190,7 +188,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			
 			ret[i] = Type.getType(aryParameterTypes[i]);
 			
-			this.mapParameterTypes.put(node.name, aryParameterTypes[i]);
+			this.mapParameterTypes.put(node.getName(), aryParameterTypes[i]);
 			
 			i++;
 		}
@@ -206,7 +204,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		
@@ -237,7 +235,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		Class<?>[] ret = new Class<?>[pList.size()];
@@ -248,7 +246,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		} else {
 			int i = 0;
 			for(VariableNode node : pList) {
-				ret[i] = mapParameterTypes.get(node.name);
+				ret[i] = mapParameterTypes.get(node.getName());
 				
 				i++;
 			}
@@ -369,7 +367,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //				else
 //					index++;
 //			}
-			mg.updateLVTIndex(isStatic);
+			mg.initLVTIndex(isStatic);
 
 			
 			//Generate code for all the expressions
@@ -400,12 +398,15 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			Collections.sort(nodeList, new Comparator<VariableNode>() {
 				@Override
 				public int compare(VariableNode o1, VariableNode o2) {
-					return o1.idxLVT - o2.idxLVT;
+					return o1.getLVTIndex() - o2.getLVTIndex();
 				}
 			});
 			for(VariableNode var : nodeList) {
-				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
-						null, cgen.labelStart, cgen.lableEnd, var.idxLVT);
+				ArrayList<String> varTypes = var.getVarTypes();
+				for(String typeDesc : varTypes) {
+					mg.visitLocalVariable(var.getName(typeDesc), typeDesc,
+							null, cgen.labelStart, cgen.lableEnd, var.getLVTIndex(typeDesc));
+				}
 			}
 			
 			mg.visitMaxs(-1, -1); //Auto generated
@@ -983,7 +984,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		String varName = "__curTime__";
 		if(null != ctx.tic()) {
 			VariableNode var = VariableNode.newLocalVar(varName, Type.LONG_TYPE);
-			this.currentScope().varMap.put(var.name, var);
+			this.currentScope().varMap.put(var.getName(), var);
 			FuncCallNode funcCall = new FuncCallNode(System.class.getName(), "currentTimeMillis", false);
 			AssignNode a = new AssignNode(var, funcCall);
 			this.currentScope().stack.push(a);
