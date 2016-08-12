@@ -54,6 +54,7 @@ public class MatrixAssignNode extends ExprNode {
 
 		@Override
 		public void genCode(MethodGenHelper mg) {
+			Type myType = this.getType();
 			var.genCode(mg);
 			if(this.indices.size() > 2) {
 				throw new UnsupportedOperationException();
@@ -83,14 +84,17 @@ public class MatrixAssignNode extends ExprNode {
 						}
 						if(i == 1) {
 							ip.idxS.genCode(mg);
+							Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 							type |= 0x1;
 						} else if(i == 0) {
 							ip.idxS.genCode(mg);
+							Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 							type |= 0x2;
 						} else
 							throw new RuntimeException();
 					} else {
 						ip.idxS.genCode(mg);
+						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 						if(MatrixAccessNode.INDEX_BASE == 1) {
 							mg.visitInsn(Opcodes.ICONST_1);
 							mg.visitInsn(Opcodes.ISUB);
@@ -99,6 +103,7 @@ public class MatrixAssignNode extends ExprNode {
 							mg.visitInsn(Opcodes.DUP);
 						else {
 							ip.idxE.genCode(mg);
+							Tools.insertConversionInsn(mg, ip.idxE.getType(), Type.INT_TYPE);
 							if(MatrixAccessNode.INDEX_BASE == 1) {
 								mg.visitInsn(Opcodes.ICONST_1);
 								mg.visitInsn(Opcodes.ISUB);
@@ -107,7 +112,7 @@ public class MatrixAssignNode extends ExprNode {
 					}
 				}
 			}
-			if(this.value.getType().getDescriptor().equals("Jama/Matrix")) {
+			if(this.value.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
 				this.value.genCode(mg);
 				if(type == 0x0)
 					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "setMatrix", "(IIIILJama/Matrix;)V", false);
@@ -130,6 +135,9 @@ public class MatrixAssignNode extends ExprNode {
 				else if(type == 0x3)
 					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "setMatrix", "(LJama/Matrix;[I[ID)V", false);
 			}
+			if (genLoadInsn) {
+				mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+			}
 		}
 
 		@Override
@@ -138,6 +146,6 @@ public class MatrixAssignNode extends ExprNode {
 		}
 
 		@Override
-		public void fixType(Deque<Object> stack) {
+		public void updateType(Deque<Object> stack) {
 		}
 	}
