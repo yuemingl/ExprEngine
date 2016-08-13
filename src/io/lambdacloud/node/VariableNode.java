@@ -115,14 +115,24 @@ public class VariableNode extends ExprNode {
 
 	@Override
 	public void setType(Type type) {
+		if(null == type) {
+			this.type = null;
+			return;
+		}
 		//Clear the map for function parameter since arguments should be at the beginning of LVT with write type
 		//no other types are needed.
-		if(this.isParameter()) {
-			this.mapLVTIndex.clear();
-		}
 		Integer idx = this.mapLVTIndex.get(type.getDescriptor());
 		if(null == idx) {
+			if(this.isParameter()) {
+				this.mapLVTIndex.clear();
+			}
 			this.mapLVTIndex.put(type.getDescriptor(), -1);
+		} else {
+			if(this.isParameter()) {
+				this.mapLVTIndex.clear();
+				this.mapLVTIndex.put(type.getDescriptor(), idx);
+			}
+			
 		}
 		this.type = type;
 	}
