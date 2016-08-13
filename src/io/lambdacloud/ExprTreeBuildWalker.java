@@ -178,7 +178,10 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
 		
 		FuncDefNode fnode = funcMap.get(name);
-		fnode.setParamTypes(type.parameterArray());
+		
+		Deque<Object> stack = new LinkedList<Object>();
+		fnode.setParamTypes(stack, type.parameterArray());
+		
 		String tt = type.toMethodDescriptorString();
 		if(DEBUG)
 			System.out.println("bootstrap: "+fnode.getFuncClassName()+"."+name+":"+tt);
