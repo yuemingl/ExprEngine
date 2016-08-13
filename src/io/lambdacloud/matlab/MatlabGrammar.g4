@@ -191,6 +191,7 @@ logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 assign_expr
  : WS* IDENTIFIER WS* ASSIGN expression   # ExprAssign
  | WS* IDENTIFIER WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ASSIGN expression # ExprArrayAssign
+ | WS* LBRK WS* ( IDENTIFIER WS* (COMMA|WS+) WS* )* IDENTIFIER? WS* RBRK WS* ASSIGN expression # ExprMultiAssign
  | WS* variable_entity WS* MUL_ASSIGN expression   # ExprMulAssign
  | WS* variable_entity WS* DIV_ASSIGN expression   # ExprDivAssign
  | WS* variable_entity WS* REM_ASSIGN expression   # ExprRemAssign
