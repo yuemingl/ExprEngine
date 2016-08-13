@@ -234,9 +234,7 @@ C\b
 Gaussian Elimination
 ```matlab
 function GE(A)
-  sz=size(A);
-  m=sz(1,1);
-  n=sz(1,2);
+  [m,n]=size(A);
   U=A;
   for j=1:n-1
     U(j+1:n,j)=(1/U(j,j))*U(j+1:n,j);
@@ -249,6 +247,16 @@ function GE(A)
 end
 
 GE([1 2 3; 4 5 6; 7 8 9]);
+```
+```shell
+      1.00      0.00      0.00
+      4.00      1.00      0.00
+      7.00      2.00      1.00
+
+
+      1.00      2.00      3.00
+      0.00     -3.00     -6.00
+      0.00      0.00      0.00
 ```
 #### More Matlab examples
 https://github.com/yuemingl/ExprEngine/blob/master/src/io/lambdacloud/test/TestMatlabEngine.java
