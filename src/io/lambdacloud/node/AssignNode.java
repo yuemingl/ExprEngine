@@ -1,5 +1,8 @@
 package io.lambdacloud.node;
 
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+
+import java.util.ArrayList;
 import java.util.Deque;
 
 import org.objectweb.asm.Opcodes;
@@ -8,6 +11,7 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 
 public class AssignNode extends BinaryOp {
+	public ArrayList<VariableNode> multiAssignVars = new ArrayList<VariableNode>();
 
 	public AssignNode(VariableNode left, ExprNode right) {
 		//left.genLoadInsn(true);???
@@ -49,6 +53,17 @@ public class AssignNode extends BinaryOp {
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
 		}
+		if(multiAssignVars.size() > 0) {
+			for(int i=0; i<this.multiAssignVars.size(); i++) {
+				VariableNode v =  this.multiAssignVars.get(i);
+				v.setType(Type.DOUBLE_TYPE);
+				mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+				mg.visitLdcInsn(0);
+				mg.visitLdcInsn(i);
+				mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
+				mg.visitIntInsn(Type.DOUBLE_TYPE.getOpcode(Opcodes.ISTORE), v.getLVTIndex(Type.DOUBLE_TYPE.getDescriptor()));
+			}
+		}
 	}
 	
 	@Override
@@ -73,6 +88,11 @@ public class AssignNode extends BinaryOp {
 		right.updateType(stack);
 		stack.pop();
 		
-		left.setType(right.getType());
+		if(null == right.getType(stack)) {
+			//throw new RuntimeException("Cannot get type for "+right);
+			left.setType(null);
+		} else {
+			left.setType(right.getType(stack));
+		}
 	}
 }
