@@ -60,6 +60,7 @@ public class MatrixAccessNode extends ExprNode {
 			ExprNode idx1E = this.indices.get(0).idxE;
 			ExprNode idx2S = this.indices.get(1).idxS;
 			ExprNode idx2E = this.indices.get(1).idxE;
+			if(null == idx1S  || null == idx2S) return false;
 			if(!(idx1S instanceof RangeNode) && null == idx1E &&
 				!(idx2S instanceof RangeNode) && null == idx2E ) {
 				return true;
