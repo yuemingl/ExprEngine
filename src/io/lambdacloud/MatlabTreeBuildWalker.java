@@ -478,7 +478,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new ConstantNode(ctx.getText(), Type.DOUBLE_TYPE));
 	}
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) {
-		//System.out.println(ctx.getText());
+		//System.out.println("exitArray_init:"+ctx.getText());
 		
 		if(null == ctx.ai_list()) {
 			//empty matrix
@@ -1108,6 +1108,50 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		fnode.args.add(pow);
 		fnode.args.add(base);
 		currentScope().stack.push(fnode);
+	}
+	
+	@Override public void exitExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx) {
+		//System.out.println("exitExprMulAssign: "+ctx.getText());
+		String tmpVarName = "";
+		ArrayList<VariableNode> multiAssignVars = new ArrayList<VariableNode>();
+		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
+			String varName = ctx.IDENTIFIER(i).getText();
+			tmpVarName += "_"+varName;
+			VariableNode varNode = currentScope().varMap.get(varName);
+			if(null == varNode) {
+				if(null != this.mapParameterTypes) {
+					Class<?> varCls = this.mapParameterTypes.get(varName);
+					if(null != varCls)
+						varNode = VariableNode.newParameter(varName, Type.getType(varCls));
+					else
+						varNode = VariableNode.newLocalVar(varName, Type.getType(double.class));
+						//throw new RuntimeException("No type info provied for '"+varName+"'!");
+					
+				} else if(null != this.defaultParameterTypeOrInterface) {
+					//default to double
+					if(this.defaultParameterTypeOrInterface.isInterface()) {
+						//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+						//TODO need better solution
+						varNode = VariableNode.newParameter(varName, Type.getType(double.class));
+					} else {
+						varNode = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
+					}
+				} else {
+					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+					//TODO need better solution
+					varNode = VariableNode.newLocalVar(varName, Type.getType(double.class));
+				}
+				currentScope().varMap.put(varName, varNode);
+			}
+			multiAssignVars.add(varNode);
+		}
+		ExprNode value = this.currentScope().stack.pop();
+		VariableNode tmpVar = VariableNode.newLocalVar(tmpVarName, value.getType());
+		this.currentScope().varMap.put(tmpVarName, tmpVar);
+		AssignNode an = new AssignNode(tmpVar, value);
+		an.multiAssignVars.addAll(multiAssignVars);
+		this.currentScope().stack.push(an);
+		
 	}
 	
 }
