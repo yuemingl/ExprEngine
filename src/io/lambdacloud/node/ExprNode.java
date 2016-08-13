@@ -57,10 +57,10 @@ public abstract class ExprNode {
 		this.genLoadInsn = flag;
 	}
 
-	public void updateType() {
-		Deque<Object> stack = new LinkedList<Object>();
-		updateType(stack);
-	}
+//	public void updateType() {
+//		Deque<Object> stack = new LinkedList<Object>();
+//		updateType(stack);
+//	}
 
 	public abstract void updateType(Deque<Object> stack);
 

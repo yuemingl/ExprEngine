@@ -43,7 +43,7 @@ public class FuncDefNode extends ExprNode {
 		seq.getAndIncrement();
 	}
 
-	public Map<String, Type> setParamTypes(Type[] paramTypes) {
+	public Map<String, Type> setParamTypes(Deque<Object> stack, Type[] paramTypes) {
 		if (this.paramNames.size() != paramTypes.length) {
 			throw new RuntimeException("Wrong parameter types!");
 		}
@@ -59,7 +59,7 @@ public class FuncDefNode extends ExprNode {
 						"Parameter " + paramNode.toString() + " of " + this.name + " is not marked as parameter type!");
 			}
 		}
-		fixBodyExprTypes();
+		fixBodyExprTypes(stack);
 		return oldType;
 
 	}
@@ -68,12 +68,12 @@ public class FuncDefNode extends ExprNode {
 	 * @param paramTypes
 	 * @return old types
 	 */
-	public Map<String, Type> setParamTypes(Class<?>[] paramClassTypes) {
+	public Map<String, Type> setParamTypes(Deque<Object> stack, Class<?>[] paramClassTypes) {
 		Type[] paramTypes = new Type[paramClassTypes.length];
 		for (int i = 0; i < paramTypes.length; i++) {
 			paramTypes[i] = Type.getType(paramClassTypes[i]);
 		}
-		return this.setParamTypes(paramTypes);
+		return this.setParamTypes(stack, paramTypes);
 	}
 
 	public static void main(String[] args) {
@@ -100,7 +100,7 @@ public class FuncDefNode extends ExprNode {
 				e.getValue().setType(types.get(e.getKey()));
 			}
 		}
-		fixBodyExprTypes();
+		fixBodyExprTypes(stack);
 		return oldType;
 	}
 
@@ -126,7 +126,7 @@ public class FuncDefNode extends ExprNode {
 			return null;
 		stack.push(this);
 
-		Map<String, Type> oldType = this.setParamTypes(paramClassTypes);
+		Map<String, Type> oldType = this.setParamTypes(stack, paramClassTypes);
 		// getAndFixParameterTypes(stack);
 
 		for (int i = 0; i < this.body.size(); i++) {
@@ -134,11 +134,10 @@ public class FuncDefNode extends ExprNode {
 			Type retType = node.getType(stack);
 			if (null != retType) {
 
-				stack.pop();
-
 				this.setParamTypes(stack, oldType);
 				// getAndFixParameterTypes(stack);
 
+				stack.pop();
 				return retType;
 			}
 		}
@@ -147,12 +146,12 @@ public class FuncDefNode extends ExprNode {
 	}
 
 	//this is introduced by fixing AssignNode 
-	public void fixBodyExprTypes() {
+	public void fixBodyExprTypes(Deque<Object> stack) {
 		//
 		// The type fix is based on localVarMap
 		// for AssignNode
 		for (int j = this.body.size() - 1; j >= 0; j--) {
-			this.body.get(j).updateType();
+			this.body.get(j).updateType(stack);
 		}
 	}
 

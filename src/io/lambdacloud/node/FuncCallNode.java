@@ -160,7 +160,7 @@ public class FuncCallNode extends ExprNode {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
 			
 			//We need specify parameter types before inferring return type
-			fnode.setParamTypes(this.getParameterTypes());
+			fnode.setParamTypes(stack, this.getParameterTypes());
 			
 			Type retType = fnode.inferRetType(stack, this.getParameterTypes());
 			stack.pop();
