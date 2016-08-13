@@ -13,166 +13,175 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		//exec("if 1>2; 1+2; 2+2; elseif 2>3; 0+1; elseif 3>4; 1+2; else 2+3; 3/4; 5*7; end");
-		//exec("if 1>2; 1; elseif 1<2; 4; end");
+		exec("if 1>2; 1+2; 2+2; elseif 2>3; 0+1; elseif 3>4; 1+2; else 2+3; 3/4; 5*7; end");
+//		exec("if 1>2; 1; elseif 1<2; 4; end");
 
-//		exec("for i in 1:10; i end");
-//		exec("if n>1; 10 else -10 end", new int[]{2});
-//		exec("for i=1:3; for j=10:10:30; i+j end end");
+		exec("for i in 1:10; i end");
+		exec("if n>1; 10 else -10 end", new int[]{2});
+		exec("for i=1:3; for j=10:10:30; i+j end end");
 		
-//		exec("A=[1 2; 3 4]; A(1,:)=[100 200]; A");
-//		exec("A=[1 2; 3 4]; A(0,0)=[100]; A");
-//		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=[100 200 300; 111 222 333]; A");
+		exec("A=[1 2; 3 4]; A(1,:)=[100 200]; A");
+		exec("A=[1 2; 3 4]; A(1,1)=[100]; A");//???
+		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=[100 200 300; 111 222 333]; A");
 		
-//		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,:)=300; A");
-//		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(1,1)=300; A");
-//		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=300; A");
+		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,:)=300; A");
+		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(1,1)=300; A");
+		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=300; A");
 		
-//		exec("while i<10; i+=1; i end", new int[]{5});
-//		exec("5 % 3");
+		exec("while i<10; i+=1; i end", new int[]{5});
+		exec("5 % 3");
 		
-//		exec("if (i%2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
-//		exec("a=10; b=0; tic; while i<10; i+=1;  end toc; a\n b\n", new int[]{5});
-//	
-//		exec("a=10; b=0; tic; while i<10; i+=1; if i%2==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
-
-//		exec("A=[1 2; 3 4]; A+=[10 20; 30 40]; A");
-//		exec("a=1; a+=1; a");
-//		exec("A=[1 2; 3 4]; A-=[10 20; 30 40]; A");
-//		
-//		exec("A=[1 2; 3 4]; A*= 10; A");
-//		exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A");
-//		exec("A    =    [1 2; 3 4]; A    *=     10; A");
-//		exec("A = [1 2; 3 4]; A *= [1 2; 1 3]; A");
-		
-//		exec("math.sin(1.0)");
-//		exec("zeros(3,5)");
-//		exec("ones(3,5)");
-//		exec("eye(3,5)");
-//		exec("eye(5)");
-		
-//		exec("A = [1 2; 3 4]; A(1,1)");
+		exec("if (i%2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
+		exec("a=10; b=0; tic; while i<10; i+=1;  end toc; a\n b\n", new int[]{5});
 	
-//		exec(" A = [1 2; 1 -1]\n b=[5 -1]'\n A/=b; A");
-//		Jama.Matrix A = getMatrix(new double[][]{{1,2},{1,-1}});
-//		Jama.Matrix b = getMatrix(5,-1);
-//		A.print(8, 2);
-//		b.print(8, 2);
-//		A.solve(b).print(8, 2);
-		
-//		exec("A = [1 2; 3 4]; A(:)");
-//		exec("A = [1 2; 3 4; 5 6]; size(A)");
-//		exec("A = [1 2; 3 4]; length(A)");
-//
-//		exec("A = [1 2; 3 4]; A(1.0, 1)");
+		exec("a=10; b=0; tic; while i<10; i+=1; if i%2==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
 
-//		exec("A = [1 2; 3 4; 5 6]\n reshape(A,2,3)");
-//		exec("A = [1 3; 4 2]\n repmat(A,2,3)");
-//
-//		exec("A = [1 3; 4 2]; ones(A)");
-//		exec("A = [1 3; 4 2]; zeros(A)");
+		exec("A=[1 2; 3 4]; A+=[10 20; 30 40]; A");
+		exec("a=1; a+=1; a");
+		exec("A=[1 2; 3 4]; A-=[10 20; 30 40]; A");
 		
-//		exec("A = []; A\n length(A)\n numel(A)");
+		exec("A=[1 2; 3 4]; A*= 10; A");
+		exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A");
+		exec("A    =    [1 2; 3 4]; A    *=     10; A");
+		exec("A = [1 2; 3 4]; A *= [1 2; 1 3]; A");
 		
-//		exec("rand(3)");
-//		exec("rand(3,4)");
+		exec("math.sin(1.0)");
+		exec("zeros(3,5)");
+		exec("ones(3,5)");
+		exec("eye(3,5)");
+		exec("eye(5)");
 		
-//		exec("linspace(0,1,0.1)");
+		exec("A = [1 2; 3 4]; A(1,1)");
+	
+		exec(" A = [1 2; 1 -1]\n b=[5 -1]'\n A/=b; A");
+		Jama.Matrix A = getMatrix(new double[][]{{1,2},{1,-1}});
+		Jama.Matrix b = getMatrix(5,-1);
+		A.print(8, 2);
+		b.print(8, 2);
+		A.solve(b).print(8, 2);
+		
+		exec("A = [1 2; 3 4]; A(:)");
+		exec("A = [1 2; 3 4; 5 6]; size(A)");
+		exec("A = [1 2; 3 4]; length(A)");
+
+		exec("A = [1 2; 3 4]; A(1.0, 1)");
+
+		exec("A = [1 2; 3 4; 5 6]\n reshape(A,2,3)");
+		exec("A = [1 3; 4 2]\n repmat(A,2,3)");
+
+		exec("A = [1 3; 4 2]; ones(A)");
+		exec("A = [1 3; 4 2]; zeros(A)");
+		
+		exec("A = []; A\n length(A)\n numel(A)");
+		
+		exec("rand(3)");
+		exec("rand(3,4)");
+		
+		exec("linspace(0,1,0.1)");
 		
 		
 
 
-//		exec("function H = invhilb(n)\n H = zeros(n)\n end invhilb(3)");
-//		exec("4^2");
+		exec("function H = invhilb(n)\n H = zeros(n)\n end invhilb(3)");
+		exec("4^2");
 		
 		
-//		exec("r = -((n-j+1)*r*(n+j-1))/(j-1)^2; r", new double[]{1,2,3});
-		//test();
+		exec("r = -((n-j+1)*r*(n+j-1))/(j-1)^2; r", new double[]{1,2,3});
 		
 
 			
-//		exec("for i = 1:n; i end", new int[]{3});
-//		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1)^2; end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3});
-//		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1); end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3});
-//		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1)); end p = ((n-i)*p*(n+i))/i end", new int[]{3});
+		exec("for i = 1:n; i end", new int[]{3});
+		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1)^2; end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3});
+		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1); end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3});
+		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1)); end p = ((n-i)*p*(n+i))/i end", new int[]{3});
 		//exec("p=n; for i = 1:n; i^2  end", new int[]{3});
 		//exec("p=n; for i = 1:n; p^2; end", new int[]{3});
-//		exec("if n>1; p^2 else p end", new int[]{2,3});
-		
-//		exec("function H = invhilb(n); H=zeros(n); p = n; for i = 1:n; r = p*p;  p end r=0.0; p=0.0; end invhilb(3)");
+		exec("if n>1; p^2 else p end", new int[]{2,3});
+
+		exec("function H = invhilb(n); H=zeros(n); p = n; for i = 1:n; r = p*p;  p end r=0.0; p=0.0; end invhilb(3)");
 //java.lang.IllegalArgumentException: wrong number of arguments
 //		exec("-((n-j+1)*r*(n+j-1))/((j-1)*(j-1))",getMap("i",1,"j",2,"n",3,"r",9));
-//		exec("-((n-j+1)*r*(n+j-1))",getMap("j",2,"n",3,"r",9));
-//		exec("(n-j+1)*r*(n+j-1)",getMap("j",2,"n",3,"r",9));
-//		exec("r*(n+j-1)",getMap("j",2,"n",3,"r",9));
-//		exec("(n-j+1)*r",getMap("j",2,"n",3,"r",9));
+		exec("-((n-j+1)*r*(n+j-1))",getMap("j",2,"n",3,"r",9));
+		exec("(n-j+1)*r*(n+j-1)",getMap("j",2,"n",3,"r",9));
+		exec("r*(n+j-1)",getMap("j",2,"n",3,"r",9));
+		exec("(n-j+1)*r",getMap("j",2,"n",3,"r",9));
 		
-//		exec("n-j+1",getMap("j",2,"n",3)); //n-(j+1)???
-//		exec("n+j-1",getMap("j",2,"n",3)); //n-(j+1)???
-//		exec("n/j*2",getMap("j",2,"n",3)); //n-(j+1)???
-//		exec("(n/j)*2",getMap("j",2,"n",3)); //n-(j+1)???
+		exec("n-j+1",getMap("j",2,"n",3)); //n-(j+1)???
+		exec("n+j-1",getMap("j",2,"n",3)); //n-(j+1)???
+		exec("n/j*2",getMap("j",2,"n",3)); //n-(j+1)???
+		exec("(n/j)*2",getMap("j",2,"n",3)); //n-(j+1)???
 		
 		
-//		exec("((j-1)*(j-1))",getMap("j",2));
+		exec("((j-1)*(j-1))",getMap("j",2));
 		//exec("-((n-j+1)*r*(n+j-1))/((j-1)*(j-1))",getMap("j",2,"n",3,"r",9));
 		
 		
-//		exec("3*[1 2;3 4]");
-//		exec("[1 2;3 4]*3");
-//		exec("[1 2;3 4]*[1 2;3 4]");
+		exec("3*[1 2;3 4]");
+		exec("[1 2;3 4]*3");
+		exec("[1 2;3 4]*[1 2;3 4]");
 		
-//		exec("3+[1 2;3 4]");
-//		exec("[1 2;3 4]+3");
-//		exec("[1 2;3 4]+[1 2;3 4]");
+		exec("3+[1 2;3 4]");
+		exec("[1 2;3 4]+3");
+		exec("[1 2;3 4]+[1 2;3 4]");
 		
-//		exec("3-[1 2;3 4]");
-//		exec("[1 2;3 4]-3");
-//		exec("[1 2;3 4]-[1 2;3 4]");
+		exec("3-[1 2;3 4]");
+		exec("[1 2;3 4]-3");
+		exec("[1 2;3 4]-[1 2;3 4]");
 		
-//		exec("a=1; a=1.1; a");
-//		exec("a=1; a=a+1.1; a");
-//		exec("a=1; a=a+1.1; a=2; a");
+		exec("a=1; a=1.1; a");
+		exec("a=1; a=a+1.1; a");
+		exec("a=1; a=a+1.1; a=2; a");
 		
-//		exec("a=[1 2;3 4]; a+=1; a");
-//		exec("a=1; a+=[1 2;3 4]; a");
-//		exec("a=1; a+=[1 2;3 4]; a=1.0; a");
+		exec("a=[1 2;3 4]; a+=1; a");
+		exec("a=1; a+=[1 2;3 4]; a");
+		exec("a=1; a+=[1 2;3 4]; a=1.0; a");
 		
-//		exec("a=[1 2;3 4]; a*=2; a");
-//		exec("a=2; a*=[1 2;3 4]; a");
-//		exec("a=2; a*=[1 2;3 4]; a=1.0; a");
+		exec("a=[1 2;3 4]; a*=2; a");
+		exec("a=2; a*=[1 2;3 4]; a");
+		exec("a=2; a*=[1 2;3 4]; a=1.0; a");
 
-//		exec("a=[1 2;3 4]; a-=1; a");
-//		exec("a=1; a-=[1 2;3 4]; a");
-//		exec("a=1; a-=[1 2;3 4]; a=1.0; a");
+		exec("a=[1 2;3 4]; a-=1; a");
+		exec("a=1; a-=[1 2;3 4]; a");
+		exec("a=1; a-=[1 2;3 4]; a=1.0; a");
 		
-//		exec("a=[1 2;3 4]; a%=2; a");
-//		exec("a=2; a%=[1 2;3 4]; a");
-//		exec("a=2; a%=[1 2;3 4]; a=1.0; a");
+		exec("a=[1 2;3 4]; a%=2; a");
+		exec("a=2; a%=[1 2;3 4]; a");
+		exec("a=2; a%=[1 2;3 4]; a=1.0; a");
 		
-//		exec("a=1; a+=1.5; a");
-//		exec("a=1; a-=1.5; a");
-//		exec("a=1; a*=1.5; a");
-//		exec("a=1; a/=1.5; a");
+		exec("a=1; a+=1.5; a");
+		exec("a=1; a-=1.5; a");
+		exec("a=1; a*=1.5; a");
+		exec("a=1; a/=1.5; a");
 		
-//		exec("[1 2;3 4] % 3");
-//		exec("[1 2;3 4]%[5 6 ;7 8]");
-//		exec("2%[1 2;3 4]");
+		exec("[1 2;3 4] % 3");
+		exec("[1 2;3 4]%[5 6 ;7 8]");
+		exec("2%[1 2;3 4]");
 		
-//		exec("A=[1 2; 3 4]; sz=size(A); m=sz(1,1); n=sz(1,2); m");
+		exec("A=[1 2; 3 4]; sz=size(A); m=sz(1,1); n=sz(1,2); m");
 		
-//		exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2) end A=[1 2; 3 4]; GE(A)");
+		exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2) end A=[1 2; 3 4]; GE(A)");
 		
-//		exec("A=[1 2 3; 4 5 6;  7 8 9]; triu(A)");
+		exec("A=[1 2 3; 4 5 6;  7 8 9]; triu(A)");
 
 		
 		
-//		exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2); U=triu(A)\n m\n n\n end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
-//		exec("function GE(A); U=A; U end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
-//		exec("function U = GE(A); U=triu(A); end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
-//		exec("A=[1 2 3; 4 5 6; 7 8 9]; for i=1:3; A(1:3,i) end");
-//		exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3.0,1)");
+		exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2); U=triu(A)\n m\n n\n end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
+		exec("function GE(A); U=A; U end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
+		exec("function U = GE(A); U=triu(A); end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
+		exec("A=[1 2 3; 4 5 6; 7 8 9]; for i=1:3; A(1:3,i) end");
+		exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3.0,1)");
 		exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3,1)=2*A(1:3,1)");
 		
+		
+//		assertEqual(exec("function r=fib(n)\n  r=fib(n-1); end\n fib(42)"),433494437);
+		
+		exec("A=[1 2; 3 4]; S=[1 2]; S\n S=size(A)");
+		exec("A=[1 2; 3 4]; S=[1 2]; S\n S(1,:)=size(A)");
+
+		exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n");
+		exec("A=[1 2  3; 4 5 6]; [m, n]=size(A); m\n n\n");
+		exec("[m n]=[1 2]; m\n n\n");
+
 		test();
 	}
 	
@@ -184,10 +193,20 @@ public class TestMatlabEngine {
 		Matrix B = new Matrix(array2);
 		Matrix C = new Matrix(array3);
 		Matrix b = Matrix.random(3,1); //column vector
+		Matrix A1 = A.getMatrix(0,2,1,2);
+		Matrix A2 = A.getMatrix(1,2,1,2);
+		Matrix B1 = B.getMatrix(0,2,1,2);
+		Matrix B2 = B.getMatrix(1,2,1,2);
 
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
 		Matrix d = getMatrix(3,4); //column vector
+		
+		assertEqual(exec("C(   :  , :  )", getMap("C",C)), C);
+		
+		assertEqual(exec("A(1:3,2:3)+B(1:3,2:3)",  getMap("A",A,"B",B)), A1.plus(B1));
+
+		
 		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
 
 		assertEqual(exec("-A",    getMap("A",A)),       A.uminus());
@@ -332,14 +351,14 @@ public class TestMatlabEngine {
 		assertEqual(exec("function c = myfun(a, b)\nc=a+b\nend\nmyfun(10,100)"),110);
 	
 		if(MatrixAccessNode.INDEX_BASE == 1) {
-			assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), getMatrix(4));
-			assertEqual(exec("a=[1 2; 3 4];  a(2, 2)"), getMatrix(4));
-			assertEqual(exec("a=[1 2; 3 4];  a(2,2)"), getMatrix(4));
+			assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), 4.0);
+			assertEqual(exec("a=[1 2; 3 4];  a(2, 2)"), 4.0);
+			assertEqual(exec("a=[1 2; 3 4];  a(2,2)"), 4.0);
 		} else {
 //			myPrint(exec("fun(1, 1)"));
-			assertEqual(exec("a=[1, 2; 3, 4];  a(1, 1)"), getMatrix(4));
-			assertEqual(exec("a=[1 2; 3 4];  a(1, 1)"), getMatrix(4));
-			assertEqual(exec("a=[1 2; 3 4];  a(1,1)"), getMatrix(4));
+			assertEqual(exec("a=[1, 2; 3, 4];  a(1, 1)"), 4.0);
+			assertEqual(exec("a=[1 2; 3 4];  a(1, 1)"), 4.0);
+			assertEqual(exec("a=[1 2; 3 4];  a(1,1)"), 4.0);
 		}
 		
 		
@@ -348,10 +367,6 @@ public class TestMatlabEngine {
 		assertEqual(exec("A=[1 2; 3 4];  B=[10 20; 30 40]; A+B"), M.plus(N));
 		assertEqual(exec("A=  [1 2; 3 4]; A +  [10 20; 30 40]  ;  "), M.plus(N));
 
-		Matrix A1 = A.getMatrix(0,2,1,2);
-		Matrix A2 = A.getMatrix(1,2,1,2);
-		Matrix B1 = B.getMatrix(0,2,1,2);
-		Matrix B2 = B.getMatrix(1,2,1,2);
 		if(MatrixAccessNode.INDEX_BASE == 1) {
 			assertEqual(exec("A(1:3,2:3)+B(1:3,2:3)",  getMap("A",A,"B",B)), A1.plus(B1));
 			assertEqual(exec("A(2:3,2:3)-B(2:3,2:3)",  getMap("A",A,"B",B)), A2.minus(B2));

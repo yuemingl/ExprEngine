@@ -407,6 +407,9 @@ public class BytecodeSupport {
 	public static Jama.Matrix eye(double a) {
 		return eye((int)a);
 	}
+	public static Jama.Matrix zeros(double a) {
+		return zeros((int)a);
+	}
 	public static Jama.Matrix triu(Jama.Matrix A) {
 		double[][] data = A.getArrayCopy();
 		int n = A.getRowDimension();
