@@ -614,6 +614,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprMultiAssign}
+	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprMultiAssign}
+	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ExprMulAssign}
 	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
 	 * @param ctx the parse tree

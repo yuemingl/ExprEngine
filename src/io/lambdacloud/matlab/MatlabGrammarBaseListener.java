@@ -654,6 +654,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExprMulAssign(MatlabGrammarParser.ExprMulAssignContext ctx) { }
 	/**
 	 * {@inheritDoc}
