@@ -26,9 +26,14 @@ public class BytecodeSupport {
 	public static void print(boolean o) {
 		System.out.print(o);
 	}
+	public static void print() {
+	}
 	
 	
 	//------------------
+	public static void println() {
+	}
+	
 	public static Object println(Object o) {
 		if(o instanceof double[]) {
 			double[] a = (double[])o;
@@ -52,7 +57,20 @@ public class BytecodeSupport {
 	}
 
 	public static Jama.Matrix println(Jama.Matrix o) {
-		o.print(8, 2);
+		if(null != o) {
+			o.print(8, 2);
+		}
+		return o;
+	}
+	
+	public static Jama.Matrix[] println(Jama.Matrix[] o) {
+		System.out.print("[");
+		for(Jama.Matrix m : o) {
+			if(null != m) {
+				m.print(8, 2);
+			}
+		}
+		System.out.print("]");
 		return o;
 	}
 	
@@ -421,4 +439,45 @@ public class BytecodeSupport {
 		return new Jama.Matrix(data);
 	}
 	
+	public static void disp(String s) {
+		System.out.println(s);
+	}
+	
+	//////////////////////
+	
+	public static double floor(double x) {
+		return Math.floor(x);
+	}
+	public static double ceil(double x) {
+		return Math.ceil(x);
+	}
+	public static long round(double x) {
+		return Math.round(x);
+	}
+	public static double fix(double x) {
+		if(x > 0)
+			return Math.floor(x);
+		else
+			return Math.ceil(x);
+	}
+	public static double rem(double x, double y) {
+		if(y == 0.0) return Double.NaN;;
+		return x % y;
+	}
+	public static double mod(double x, double y) {
+		if(y == 0.0) return x;
+		return x % y;
+	}
+	public static double mod(int x, int y) {
+		if(y == 0.0) return x;
+		return x % y;
+	}
+	public static double mod(double x, int y) {
+		if(y == 0.0) return x;
+		return x % y;
+	}
+	public static double mod(int x, double y) {
+		if(y == 0.0) return x;
+		return x % y;
+	}
 }
