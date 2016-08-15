@@ -138,6 +138,14 @@ public class Tools {
 		return null;
 	}
 	
+	public static Class<?> getJamaMatrixClass(int dim) {
+		if(dim == 0) return Jama.Matrix.class;
+		else if(dim == 1) return Jama.Matrix[].class;
+		else if(dim == 2) return Jama.Matrix[][].class;
+		else if(dim == 3) return Jama.Matrix[][][].class;
+		return null;
+	}
+	
 	public static Class<?> typeToClass(Type t) {
 		return typeToClass(t, 0);
 	}
@@ -160,7 +168,13 @@ public class Tools {
 			return byte.class;
 		case Type.OBJECT:
 			try {
-				return Class.forName(t.getInternalName().replaceAll("/", "\\."));
+				if(t.getDescriptor().equals("LJama/Matrix;")) {
+					return getJamaMatrixClass(dim);
+				}
+				if(dim == 0)
+					return Class.forName(t.getInternalName().replaceAll("/", "\\."));
+				else
+					throw new RuntimeException();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -168,8 +182,10 @@ public class Tools {
 			//Type e = Tools.getElementType(t);
 			Type e = t.getElementType();
 			return typeToClass(e, dim+1);
+		case Type.VOID:
+			return void.class;
 		}
-		return null;
+		throw new RuntimeException("");
 	}
 	
 	public static Class<?> getPrimitiveClass(Class<?> c) {
