@@ -1,5 +1,7 @@
 package io.lambdacloud.node.arithmetric;
 
+import java.util.Deque;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -15,7 +17,7 @@ public class AddAsignNode extends BinaryOp {
 		this.left = left;
 		this.right = right;
 		
-		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
+//		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
 	}
 
 	public String toString() {
@@ -49,10 +51,10 @@ public class AddAsignNode extends BinaryOp {
 				left.genCode(mg);
 				Tools.insertConversionInsn(mg, lt, Type.DOUBLE_TYPE);
 				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "plus", "(LJama/Matrix;D)LJama/Matrix;", false);
-				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(rt.getDescriptor()));
-				
+
 				var.setType(myType); // Change the variable type here for later reference of the variable
-				
+				mg.updateLVTIndex();
+				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(rt.getDescriptor()));
 			} else {
 				throw new RuntimeException();
 			}
@@ -62,12 +64,31 @@ public class AddAsignNode extends BinaryOp {
 			right.genCode(mg);
 			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IADD));
+
+			var.setType(myType); // Change the variable type here for later reference of the variable
+			mg.updateLVTIndex();
 			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
 			
-			var.setType(myType); // Change the variable type here for later reference of the variable
 		}
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+		}
+	}
+
+	public void updateType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		left.updateType(stack);
+		right.updateType(stack);
+		stack.pop();
+		
+		if(null == this.getType(stack)) {
+			//throw new RuntimeException("Cannot get type for "+right);
+			left.setType(null);
+		} else {
+			left.setType(this.getType(stack));
 		}
 	}
 

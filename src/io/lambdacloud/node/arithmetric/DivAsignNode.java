@@ -16,7 +16,7 @@ public class DivAsignNode extends BinaryOp {
 		this.left = left;
 		this.right = right;
 
-		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
+////		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
 	}
 
 	public String toString() {
@@ -41,9 +41,10 @@ public class DivAsignNode extends BinaryOp {
 			right.genCode(mg);
 			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IDIV));
-			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
-			
+
 			var.setType(myType); // Change the variable type here for later reference of the variable
+			mg.updateLVTIndex();
+			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));			
 		}
 		
 		if (genLoadInsn) {
@@ -61,6 +62,22 @@ public class DivAsignNode extends BinaryOp {
 		return Type.DOUBLE_TYPE;
 	}
 	
+	public void updateType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		left.updateType(stack);
+		right.updateType(stack);
+		stack.pop();
+		
+		if(null == this.getType(stack)) {
+			//throw new RuntimeException("Cannot get type for "+right);
+			left.setType(null);
+		} else {
+			left.setType(this.getType(stack));
+		}
+	}
 	
 	public int test(int x, int y) {
 		x /= y * y;
