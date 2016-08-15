@@ -13,6 +13,72 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		exec("A = [1 2; 3 4; 5 6]; size(A)");
+
+		
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6 7 8]; end myfun()");
+		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
+
+		exec("[C D]=[2 3]; C\n D\n");
+		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [C D]=[A B]; C\n D\n [C D]=[2 3]; C\n D\n");
+		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [C D]=[A B]; C\n D\n");
+		
+		exec("a=1; b=2; c=3; d=4; [a b; c d]");
+		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B]");
+		
+		Jama.Matrix[] o = (Jama.Matrix[])exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
+		for(Jama.Matrix m : o) m.print(8, 2);
+		
+		exec("% aaa\n 3%4");
+		exec("mod(3.0, 0.0)");
+		exec("rem(3.0, 0.0)");
+		exec("floor(1.1)");
+		exec("ceil(1.1)");
+		exec("fix(1.1)");
+		exec("round(1.1)");
+		exec("floor(-1.1)");
+		exec("ceil(-1.1)");
+		exec("fix(-1.1)");
+		exec("round(-1.1)");
+	
+		exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)");
+		exec("function a=fun(x), if x<0, return end a=x*x; end fun(-1)");
+		exec("function a=fun(x), if x<0, return end a=x*[1 2; 3 4]; end fun(1)");
+		exec("function a=fun(x), if x<0, return end a=x*[1 2; 3 4]; end fun(-1)");
+
+		exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(1)");
+		exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(6)");
+		//exec("function fun(a) b=a+2; return 1; end fun(1);");
+		
+		test2();
+		test();
+//	
+	}
+	public static void test2(){
+		exec("'aaa'");
+		exec("'aaa'+'bbbb'");
+		
+		exec("disp('GE: A must be a square matrix');");
+
+		exec(" 1~=2 ");
+		exec("if 1~=2, 3 end");
+		exec("for i in 1:3, i end");
+
+		
+		exec("a=[1 2;3 4]; a+=1; a");
+		
+//		exec("function myfun(n); a=n; a+=1.5; a=3; a end myfun(3)");
+//		exec("function myfun(n); R=zeros(n); R end myfun(3)");
+//		exec("function myfun(n); R=zeros(n); R end myfun(3.5)");
+		
+		//VariableNode.mapLVTIndex is set at constructor
+		exec("a=1; a=2L; a=1.1; a");
+		
+		exec("A=[1 2; 3 4]; A*= 10; A");
+		
+
+	//	if(true) return;
+		
 		exec("if 1>2; 1+2; 2+2; elseif 2>3; 0+1; elseif 3>4; 1+2; else 2+3; 3/4; 5*7; end");
 //		exec("if 1>2; 1; elseif 1<2; 4; end");
 
@@ -31,10 +97,12 @@ public class TestMatlabEngine {
 		exec("while i<10; i+=1; i end", new int[]{5});
 		exec("5 % 3");
 		
-		exec("if (i%2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
+//		exec("if (i%2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
+		exec("if mod(i,2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
 		exec("a=10; b=0; tic; while i<10; i+=1;  end toc; a\n b\n", new int[]{5});
 	
-		exec("a=10; b=0; tic; while i<10; i+=1; if i%2==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
+//		exec("a=10; b=0; tic; while i<10; i+=1; if i%2==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
+		exec("a=10; b=0; tic; while i<10; i+=1; if mod(i,2)==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
 
 		exec("A=[1 2; 3 4]; A+=[10 20; 30 40]; A");
 		exec("a=1; a+=1; a");
@@ -182,7 +250,6 @@ public class TestMatlabEngine {
 		exec("A=[1 2  3; 4 5 6]; [m, n]=size(A); m\n n\n");
 		exec("[m n]=[1 2]; m\n n\n");
 
-		test();
 	}
 	
 	public static void test() {
@@ -238,7 +305,7 @@ public class TestMatlabEngine {
 				new Jama.Matrix(new double[]{13,8},2));
 		assertEqual(exec("function myfun(b, a); a-b; end myfun(3,1)"),-2);
 		assertEqual(exec("function myfun(a, b); b-a; end myfun(3,1)"),-2);
-		assertEqual(exec("function s=fun(n) s=n+1\n end fun(5);"),6);
+		assertEqual(exec("function s=fun(n), s=n+1\n end fun(5);"),6);
 		
 		//Test order of parameters in the generated function
 		assertEqual(exec("b-a",   getMap("a",1,"b",3)), 2);
@@ -254,10 +321,10 @@ public class TestMatlabEngine {
 		assertEqual(MatlabEngine.exec("r=0; if n<=1; r=5; end r",new int[]{0}), 5);
 		System.out.println(MatlabEngine.exec("1+1; 2\n r=9"));
 
-		assertEqual(exec("function s=fun(n) s=n+1\n end fun(5);"),6);
+		assertEqual(exec("function s=fun(n), s=n+1\n end fun(5);"),6);
 		
 		assertEqual(exec("function fib(n), if n<=1; 1; else fib(n-1)+fib(n-2); end; end; fib(42)"),433494437);
-		assertEqual(exec("function fib(n) if n<=1; 1; else fib(n-1)+fib(n-2); end end fib(42)"),433494437);
+//		assertEqual(exec("function fib(n) if n<=1; 1; else fib(n-1)+fib(n-2); end end fib(42)"),433494437);
 //java.lang.RuntimeException: Cannot infer type for if statement: if(var(n:I:param:0) <= 1) {[var(r:D:local:1)=1]} else {[var(r:D:local:1)=call FCfib9.fib(var(n:I:param:0) - 1, ) + call FCfib9.fib(var(n:I:param:0) - 2, )]}
 //		at io.lambdacloud.node.IfNode.getType(IfNode.java:194)
 
