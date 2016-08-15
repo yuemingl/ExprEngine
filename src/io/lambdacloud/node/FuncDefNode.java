@@ -30,6 +30,13 @@ public class FuncDefNode extends ExprNode {
 	public Map<String, VariableNode> funcVarMap = new LinkedHashMap<String, VariableNode>();
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
+	/**
+	 * Keep the return expression in the declaration of a function
+	 * function R = fun(x)
+	 * ...
+	 * end
+	 */
+	public ExprNode retExpr; 
 
 	public static AtomicInteger seq = new AtomicInteger(0);
 
@@ -190,13 +197,52 @@ public class FuncDefNode extends ExprNode {
 			cgen.startCode();
 			this.generatedClasses.put(methodDesc, className);
 
+			//Initialize local variables
+			for(VariableNode var : this.funcVarMap.values()) {
+				if(var.isParameter()) continue;
+				for(String typeDesc : var.getVarTypes()) {
+					Type ty = Type.getType(typeDesc);
+					switch(ty.getSort()) {
+					case Type.INT:
+						mg.visitInsn(Opcodes.ICONST_0);
+						break;
+					case Type.LONG:
+						mg.visitInsn(Opcodes.LCONST_0);
+						break;
+					case Type.DOUBLE:
+						mg.visitInsn(Opcodes.DCONST_0);
+						break;
+					case Type.FLOAT:
+						mg.visitInsn(Opcodes.FCONST_0);
+						break;
+					case Type.BOOLEAN:
+						mv.visitInsn(Opcodes.ACONST_NULL);
+						mg.visitLdcInsn(false);
+						break;
+					case Type.SHORT:
+						mg.visitLdcInsn(0);
+						break;
+					case Type.ARRAY:
+					case Type.OBJECT:
+						mv.visitInsn(Opcodes.ACONST_NULL);
+						break;
+					default:
+						throw new RuntimeException();
+					}
+					mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(typeDesc));
+				}
+			}
+			
 			// Generate code for all the expressions
 			for (int i = this.body.size() - 1; i >= 0; i--) {
 				ExprNode expr = this.body.get(i);
 				expr.genCode(mg);
 			}
-
-			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+			if(this.body.size() > 0 && this.body.get(0) instanceof ReturnNode) {
+				
+			} else {
+				mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+			}
 			List<VariableNode> nodeList = new ArrayList<VariableNode>();
 			nodeList.addAll(funcVarMap.values());
 			Collections.sort(nodeList, new Comparator<VariableNode>() {
@@ -267,6 +313,6 @@ public class FuncDefNode extends ExprNode {
 	}
 	
 	public static void test(int a, int b) {
-		
+		Jama.Matrix m = null;
 	}
 }
