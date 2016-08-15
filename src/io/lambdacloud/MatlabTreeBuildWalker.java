@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import io.lambdacloud.exprengine.ExprGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarParser.Expr_endContext;
@@ -30,6 +30,7 @@ import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.RangeNode;
+import io.lambdacloud.node.ReturnNode;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.WhileNode;
 import io.lambdacloud.node.arithmetric.AddAsignNode;
@@ -41,7 +42,6 @@ import io.lambdacloud.node.arithmetric.MulAsignNode;
 import io.lambdacloud.node.arithmetric.MultNode;
 import io.lambdacloud.node.arithmetric.NegateNode;
 import io.lambdacloud.node.arithmetric.RemAsignNode;
-import io.lambdacloud.node.arithmetric.RemNode;
 import io.lambdacloud.node.arithmetric.SubAsignNode;
 import io.lambdacloud.node.arithmetric.SubNode;
 import io.lambdacloud.node.comparion.EQNode;
@@ -61,6 +61,7 @@ import io.lambdacloud.node.matrix.MatrixDRDivNode;
 import io.lambdacloud.node.matrix.MatrixInitNode;
 import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.matrix.TransposeNode;
+import io.lambdacloud.node.string.StringConcatNode;
 import io.lambdacloud.node.string.StringNode;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
@@ -268,6 +269,15 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		return genClass(className, writeFile, methodName,  isStatic, null);
 	}
 	
+	private void updateExprTypes() {
+		
+		Iterator<ExprNode> it = this.currentScope().stack.descendingIterator();
+		while(it.hasNext()) {
+			ExprNode n = it.next();
+			Deque<Object> stack = new LinkedList<Object>();
+			n.updateType(stack);
+		}
+	}
 	/**
 	 * Use defaultParameterTypesOrInterface to generate class
 	 * @param className
@@ -306,6 +316,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					if(this.defaultParameterTypeOrInterface.isInterface()) {
 						Method m = this.defaultParameterTypeOrInterface.getDeclaredMethods()[0];
 						paramTypes = getAndFixParameterTypes(m.getParameterTypes());
+						updateExprTypes();
 						//Check m.getReturnType() == retType ? 
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
 						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
@@ -319,6 +330,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						Class<?>[] pTypes = new Class<?>[nParam];
 						for(int i=0; i<pTypes.length; i++) pTypes[i] = this.defaultParameterTypeOrInterface; 
 						paramTypes = getAndFixParameterTypes(pTypes);
+						updateExprTypes();
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
 						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 						cgen.startMethod(access, methodName,
@@ -326,6 +338,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					}
 				} else {
 					paramTypes = getAndFixParameterTypes(this.mapParameterTypes);
+					updateExprTypes();
 					retType = currentScope().stack.peek().getType(); //return type of the last expression
 					if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 					cgen.startMethod(access, methodName,
@@ -333,6 +346,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				}
 			} else {
 				paramTypes = getAndFixParameterTypes(aryParameterTypes);
+				updateExprTypes();
 				retType = currentScope().stack.peek().getType(); //return type of the last expression
 				if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
 				cgen.startMethod(access, methodName,
@@ -709,11 +723,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new NegateNode(v1));
 	}
 	
-	@Override public void exitArithmeticExpressionRem(MatlabGrammarParser.ArithmeticExpressionRemContext ctx) { 
-		ExprNode v2 = currentScope().stack.pop();
-		ExprNode v1 = currentScope().stack.pop();
-		currentScope().stack.push(new RemNode(v1, v2));
-	}
+//	@Override public void exitArithmeticExpressionRem(MatlabGrammarParser.ArithmeticExpressionRemContext ctx) { 
+//		ExprNode v2 = currentScope().stack.pop();
+//		ExprNode v1 = currentScope().stack.pop();
+//		currentScope().stack.push(new RemNode(v1, v2));
+//	}
 
 	@Override public void exitArithmeticExpressionEntity(MatlabGrammarParser.ArithmeticExpressionEntityContext ctx) {
 		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
@@ -724,7 +738,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		ExprNode value = this.currentScope().stack.pop();
 		VariableNode var = this.currentScope().varMap.get(varName);
 		if(null == var) {
-			var = VariableNode.newLocalVar(varName, value.getType());
+			//Specify a null type when creating a new local variable
+			//var = VariableNode.newLocalVar(varName, value.getType());
+			var = VariableNode.newLocalVar(varName, null);
 			this.currentScope().varMap.put(varName, var);
 		}
 		this.currentScope().stack.push(new AssignNode(var, value));
@@ -775,8 +791,13 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		
 		//Determine the return expression
 		if(null != ctx.func_def_return()) { //It has return variable specified
+			
+			//put the return expression at the end of function body
 			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
 			fNode.body.add(0, retNode);
+			
+			fNode.retExpr = retNode; //Keep the retExpression used in ReturnNode
+			
 		} else { //The last expression is the return value
 			ExprNode lastExpr = fNode.body.get(0);
 			if(lastExpr instanceof FuncCallNode) {
@@ -837,7 +858,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //	}
 
 	private void processExprEnd(Expr_endContext ctx) {
-		if(null!=ctx && ctx.SEMI().size()>0)
+		if(null!=ctx && null != ctx.SEMI())
 			return;
 		//print the expression
 		ExprNode expr = this.currentScope().stack.pop();
@@ -888,7 +909,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			currentScope().stack.push(new LENode(v1, v2));
 		} else if(op.equals("==")) {
 			currentScope().stack.push(new EQNode(v1, v2));
-		} else if(op.equals("!=")) {
+		} else if(op.equals("!=") || op.equals("~=")) {
 			currentScope().stack.push(new NEQNode(v1, v2));
 		}
 	}
@@ -1110,6 +1131,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(fnode);
 	}
 	
+	private int multi_assign_seq = 0;
 	@Override public void exitExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx) {
 		//System.out.println("exitExprMulAssign: "+ctx.getText());
 		String tmpVarName = "";
@@ -1146,12 +1168,40 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			multiAssignVars.add(varNode);
 		}
 		ExprNode value = this.currentScope().stack.pop();
-		VariableNode tmpVar = VariableNode.newLocalVar(tmpVarName, value.getType());
+////		VariableNode tmpVar = VariableNode.newLocalVar(tmpVarName, value.getType());
+		tmpVarName += multi_assign_seq;
+		multi_assign_seq++;
+		VariableNode tmpVar = VariableNode.newLocalVar(tmpVarName, null);
 		this.currentScope().varMap.put(tmpVarName, tmpVar);
 		AssignNode an = new AssignNode(tmpVar, value);
 		an.multiAssignVars.addAll(multiAssignVars);
 		this.currentScope().stack.push(an);
 		
+	}
+	
+	@Override public void exitStringConst(MatlabGrammarParser.StringConstContext ctx) {
+		//System.out.println("exitStringConst: "+ctx.getText());
+		String s = ctx.getText();
+		//System.out.println(s);
+		currentScope().stack.push(new StringNode(s.substring(1, s.length()-1)));
+		
+	}
+	
+	@Override public void exitStringConcat(MatlabGrammarParser.StringConcatContext ctx) {
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		currentScope().stack.push(new StringConcatNode(v1,v2));
+	}
+	
+	@Override public void exitExprReturn(MatlabGrammarParser.ExprReturnContext ctx) {
+		ReturnNode node = null;
+		FuncDefNode refFunc = ExprTreeBuildWalker.funcMap.get(this.currentScope().getName());
+		if(null != ctx.expression()) {
+			node = new ReturnNode(this.currentScope().stack.pop(), refFunc);
+		} else {
+			node = new ReturnNode(null, refFunc);
+		}
+		this.currentScope().stack.push(node);
 	}
 	
 }
