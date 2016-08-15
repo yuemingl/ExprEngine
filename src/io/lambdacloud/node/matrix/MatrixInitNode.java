@@ -52,48 +52,61 @@ public class MatrixInitNode extends ExprNode {
 		Jama.Matrix mat = new Jama.Matrix(new double[]{1,2,3,4}, 4).transpose();
 	}
 	
+	public Type getElementType() {
+		Type eleType = init.get(0).getType();
+		if (init.size() > 1) {
+			for (int i = 1; i < init.size(); i++)
+				eleType = Tools.typeConversion(eleType, init.get(i).getType());
+		}
+		return eleType;
+	}
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
-		mg.visitInsn(DUP);
 
-		//Get element type
 		if(init.size() == 0) {
+			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
+			mg.visitInsn(DUP);
 			mg.visitLdcInsn(0);
 			mg.visitLdcInsn(0);
 			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "(II)V", false);
 			return;
 		}
 		
-		mg.visitLdcInsn(init.size());
-		Type eleType = init.get(0).getType();
-		if (init.size() > 1) {
-			for (int i = 1; i < init.size(); i++)
-				eleType = Tools.typeConversion(eleType, init.get(i).getType());
-		}
+		Type eleType = getElementType();
 		if (eleType.getSort() == Type.OBJECT || eleType.getSort() == Type.ARRAY) {
+			//Get element type
+			mg.visitLdcInsn(init.size()); //size of new array
 			mg.visitTypeInsn(ANEWARRAY, eleType.getInternalName());
+			//An array of Jama.Matrix
+			int idx = 0;
+			for (int i = init.size() - 1; i >= 0; i--) {
+				mg.visitInsn(DUP);
+				mg.visitLdcInsn(idx++);
+				init.get(i).genCode(mg);
+				mg.visitInsn(eleType.getOpcode(IASTORE));
+			}
 		} else {
+			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
+			mg.visitInsn(DUP);
+			//Get element type
+			mg.visitLdcInsn(init.size()); //size of new array
 			eleType = Type.DOUBLE_TYPE;
 			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.DOUBLE_TYPE, false));
+			int idx = 0;
+			for (int i = init.size() - 1; i >= 0; i--) {
+				mg.visitInsn(DUP);
+				mg.visitLdcInsn(idx++);
+				init.get(i).genCode(mg);
+				Tools.insertConversionInsn(mg, init.get(i).getType(), eleType);
+				mg.visitInsn(eleType.getOpcode(IASTORE));
+			}
+			
+			//mg.visitInsn(DUP);
+			//mg.visitInsn(Opcodes.ARRAYLENGTH);
+			mg.visitLdcInsn(nCols);
+			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
 		}
-		
-		int idx = 0;
-		for (int i = init.size() - 1; i >= 0; i--) {
-			mg.visitInsn(DUP);
-			mg.visitLdcInsn(idx++);
-			init.get(i).genCode(mg);
-			Tools.insertConversionInsn(mg, init.get(i).getType(), eleType);
-			mg.visitInsn(eleType.getOpcode(IASTORE));
-		}
-		
-		//mg.visitInsn(DUP);
-		//mg.visitInsn(Opcodes.ARRAYLENGTH);
-		mg.visitLdcInsn(nCols);
-		mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
-		mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
-		
-		
 	}
 
 	public String toString() {
@@ -102,7 +115,12 @@ public class MatrixInitNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		return Type.getType(Jama.Matrix.class);
+		Type eleType = getElementType();
+		if (eleType.getSort() == Type.OBJECT || eleType.getSort() == Type.ARRAY) {
+			return Type.getType(Jama.Matrix[].class);
+		} else {
+			return Type.getType(Jama.Matrix.class);
+		}
 	}
 	
 	@Override
@@ -115,5 +133,9 @@ public class MatrixInitNode extends ExprNode {
 			this.init.get(i).updateType(stack);
 		}
 		stack.pop();
-	}	
+	}
+	public Jama.Matrix[] test4() {
+		Jama.Matrix[] ret = new Jama.Matrix[10];
+		return ret;
+	}
 }

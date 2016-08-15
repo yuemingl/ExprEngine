@@ -16,7 +16,7 @@ public class AssignNode extends BinaryOp {
 	public AssignNode(VariableNode left, ExprNode right) {
 		//left.genLoadInsn(true);???
 		VariableNode var = left;
-		var.addValue(right);
+////		var.addValue(right);
 		
 		this.left = var;
 		this.right = right;
@@ -41,7 +41,7 @@ public class AssignNode extends BinaryOp {
 		 */
 		//Tools.insertConversionInsn(mg, right.getType(), left.getType());
 		////var.setType(myType); //don't change the type of var, use var.getLVTIndex(myType.getDescriptor()) instead
-		var.setType(myType); //we still need to change this
+		var.setType(myType); //we still need to change this since a variable could be assigned to many types
 		mg.updateLVTIndex();
 		
 		//Load right node in case of a=b=c;
@@ -54,16 +54,42 @@ public class AssignNode extends BinaryOp {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
 		}
 		if(multiAssignVars.size() > 0) {
-			for(int i=0; i<this.multiAssignVars.size(); i++) {
-				VariableNode v =  this.multiAssignVars.get(i);
-				v.setType(Type.DOUBLE_TYPE);
-				mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
-				mg.visitLdcInsn(0);
-				mg.visitLdcInsn(i);
-				mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
-				mg.visitIntInsn(Type.DOUBLE_TYPE.getOpcode(Opcodes.ISTORE), v.getLVTIndex(Type.DOUBLE_TYPE.getDescriptor()));
+			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
+			if(myType.getDescriptor().equals("[LJama/Matrix;")) {
+				for(int i=0; i<this.multiAssignVars.size(); i++) {
+					VariableNode v =  this.multiAssignVars.get(i);
+					
+					//we still need to change this since a variable could be assigned to many types
+					v.setType(typeJamaMatrix);
+					mg.updateLVTIndex();
+					
+					mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+					mg.visitLdcInsn(i);
+					mg.visitInsn(Opcodes.AALOAD);
+					mg.visitIntInsn(Opcodes.ASTORE, v.getLVTIndex(typeJamaMatrix.getDescriptor()));
+				}
+				
+			} else {
+				for(int i=0; i<this.multiAssignVars.size(); i++) {
+					VariableNode v =  this.multiAssignVars.get(i);
+					v.setType(Type.DOUBLE_TYPE);
+					
+					//we still need to change this since a variable could be assigned to many types
+					mg.updateLVTIndex();
+					mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+					
+					mg.visitLdcInsn(0);
+					mg.visitLdcInsn(i);
+					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
+					mg.visitIntInsn(Type.DOUBLE_TYPE.getOpcode(Opcodes.ISTORE), v.getLVTIndex(Type.DOUBLE_TYPE.getDescriptor()));
+				}
 			}
 		}
+	}
+	
+	public Jama.Matrix test() {
+		Jama.Matrix[] m = new Jama.Matrix[10];
+		return m[0];
 	}
 	
 	@Override
@@ -76,6 +102,17 @@ public class AssignNode extends BinaryOp {
 		//Here we use right.getType() since the type form right will override the type of left
 		Type retType = right.getType(stack);
 		stack.pop();
+		
+		//Do we need to update the type of variables in multiple assign here?
+		if(multiAssignVars.size() > 0) {
+			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
+			if(retType.getDescriptor().equals("[LJama/Matrix;")) {
+				for(int i=0; i<this.multiAssignVars.size(); i++) {
+					VariableNode v =  this.multiAssignVars.get(i);
+					v.setType(typeJamaMatrix);
+				}
+			}
+		}
 
 		return retType;
 	}
@@ -92,7 +129,23 @@ public class AssignNode extends BinaryOp {
 			//throw new RuntimeException("Cannot get type for "+right);
 			left.setType(null);
 		} else {
-			left.setType(right.getType(stack));
+			Type rType = right.getType(stack);
+			left.setType(rType);
+			if(multiAssignVars.size() > 0) {
+				Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
+				if(rType.getDescriptor().equals("[LJama/Matrix;")) {
+					for(int i=0; i<this.multiAssignVars.size(); i++) {
+						VariableNode v =  this.multiAssignVars.get(i);
+						v.setType(typeJamaMatrix);
+					}
+				} else {
+					for(int i=0; i<this.multiAssignVars.size(); i++) {
+						VariableNode v =  this.multiAssignVars.get(i);
+						v.setType(Type.DOUBLE_TYPE);
+					}
+				}
+
+			} 
 		}
 	}
 }
