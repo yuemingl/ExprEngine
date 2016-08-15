@@ -10,7 +10,7 @@ ADD : '+' ;
 SUB : '-' ;
 MUL : '*' ;
 DIV : '/' ;
-REM : '%' ;
+//REM : '%' ;
 POW : '**' ;
 SOL : '\\' ;
 
@@ -33,6 +33,7 @@ LT : '<' ;
 LE : '<=' ;
 EQ : '==' ;
 NEQ : '!=' ;
+NEQ2 : '~=' ;
 
 BAND : '&' ;
 BOR  : '|' ;
@@ -78,27 +79,29 @@ DQUOTE : '"' ;
 
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
-COMMENT : '//' .+? ('\n'|EOF) -> skip ;
+COMMENT : ('//'|'%') .+? ('\n'|EOF) -> skip ;
 SKIP_TOKEN : [\r\u000C]+ -> skip ; //'\n' is not a WS
 
 WS : [ \t] ;
 
 /* Parser rules */
 
-prog : statement_block EOF ;
+prog : statement_block EOF? ;
 
 statement_block
  : statement* (expression expr_end?)? ;
 
-expr_end : (WS* (SEMI|'\n') WS*)+;
+expr_end : (WS* SEMI ('\n'|WS)*) | ( WS* '\n' WS*)+;
+expr_end2 : (WS* SEMI ('\n'|WS)*) | (WS* COMMA ('\n'|WS)*) | ( WS* '\n' WS*)+;
 
 statement
  : WS* (tic | toc) WS* expr_end?   # TicToc
  | WS* 'nargin' WS* expr_end?   # NArgIn
- | WS* 'function' (func_def_return ASSIGN)? func_name_args (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # FuncDef
+ | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block 'end' WS* expr_end? EOF?   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
- | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # ExprFor
- | WS* 'while' logical_expr (expr_end|(WS* COMMA WS*))? statement_block 'end' WS* expr_end?   # ExprWhile
+ | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
+ | WS* 'while' logical_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprWhile
+ | WS* 'return' expression? expr_end? WS*   # ExprReturn
  | expression_with_expr_end   # ExprWithExprEnd1
  ;
 
@@ -109,11 +112,12 @@ expression_with_expr_end
  : expression expr_end   # ExprWithExprEnd
  ;
 
-if_cond_and_body : logical_expr expr_end statement_block ;
+if_cond_and_body : logical_expr expr_end2 statement_block ;
 else_body : statement_block ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
+ | string_expr           # ExprString
  | assign_expr           # ExprAssign1
  | logical_expr          # ExprLogical
  | range_expr            # ExprRange1
@@ -126,7 +130,7 @@ arithmetic_expr
  | WS* SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
  | arithmetic_expr (POW|BXOR) arithmetic_expr        # ArithmeticExpressionPow
  | arithmetic_expr mul_div_operator arithmetic_expr        # ArithmeticExpressionMulDiv
- | arithmetic_expr REM arithmetic_expr        # ArithmeticExpressionRem
+// | arithmetic_expr '%' arithmetic_expr        # ArithmeticExpressionRem
  | arithmetic_expr add_sub_operator arithmetic_expr # ArithmeticExpressionAddSub
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
  | array_init                                 # ExprArrayInit
@@ -178,16 +182,18 @@ logical_expr
  ;
 
  comparison_expr 
- : arithmetic_expr comp_operator arithmetic_expr                      # ComparisonArithmeticExpression
-// | string_expr ( (WS* EQ WS*) | (WS* NEQ WS*) ) string_ex           # ComparisonStringExpression
+ : arithmetic_expr comp_operator arithmetic_expr           # ComparisonArithmeticExpression
+ | string_expr string_comp_operator string_expr            # ComparisonStringExpression
  ;
 
-comp_operator 
- : GT | GE | LT | LE | EQ | NEQ ;
+string_comp_operator : EQ | NEQ | NEQ2 ;
+
+comp_operator : GT | GE | LT | LE | EQ | NEQ | NEQ2;
 
 logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 
 ///////////////////////////
+
 assign_expr
  : WS* IDENTIFIER WS* ASSIGN expression   # ExprAssign
  | WS* IDENTIFIER WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ASSIGN expression # ExprArrayAssign
@@ -198,3 +204,33 @@ assign_expr
  | WS* variable_entity WS* ADD_ASSIGN expression   # ExprAddAssign
  | WS* variable_entity WS* SUB_ASSIGN expression   # ExprSubAssign
  ;
+
+ /////////////////////////
+ 
+ string_expr
+ : string_entity ADD string_entity # StringConcat
+ | string_entity                   # StringEntity1
+ ;
+ 
+ string_entity
+ : WS* StringLiteral WS*      # StringConst
+ | WS* variable_entity WS*    # StringVariable1
+ ;
+
+StringLiteral : (DQUOTE|SQUOTE) Characters? (DQUOTE|SQUOTE);
+
+fragment
+Characters : Character+ ;
+
+fragment
+Character
+ : ~['"\\]
+ | EscapeSeq
+ ;
+
+fragment
+EscapeSeq
+ : '\\' [btnfr"'\\]
+ ;
+ 
+ 
