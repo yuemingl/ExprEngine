@@ -23,7 +23,10 @@ public class VariableNode extends ExprNode {
 	//This is mainly used to carry type info for arrays generated from list comprehension
 	//public ExprNode lastValue;
 	
-	private ArrayList<ExprNode> valueList = new ArrayList<ExprNode>(); 
+	//It is no need to keep a list of values for a VariableNode.
+	//What we really need is the type for each assignment 
+	
+	//private ArrayList<ExprNode> valueList = new ArrayList<ExprNode>(); 
 	
 	public String getName() {
 		return name;
@@ -33,6 +36,7 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public ArrayList<String> getVarTypes() {
+////		this.updateLVTIndex();
 		ArrayList<String> ret = new ArrayList<String>();
 		ret.addAll(this.mapLVTIndex.keySet());
 		return ret;
@@ -47,15 +51,23 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public int getLVTIndex(String typeDesc) {
-		return this.mapLVTIndex.get(typeDesc);
+		Integer idx =  this.mapLVTIndex.get(typeDesc);
+		//if(idx == null || idx == -1) {
+		if(idx == null) {
+			throw new RuntimeException("The LVT index of "+typeDesc+" is "+idx);
+		}
+		return idx;
 	}
 	
-	public void addValue(ExprNode val) {
-		this.valueList.add(val);
-		if(null != val.getType())
-			this.mapLVTIndex.put(val.getType().getDescriptor(), -1);
-		this.type = val.getType();
-	}
+//	public void addValue(ExprNode val) {
+//		this.valueList.add(val);
+//		//We don't need to get type from value when adding value expression to the variable
+//		//The type information (mapLVTIndex) can be obtained in the call of updateType()
+//		
+//		//if(null != val.getType())
+//		//	this.mapLVTIndex.put(val.getType().getDescriptor(), -1);
+//		//this.type = val.getType();
+//	}
 	
 	public boolean isParameter() {
 		return varLoc == 1;
@@ -73,20 +85,34 @@ public class VariableNode extends ExprNode {
 		this.varLoc = 2;
 	}
 	
+	/**
+	 * Create a parameter variable in LVT
+	 * @param name
+	 * @param type 'null' is allowed for type
+	 * @return
+	 */
 	public static VariableNode newParameter(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
 		node.type = type;
-		node.mapLVTIndex.put(type.getDescriptor(), -1);
+		if(null != type)
+			node.mapLVTIndex.put(type.getDescriptor(), -1);
 		node.varLoc = 1;
 		return node;
 	}
 	
+	/**
+	 * Create a locate variable in LVT
+	 * @param name
+	 * @param type 'null' is allowed for type
+	 * @return
+	 */
 	public static VariableNode newLocalVar(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
 		node.type = type;
-		node.mapLVTIndex.put(type.getDescriptor(), -1);
+		if(null != type)
+			node.mapLVTIndex.put(type.getDescriptor(), -1);
 		node.varLoc = 2;
 		return node;
 	}
@@ -119,20 +145,16 @@ public class VariableNode extends ExprNode {
 			this.type = null;
 			return;
 		}
+		Integer idx = this.mapLVTIndex.get(type.getDescriptor());
 		//Clear the map for function parameter since arguments should be at the beginning of LVT with write type
 		//no other types are needed.
-		Integer idx = this.mapLVTIndex.get(type.getDescriptor());
+		if(this.isParameter()) {
+			this.mapLVTIndex.clear();
+		}
 		if(null == idx) {
-			if(this.isParameter()) {
-				this.mapLVTIndex.clear();
-			}
 			this.mapLVTIndex.put(type.getDescriptor(), -1);
 		} else {
-			if(this.isParameter()) {
-				this.mapLVTIndex.clear();
-				this.mapLVTIndex.put(type.getDescriptor(), idx);
-			}
-			
+			this.mapLVTIndex.put(type.getDescriptor(), idx);
 		}
 		this.type = type;
 	}
@@ -153,4 +175,13 @@ public class VariableNode extends ExprNode {
 //		
 //		throw new RuntimeException("This is deprecated");
 	}
+	
+//	public void updateLVTIndex() {
+//		for(ExprNode expr : this.valueList) {
+//			Type ty = expr.getType();
+//			Integer idx = this.mapLVTIndex.get(ty.getDescriptor());
+//			if(null == idx)
+//				this.mapLVTIndex.put(ty.getDescriptor(), -1);
+//		}
+//	}
 }
