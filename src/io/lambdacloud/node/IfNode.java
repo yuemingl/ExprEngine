@@ -30,7 +30,9 @@ public class IfNode extends ExprNode {
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
 				ExprNode node = ifBlockExprs.get(i);
 				
-				if(i>0 && (node instanceof AssignNode || 
+				if(i==0) {
+					node.genCode(mg);//Leave the last expression on the stack
+				} else if(i>0 && (node instanceof AssignNode || 
 						node instanceof FuncCallNode ||
 						node instanceof AddAsignNode ||
 						node instanceof SubAsignNode ||
@@ -40,6 +42,7 @@ public class IfNode extends ExprNode {
 						node instanceof WhileNode ||
 						node instanceof FuncDefNode ||
 						node instanceof MatrixAssignNode ||
+						node instanceof ReturnNode ||
 						node instanceof ForNode
 					)) {
 					if(node instanceof FuncCallNode)
@@ -47,8 +50,6 @@ public class IfNode extends ExprNode {
 					else
 						node.genLoadInsn(false);
 					node.genCode(mg);
-				} else if(i==0) {
-					node.genCode(mg);//Leave the last expression on the stack
 				} else {
 					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
 				}
@@ -58,7 +59,9 @@ public class IfNode extends ExprNode {
 			mg.visitLabel(elseBranch);
 			for(int i=elseBlockExprs.size()-1; i>=0; i--) {
 				ExprNode node = elseBlockExprs.get(i);
-				if(i>0 && (node instanceof AssignNode || 
+				if(i == 0) {
+					node.genCode(mg);//Leave the last expression on the stack
+				} else if(i>0 && (node instanceof AssignNode || 
 						node instanceof FuncCallNode ||
 						node instanceof AddAsignNode ||
 						node instanceof SubAsignNode ||
@@ -68,6 +71,7 @@ public class IfNode extends ExprNode {
 						node instanceof WhileNode ||
 						node instanceof FuncDefNode ||
 						node instanceof MatrixAssignNode ||
+						node instanceof ReturnNode ||
 						node instanceof ForNode
 						)) {
 					if(node instanceof FuncCallNode)
@@ -75,8 +79,6 @@ public class IfNode extends ExprNode {
 					else
 						node.genLoadInsn(false);
 					node.genCode(mg);
-				} else if(i==0) {
-					node.genCode(mg);//Leave the last expression on the stack
 				} else {
 					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
 				}
@@ -89,7 +91,10 @@ public class IfNode extends ExprNode {
 			for(int i=ifBlockExprs.size()-1; i>=0; i--) {
 				ExprNode node = ifBlockExprs.get(i);
 				//Clear stack in this case
-				if(node instanceof AssignNode || 
+//				if(i==0) {
+//					node.genCode(mg);
+//				} else 
+					if(node instanceof AssignNode || 
 						node instanceof FuncCallNode ||
 						node instanceof AddAsignNode ||
 						node instanceof SubAsignNode ||
@@ -99,14 +104,13 @@ public class IfNode extends ExprNode {
 						node instanceof WhileNode ||
 						node instanceof FuncDefNode ||
 						node instanceof MatrixAssignNode ||
+						node instanceof ReturnNode ||
 						node instanceof ForNode
 						) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
 					else
 						node.genLoadInsn(false);
-					node.genCode(mg);
-				} else if(i==0) {
 					node.genCode(mg);
 				} else {
 					System.out.println("Code generation for '"+node.toString()+"' is ignored.");
@@ -176,6 +180,9 @@ mv.visitInsn(IRETURN);
 		if(stack.contains(this)) 
 			return null;
 		stack.push(this);
+		//if there is no elseBlockExpr void type is returned since we don't put the last expression on the stack due to stack frame problem
+		if(elseBlockExprs.size() == 0)
+			return Type.VOID_TYPE;
 		
 		for(int i=0; i<ifBlockExprs.size(); i++) {
 			Type retType = ifBlockExprs.get(i).getType(stack);
