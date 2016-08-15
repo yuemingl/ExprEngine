@@ -53,6 +53,8 @@ public class MatrixInitNode extends ExprNode {
 	}
 	
 	public Type getElementType() {
+		if(init.size() == 0)
+			return Type.DOUBLE_TYPE;
 		Type eleType = init.get(0).getType();
 		if (init.size() > 1) {
 			for (int i = 1; i < init.size(); i++)
