@@ -32,20 +32,39 @@ public class MethodGenHelper {
 	}
 
 	public void updateLVTIndex() {
-		if(isStatic) 
-			idxLVTGen = 0;
-		else 
-			idxLVTGen = 1;
+//		int maxIndex = -1;
+//		int increment = 0;
+//		for(Entry<String, VariableNode> e : varMap.entrySet()) {
+//			VariableNode var = e.getValue();
+//			
+//			ArrayList<String> varTypes = var.getVarTypes();
+//			for(String typeDesc : varTypes) {
+//				Integer idx = var.getLVTIndex(typeDesc);
+//				if(idx > maxIndex)
+//					maxIndex = idx;
+//				if(typeDesc.equals("D") || typeDesc.equals("J"))
+//					increment = 2;
+//				else
+//					increment = 1;
+//			}
+//		}
+//		if(maxIndex != -1)
+//			this.idxLVTGen += maxIndex + increment;
+
 		for(Entry<String, VariableNode> e : varMap.entrySet()) {
 			if(e.getValue().isLocalVar()) continue;
 			VariableNode var = e.getValue();
+			
 			ArrayList<String> varTypes = var.getVarTypes();
 			for(String typeDesc : varTypes) {
-				var.setLVTIndex(typeDesc, idxLVTGen);
-				if(typeDesc.equals("D") || typeDesc.equals("J"))
-					idxLVTGen += 2;
-				else
-					idxLVTGen++;
+				Integer idx = var.getLVTIndex(typeDesc);
+				if(idx == -1) {
+					var.setLVTIndex(typeDesc, idxLVTGen);
+					if(typeDesc.equals("D") || typeDesc.equals("J"))
+						idxLVTGen += 2;
+					else
+						idxLVTGen++;
+				}
 			}
 		}
 		for(Entry<String, VariableNode> e : varMap.entrySet()) {
@@ -53,11 +72,14 @@ public class MethodGenHelper {
 			VariableNode var = e.getValue();
 			ArrayList<String> varTypes = var.getVarTypes();
 			for(String typeDesc : varTypes) {
+				Integer idx = var.getLVTIndex(typeDesc);
+				if(idx == -1) {
 				var.setLVTIndex(typeDesc, idxLVTGen);
 				if(typeDesc.equals("D") || typeDesc.equals("J"))
 					idxLVTGen += 2;
 				else
 					idxLVTGen++;
+				}
 			}
 		}
 
@@ -65,6 +87,10 @@ public class MethodGenHelper {
 	
 	public void initLVTIndex(boolean isStatic) {
 		this.isStatic = isStatic;
+		if(isStatic) 
+			idxLVTGen = 0;
+		else 
+			idxLVTGen = 1;
 		updateLVTIndex();
 	}
 	
