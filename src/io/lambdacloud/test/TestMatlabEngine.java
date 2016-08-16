@@ -13,6 +13,23 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun()\n fun(1)\n fun(1,2)");
+//		exec("function fun(a, b), nargin; end fun()");
+//		exec("function fun(a, b), nargin; end fun(2)");
+//		exec("function fun(a, b), nargin; end fun(2,4)");
+
+		
+		//exec("function fun(a, b), a+b; end fun(2,4,6)"); //Too many parameters for function fun!
+//		exec("function fun(a, b), a+b; end fun(2,4)");
+//		exec("function fun(a, b), a+b; end fun(2)");
+//		
+//		test3();
+//		test2();
+//		test();
+	}
+	
+	
+	public static void test3(){
 		exec("A = [1 2; 3 4; 5 6]; size(A)");
 
 		

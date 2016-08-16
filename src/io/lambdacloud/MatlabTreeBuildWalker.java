@@ -29,6 +29,7 @@ import io.lambdacloud.node.ForNode;
 import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.IfNode;
+import io.lambdacloud.node.NArgInNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.ReturnNode;
 import io.lambdacloud.node.VariableNode;
@@ -1202,6 +1203,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			node = new ReturnNode(null, refFunc);
 		}
 		this.currentScope().stack.push(node);
+	}
+	@Override public void enterNArgIn(MatlabGrammarParser.NArgInContext ctx) { 
+		FuncDefNode refFunc = ExprTreeBuildWalker.funcMap.get(this.currentScope().getName());
+		this.currentScope().stack.push(new NArgInNode(refFunc));
 	}
 	
 }
