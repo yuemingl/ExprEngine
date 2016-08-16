@@ -96,7 +96,6 @@ expr_end2 : (WS* SEMI ('\n'|WS)*) | (WS* COMMA ('\n'|WS)*) | ( WS* '\n' WS*)+;
 
 statement
  : WS* (tic | toc) WS* expr_end?   # TicToc
- | WS* 'nargin' WS* expr_end?   # NArgIn
  | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block 'end' WS* expr_end? EOF?   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
  | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
@@ -126,15 +125,16 @@ expression
 range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # ExprRange;
 
 arithmetic_expr
- : arithmetic_expr SQUOTE                     # Transpose
- | WS* SUB arithmetic_expr                        # ArithmeticExpressionNegationEntity
- | arithmetic_expr (POW|BXOR) arithmetic_expr        # ArithmeticExpressionPow
- | arithmetic_expr mul_div_operator arithmetic_expr        # ArithmeticExpressionMulDiv
-// | arithmetic_expr '%' arithmetic_expr        # ArithmeticExpressionRem
- | arithmetic_expr add_sub_operator arithmetic_expr # ArithmeticExpressionAddSub
+ : arithmetic_expr SQUOTE                             # Transpose
+ | WS* SUB arithmetic_expr                            # ArithmeticExpressionNegationEntity
+ | arithmetic_expr (POW|BXOR) arithmetic_expr         # ArithmeticExpressionPow
+ | arithmetic_expr mul_div_operator arithmetic_expr   # ArithmeticExpressionMulDiv
+// | arithmetic_expr '%' arithmetic_expr              # ArithmeticExpressionRem
+ | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
- | array_init                                 # ExprArrayInit
- | numeric_entity                             # ArithmeticExpressionEntity
+ | array_init                                         # ExprArrayInit
+ | numeric_entity                                     # ArithmeticExpressionEntity
+ | WS* 'nargin' WS* expr_end?                         # NArgIn
  ;
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
