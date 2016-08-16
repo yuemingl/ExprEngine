@@ -28,6 +28,9 @@ public class VariableNode extends ExprNode {
 	
 	//private ArrayList<ExprNode> valueList = new ArrayList<ExprNode>(); 
 	
+	private boolean isOptional = false;
+	
+	
 	public String getName() {
 		return name;
 	}
@@ -130,8 +133,9 @@ public class VariableNode extends ExprNode {
 //	}
 	
 	public String toString() {
-		String loc = "local";
-		if(this.varLoc == 1) loc = "param";
+		String loc = "L";
+		if(this.varLoc == 1) loc = "P";
+		if(this.isOptional) loc += "?";
 		return this.name + ":" + type + ":" + loc + ":" + this.mapLVTIndex.toString();
 	}
 	
@@ -184,4 +188,12 @@ public class VariableNode extends ExprNode {
 //				this.mapLVTIndex.put(ty.getDescriptor(), -1);
 //		}
 //	}
+	
+	public boolean isOptional() {
+		return this.isOptional;
+	}
+	
+	public void setOptional(boolean isOptional) {
+		this.isOptional = isOptional;
+	}
 }

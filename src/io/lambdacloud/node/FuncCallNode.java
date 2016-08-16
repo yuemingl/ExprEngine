@@ -133,7 +133,9 @@ public class FuncCallNode extends ExprNode {
 					e.printStackTrace();
 				}
 			} else {
-				Type retType = fnode.inferRetType(this.getParameterClassTypes());
+				//We need specify parameter types before inferring return type
+				fnode.setParamTypes(null, this.getParameterTypes());
+				Type retType = fnode.inferRetType();
 				for (int i = args.size() - 1; i >= 0; i--) {
 					args.get(i).genCode(mg);
 				}
@@ -161,8 +163,8 @@ public class FuncCallNode extends ExprNode {
 			
 			//We need specify parameter types before inferring return type
 			fnode.setParamTypes(stack, this.getParameterTypes());
+			Type retType = fnode.inferRetType(stack);
 			
-			Type retType = fnode.inferRetType(stack, this.getParameterTypes());
 			stack.pop();
 			return retType;
 		} else {
@@ -188,7 +190,9 @@ public class FuncCallNode extends ExprNode {
 				stack.pop();
 				return null;
 			} else {
-				Type retType = fnode.inferRetType(stack, this.getParameterTypes());
+				//We need specify parameter types before inferring return type
+				fnode.setParamTypes(stack, this.getParameterTypes());
+				Type retType = fnode.inferRetType(stack);
 				stack.pop();
 				return retType;
 			}
