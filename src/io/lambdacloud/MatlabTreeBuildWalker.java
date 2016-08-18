@@ -631,17 +631,17 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			} else {
 				ExprNode idxS = this.currentScope().stack.pop();
 				ExprNode idxE = null;
-				if(idxS instanceof RangeNode) {
-					//Pass start and end index directly into MatrixAccessNode for optimization purpose
-					//(no array is generated for the range)
-					RangeNode range = (RangeNode)idxS;
-					if(range.step == null) {
-						idxS = range.start;
-						idxE = range.end; //end+1 =>new AddNode(end, 1)
-					} else {
-						//do nothing, let indS be the range node
-					}
-				}
+//				if(idxS instanceof RangeNode) {
+//					RangeNode range = (RangeNode)idxS;
+//					//Pass start and end index directly into MatrixAccessNode for optimization purpose
+//					//(no array is generated for the range)
+//					if(range.step == null) {
+//						idxS = range.start;
+//						idxE = range.end; //end+1 =>new AddNode(end, 1)
+//					} else {
+//						//do nothing, let indS be the range node
+//					}
+//				}
 				node.addIndex(idxS, idxE);
 			}
 		}
@@ -795,6 +795,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			
 			//put the return expression at the end of function body
 			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
+			if(retNode instanceof MatrixInitNode) {
+				((MatrixInitNode)retNode).returnAsArray();
+			}
 			fNode.body.add(0, retNode);
 			
 			fNode.retExpr = retNode; //Keep the retExpression used in ReturnNode
@@ -861,16 +864,21 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	private void processExprEnd(Expr_endContext ctx) {
 		if(null!=ctx && null != ctx.SEMI())
 			return;
+		
 		//print the expression
-		ExprNode expr = this.currentScope().stack.pop();
-		expr.genLoadInsn(true);
-		//TODO change 'println' to an internal name to indicate that it returns the type the same as the argument
-		FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
-		//Don't use DupNode to avoid one element pushed on the top of stack
-//		DupNode dupNode = new DupNode(expr);
-//		funcCall.args.add(dupNode);
-		funcCall.args.add(expr);
-		this.currentScope().stack.push(funcCall);
+		ExprNode expr = this.currentScope().stack.peek();
+//		if(null != expr.getType() && expr instanceof FuncCallNode && expr.getType().getSort() != Type.VOID) {
+//Note: don't call getType() in TreeBuildWalker since the type of expr may not fully assigned
+			this.currentScope().stack.pop();
+			expr.genLoadInsn(true);
+			//TODO change 'println' to an internal name to indicate that it returns the type the same as the argument
+			FuncCallNode funcCall = new FuncCallNode(BytecodeSupport.class.getName(), "println", false);
+			//Don't use DupNode to avoid one element pushed on the top of stack
+	//		DupNode dupNode = new DupNode(expr);
+	//		funcCall.args.add(dupNode);
+			funcCall.args.add(expr);
+			this.currentScope().stack.push(funcCall);
+//		}
 		
 	}
 	@Override public void exitExprWithExprEnd(MatlabGrammarParser.ExprWithExprEndContext ctx) {
@@ -890,7 +898,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new OrNode(v1, v2));
 	}
 	
-	@Override public void exitLogicalExpressionEntity(MatlabGrammarParser.LogicalExpressionEntityContext ctx) {
+	@Override public void exitLogicalExpressionNot(MatlabGrammarParser.LogicalExpressionNotContext ctx) { 
 		currentScope().stack.push(new NotNode(currentScope().stack.pop()));
 	}
 	
@@ -986,6 +994,30 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	@Override public void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx) {
 		//System.out.println("exitExprRange: "+ctx.getText());
+		RangeNode node = null;
+		if(ctx.arithmetic_expr().size() == 2) {
+			ExprNode idxE = this.currentScope().stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
+			if(idxS instanceof RangeNode) { //s:step:e
+				ExprNode idxStep = ((RangeNode) idxS).end;
+				idxS = ((RangeNode) idxS).start;
+				node = new RangeNode(idxS, idxStep, idxE, true);
+			} else {
+				node = new RangeNode(idxS, idxE, true);
+			}
+		} else if(ctx.arithmetic_expr().size() == 3) {
+			ExprNode idxE = this.currentScope().stack.pop();
+			ExprNode idxStep = this.currentScope().stack.pop();
+			ExprNode idxS = this.currentScope().stack.pop();
+			node = new RangeNode(idxS, idxStep, idxE, true);
+		} else {
+			throw new RuntimeException("Range node error: "+ ctx.getText());
+		}
+		node.setAsRange();
+		currentScope().stack.push(node);
+	}
+	@Override public void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx) { 
+		//System.out.println("exitExprRange1: "+ctx.getText());
 		RangeNode node = null;
 		if(ctx.arithmetic_expr().size() == 2) {
 			ExprNode idxE = this.currentScope().stack.pop();
@@ -1207,6 +1239,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void enterNArgIn(MatlabGrammarParser.NArgInContext ctx) { 
 		FuncDefNode refFunc = ExprTreeBuildWalker.funcMap.get(this.currentScope().getName());
 		this.currentScope().stack.push(new NArgInNode(refFunc));
+	}
+	@Override public void exitFuncHandle(MatlabGrammarParser.FuncHandleContext ctx) { 
+		String funcName = ctx.IDENTIFIER().getText();
+		StringNode s = new StringNode(funcName);
+		this.currentScope().stack.push(s);
 	}
 	
 }
