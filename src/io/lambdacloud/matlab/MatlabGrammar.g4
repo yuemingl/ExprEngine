@@ -11,7 +11,7 @@ SUB : '-' ;
 MUL : '*' ;
 DIV : '/' ;
 //REM : '%' ;
-POW : '**' ;
+POW : '**' | '^';
 SOL : '\\' ;
 
 DADD : '.+' ;
@@ -22,7 +22,7 @@ DLDIV : '.\\' ;
 
 AND : 'and' | '&&' ;
 OR  : 'or' | '||' ;
-NOT : 'not' | '!';
+NOT : 'not' | '!' | '~';
 
 TRUE  : 'true' ;
 FALSE : 'false' ;
@@ -34,11 +34,6 @@ LE : '<=' ;
 EQ : '==' ;
 NEQ : '!=' ;
 NEQ2 : '~=' ;
-
-BAND : '&' ;
-BOR  : '|' ;
-BXOR : '^' ;
-BNOT : '~' ;
 
 SHL  : '<<'  ;
 SHR  : '>>'  ;
@@ -76,11 +71,12 @@ PERIOD : '.' ;
 
 SQUOTE : '\'' ;
 DQUOTE : '"' ; 
+DPRIME : '.\'' ;
 
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
-COMMENT : ('//'|'%') .+? ('\n'|EOF) -> skip ;
-SKIP_TOKEN : [\r\u000C]+ -> skip ; //'\n' is not a WS
+COMMENT : ('//'|'%') ~[\r\n]* EOF? -> skip ;
+SKIP_TOKEN : [\t\r\u000C]+ -> skip ; //'\n' is not a WS
 
 WS : [ \t] ;
 
@@ -119,22 +115,23 @@ expression
  | string_expr           # ExprString
  | assign_expr           # ExprAssign1
  | logical_expr          # ExprLogical
- | range_expr            # ExprRange1
+// | range_expr            # ExprRange1
  ;
 
 range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # ExprRange;
 
 arithmetic_expr
- : arithmetic_expr SQUOTE                             # Transpose
+ : arithmetic_expr (SQUOTE|DPRIME)                    # Transpose
  | WS* SUB arithmetic_expr                            # ArithmeticExpressionNegationEntity
- | arithmetic_expr (POW|BXOR) arithmetic_expr         # ArithmeticExpressionPow
+ | arithmetic_expr POW arithmetic_expr                # ArithmeticExpressionPow
  | arithmetic_expr mul_div_operator arithmetic_expr   # ArithmeticExpressionMulDiv
 // | arithmetic_expr '%' arithmetic_expr              # ArithmeticExpressionRem
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
- | array_init                                         # ExprArrayInit
+ | array_init                            # ExprArrayInit
  | numeric_entity                                     # ArithmeticExpressionEntity
- | WS* 'nargin' WS* expr_end?                         # NArgIn
+ | WS* 'nargin' WS* expr_end?            # NArgIn
+ | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # ExprRange1
  ;
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
@@ -160,12 +157,12 @@ variable_entity
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
 ai_list : ( expression (COMMA|WS+) )* expression? ;
 
-array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
-aa_index : expression | COLON ;
-
 // Use array_access instead for function call
 //func_call : IDENTIFIER (PERIOD IDENTIFIER)* func_args                        # FuncCall ;
 //func_args : WS* LPAREN ( expression (COMMA|WS+) )* expression? RPAREN WS*;
+
+array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
+aa_index : expression | COLON | func_handle;
 
 func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
@@ -173,12 +170,13 @@ func_def_return : WS* (variable_entity|array_init) WS* ;
 /////////////////////////
 
 logical_expr
- : comparison_expr                   # ComparisonExpression
- | logical_expr AND logical_expr     # LogicalExpressionAnd
- | logical_expr OR logical_expr      # LogicalExpressionOr
- | WS* NOT logical_expr                  # LogicalExpressionNot
- | WS* LPAREN logical_expr RPAREN WS*       # LogicalExpressionInParen
- | logical_entity                    # LogicalExpressionEntity
+ : comparison_expr                      # ComparisonExpression
+ | logical_expr AND logical_expr        # LogicalExpressionAnd
+ | logical_expr OR logical_expr         # LogicalExpressionOr
+ | WS* NOT logical_expr                 # LogicalExpressionNot
+ | WS* LPAREN logical_expr RPAREN WS*   # LogicalExpressionInParen
+ | logical_entity                       # LogicalExpressionEntity
+ | variable_entity                      # LogicalVariableEntity1
  ;
 
  comparison_expr 
@@ -224,7 +222,7 @@ Characters : Character+ ;
 
 fragment
 Character
- : ~['"\\]
+ : ~['"\\\n]
  | EscapeSeq
  ;
 
@@ -232,5 +230,8 @@ fragment
 EscapeSeq
  : '\\' [btnfr"'\\]
  ;
+
+//////////////////////////////
+func_handle : '@' IDENTIFIER  # FuncHandle ;
  
  
