@@ -234,18 +234,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprLogical(MatlabGrammarParser.ExprLogicalContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprRange1}
-	 * labeled alternative in {@link MatlabGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExprRange1}
-	 * labeled alternative in {@link MatlabGrammarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
-	/**
 	 * Enter a parse tree produced by the {@code ExprRange}
 	 * labeled alternative in {@link MatlabGrammarParser#range_expr}.
 	 * @param ctx the parse tree
@@ -329,6 +317,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArithmeticExpressionMulDiv(MatlabGrammarParser.ArithmeticExpressionMulDivContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ExprRange1}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprRange1}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprArrayInit}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
@@ -578,6 +578,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitComparisonExpression(MatlabGrammarParser.ComparisonExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code LogicalVariableEntity1}
+	 * labeled alternative in {@link MatlabGrammarParser#logical_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalVariableEntity1(MatlabGrammarParser.LogicalVariableEntity1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LogicalVariableEntity1}
+	 * labeled alternative in {@link MatlabGrammarParser#logical_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalVariableEntity1(MatlabGrammarParser.LogicalVariableEntity1Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ComparisonArithmeticExpression}
 	 * labeled alternative in {@link MatlabGrammarParser#comparison_expr}.
 	 * @param ctx the parse tree
@@ -777,4 +789,16 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringVariable1(MatlabGrammarParser.StringVariable1Context ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FuncHandle}
+	 * labeled alternative in {@link MatlabGrammarParser#func_handle}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncHandle(MatlabGrammarParser.FuncHandleContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FuncHandle}
+	 * labeled alternative in {@link MatlabGrammarParser#func_handle}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncHandle(MatlabGrammarParser.FuncHandleContext ctx);
 }
