@@ -666,7 +666,28 @@ public class BytecodeSupport {
 		}
 		return new Jama.Matrix(ret, Idx.getRowDimension());
 	}
-	
+	//A(B)=C
+	public static Jama.Matrix setMatrix(Jama.Matrix A, Jama.Matrix Idx, Jama.Matrix C) {
+		int m=A.getRowDimension();
+		for(int i=0; i<Idx.getRowDimension(); i++) {
+			for(int j=0; j<Idx.getColumnDimension(); j++) {
+				int index = ((int)Idx.get(i, j))-1;
+				A.set(index%m, index/m, C.get(i, j));
+			}
+		}
+		return A;
+	}
+	//A(B)=c
+	public static Jama.Matrix setMatrix(Jama.Matrix A, Jama.Matrix Idx, double c) {
+		int m=A.getRowDimension();
+		for(int i=Idx.getRowDimension()-1; i>=0; i--) {
+			for(int j=Idx.getColumnDimension()-1; j>=0; j--) {
+				int index = ((int)Idx.get(i, j))-1;
+				A.set(index%m, index/m, c);
+			}
+		}
+		return A;
+	}	
 	public static Jama.Matrix getMatrix(Jama.Matrix[] AA, int nRow) {
 		int nCol = AA.length/nRow;
 		int M=0; //rows
