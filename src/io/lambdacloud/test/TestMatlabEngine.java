@@ -13,19 +13,74 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		
+		exec("A=[10 20 30; 40 50 60]; B=[1 2; 1 3]; A(B)=1");
+		exec("A=[10 20 30; 40 50 60]; B=[1 2; 1 3]; A(B)=[1 2; 3 4]");
+		
+		exec("A=[1 2 3; 4 5 6]; A(:)=1");
+		exec("A=[1 2 3; 4 5 6]; A(:)=[10 20 30; 40 50 60]");
+		
+		exec("error('aaa')");
+		
+		exec("if n>1 %\n 1 else 2 end",getMap("n",2));
+		exec("if n>1 %comment here\n 1 else 2 end",getMap("n",2));
+		//exec("'aaa\n bbb'"); //should output error
+		exec("cidx = (0:m-1)';\n 1", getMap("m",5.0));
+
+		exec("A=[1 2 3]; B=[1 5 6]; isequaln(A(1),B(1))");
+		exec("A=[1 2 3]; B=[1 5 6]; ~isequaln(A(1),B(1))");
+		
+		exec("A=[1 2 3; 4 5 6]; A=A(:)");
+		exec("A=[1 2 3]; A(1)=10; A");
+		exec("A=[1 2 3]; A(1,1)=10; A");
+		
+		exec("A=[1 2 3]; A(1)");
+		exec("A=[1 2 3]; A(1,1)");
+		
+		exec("A=[1 2 3]; B=[1 2 3]'; bsxfun(@plus, A,B)");
+		exec("A=[1 2 3]'; B=[1 2 3]; bsxfun(@plus, A,B)");
+		exec("A=[1 2 3]; B=[1 2 3]; bsxfun(@plus, A,B)");
+
+		exec("A=[1 2 3]; B=[4 5 6]; [A, B]");
+		exec("A=[1 2 3]; B=[4 5 6]; [A; B]");
+		
+		
+		exec("A=[4 5 6; 1 2 3]; B=[10 20 30 40 50 60 70 80 90]; B(A)");
+		exec("A=[1 2 3 4]; B=[10 20 30 40 50 60 70 80 90]; B(A)");
+		exec("3:1");
+		exec("A=[1 2 3 4 5]; B=A(1,3:1)");
+		exec("cidx = (10:-1:1)'");
+		exec("A=[1 2 3]; A(:)");
+
+		exec("for i=[1 2 3], i; end");
+		exec("cidx = ([0 1 2])'; cidx");
+		exec("cidx = (0.0:1.0:m-1)'; cidx", getMap("m",5.0));
+		exec("cidx = (0:m-1)'; cidx", getMap("m",5));
+
+		exec("c>r && c>r", getMap("c",1,"r",2));
+		exec("isnumeric(c) && isnumeric(r)", getMap("c",1,"r",2));
+		
+		exec("10:-1:1");
+		exec("A=[1 2 3]; B=[10 20 30]; bsxfun(@plus, A, B)");
+		exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3)\n myZeros(2,3)");
+		
+		//return value need to be specified????
+		//exec("function fun(a), if a<0, return end a+1; end fun(-1)");
+		exec("function r=fun(a), if a<0, return end a+1; end fun(-1)");
+		
 		exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun()\n fun(1)\n fun(1,2)");
-//		exec("function fun(a, b), nargin; end fun()");
-//		exec("function fun(a, b), nargin; end fun(2)");
-//		exec("function fun(a, b), nargin; end fun(2,4)");
+		exec("function fun(a, b), nargin; end fun()");
+		exec("function fun(a, b), nargin; end fun(2)");
+		exec("function fun(a, b), nargin; end fun(2,4)");
 
 		
 		//exec("function fun(a, b), a+b; end fun(2,4,6)"); //Too many parameters for function fun!
-//		exec("function fun(a, b), a+b; end fun(2,4)");
-//		exec("function fun(a, b), a+b; end fun(2)");
-//		
-//		test3();
-//		test2();
-//		test();
+		exec("function fun(a, b), a+b; end fun(2,4)");
+		exec("function fun(a, b), a+b; end fun(2)");
+		
+		test3();
+		test2();
+		test();
 	}
 	
 	
@@ -43,10 +98,12 @@ public class TestMatlabEngine {
 		exec("a=1; b=2; c=3; d=4; [a b; c d]");
 		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B]");
 		
-		Jama.Matrix[] o = (Jama.Matrix[])exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
-		for(Jama.Matrix m : o) m.print(8, 2);
+//		Jama.Matrix[] o = (Jama.Matrix[])exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
+//		for(Jama.Matrix m : o) m.print(8, 2);
+		Jama.Matrix o = (Jama.Matrix)exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
+		o.print(8, 2);
 		
-		exec("% aaa\n 3%4");
+		//exec("% aaa\n 3%4");
 		exec("mod(3.0, 0.0)");
 		exec("rem(3.0, 0.0)");
 		exec("floor(1.1)");
@@ -67,9 +124,6 @@ public class TestMatlabEngine {
 		exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(6)");
 		//exec("function fun(a) b=a+2; return 1; end fun(1);");
 		
-		test2();
-		test();
-//	
 	}
 	public static void test2(){
 		exec("'aaa'");
@@ -393,12 +447,12 @@ public class TestMatlabEngine {
 		assertEqual(exec("C(:, :)", getMap("C",C)), C);
 		assertEqual(exec("C(:,:)", getMap("C",C)), C);
 
-		assertEqual(exec("0.0 : 0.5 : 1.6"), new double[]{0,0.5,1,1.5});
-		assertEqual(exec("0.0 : 0.5 : 1.4"), new double[]{0,0.5,1});
-		assertEqual(exec("0.0 : 0.5 : 1.5"), new double[]{0,0.5,1,1.5});
-		assertEqual(exec("1:2:6"), new int[]{1,3,5});
-		assertEqual(exec("1:2:5"), new int[]{1,3,5});
-		assertEqual(exec("1:5"), new int[]{1,2,3,4,5});
+		assertEqual(exec("0.0 : 0.5 : 1.6"), getMatrix(0,0.5,1,1.5).transpose());
+		assertEqual(exec("0.0 : 0.5 : 1.4"), getMatrix(0,0.5,1).transpose());
+		assertEqual(exec("0.0 : 0.5 : 1.5"), getMatrix(0,0.5,1,1.5).transpose());
+		assertEqual(exec("1:2:6"), getMatrix(1,3,5).transpose());
+		assertEqual(exec("1:2:5"), getMatrix(1,3,5).transpose());
+		assertEqual(exec("1:5"), getMatrix(1,2,3,4,5).transpose());
 
 		if(MatrixAccessNode.INDEX_BASE == 1) {
 			assertEqual(exec("A(:,2:3)", getMap("A",A)), A.getMatrix(0,2,1,2));
