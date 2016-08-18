@@ -55,7 +55,12 @@ public class MatrixAccessNode extends ExprNode {
 	}
 
 	private boolean isAccessElement() {
-		if(this.indices.size() == 2) {
+		if(this.indices.size() == 1) {
+			ExprNode idx = this.indices.get(0).idxS;
+			if(null != idx && idx.getType().getSort() != Type.OBJECT && idx.getType().getSort() != Type.ARRAY) {
+				return true;
+			}
+		} else if(this.indices.size() == 2) {
 			ExprNode idx1S = this.indices.get(0).idxS;
 			ExprNode idx1E = this.indices.get(0).idxE;
 			ExprNode idx2S = this.indices.get(1).idxS;
@@ -78,6 +83,26 @@ public class MatrixAccessNode extends ExprNode {
 			FuncCallNode func = new FuncCallNode(BytecodeSupport.class.getName(),"matToVec", false);
 			func.args.add(var);
 			func.genCode(mg);
+			return;
+		}
+		
+		//A(B)
+		if(this.indices.size() == 1) {
+			ExprNode idx = this.indices.get(0).idxS;
+			if(idx.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
+				var.genCode(mg);
+				idx.genCode(mg);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
+			} else if(idx.getType().getSort() != Type.OBJECT && idx.getType().getSort() != Type.ARRAY) {
+				var.genCode(mg);
+				idx.genCode(mg);
+				if(INDEX_BASE == 1) {
+					mg.visitInsn(Opcodes.ICONST_1);
+					mg.visitInsn(Opcodes.ISUB);
+				}
+				Tools.insertConversionInsn(mg, idx.getType(), Type.INT_TYPE);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getElement", "(LJama/Matrix;I)D", false);
+			}
 			return;
 		}
 		
@@ -125,11 +150,12 @@ public class MatrixAccessNode extends ExprNode {
 					}
 					if(i == 1) {
 						ip.idxS.genCode(mg);
-						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
+						//Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
 						type |= 0x1;
 					} else if(i == 0) {
 						ip.idxS.genCode(mg);
-						Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
 						type |= 0x2;
 					} else
 						throw new RuntimeException();
@@ -193,4 +219,5 @@ public class MatrixAccessNode extends ExprNode {
 		}
 		stack.pop();
 	}
+
 }
