@@ -169,9 +169,16 @@ public class BytecodeSupport {
 	
 	public static double[] range(double s, double step, double e, int shift) {
 		List<Double> ret = new ArrayList<Double>();
-		for(double i=s; i<=e; i+=step) {
-			ret.add(i-shift);
+		if(s <= e) {
+			for(double i=s; i<=e; i+=step) {
+				ret.add(i-shift);
+			}
+		} else {
+			for(double i=s; i>=e; i+=step) {
+				ret.add(i-shift);
+			}
 		}
+		
 		double[] dret = new double[ret.size()];
 		for(int i=0; i<ret.size(); i++)
 			dret[i] = ret.get(i);
@@ -180,6 +187,12 @@ public class BytecodeSupport {
 	
 	public static double[] range2(double s, double step, double e, int shift) {
 		return range(s, step, e, shift);
+	}
+	public static double[] range2(double s, double e, int shift) {
+		if(s <= e)
+			return range(s, 1.0, e, shift);
+		else
+			return range(s, -1.0, e, shift);
 	}
 	
 	public static int sum(int[] args) {
@@ -480,4 +493,244 @@ public class BytecodeSupport {
 		if(y == 0.0) return x;
 		return x % y;
 	}
+	
+	/**
+%               @plus           Plus
+%               @minus          Minus
+%               @times          Array multiply
+%               @rdivide        Right array divide
+%               @ldivide        Left array divide
+%               @power          Array power
+%               @max            Binary maximum
+%               @min            Binary minimum
+%               @rem            Remainder after division
+%               @mod            Modulus after division
+%               @atan2	        Four-quadrant inverse tangent; result in radians
+%               @atan2d	        Four-quadrant inverse tangent; result in dgrees
+%               @hypot	        Square root of sum of squares
+%               @eq             Equal
+%               @ne             Not equal
+%               @lt             Less than
+%               @le             Less than or equal
+%               @gt             Greater than
+%               @ge             Greater than or equal
+%               @and            Element-wise logical AND
+%               @or             Element-wise logical OR
+%               @xor            Logical EXCLUSIVE OR
+	 * @param funcHandle
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Jama.Matrix bsxfun(String funcHandle, Jama.Matrix a, Jama.Matrix b) {
+		if(funcHandle.equals("plus")) {
+			if(a.getRowDimension() == b.getRowDimension() && a.getColumnDimension() == b.getColumnDimension())
+				return a.plus(b);
+			else {
+				int maxRow = Math.max(a.getRowDimension(), b.getRowDimension());
+				int minRow = Math.min(a.getRowDimension(), b.getRowDimension());
+				
+				int maxCol = Math.max(a.getColumnDimension(), b.getColumnDimension());
+				int minCol = Math.min(a.getColumnDimension(), b.getColumnDimension());
+				
+				int repRow = maxRow/minRow;
+				int repCol = maxCol/minCol;
+				
+				if(a.getRowDimension() == minRow) {
+					a = repmat(a, repRow, 1);
+				}
+				if(b.getRowDimension() == minRow) {
+					b = repmat(b, repRow, 1);
+				}
+				if(a.getColumnDimension() == minRow) {
+					a = repmat(a, 1, repCol);
+				}
+				if(b.getColumnDimension() == minRow) {
+					b = repmat(b, 1, repCol);
+				}
+				return a.plus(b);
+			}
+				
+		}else if(funcHandle.equals("minus")) {
+			return a.minus(b);
+		}else if(funcHandle.equals("times")) {
+			return a.times(b);
+		}else if(funcHandle.equals("rdivide")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("ldivide")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("max")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("min")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("rem")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("mod")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("atan2")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("hypot")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("eq")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("ne")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("lt")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("le")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("gt")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("ge")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("and")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("or")) {
+			return a.plus(b);
+		}else if(funcHandle.equals("xor")) {
+			return a.plus(b);
+		}else{
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public static boolean isnumeric(Jama.Matrix m) {
+		return true;
+	}
+	public static boolean isnumeric(double d) {
+		return true;
+	}
+	public static boolean isnumeric(int d) {
+		return true;
+	}
+	public static boolean isnumeric(long d) {
+		return true;
+	}
+	public static boolean isnumeric(String s) {
+		return false;
+	}
+	
+	public static void error(String s) {
+		System.err.println(s);
+	}
+	
+	public static String message(String s) {
+		return "Message: "+s;
+	}
+	
+	public static void warning(String s) {
+		System.out.println(s);
+	}
+	
+	public static double conj(double d) {
+		return d;
+	}
+	public static long conj(long d) {
+		return d;
+	}
+	public static int conj(int  d) {
+		return d;
+	}
+	public static Jama.Matrix conj(Jama.Matrix d) {
+		return d;
+	}
+	//ISEQUALN True if arrays are numerically equal, treating NaNs as equal.
+	public static boolean isequaln(double a, double b) {
+		if(Math.abs(a-b) < 1e-6) return true;
+		return false;
+	}
+	public static boolean isequaln(Jama.Matrix a, Jama.Matrix b) {
+		if(a.minus(b).norm2() <= 1e-6) return true;
+		return false;
+	}
+	
+	public static int[] convert(Jama.Matrix m) {
+		double[] ary = m.getColumnPackedCopy();
+		return convert(ary);
+	}
+	public static int[] convert(double[] ary) {
+		int[] r = new int[ary.length];
+		for(int i=0; i<ary.length; i++) {
+			r[i] = (int)ary[i];
+		}
+		return r;
+	}
+	
+	public static Jama.Matrix getMatrix(Jama.Matrix A, Jama.Matrix Idx) {
+		double[] dataA = A.getColumnPackedCopy();
+		double[] dataIdx = Idx.getColumnPackedCopy();
+		double[] ret = new double[dataIdx.length];
+		for(int i=0; i<ret.length; i++) {
+			ret[i] = dataA[(int)dataIdx[i]-1];
+		}
+		return new Jama.Matrix(ret, Idx.getRowDimension());
+	}
+	
+	public static Jama.Matrix getMatrix(Jama.Matrix[] AA, int nRow) {
+		int nCol = AA.length/nRow;
+		int M=0; //rows
+		int N=0; //columns
+		for(int row=0; row<nRow; row++) {
+			M += AA[row*nCol].getRowDimension();
+		}
+		for(int col=0; col<nCol; col++) {
+			N += AA[col].getColumnDimension();
+		}
+		
+		double[][] data = new double[M][N];
+		
+		int curRow = 0, curCol = 0;
+		for(int row=0; row<nRow; row++) {
+			curCol = 0;
+			for(int col=0; col<nCol; col++) {
+				Jama.Matrix m = AA[row*nCol+col];
+				int mRow = m.getRowDimension();
+				int mCol = m.getColumnDimension();
+				for(int i=0; i<mRow; i++) {
+					for(int j=0; j<mCol; j++) {
+						data[curRow+i][curCol+j] = m.get(i, j);
+					}
+				}
+				curCol += AA[col].getColumnDimension();
+			}
+			curRow += AA[row*nCol].getRowDimension();
+		}
+		
+		return new Jama.Matrix(data);
+	}
+	
+	public static void main(String[] args) {
+		Jama.Matrix a11 = new Jama.Matrix(new double[][]{{1, 2},{3, 4}});
+		Jama.Matrix a12 = new Jama.Matrix(new double[][]{{5, 6},{7, 8},{9, 10}}).transpose();
+		Jama.Matrix a21 = new Jama.Matrix(new double[][]{{10, 20},{30, 40}});
+		Jama.Matrix a22 = new Jama.Matrix(new double[][]{{50, 60},{70, 80},{90, 100}}).transpose();
+		Jama.Matrix a31 = new Jama.Matrix(new double[][]{{100, 200},{300, 400}});
+		Jama.Matrix a32 = new Jama.Matrix(new double[][]{{500, 600},{700, 800},{900, 1000}}).transpose();
+		Jama.Matrix[] AA = new Jama.Matrix[]{a11,a12,a21,a22,a31,a32};
+		getMatrix(AA,3).print(8, 2);
+		
+	}
+	
+	public static boolean isrow(Jama.Matrix m) {
+		if(m.getRowDimension() == 1)
+			return true;
+		else
+			return false;
+	}
+	
+	public static double getElement(Jama.Matrix A, int n) {
+		if(A.getRowDimension() == 1) {
+			return A.get(0, n);
+		} else {
+			return A.get(n, 0);
+		}
+	}
+	public static void setElement(Jama.Matrix A, int n, double val) {
+		if(A.getRowDimension() == 1) {
+			A.set(0, n, val);
+		} else {
+			A.set(n, 0, val);
+		}
+	}
+
 }
