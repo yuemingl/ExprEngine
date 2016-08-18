@@ -94,7 +94,7 @@ statement
  : WS* (tic | toc) WS* expr_end?   # TicToc
  | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block 'end' WS* expr_end? EOF?   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
- | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
+ | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* for_range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
  | WS* 'while' logical_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprWhile
  | WS* 'return' expression? expr_end? WS*   # ExprReturn
  | expression_with_expr_end   # ExprWithExprEnd1
@@ -118,7 +118,7 @@ expression
 // | range_expr            # ExprRange1
  ;
 
-range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # ExprRange;
+for_range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange;
 
 arithmetic_expr
  : arithmetic_expr (SQUOTE|DPRIME)                    # Transpose
@@ -131,7 +131,7 @@ arithmetic_expr
  | array_init                            # ExprArrayInit
  | numeric_entity                                     # ArithmeticExpressionEntity
  | WS* 'nargin' WS* expr_end?            # NArgIn
- | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr # ExprRange1
+ | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange1
  ;
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
