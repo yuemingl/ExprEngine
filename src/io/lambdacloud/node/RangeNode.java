@@ -16,6 +16,7 @@ public class RangeNode extends ExprNode {
 	public ExprNode step;
 	public boolean includeEnd;
 	public int INDEX_SHIFT = 0;
+	private int flag = 0; //return matrix
 	
 	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
 		this.start = start;
@@ -34,15 +35,19 @@ public class RangeNode extends ExprNode {
 	public void genCode(MethodGenHelper mg) {
 		String type2 = "(III)[I";
 		String type3 = "(IIII)[I";
-//		Type retType = this.getType();
-//		Type myType = retType.getElementType();
-//		if(myType.getSort() == Type.DOUBLE) {
-//			type2 = "(DDI)[D";
-//			type3 = "(DDDI)[D";
-//		}
-		Type myType = Type.DOUBLE_TYPE;
-		type2 = "(DDI)[D";
-		type3 = "(DDDI)[D";
+		Type retType = this.getType();
+		Type myType = null;
+		if(flag == 0) {
+			myType = Type.DOUBLE_TYPE;
+			type2 = "(DDI)[D";
+			type3 = "(DDDI)[D";
+		} else {
+			myType = retType.getElementType();
+			if(myType.getSort() == Type.DOUBLE) {
+				type2 = "(DDI)[D";
+				type3 = "(DDDI)[D";
+			}			
+		}
 		
 		try {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
@@ -91,10 +96,12 @@ public class RangeNode extends ExprNode {
 						"(II)[I", false);
 			}
 			
-			mg.visitInsn(DUP);
-			mg.visitInsn(Opcodes.ARRAYLENGTH);
-			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
-			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
+			if(flag == 0) {
+				mg.visitInsn(DUP);
+				mg.visitInsn(Opcodes.ARRAYLENGTH);
+				mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
+				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,20 +115,23 @@ public class RangeNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		return Type.getType(Jama.Matrix.class);
-//		if(null == this.end)
-//			return Tools.getArrayType(start.getType(stack));
-//		else if(null == this.step) {
-//			if(null != start)
-//				return Tools.getArrayType(Tools.typeConversion(start.getType(stack), end.getType(stack)));
-//			else
-//				return Tools.getArrayType(end.getType(stack));
-//				
-//		} else {
-//			Type eleType = Tools.typeConversion(start.getType(), step.getType(stack));
-//			eleType = Tools.typeConversion(eleType, end.getType(stack));
-//			return Tools.getArrayType(eleType);
-//		}
+		if(flag == 0)
+			return Type.getType(Jama.Matrix.class);
+		else {
+			if(null == this.end)
+				return Tools.getArrayType(start.getType(stack));
+			else if(null == this.step) {
+				if(null != start)
+					return Tools.getArrayType(Tools.typeConversion(start.getType(stack), end.getType(stack)));
+				else
+					return Tools.getArrayType(end.getType(stack));
+					
+			} else {
+				Type eleType = Tools.typeConversion(start.getType(), step.getType(stack));
+				eleType = Tools.typeConversion(eleType, end.getType(stack));
+				return Tools.getArrayType(eleType);
+			}
+		}
 	}
 	
 	public void genStartCode(MethodGenHelper mg) {
@@ -171,5 +181,13 @@ public class RangeNode extends ExprNode {
 		if(null != this.step)
 			this.step.updateType(stack);
 		stack.pop();
+	}
+	
+	public void setAsMatirx() {
+		this.flag = 0;
+	}
+	
+	public void setAsRange() {
+		this.flag = 1;
 	}
 }
