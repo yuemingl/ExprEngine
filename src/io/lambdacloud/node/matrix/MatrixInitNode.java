@@ -13,6 +13,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import Jama.Matrix;
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
@@ -20,6 +21,7 @@ import io.lambdacloud.node.Tools;
 public class MatrixInitNode extends ExprNode {
 	public List<ExprNode> init = new ArrayList<ExprNode>();
 	public int nCols = 0;
+	private int flag = 0;
 	
 	/**
 	 * Construct a matrix from a one-dimensional array with matlab style
@@ -87,6 +89,12 @@ public class MatrixInitNode extends ExprNode {
 				init.get(i).genCode(mg);
 				mg.visitInsn(eleType.getOpcode(IASTORE));
 			}
+			
+			//return a Matrix
+			if(flag == 0) {
+				mg.visitLdcInsn(init.size()/nCols);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "([LJama/Matrix;I)LJama/Matrix;", false);
+			}
 		} else {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
@@ -119,7 +127,10 @@ public class MatrixInitNode extends ExprNode {
 	public Type getType(Deque<Object> stack) {
 		Type eleType = getElementType();
 		if (eleType.getSort() == Type.OBJECT || eleType.getSort() == Type.ARRAY) {
-			return Type.getType(Jama.Matrix[].class);
+			if(flag == 0)
+				return Type.getType(Jama.Matrix.class);
+			else
+				return Type.getType(Jama.Matrix[].class);
 		} else {
 			return Type.getType(Jama.Matrix.class);
 		}
@@ -139,5 +150,11 @@ public class MatrixInitNode extends ExprNode {
 	public Jama.Matrix[] test4() {
 		Jama.Matrix[] ret = new Jama.Matrix[10];
 		return ret;
+	}
+	public void returnAsArray() {
+		this.flag = 1;
+	}
+	public void returnAsMatrix() {
+		this.flag = 0;
 	}
 }
