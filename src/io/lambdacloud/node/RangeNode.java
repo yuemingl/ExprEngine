@@ -1,5 +1,6 @@
 package io.lambdacloud.node;
 
+import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 import java.util.Deque;
@@ -33,13 +34,19 @@ public class RangeNode extends ExprNode {
 	public void genCode(MethodGenHelper mg) {
 		String type2 = "(III)[I";
 		String type3 = "(IIII)[I";
-		Type retType = this.getType();
-		Type myType = retType.getElementType();
-		if(myType.getSort() == Type.DOUBLE) {
-			type2 = "(DDI)[D";
-			type3 = "(DDDI)[D";
-		}
+//		Type retType = this.getType();
+//		Type myType = retType.getElementType();
+//		if(myType.getSort() == Type.DOUBLE) {
+//			type2 = "(DDI)[D";
+//			type3 = "(DDDI)[D";
+//		}
+		Type myType = Type.DOUBLE_TYPE;
+		type2 = "(DDI)[D";
+		type3 = "(DDDI)[D";
+		
 		try {
+			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
+			mg.visitInsn(DUP);
 			if(start != null) {
 				if(null == this.step) {
 					start.genCode(mg);
@@ -83,27 +90,38 @@ public class RangeNode extends ExprNode {
 				mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
 						"(II)[I", false);
 			}
+			
+			mg.visitInsn(DUP);
+			mg.visitInsn(Opcodes.ARRAYLENGTH);
+			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
+			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 	}
+	public void test() {
+		double[] d = new double[10];
+		int a = d.length;
+	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		if(null == this.end)
-			return Tools.getArrayType(start.getType(stack));
-		else if(null == this.step) {
-			if(null != start)
-				return Tools.getArrayType(Tools.typeConversion(start.getType(stack), end.getType(stack)));
-			else
-				return Tools.getArrayType(end.getType(stack));
-				
-		} else {
-			Type eleType = Tools.typeConversion(start.getType(), step.getType(stack));
-			eleType = Tools.typeConversion(eleType, end.getType(stack));
-			return Tools.getArrayType(eleType);
-		}
+		return Type.getType(Jama.Matrix.class);
+//		if(null == this.end)
+//			return Tools.getArrayType(start.getType(stack));
+//		else if(null == this.step) {
+//			if(null != start)
+//				return Tools.getArrayType(Tools.typeConversion(start.getType(stack), end.getType(stack)));
+//			else
+//				return Tools.getArrayType(end.getType(stack));
+//				
+//		} else {
+//			Type eleType = Tools.typeConversion(start.getType(), step.getType(stack));
+//			eleType = Tools.typeConversion(eleType, end.getType(stack));
+//			return Tools.getArrayType(eleType);
+//		}
 	}
 	
 	public void genStartCode(MethodGenHelper mg) {
