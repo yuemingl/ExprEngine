@@ -235,13 +235,13 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	void exitExprLogical(MatlabGrammarParser.ExprLogicalContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprRange}
-	 * labeled alternative in {@link MatlabGrammarParser#range_expr}.
+	 * labeled alternative in {@link MatlabGrammarParser#for_range_expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterExprRange(MatlabGrammarParser.ExprRangeContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code ExprRange}
-	 * labeled alternative in {@link MatlabGrammarParser#range_expr}.
+	 * labeled alternative in {@link MatlabGrammarParser#for_range_expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx);

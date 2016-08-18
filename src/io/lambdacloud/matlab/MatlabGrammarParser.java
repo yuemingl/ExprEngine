@@ -31,7 +31,7 @@ public class MatlabGrammarParser extends Parser {
 	public static final int
 		RULE_prog = 0, RULE_statement_block = 1, RULE_expr_end = 2, RULE_expr_end2 = 3, 
 		RULE_statement = 4, RULE_tic = 5, RULE_toc = 6, RULE_expression_with_expr_end = 7, 
-		RULE_if_cond_and_body = 8, RULE_else_body = 9, RULE_expression = 10, RULE_range_expr = 11, 
+		RULE_if_cond_and_body = 8, RULE_else_body = 9, RULE_expression = 10, RULE_for_range_expr = 11, 
 		RULE_arithmetic_expr = 12, RULE_add_sub_operator = 13, RULE_mul_div_operator = 14, 
 		RULE_numeric_entity = 15, RULE_integer_entity = 16, RULE_float_entity = 17, 
 		RULE_variable_entity = 18, RULE_array_init = 19, RULE_ai_list = 20, RULE_array_access = 21, 
@@ -42,7 +42,7 @@ public class MatlabGrammarParser extends Parser {
 	public static final String[] ruleNames = {
 		"prog", "statement_block", "expr_end", "expr_end2", "statement", "tic", 
 		"toc", "expression_with_expr_end", "if_cond_and_body", "else_body", "expression", 
-		"range_expr", "arithmetic_expr", "add_sub_operator", "mul_div_operator", 
+		"for_range_expr", "arithmetic_expr", "add_sub_operator", "mul_div_operator", 
 		"numeric_entity", "integer_entity", "float_entity", "variable_entity", 
 		"array_init", "ai_list", "array_access", "aa_index", "func_name_args", 
 		"func_def_return", "logical_expr", "comparison_expr", "string_comp_operator", 
@@ -739,8 +739,8 @@ public class MatlabGrammarParser extends Parser {
 	}
 	public static class ExprForContext extends StatementContext {
 		public TerminalNode IDENTIFIER() { return getToken(MatlabGrammarParser.IDENTIFIER, 0); }
-		public Range_exprContext range_expr() {
-			return getRuleContext(Range_exprContext.class,0);
+		public For_range_exprContext for_range_expr() {
+			return getRuleContext(For_range_exprContext.class,0);
 		}
 		public Expr_end2Context expr_end2() {
 			return getRuleContext(Expr_end2Context.class,0);
@@ -1147,7 +1147,7 @@ public class MatlabGrammarParser extends Parser {
 					_alt = getInterpreter().adaptivePredict(_input,40,_ctx);
 				}
 				setState(292);
-				range_expr();
+				for_range_expr();
 				setState(293);
 				expr_end2();
 				setState(294);
@@ -1650,18 +1650,18 @@ public class MatlabGrammarParser extends Parser {
 		return _localctx;
 	}
 
-	public static class Range_exprContext extends ParserRuleContext {
-		public Range_exprContext(ParserRuleContext parent, int invokingState) {
+	public static class For_range_exprContext extends ParserRuleContext {
+		public For_range_exprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_range_expr; }
+		@Override public int getRuleIndex() { return RULE_for_range_expr; }
 	 
-		public Range_exprContext() { }
-		public void copyFrom(Range_exprContext ctx) {
+		public For_range_exprContext() { }
+		public void copyFrom(For_range_exprContext ctx) {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class ExprRangeContext extends Range_exprContext {
+	public static class ExprRangeContext extends For_range_exprContext {
 		public List<Arithmetic_exprContext> arithmetic_expr() {
 			return getRuleContexts(Arithmetic_exprContext.class);
 		}
@@ -1672,7 +1672,7 @@ public class MatlabGrammarParser extends Parser {
 		public TerminalNode COLON(int i) {
 			return getToken(MatlabGrammarParser.COLON, i);
 		}
-		public ExprRangeContext(Range_exprContext ctx) { copyFrom(ctx); }
+		public ExprRangeContext(For_range_exprContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof MatlabGrammarListener ) ((MatlabGrammarListener)listener).enterExprRange(this);
@@ -1683,9 +1683,9 @@ public class MatlabGrammarParser extends Parser {
 		}
 	}
 
-	public final Range_exprContext range_expr() throws RecognitionException {
-		Range_exprContext _localctx = new Range_exprContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_range_expr);
+	public final For_range_exprContext for_range_expr() throws RecognitionException {
+		For_range_exprContext _localctx = new For_range_exprContext(_ctx, getState());
+		enterRule(_localctx, 22, RULE_for_range_expr);
 		try {
 			_localctx = new ExprRangeContext(_localctx);
 			enterOuterAlt(_localctx, 1);
