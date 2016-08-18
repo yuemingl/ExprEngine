@@ -32,6 +32,7 @@ public class BytecodeSupport {
 	
 	//------------------
 	public static void println() {
+		//DO Nothing
 	}
 	
 	public static Object println(Object o) {
