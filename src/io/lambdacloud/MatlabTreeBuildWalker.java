@@ -64,6 +64,7 @@ import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.matrix.TransposeNode;
 import io.lambdacloud.node.string.StringConcatNode;
 import io.lambdacloud.node.string.StringNode;
+import io.lambdacloud.node.tool.ArrayLength;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	public static boolean DEBUG = false;
@@ -960,39 +961,63 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	@Override public void exitExprFor(MatlabGrammarParser.ExprForContext ctx) { 
 		//System.out.println("exitExprFor: "+ctx.getText());
-		String varName = ctx.IDENTIFIER().getText();
 		
 		ForNode forNode = new ForNode();
-		for(int i=ctx.statement_block().statement().size()-1;i>=0;i--) {
+		for(int i=ctx.statement_block().statement().size()-1; i>=0; i--) {
 			forNode.block.add(this.currentScope().stack.pop());
 		}
 		if(null != ctx.statement_block().expression()) {
 			forNode.block.add(this.currentScope().stack.pop());
 			//this.processExprEnd(ctx.statement_block().expr_end());
 		}
-			
 		
-		RangeNode rangeNode = (RangeNode)this.currentScope().stack.pop();
-		
-		VariableNode varNode = this.currentScope().varMap.get(varName);
-		if(null == varNode) {
-			varNode = VariableNode.newLocalVar(varName,rangeNode.getType().getElementType());
-			this.currentScope().varMap.put(varName, varNode);
+		ExprNode forRange = this.currentScope().stack.pop();
+		//create the loop variable if necessary
+		String loopVarName = ctx.IDENTIFIER().getText();
+		VariableNode loopVarNode = this.currentScope().varMap.get(loopVarName);
+		if(null == loopVarNode) {
+			loopVarNode = VariableNode.newLocalVar(loopVarName, null);
+			this.currentScope().varMap.put(loopVarName, loopVarNode);
 		} else {
-			varNode.setAsLocalVar();
+			loopVarNode.setAsLocalVar();
 		}
-		varNode.setType(rangeNode.getType().getElementType());
-		forNode.init.add(new AssignNode(varNode, rangeNode.start));
-		forNode.cond = new LENode(varNode, rangeNode.end);
-		if(null != rangeNode.step)
-			forNode.inc.add(new AddAsignNode(varNode, rangeNode.step));
-		else
-			forNode.inc.add(new IncNode(varNode));
-		this.currentScope().stack.push(forNode);
 		
+		if(forRange instanceof RangeNode) {
+			RangeNode rangeNode = (RangeNode)forRange;
+			loopVarNode.setType(rangeNode.getType().getElementType());
+			
+			forNode.init.add(new AssignNode(loopVarNode, rangeNode.start));
+			forNode.cond = new LENode(loopVarNode, rangeNode.end);
+			if(null != rangeNode.step)
+				forNode.inc.add(new AddAsignNode(loopVarNode, rangeNode.step));
+			else
+				forNode.inc.add(new IncNode(loopVarNode));
+		} else if(forRange instanceof MatrixInitNode) {
+			loopVarNode.setType(Type.INT_TYPE);
+			
+			String loopVarEndName = loopVarName+"End";
+			VariableNode loopVarEndNode = this.currentScope().varMap.get(loopVarEndName);
+			if(null == loopVarEndNode) {
+				loopVarEndNode = VariableNode.newLocalVar(loopVarEndName, Type.INT_TYPE);
+				this.currentScope().varMap.put(loopVarEndName, loopVarEndNode);
+			}
+
+			forNode.init.add(new AssignNode(loopVarNode, new ConstantNode(0)));
+			forNode.init.add(
+					new AssignNode(loopVarEndNode,
+					new ArrayLength(
+					new FuncCallNode(forRange, "getColumnPackedCopy", false)
+					)));
+			
+			forNode.cond = new LTNode(loopVarNode, loopVarEndNode);
+			forNode.inc.add(new IncNode(loopVarNode));
+			
+		}
+		
+		this.currentScope().stack.push(forNode);
 	}
 	
-	@Override public void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx) {
+	@Override public void exitForRangeColon(MatlabGrammarParser.ForRangeColonContext ctx) { 
 		//System.out.println("exitExprRange: "+ctx.getText());
 		RangeNode node = null;
 		if(ctx.arithmetic_expr().size() == 2) {
@@ -1015,7 +1040,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		node.setAsRange();
 		currentScope().stack.push(node);
+
 	}
+	
 	@Override public void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx) { 
 		//System.out.println("exitExprRange1: "+ctx.getText());
 		RangeNode node = null;
