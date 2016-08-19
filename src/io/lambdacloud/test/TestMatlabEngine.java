@@ -13,6 +13,13 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		test4();
+		test3();
+		test2();
+		test();
+
+	}
+	public static void test4() {
 		
 		exec("A=[10 20 30; 40 50 60]; B=[1 2; 1 3]; A(B)=1");
 		exec("A=[10 20 30; 40 50 60]; B=[1 2; 1 3]; A(B)=[1 2; 3 4]");
@@ -52,7 +59,7 @@ public class TestMatlabEngine {
 		exec("cidx = (10:-1:1)'");
 		exec("A=[1 2 3]; A(:)");
 
-		exec("for i=[1 2 3], i; end");
+		exec("for i=[1 2 3], i\n end");
 		exec("cidx = ([0 1 2])'; cidx");
 		exec("cidx = (0.0:1.0:m-1)'; cidx", getMap("m",5.0));
 		exec("cidx = (0:m-1)'; cidx", getMap("m",5));
@@ -78,9 +85,6 @@ public class TestMatlabEngine {
 		exec("function fun(a, b), a+b; end fun(2,4)");
 		exec("function fun(a, b), a+b; end fun(2)");
 		
-		test3();
-		test2();
-		test();
 	}
 	
 	
