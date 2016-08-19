@@ -14,6 +14,14 @@ public class ConstantNode extends ExprNode {
 		this.value = value;
 		this.type = type;
 	}
+	public ConstantNode(double v) {
+		this.value = String.valueOf(v);
+		this.type = Type.DOUBLE_TYPE;
+	}
+	public ConstantNode(int v) {
+		this.value = String.valueOf(v);
+		this.type = Type.INT_TYPE;
+	}
 	
 	public Double getDouble() {
 		return Double.parseDouble(this.value);
