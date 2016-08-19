@@ -258,13 +258,25 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprRange(MatlabGrammarParser.ExprRangeContext ctx) { }
+	@Override public void enterForRangeColon(MatlabGrammarParser.ForRangeColonContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx) { }
+	@Override public void exitForRangeColon(MatlabGrammarParser.ForRangeColonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterForRangeArrayInit1(MatlabGrammarParser.ForRangeArrayInit1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitForRangeArrayInit1(MatlabGrammarParser.ForRangeArrayInit1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -234,17 +234,29 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprLogical(MatlabGrammarParser.ExprLogicalContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprRange}
+	 * Enter a parse tree produced by the {@code ForRangeColon}
 	 * labeled alternative in {@link MatlabGrammarParser#for_range_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprRange(MatlabGrammarParser.ExprRangeContext ctx);
+	void enterForRangeColon(MatlabGrammarParser.ForRangeColonContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprRange}
+	 * Exit a parse tree produced by the {@code ForRangeColon}
 	 * labeled alternative in {@link MatlabGrammarParser#for_range_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx);
+	void exitForRangeColon(MatlabGrammarParser.ForRangeColonContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ForRangeArrayInit1}
+	 * labeled alternative in {@link MatlabGrammarParser#for_range_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterForRangeArrayInit1(MatlabGrammarParser.ForRangeArrayInit1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ForRangeArrayInit1}
+	 * labeled alternative in {@link MatlabGrammarParser#for_range_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitForRangeArrayInit1(MatlabGrammarParser.ForRangeArrayInit1Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionPow}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
