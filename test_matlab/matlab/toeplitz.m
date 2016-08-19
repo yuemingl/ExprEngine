@@ -48,7 +48,7 @@ end
 
 %test call
 tic
-A=1:1000
-B=1:1000
+A=1:10
+B=1:10
 toeplitz(A,B)
 toc
