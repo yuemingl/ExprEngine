@@ -118,7 +118,10 @@ expression
 // | range_expr            # ExprRange1
  ;
 
-for_range_expr : arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange;
+for_range_expr
+ : (arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr)   # ForRangeColon
+ | array_init                                                         # ForRangeArrayInit1
+;
 
 arithmetic_expr
  : arithmetic_expr (SQUOTE|DPRIME)                    # Transpose
@@ -128,9 +131,9 @@ arithmetic_expr
 // | arithmetic_expr '%' arithmetic_expr              # ArithmeticExpressionRem
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
- | array_init                            # ExprArrayInit
+ | array_init                                         # ExprArrayInit
  | numeric_entity                                     # ArithmeticExpressionEntity
- | WS* 'nargin' WS* expr_end?            # NArgIn
+ | WS* 'nargin' WS* expr_end?                         # NArgIn
  | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange1
  ;
 
