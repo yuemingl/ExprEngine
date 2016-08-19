@@ -21,6 +21,7 @@ public class FuncCallNode extends ExprNode {
 	String fullClassName;
 	String methodName;
 	public List<ExprNode> args = new ArrayList<ExprNode>();
+	ExprNode obj = null;
 	
 	public boolean isDynamicCall; //true to use invodedynamic instruction
 	public boolean isPopReturn = false;
@@ -30,6 +31,13 @@ public class FuncCallNode extends ExprNode {
 
 	public FuncCallNode(String fullClassName, String methodName, boolean isDynamicCall) {
 		this.fullClassName = fullClassName;
+		this.methodName = methodName;
+		this.isDynamicCall = isDynamicCall;
+	}
+	
+	public FuncCallNode(ExprNode obj, String methodName, boolean isDynamicCall) {
+		this.obj = obj;
+		this.fullClassName = obj.getType().getClassName();
 		this.methodName = methodName;
 		this.isDynamicCall = isDynamicCall;
 	}
@@ -121,8 +129,14 @@ public class FuncCallNode extends ExprNode {
 						arg.genCode(mg);
 						//Tools.insertConversionInsn(mg, arg.getType(), Type.getType(argTypes[i]));
 					}
-					mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
-							Type.getMethodDescriptor(m), false);
+					if(null != obj) {
+						obj.genCode(mg);
+						mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, fullClassName.replaceAll("\\.", "/"), methodName,
+								Type.getMethodDescriptor(m), false);
+					} else {
+						mg.visitMethodInsn(INVOKESTATIC, fullClassName.replaceAll("\\.", "/"), methodName,
+								Type.getMethodDescriptor(m), false);
+					}
 					Type retType = Type.getType(m.getReturnType());
 					if(retType.getSort() != Type.VOID && this.isPopReturn) {
 						if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
@@ -158,6 +172,12 @@ public class FuncCallNode extends ExprNode {
 		if(stack.contains(this)) 
 			return null;
 		stack.push(this);
+		
+		if(null != obj) {
+			Type ret = obj.getType(stack);
+			stack.pop();
+			return ret;
+		}
 		
 		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
