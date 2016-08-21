@@ -37,7 +37,7 @@ public class FuncCallNode extends ExprNode {
 	
 	public FuncCallNode(ExprNode obj, String methodName, boolean isDynamicCall) {
 		this.obj = obj;
-		this.fullClassName = obj.getType().getClassName();
+//		this.fullClassName = obj.getType().getClassName(); //postpone to codeGen()
 		this.methodName = methodName;
 		this.isDynamicCall = isDynamicCall;
 	}
@@ -120,6 +120,9 @@ public class FuncCallNode extends ExprNode {
 				//Find return type
 				Class<?> c;
 				try {
+					if(null != obj) {
+						this.fullClassName = obj.getType().getClassName();
+					}
 					c = Class.forName(fullClassName);
 					Method m = c.getMethod(methodName, this.getParameterClassTypes());
 					//Class<?>[] argTypes = m.getParameterTypes();
@@ -173,11 +176,11 @@ public class FuncCallNode extends ExprNode {
 			return null;
 		stack.push(this);
 		
-		if(null != obj) {
-			Type ret = obj.getType(stack);
-			stack.pop();
-			return ret;
-		}
+//		if(null != obj) {
+//			Type ret = obj.getType(stack);
+//			stack.pop();
+//			return ret;
+//		}
 		
 		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
