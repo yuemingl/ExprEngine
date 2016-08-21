@@ -496,6 +496,16 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitAa_index(MatlabGrammarParser.Aa_indexContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#end_index}.
+	 * @param ctx the parse tree
+	 */
+	void enterEnd_index(MatlabGrammarParser.End_indexContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#end_index}.
+	 * @param ctx the parse tree
+	 */
+	void exitEnd_index(MatlabGrammarParser.End_indexContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code FuncDefNameArgs}
 	 * labeled alternative in {@link MatlabGrammarParser#func_name_args}.
 	 * @param ctx the parse tree
