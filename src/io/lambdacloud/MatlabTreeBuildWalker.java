@@ -64,6 +64,7 @@ import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.matrix.TransposeNode;
 import io.lambdacloud.node.string.StringConcatNode;
 import io.lambdacloud.node.string.StringNode;
+import io.lambdacloud.node.tool.ArrayAccess;
 import io.lambdacloud.node.tool.ArrayLength;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
@@ -623,12 +624,52 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //			}
 //			node.addIndex(idxS, idxE);
 //		}
-		
 		MatrixAccessNode node = new MatrixAccessNode(var);
 		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
 			if(null != ctx.array_access().aa_index(i).COLON()) {
 				//Access all rows or columns
 				node.addIndex(null, null);
+			} else if(null != ctx.array_access().aa_index(i).end_index()) {
+				ExprNode idxS = null;
+				ExprNode idxE = null;
+				
+				//A(5:end, 2:2:end)
+				if(ctx.array_access().aa_index().size() > 1) {
+					if(i == 0) {
+						if(ctx.array_access().aa_index(i).end_index().expression().size() == 1) {
+							idxS = this.currentScope().stack.pop();
+							idxE = new FuncCallNode(var, "getRowDimension", false);
+						} else {
+							idxS = this.currentScope().stack.pop();
+							//step?
+							idxE = new FuncCallNode(var, "getRowDimension", false);
+						}
+					} else if(i == 1) {
+						if(ctx.array_access().aa_index(i).end_index().expression().size() == 1) {
+							idxS = this.currentScope().stack.pop();
+							idxE = new FuncCallNode(var, "getColumnDimension", false);
+						} else {
+							idxS = this.currentScope().stack.pop();
+							//step?
+							idxE = new FuncCallNode(var, "getColumnDimension", false);
+						}
+					}
+				} else {
+					//A(5:end)
+					if(ctx.array_access().aa_index(i).end_index().expression().size() == 1) {
+						idxS = this.currentScope().stack.pop();
+						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+						endNode.args.add(var);
+						idxE = endNode;
+					} else {
+						idxS = this.currentScope().stack.pop();
+						//step?
+						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+						endNode.args.add(var);
+						idxE = endNode;
+					}
+				}
+				node.addIndex(idxS, idxE);
 			} else {
 				ExprNode idxS = this.currentScope().stack.pop();
 				ExprNode idxE = null;
@@ -649,6 +690,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 
 		this.currentScope().stack.push(node);
 	}
+	
 @Override public void exitArithmeticExpressionAddSub(MatlabGrammarParser.ArithmeticExpressionAddSubContext ctx) {
 	String op = ctx.add_sub_operator().getText();
 	ExprNode v2 = currentScope().stack.pop();
@@ -959,6 +1001,15 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(ifnode);
 	}
 	
+	private VariableNode newOrGetVariableNode(String varName, Type type) {
+		VariableNode node = this.currentScope().varMap.get(varName);
+		if(null == node) {
+			node = VariableNode.newLocalVar(varName, type);
+			this.currentScope().varMap.put(varName, node);
+		}
+		return node;
+	}
+	
 	@Override public void exitExprFor(MatlabGrammarParser.ExprForContext ctx) { 
 		//System.out.println("exitExprFor: "+ctx.getText());
 		
@@ -974,49 +1025,56 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		ExprNode forRange = this.currentScope().stack.pop();
 		//create the loop variable if necessary
 		String loopVarName = ctx.IDENTIFIER().getText();
-		VariableNode loopVarNode = this.currentScope().varMap.get(loopVarName);
-		if(null == loopVarNode) {
-			loopVarNode = VariableNode.newLocalVar(loopVarName, null);
-			this.currentScope().varMap.put(loopVarName, loopVarNode);
+		VariableNode loopVar = this.currentScope().varMap.get(loopVarName);
+		if(null == loopVar) {
+			loopVar = VariableNode.newLocalVar(loopVarName, null);
+			this.currentScope().varMap.put(loopVarName, loopVar);
 		} else {
-			loopVarNode.setAsLocalVar();
+			loopVar.setAsLocalVar();
 		}
 		
+		//for i=1:10
+		//for i=1:2:10
+		//for i=10:-2:4
 		if(forRange instanceof RangeNode) {
 			RangeNode rangeNode = (RangeNode)forRange;
-			loopVarNode.setType(rangeNode.getType().getElementType());
+			loopVar.setType(rangeNode.getType().getElementType());
 			
-			forNode.init.add(new AssignNode(loopVarNode, rangeNode.start));
-			forNode.cond = new LENode(loopVarNode, rangeNode.end);
+			forNode.init.add(0,new AssignNode(loopVar, rangeNode.start));
+			forNode.cond = new LENode(loopVar, rangeNode.end);
 			if(null != rangeNode.step)
-				forNode.inc.add(new AddAsignNode(loopVarNode, rangeNode.step));
+				forNode.inc.add(new AddAsignNode(loopVar, rangeNode.step));
 			else
-				forNode.inc.add(new IncNode(loopVarNode));
+				forNode.inc.add(new IncNode(loopVar));
+			
+		//for i=[10 20 30]
 		} else if(forRange instanceof MatrixInitNode) {
-			loopVarNode.setType(Type.INT_TYPE);
+			loopVar.setType(Type.DOUBLE_TYPE);
 			
-			String loopVarEndName = loopVarName+"End";
-			VariableNode loopVarEndNode = this.currentScope().varMap.get(loopVarEndName);
-			if(null == loopVarEndNode) {
-				loopVarEndNode = VariableNode.newLocalVar(loopVarEndName, Type.INT_TYPE);
-				this.currentScope().varMap.put(loopVarEndName, loopVarEndNode);
-			}
-
-			forNode.init.add(new AssignNode(loopVarNode, new ConstantNode(0)));
-			forNode.init.add(
-					new AssignNode(loopVarEndNode,
-					new ArrayLength(
-					new FuncCallNode(forRange, "getColumnPackedCopy", false)
-					)));
+			VariableNode loopIdx = newOrGetVariableNode( loopVarName+"Idx", Type.INT_TYPE);
+			VariableNode loopArray = newOrGetVariableNode(loopVarName+"Array", Type.getType(double[].class));
+			VariableNode loopIdxEnd = newOrGetVariableNode( loopVarName+"End", Type.INT_TYPE);
 			
-			forNode.cond = new LTNode(loopVarNode, loopVarEndNode);
-			forNode.inc.add(new IncNode(loopVarNode));
+			//idx=0
+			forNode.init.add(0,new AssignNode(loopIdx, new ConstantNode(0))); 
+			//int[] array=m.getColumnPackedCopy()
+			forNode.init.add(0,new AssignNode(loopArray, new FuncCallNode(forRange, "getColumnPackedCopy", false) )); 
+			//idxEnd = array.length
+			forNode.init.add(0,new AssignNode(loopIdxEnd, new ArrayLength(loopArray))); 
+			
+			//idx < idxEnd
+			forNode.cond = new LTNode(loopIdx, loopIdxEnd);
+			
+			forNode.inc.add(new IncNode(loopIdx));
+			
+			forNode.block.add(new AssignNode(loopVar,new ArrayAccess(loopArray, loopIdx)));
 			
 		}
 		
 		this.currentScope().stack.push(forNode);
 	}
 	
+	//for i=10:-1:5
 	@Override public void exitForRangeColon(MatlabGrammarParser.ForRangeColonContext ctx) { 
 		//System.out.println("exitExprRange: "+ctx.getText());
 		RangeNode node = null;
@@ -1042,6 +1100,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(node);
 
 	}
+	
 	
 	@Override public void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx) { 
 		//System.out.println("exitExprRange1: "+ctx.getText());
