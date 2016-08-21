@@ -115,7 +115,6 @@ expression
  | string_expr           # ExprString
  | assign_expr           # ExprAssign1
  | logical_expr          # ExprLogical
-// | range_expr            # ExprRange1
  ;
 
 for_range_expr
@@ -160,12 +159,10 @@ variable_entity
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
 ai_list : ( expression (COMMA|WS+) )* expression? ;
 
-// Use array_access instead for function call
-//func_call : IDENTIFIER (PERIOD IDENTIFIER)* func_args                        # FuncCall ;
-//func_args : WS* LPAREN ( expression (COMMA|WS+) )* expression? RPAREN WS*;
-
+// Use array_access for function call too
 array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
-aa_index : expression | COLON | func_handle;
+aa_index : expression | COLON | func_handle | end_index;
+end_index : ( expression WS* COLON WS* )* 'end' ;
 
 func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
