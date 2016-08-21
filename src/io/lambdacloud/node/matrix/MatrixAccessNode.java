@@ -58,7 +58,9 @@ public class MatrixAccessNode extends ExprNode {
 		if(this.indices.size() == 1) {
 			ExprNode idx = this.indices.get(0).idxS;
 			if(null != idx && idx.getType().getSort() != Type.OBJECT && idx.getType().getSort() != Type.ARRAY) {
-				return true;
+				ExprNode idxE = this.indices.get(0).idxE;
+				if(null == idxE)
+					return true;
 			}
 		} else if(this.indices.size() == 2) {
 			ExprNode idx1S = this.indices.get(0).idxS;
@@ -88,20 +90,26 @@ public class MatrixAccessNode extends ExprNode {
 		
 		//A(B)
 		if(this.indices.size() == 1) {
-			ExprNode idx = this.indices.get(0).idxS;
-			if(idx.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
+			ExprNode idxS = this.indices.get(0).idxS;
+			if(idxS.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
 				var.genCode(mg);
-				idx.genCode(mg);
+				idxS.genCode(mg);
 				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
-			} else if(idx.getType().getSort() != Type.OBJECT && idx.getType().getSort() != Type.ARRAY) {
+			} else if(idxS.getType().getSort() != Type.OBJECT && idxS.getType().getSort() != Type.ARRAY) {
 				var.genCode(mg);
-				idx.genCode(mg);
+				idxS.genCode(mg);
 				if(INDEX_BASE == 1) {
 					mg.visitInsn(Opcodes.ICONST_1);
 					mg.visitInsn(Opcodes.ISUB);
 				}
-				Tools.insertConversionInsn(mg, idx.getType(), Type.INT_TYPE);
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getElement", "(LJama/Matrix;I)D", false);
+				ExprNode idxE = this.indices.get(0).idxE;
+				if(null == idxE) {
+					Tools.insertConversionInsn(mg, idxS.getType(), Type.INT_TYPE);
+					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getElement", "(LJama/Matrix;I)D", false);
+				} else {
+					idxE.genCode(mg);
+					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;II)LJama/Matrix;", false);
+				}
 			}
 			return;
 		}
