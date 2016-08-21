@@ -743,16 +743,28 @@ public class BytecodeSupport {
 	public static double getElement(Jama.Matrix A, int n) {
 		if(A.getRowDimension() == 1) {
 			return A.get(0, n);
-		} else {
+		} else if(A.getColumnDimension() == 1){
 			return A.get(n, 0);
+		} else {
+			return A.get(n/A.getColumnDimension(), n%A.getColumnDimension());
 		}
 	}
 	public static void setElement(Jama.Matrix A, int n, double val) {
 		if(A.getRowDimension() == 1) {
 			A.set(0, n, val);
-		} else {
+		} else if(A.getColumnDimension() == 1){
 			A.set(n, 0, val);
+		} else {
+			A.set(n/A.getColumnDimension(), n%A.getColumnDimension(), val);
 		}
+	}
+	public static Jama.Matrix getMatrix(Jama.Matrix A, int s, int e) {
+		double[] ret = new double[e-s];
+		int idx = 0;
+		for(int i=s; i<e; i++) {
+			ret[idx++] = getElement(A, i);
+		}
+		return new Jama.Matrix(ret, ret.length);
 	}
 
 }
