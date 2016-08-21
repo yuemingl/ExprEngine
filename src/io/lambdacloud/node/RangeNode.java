@@ -20,6 +20,7 @@ public class RangeNode extends ExprNode {
 	
 	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
 		this.start = start;
+		this.step = null;
 		this.end = end;
 		this.includeEnd = includeEnd;
 	}
@@ -53,6 +54,7 @@ public class RangeNode extends ExprNode {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
 			if(start != null) {
+				//range(0, 10)
 				if(null == this.step) {
 					start.genCode(mg);
 					Tools.insertConversionInsn(mg, start.getType(), myType);
@@ -69,6 +71,7 @@ public class RangeNode extends ExprNode {
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
 								type2, false);
 				} else {
+					//range(0, 2, 10)
 					start.genCode(mg);
 					Tools.insertConversionInsn(mg, start.getType(), myType);
 					step.genCode(mg);
@@ -87,6 +90,7 @@ public class RangeNode extends ExprNode {
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
 								type3, false);				}
 			} else {
+				//range(3)
 				end.genCode(mg);
 				if(INDEX_SHIFT == 0)
 					mg.visitInsn(Opcodes.ICONST_0);

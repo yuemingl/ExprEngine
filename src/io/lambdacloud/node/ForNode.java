@@ -14,6 +14,7 @@ import io.lambdacloud.node.arithmetric.DivAsignNode;
 import io.lambdacloud.node.arithmetric.MulAsignNode;
 import io.lambdacloud.node.arithmetric.SubAsignNode;
 import io.lambdacloud.node.matrix.MatrixAssignNode;
+import io.lambdacloud.node.tool.ArrayAccess;
 
 public class ForNode extends ExprNode {
 	public List<ExprNode>  init = new ArrayList<ExprNode>();
@@ -44,6 +45,7 @@ public class ForNode extends ExprNode {
 				node instanceof WhileNode ||
 				node instanceof FuncDefNode ||
 				node instanceof MatrixAssignNode ||
+				node instanceof ArrayAccess ||
 				node instanceof ForNode
 			) {
 				if(node instanceof FuncCallNode)
