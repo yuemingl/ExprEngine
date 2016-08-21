@@ -13,10 +13,22 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		test4();
-		test3();
-		test2();
-		test();
+		exec("A=[1 2 3; 4 5 6; 7 8 9;10 11 12;13 14 15]; A\n A(4:end,2:end)");
+
+		//		exec("A=[10 20 30; 40 50 60]; A(4)=400");
+//		exec("A=[10 20 30; 40 50 60]; A(4:6)");
+//		exec("A=[10 20 30; 40 50 60]; A(4)");
+//		exec("A=[10 20 30; 40 50 60]; A(4:end)");
+		
+//		exec("A=[10 20 30; 40 50 60]; A\n A(1:3)");
+//		
+//		exec("for i=[10 20 30], i\n end");
+//		exec("for i=[10 20 30; 40 50 60], i\n end");
+	
+//		test4();
+//		test3();
+//		test2();
+//		test();
 
 	}
 	public static void test4() {
