@@ -13,7 +13,6 @@ import Jama.Matrix;
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
-import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
@@ -28,23 +27,35 @@ public class MatrixAccessNode extends ExprNode {
 		this.var = var;
 	}
 	
+	//This is used to efficiently get a sub-matrix
+	//Using RangeNode needs to generate an intermediate array which is not efficient
 	public static class IndexPair {
-		public ExprNode idxS;
-		public ExprNode idxE;
+		public ExprNode idxS; //start index
+		public ExprNode idxStep; //step (optional)
+		public ExprNode idxE; //end index
 		public IndexPair(ExprNode idxS, ExprNode idxE) {
 			this.idxE = idxE;
 			this.idxS = idxS;
 		}
+		public IndexPair(ExprNode idxS, ExprNode idxStep, ExprNode idxE) {
+			this.idxE = idxE;
+			this.idxStep = idxStep;
+			this.idxS = idxS;
+		}
 		public String toString() {
-			if(null == idxE)
-				return idxS.toString();
-			else
+			if(null == this.idxStep)
 				return idxS+":"+idxE;
+			else
+				return idxS+":"+idxStep+":"+idxE;
 		}
 	}
 	
 	public void addIndex(ExprNode idxS, ExprNode idxE) {
 		indices.add(new IndexPair(idxS, idxE));
+	}
+	
+	public void addIndex(ExprNode idxS, ExprNode idxStep, ExprNode idxE) {
+		indices.add(new IndexPair(idxS, idxStep, idxE));
 	}
 	
 	public String toString() {
@@ -54,6 +65,10 @@ public class MatrixAccessNode extends ExprNode {
 		return var+sb.toString();
 	}
 
+	/**
+	 * Return true if the return value is a number instead of a sub-matrix
+	 * @return
+	 */
 	private boolean isAccessElement() {
 		if(this.indices.size() == 1) {
 			ExprNode idx = this.indices.get(0).idxS;
@@ -75,43 +90,51 @@ public class MatrixAccessNode extends ExprNode {
 		}
 		return false;
 	}
+	
 	@Override
 	public void genCode(MethodGenHelper mg) {
 		if(this.indices.size() > 2) {
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException("");
 		}
 		
-		if(this.indices.size() == 1 && null == this.indices.get(0).idxS) {
-			FuncCallNode func = new FuncCallNode(BytecodeSupport.class.getName(),"matToVec", false);
-			func.args.add(var);
-			func.genCode(mg);
-			return;
-		}
-		
-		//A(B)
+		//A(:) or A(B)
 		if(this.indices.size() == 1) {
-			ExprNode idxS = this.indices.get(0).idxS;
-			if(idxS.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
+			if(null == this.indices.get(0).idxS) {  //A(:)
 				var.genCode(mg);
-				idxS.genCode(mg);
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
-			} else if(idxS.getType().getSort() != Type.OBJECT && idxS.getType().getSort() != Type.ARRAY) {
-				var.genCode(mg);
-				idxS.genCode(mg);
-				if(INDEX_BASE == 1) {
-					mg.visitInsn(Opcodes.ICONST_1);
-					mg.visitInsn(Opcodes.ISUB);
-				}
-				ExprNode idxE = this.indices.get(0).idxE;
-				if(null == idxE) {
-					Tools.insertConversionInsn(mg, idxS.getType(), Type.INT_TYPE);
-					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getElement", "(LJama/Matrix;I)D", false);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "matToVec", "(LJama/Matrix;)LJama/Matrix;", false);
+//				FuncCallNode func = new FuncCallNode(BytecodeSupport.class.getName(),"matToVec", false);
+//				func.args.add(var);
+//				func.genCode(mg);
+				return;
+			} else {   //A(B) or A(5) or A(1:10) or A(1:2:10)
+				ExprNode idxS = this.indices.get(0).idxS;
+				if(idxS.getType().equals(Type.getType(Jama.Matrix.class))) { // A(B) or A(range)
+					var.genCode(mg);
+					idxS.genCode(mg);
+					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
+				} else if(idxS.getType().getSort() == Type.INT) {
+					var.genCode(mg);
+					idxS.genCode(mg);
+					if(INDEX_BASE == 1) {
+						mg.visitInsn(Opcodes.ICONST_1);
+						mg.visitInsn(Opcodes.ISUB);
+					}
+					if(null != this.indices.get(0).idxStep) {
+						throw new RuntimeException("should not be here! Use RangeNode instead.");
+					}
+					ExprNode idxE = this.indices.get(0).idxE;
+					if(null == idxE) { //A(5)
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getElement", "(LJama/Matrix;I)D", false);
+					} else { //A(1:10) or A(1:end)
+						idxE.genCode(mg);
+						Tools.insertConversionInsn(mg, idxE.getType(), Type.INT_TYPE);
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;II)LJama/Matrix;", false);
+					}
 				} else {
-					idxE.genCode(mg);
-					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;II)LJama/Matrix;", false);
+					throw new UnsupportedOperationException("Unknown start index: "+idxS.toString());
 				}
+				return;
 			}
-			return;
 		}
 		
 		var.genCode(mg);
@@ -152,13 +175,12 @@ public class MatrixAccessNode extends ExprNode {
 				else
 					throw new RuntimeException();
 			} else {
-				if(ip.idxS instanceof RangeNode) {
+				if(ip.idxS instanceof RangeNode) { //A(1:2:10,end:-1:5)
 					if(INDEX_BASE == 1) {
 						((RangeNode)ip.idxS).INDEX_SHIFT=1;
 					}
 					if(i == 1) {
 						ip.idxS.genCode(mg);
-						//Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
 						type |= 0x1;
 					} else if(i == 0) {
@@ -167,16 +189,16 @@ public class MatrixAccessNode extends ExprNode {
 						type |= 0x2;
 					} else
 						throw new RuntimeException();
-				} else {
+				} else { //A(1:10, 2:end)
 					ip.idxS.genCode(mg);
 					Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 					if(INDEX_BASE == 1) {
 						mg.visitInsn(Opcodes.ICONST_1);
 						mg.visitInsn(Opcodes.ISUB);
 					}
-					if(null == ip.idxE) 
+					if(null == ip.idxE) //(A(s:s)
 						mg.visitInsn(Opcodes.DUP);
-					else {
+					else { //A(s1:e1,s2:e2) where e2=expr or 'end'
 						ip.idxE.genCode(mg);
 						Tools.insertConversionInsn(mg, ip.idxE.getType(), Type.INT_TYPE);
 						if(INDEX_BASE == 1) {
