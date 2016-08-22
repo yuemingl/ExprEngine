@@ -31,31 +31,18 @@ public class MatrixAccessNode extends ExprNode {
 	//Using RangeNode needs to generate an intermediate array which is not efficient
 	public static class IndexPair {
 		public ExprNode idxS; //start index
-		public ExprNode idxStep; //step (optional)
 		public ExprNode idxE; //end index
 		public IndexPair(ExprNode idxS, ExprNode idxE) {
 			this.idxE = idxE;
 			this.idxS = idxS;
 		}
-		public IndexPair(ExprNode idxS, ExprNode idxStep, ExprNode idxE) {
-			this.idxE = idxE;
-			this.idxStep = idxStep;
-			this.idxS = idxS;
-		}
 		public String toString() {
-			if(null == this.idxStep)
-				return idxS+":"+idxE;
-			else
-				return idxS+":"+idxStep+":"+idxE;
+			return idxS+":"+idxE;
 		}
 	}
 	
 	public void addIndex(ExprNode idxS, ExprNode idxE) {
 		indices.add(new IndexPair(idxS, idxE));
-	}
-	
-	public void addIndex(ExprNode idxS, ExprNode idxStep, ExprNode idxE) {
-		indices.add(new IndexPair(idxS, idxStep, idxE));
 	}
 	
 	public String toString() {
@@ -118,9 +105,6 @@ public class MatrixAccessNode extends ExprNode {
 					if(INDEX_BASE == 1) {
 						mg.visitInsn(Opcodes.ICONST_1);
 						mg.visitInsn(Opcodes.ISUB);
-					}
-					if(null != this.indices.get(0).idxStep) {
-						throw new RuntimeException("should not be here! Use RangeNode instead.");
 					}
 					ExprNode idxE = this.indices.get(0).idxE;
 					if(null == idxE) { //A(5)
