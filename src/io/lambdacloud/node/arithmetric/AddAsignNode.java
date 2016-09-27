@@ -1,5 +1,6 @@
 package io.lambdacloud.node.arithmetric;
 
+import java.util.ArrayList;
 import java.util.Deque;
 
 import org.objectweb.asm.Opcodes;
@@ -59,16 +60,41 @@ public class AddAsignNode extends BinaryOp {
 				throw new RuntimeException();
 			}
 		} else {
+			var.setType(myType); // Change the variable type here for later reference of the variable
+			mg.updateLVTIndex();
+
 			left.genCode(mg);
 			Tools.insertConversionInsn(mg, left.getType(), myType);
 			right.genCode(mg);
 			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IADD));
-
-			var.setType(myType); // Change the variable type here for later reference of the variable
-			mg.updateLVTIndex();
-			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
+//move the chenge of type before the generation of code of left hand right hand side
+//			var.setType(myType); // Change the variable type here for later reference of the variable
+//			mg.updateLVTIndex();
 			
+			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
+
+			//Update shadow variables
+			ArrayList<String> allTypes = var.getVarTypes();
+			if(allTypes.size() > 1) {
+				for(String type : allTypes) {
+					if(!type.equals(myType.getDescriptor())) {
+						
+						Type ty = Type.getType(type);
+						var.setType(ty); // Change the variable type here for later reference of the variable
+						//mg.updateLVTIndex();
+
+						left.genCode(mg);
+						Tools.insertConversionInsn(mg, left.getType(), ty);
+						right.genCode(mg);
+						Tools.insertConversionInsn(mg, right.getType(), ty);
+						mg.visitInsn(ty.getOpcode(Opcodes.IADD));
+						mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
+						
+					}
+				}
+			}
+			var.setType(myType); // Change the variable type here for later reference of the variable
 		}
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
