@@ -45,6 +45,7 @@ public class DivAsignNode extends BinaryOp {
 			var.setType(myType); // Change the variable type here for later reference of the variable
 			mg.updateLVTIndex();
 			mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));			
+			//TODO update shadow variables
 		}
 		
 		if (genLoadInsn) {

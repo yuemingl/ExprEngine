@@ -59,6 +59,7 @@ public class RemAsignNode extends BinaryOp {
 			} else {
 				throw new RuntimeException();
 			}
+			//TODO update shadow variables
 		} else {
 			left.genCode(mg);
 			Tools.insertConversionInsn(mg, left.getType(), myType);
