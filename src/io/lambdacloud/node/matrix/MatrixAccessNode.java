@@ -37,7 +37,10 @@ public class MatrixAccessNode extends ExprNode {
 			this.idxS = idxS;
 		}
 		public String toString() {
-			return idxS+":"+idxE;
+			if(null == idxE)
+				return idxS.toString();
+			else
+				return idxS+":"+idxE;
 		}
 	}
 	
