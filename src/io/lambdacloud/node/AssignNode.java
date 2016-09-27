@@ -31,7 +31,11 @@ public class AssignNode extends BinaryOp {
 		VariableNode var = (VariableNode)left;
 		
 		Type myType = this.getType();
-		right.genCode(mg);
+		
+		//move this after mg.updateLVTIndex() to handle the case like sum=0; for cond, sum=sum+0.1 end;
+		//that is to say, update the type of var first then generate code for RHS
+		//right.genCode(mg);
+		
 		/**
 		 *  No need to insert type conversion since the type of var should be the same as the type of right
 		 *  We are 'over writing' the type of left. We need call setType of left to indicate we are on the state
@@ -43,6 +47,7 @@ public class AssignNode extends BinaryOp {
 		////var.setType(myType); //don't change the type of var, use var.getLVTIndex(myType.getDescriptor()) instead
 		var.setType(myType); //we still need to change this since a variable could be assigned to many types
 		mg.updateLVTIndex();
+		right.genCode(mg);
 		
 		//Load right node in case of a=b=c;
 		if (right instanceof AssignNode) {
@@ -50,9 +55,26 @@ public class AssignNode extends BinaryOp {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), ((VariableNode)(r.left)).getLVTIndex(myType.getDescriptor()));
 		}
 		mg.visitIntInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
+		
+		//Update shadow variables
+		ArrayList<String> allTypes = var.getVarTypes();
+		if(allTypes.size() > 1) {
+			for(String type : allTypes) {
+				if(!type.equals(myType.getDescriptor())) {
+					
+					Type ty = Type.getType(type);
+					right.genCode(mg);//if var exists in right, the type of var may be changed. e.g. sum=0; sum=sum+0.1;
+					Tools.insertConversionInsn(mg, myType, ty);
+					mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
+					
+				}
+			}
+		}
+		
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
 		}
+		//[a b c] = [1 2 3]
 		if(multiAssignVars.size() > 0) {
 			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
 			if(myType.getDescriptor().equals("[LJama/Matrix;")) {
