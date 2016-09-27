@@ -19,6 +19,13 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 
 public class Tools {
+	
+	public static void main(String[] args) {
+		System.out.println(Type.getType(Jama.Matrix.class).equals(Type.getType("LJama/Matrix;")));
+		System.out.println(Type.getType(double.class).equals(Type.DOUBLE_TYPE));
+		System.out.println(Type.getType(Double.class).equals(Type.DOUBLE_TYPE));
+	}
+	
 //	public static Type getElementType(Type arrayType) {
 //		return Type.getType(arrayType.getDescriptor().substring(1));
 //	}
