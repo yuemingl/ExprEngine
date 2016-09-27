@@ -19,22 +19,24 @@ import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
 
 public class MatrixInitNode extends ExprNode {
-	public List<ExprNode> init = new ArrayList<ExprNode>();
-	public int nCols = 0;
-	private int flag = 0;
+	public List<ExprNode> initExprList = new ArrayList<ExprNode>();
+	public List<Integer> colLenList = new ArrayList<Integer>();
+	//public int nCols = 0;
 	
-	/**
-	 * Construct a matrix from a one-dimensional array with matlab style
-	 * e.g. A=[1 2 3; 4 5 6] is a 2 rows by 3 columns matrix
-	 * 
-	 * @param nCols
-	 */
-	public MatrixInitNode(int nCols) {
-		this.nCols = nCols;
-	}
+	private int flag = 0; //0: return Jama.Matrix; 1 return an array
+	
+//	/**
+//	 * Construct a matrix from a one-dimensional array with matlab style
+//	 * e.g. A=[1 2 3; 4 5 6] is a 2 rows by 3 columns matrix
+//	 * 
+//	 * @param nCols
+//	 */
+//	public MatrixInitNode(int nCols) {
+//		this.nCols = nCols;
+//	}
 	
 	public void addInitValues(ExprNode val) {
-		init.add(val);
+		initExprList.add(val);
 	}
 
 	public Matrix test() {
@@ -55,19 +57,20 @@ public class MatrixInitNode extends ExprNode {
 	}
 	
 	public Type getElementType() {
-		if(init.size() == 0)
+		if(initExprList.size() == 0)
 			return Type.DOUBLE_TYPE;
-		Type eleType = init.get(0).getType();
-		if (init.size() > 1) {
-			for (int i = 1; i < init.size(); i++)
-				eleType = Tools.typeConversion(eleType, init.get(i).getType());
+		Type eleType = initExprList.get(0).getType();
+		if (initExprList.size() > 1) {
+			for (int i = 1; i < initExprList.size(); i++)
+				eleType = Tools.typeConversion(eleType, initExprList.get(i).getType());
 		}
 		return eleType;
 	}
+	
 	@Override
 	public void genCode(MethodGenHelper mg) {
 
-		if(init.size() == 0) {
+		if(initExprList.size() == 0) {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
 			mg.visitLdcInsn(0);
@@ -77,50 +80,59 @@ public class MatrixInitNode extends ExprNode {
 		}
 		
 		Type eleType = getElementType();
-		if (eleType.getSort() == Type.OBJECT || eleType.getSort() == Type.ARRAY) {
-			//Get element type
-			mg.visitLdcInsn(init.size()); //size of new array
+		if (eleType.getSort() == Type.OBJECT) { //Jama.Matrix
+			
+			mg.visitLdcInsn(this.initExprList.size()); //size of new array
 			mg.visitTypeInsn(ANEWARRAY, eleType.getInternalName());
-			//An array of Jama.Matrix
 			int idx = 0;
-			for (int i = init.size() - 1; i >= 0; i--) {
+			for (int i = this.initExprList.size() - 1; i >= 0; i--) {
 				mg.visitInsn(DUP);
 				mg.visitLdcInsn(idx++);
-				init.get(i).genCode(mg);
+				initExprList.get(i).genCode(mg);
 				mg.visitInsn(eleType.getOpcode(IASTORE));
+			}
+			mg.visitLdcInsn(this.colLenList.size()); //size of new array
+			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.INT_TYPE, false));
+			idx = 0;
+			for (int i=0; i<this.colLenList.size(); i++) {
+				mg.visitInsn(DUP);
+				mg.visitLdcInsn(idx++);
+				mg.visitLdcInsn(this.colLenList.get(i));
+				mg.visitInsn(IASTORE);
 			}
 			
 			//return a Matrix
 			if(flag == 0) {
-				mg.visitLdcInsn(init.size()/nCols);
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "([LJama/Matrix;I)LJama/Matrix;", false);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "([LJama/Matrix;[I)LJama/Matrix;", false);
 			}
-		} else {
+		} else if(eleType.getSort() == Type.DOUBLE || eleType.getSort() == Type.INT) {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
 			//Get element type
-			mg.visitLdcInsn(init.size()); //size of new array
+			mg.visitLdcInsn(initExprList.size()); //size of new array
 			eleType = Type.DOUBLE_TYPE;
 			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.DOUBLE_TYPE, false));
 			int idx = 0;
-			for (int i = init.size() - 1; i >= 0; i--) {
+			for (int i = initExprList.size() - 1; i >= 0; i--) {
 				mg.visitInsn(DUP);
 				mg.visitLdcInsn(idx++);
-				init.get(i).genCode(mg);
-				Tools.insertConversionInsn(mg, init.get(i).getType(), eleType);
+				initExprList.get(i).genCode(mg);
+				Tools.insertConversionInsn(mg, initExprList.get(i).getType(), eleType);
 				mg.visitInsn(eleType.getOpcode(IASTORE));
 			}
 			
 			//mg.visitInsn(DUP);
 			//mg.visitInsn(Opcodes.ARRAYLENGTH);
-			mg.visitLdcInsn(nCols);
+			mg.visitLdcInsn(colLenList.get(0));
 			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
+		} else {
+			throw new RuntimeException("Unsupported type: "+eleType);
 		}
 	}
 
 	public String toString() {
-		return this.init.toString();
+		return this.initExprList.toString();
 	}
 
 	@Override
@@ -142,8 +154,8 @@ public class MatrixInitNode extends ExprNode {
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
-		for (int i = init.size() - 1; i >= 0; i--) {
-			this.init.get(i).updateType(stack);
+		for (int i = initExprList.size() - 1; i >= 0; i--) {
+			this.initExprList.get(i).updateType(stack);
 		}
 		stack.pop();
 	}
