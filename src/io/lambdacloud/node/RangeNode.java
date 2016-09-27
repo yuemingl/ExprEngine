@@ -16,7 +16,9 @@ public class RangeNode extends ExprNode {
 	public ExprNode step;
 	public boolean includeEnd;
 	public int INDEX_SHIFT = 0;
-	private int flag = 0; //return matrix
+	
+	//A range node can return a matrix or an array
+	private boolean returnMatrix = true;
 	
 	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
 		this.start = start;
@@ -34,63 +36,64 @@ public class RangeNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		String type2 = "(III)[I";
-		String type3 = "(IIII)[I";
+		String type2 = "(III)[I"; //start:end
+		String type3 = "(IIII)[I"; //start:step:end
+		
 		Type retType = this.getType();
-		Type myType = null;
-		if(flag == 0) {
-			myType = Type.DOUBLE_TYPE;
+		Type eleType = null;
+		if(returnMatrix) {
+			eleType = Type.DOUBLE_TYPE;
 			type2 = "(DDI)[D";
 			type3 = "(DDDI)[D";
 		} else {
-			myType = retType.getElementType();
-			if(myType.getSort() == Type.DOUBLE) {
+			eleType = retType.getElementType();
+			if(eleType.getSort() == Type.DOUBLE) {
 				type2 = "(DDI)[D";
 				type3 = "(DDDI)[D";
-			}			
+			}
 		}
 		
 		try {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
 			if(start != null) {
-				//range(0, 10)
-				if(null == this.step) {
+				if(null == this.step) { //range(1, 10)
 					start.genCode(mg);
-					Tools.insertConversionInsn(mg, start.getType(), myType);
+					Tools.insertConversionInsn(mg, start.getType(), eleType);
 					end.genCode(mg);
-					Tools.insertConversionInsn(mg, end.getType(), myType);
+					Tools.insertConversionInsn(mg, end.getType(), eleType);
 					if(INDEX_SHIFT == 0)
 						mg.visitInsn(Opcodes.ICONST_0);
 					else
 						mg.visitInsn(Opcodes.ICONST_1);
+					//handle [s,e] or [s,e)
 					if(this.includeEnd)
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range2", 
 								type2, false);
 					else
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
 								type2, false);
-				} else {
-					//range(0, 2, 10)
+				} else {//range(1, 2, 10)
 					start.genCode(mg);
-					Tools.insertConversionInsn(mg, start.getType(), myType);
+					Tools.insertConversionInsn(mg, start.getType(), eleType);
 					step.genCode(mg);
-					Tools.insertConversionInsn(mg, step.getType(), myType);
+					Tools.insertConversionInsn(mg, step.getType(), eleType);
 					end.genCode(mg);
-					Tools.insertConversionInsn(mg, end.getType(), myType);
+					Tools.insertConversionInsn(mg, end.getType(), eleType);
 					if(INDEX_SHIFT == 0)
 						mg.visitInsn(Opcodes.ICONST_0);
 					else
 						mg.visitInsn(Opcodes.ICONST_1);
-					//handled [s,step,e] and [s,step,e)
+					//handle [s,step,e] or [s,step,e)
 					if(this.includeEnd)
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range2", 
 									type3, false);
 					else
 						mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/BytecodeSupport", "range", 
-								type3, false);				}
+								type3, false);				
+				}
 			} else {
-				//range(3)
+				//range(3) => range(0,3)
 				end.genCode(mg);
 				if(INDEX_SHIFT == 0)
 					mg.visitInsn(Opcodes.ICONST_0);
@@ -100,7 +103,7 @@ public class RangeNode extends ExprNode {
 						"(II)[I", false);
 			}
 			
-			if(flag == 0) {
+			if(returnMatrix) {
 				mg.visitInsn(DUP);
 				mg.visitInsn(Opcodes.ARRAYLENGTH);
 				mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
@@ -112,14 +115,10 @@ public class RangeNode extends ExprNode {
 		}
 		
 	}
-	public void test() {
-		double[] d = new double[10];
-		int a = d.length;
-	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		if(flag == 0)
+		if(returnMatrix)
 			return Type.getType(Jama.Matrix.class);
 		else {
 			if(null == this.end)
@@ -145,16 +144,16 @@ public class RangeNode extends ExprNode {
 			start.genCode(mg);
 	}
 	
+	public void genStepCode(MethodGenHelper mg) {
+		step.genCode(mg);
+	}
+
 	public void genEndCode(MethodGenHelper mg) {
 		end.genCode(mg);
 		if(this.includeEnd) {
 			mg.visitInsn(Opcodes.ICONST_1);
 			mg.visitInsn(Opcodes.IADD);
 		}
-	}
-	
-	public void genStepCode(MethodGenHelper mg) {
-		step.genCode(mg);
 	}
 	
 	public String toString() {
@@ -177,6 +176,7 @@ public class RangeNode extends ExprNode {
 		//circle check
 		if(stack.contains(this)) 
 			return;
+
 		stack.push(this);
 		if(null != this.start)
 			this.start.updateType(stack);
@@ -186,12 +186,12 @@ public class RangeNode extends ExprNode {
 			this.step.updateType(stack);
 		stack.pop();
 	}
-	
-	public void setAsMatirx() {
-		this.flag = 0;
+
+	public void setAsReturnMatirx() {
+		this.returnMatrix = true;
 	}
-	
-	public void setAsRange() {
-		this.flag = 1;
+
+	public void setAsReturnArray() {
+		this.returnMatrix = false;
 	}
 }
