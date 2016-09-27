@@ -387,15 +387,16 @@ public class BytecodeSupport {
 	public static Jama.Matrix rand(int n) {
 		return Jama.Matrix.random(n, n);
 	}
+	public static Jama.Matrix linspace(int d1, int d2) {
+		return linspace(d1,d2,100);
+	}
 	public static Jama.Matrix linspace(int d1, int d2, int n) {
-		double[] data = range2((double)d1, (double)n, (double)d2, 0);
+		double[] data = range2((double)d1, (double)(d2-d1)/n, (double)d2, 0);
 		Jama.Matrix r = new Jama.Matrix(data, data.length);
 		return r.transpose();
 	}
 	public static Jama.Matrix linspace(int d1, int d2, double n) {
-		double[] data = range2((double)d1, (double)n, (double)d2, 0);
-		Jama.Matrix r = new Jama.Matrix(data, data.length);
-		return r.transpose();
+		return linspace(d1,d2,(int)n);
 	}
 	
 	public static Jama.Matrix plus(Jama.Matrix A, double d) {
@@ -664,7 +665,7 @@ public class BytecodeSupport {
 		for(int i=0; i<ret.length; i++) {
 			ret[i] = dataA[(int)dataIdx[i]-1];
 		}
-		return new Jama.Matrix(ret, Idx.getRowDimension());
+		return new Jama.Matrix(ret, ret.length);
 	}
 	//A(B)=C
 	public static Jama.Matrix setMatrix(Jama.Matrix A, Jama.Matrix Idx, Jama.Matrix C) {
@@ -677,17 +678,41 @@ public class BytecodeSupport {
 		}
 		return A;
 	}
+	//A(s:e)=C
+	public static Jama.Matrix setMatrix(Jama.Matrix A, int start, int end, Jama.Matrix C) {
+		double[] data = C.getColumnPackedCopy();
+		int idx = start;
+		int nRow = A.getRowDimension();
+		for(int i=0; i<data.length; i++) {
+			A.set(idx%nRow, idx/nRow, data[i]);
+			idx++;
+		}
+		return A;
+	}
 	//A(B)=c
-	public static Jama.Matrix setMatrix(Jama.Matrix A, Jama.Matrix Idx, double c) {
-		int m=A.getRowDimension();
-		for(int i=Idx.getRowDimension()-1; i>=0; i--) {
-			for(int j=Idx.getColumnDimension()-1; j>=0; j--) {
-				int index = ((int)Idx.get(i, j))-1;
-				A.set(index%m, index/m, c);
+	public static Jama.Matrix setMatrix(Jama.Matrix A, Jama.Matrix idxA, double c) {
+		int nRow=A.getRowDimension();
+		for(int i=idxA.getRowDimension()-1; i>=0; i--) {
+			for(int j=idxA.getColumnDimension()-1; j>=0; j--) {
+				int index = ((int)idxA.get(i, j))-1;
+				A.set(index%nRow, index/nRow, c);
 			}
 		}
 		return A;
-	}	
+	}
+	
+	/**
+	 * Return a matrix that composed of the given array of matrix (sub-matrix) and 
+	 * the the number of rows of the sub-matrix
+	 * for example:
+	 * [A B C]
+	 * [A; B; C]
+	 * [A B; C D]
+	 * [A B; C] ???
+	 * @param AA
+	 * @param nRow
+	 * @return
+	 */
 	public static Jama.Matrix getMatrix(Jama.Matrix[] AA, int nRow) {
 		int nCol = AA.length/nRow;
 		int M=0; //rows
@@ -721,6 +746,28 @@ public class BytecodeSupport {
 		return new Jama.Matrix(data);
 	}
 	
+	/**
+	 * For example:
+	 * [A,B,C;D]
+	 *   AA=[A,B,C,D]
+	 *   nCols=[3,1]
+	 * @param AA
+	 * @param nCols 
+	 * @return
+	 */
+	public static Jama.Matrix getMatrix(Jama.Matrix[] AA, int[] nCols) {
+		int nIdx = 0;
+		Jama.Matrix[] blockRows = new Jama.Matrix[nCols.length];
+		for(int i=0; i<nCols.length; i++) {
+			Jama.Matrix[] blockRow = new Jama.Matrix[nCols[i]];
+			for(int j=0; j<nCols[i]; j++) {
+				blockRow[j] = AA[nIdx++];
+			}
+			blockRows[i] = getMatrix(blockRow, 1);
+		}
+		return getMatrix(blockRows, nCols.length);
+	}
+	
 	public static void main(String[] args) {
 		Jama.Matrix a11 = new Jama.Matrix(new double[][]{{1, 2},{3, 4}});
 		Jama.Matrix a12 = new Jama.Matrix(new double[][]{{5, 6},{7, 8},{9, 10}}).transpose();
@@ -729,7 +776,12 @@ public class BytecodeSupport {
 		Jama.Matrix a31 = new Jama.Matrix(new double[][]{{100, 200},{300, 400}});
 		Jama.Matrix a32 = new Jama.Matrix(new double[][]{{500, 600},{700, 800},{900, 1000}}).transpose();
 		Jama.Matrix[] AA = new Jama.Matrix[]{a11,a12,a21,a22,a31,a32};
-		getMatrix(AA,3).print(8, 2);
+		Jama.Matrix rlt1 = getMatrix(AA,3);
+		rlt1.print(8, 2);
+		
+		Jama.Matrix[] BB = new Jama.Matrix[]{a11,a12,rlt1};
+		Jama.Matrix rlt2 = getMatrix(BB, new int[]{2,1});
+		rlt2.print(8, 2);
 		
 	}
 	
@@ -741,12 +793,13 @@ public class BytecodeSupport {
 	}
 	
 	public static double getElement(Jama.Matrix A, int n) {
-		if(A.getRowDimension() == 1) {
+		int nRow = A.getRowDimension();
+		if(nRow == 1) {
 			return A.get(0, n);
 		} else if(A.getColumnDimension() == 1){
 			return A.get(n, 0);
 		} else {
-			return A.get(n/A.getColumnDimension(), n%A.getColumnDimension());
+			return A.get(n%nRow, n/nRow);
 		}
 	}
 	public static void setElement(Jama.Matrix A, int n, double val) {
@@ -755,7 +808,7 @@ public class BytecodeSupport {
 		} else if(A.getColumnDimension() == 1){
 			A.set(n, 0, val);
 		} else {
-			A.set(n/A.getColumnDimension(), n%A.getColumnDimension(), val);
+			A.set(n%A.getRowDimension(), n/A.getRowDimension(), val);
 		}
 	}
 	public static Jama.Matrix getMatrix(Jama.Matrix A, int s, int e) {
@@ -766,5 +819,30 @@ public class BytecodeSupport {
 		}
 		return new Jama.Matrix(ret, ret.length);
 	}
-
+	
+	public static Jama.Matrix horzcat(Jama.Matrix A, Jama.Matrix B) {
+		if(A.getRowDimension() != B.getRowDimension())
+			throw new RuntimeException("Dimensions of matrices being concatenated are not consistent.");
+		double[] dataA = A.getColumnPackedCopy();
+		double[] dataB = B.getColumnPackedCopy();
+		double[] data = new double[dataA.length+dataB.length];
+		System.arraycopy(dataA, 0, data, 0, dataA.length);
+		System.arraycopy(dataB, 0, data, dataA.length, dataB.length);
+		return new Jama.Matrix(data, A.getRowDimension());
+	}
+	
+	public static Jama.Matrix vertcat(Jama.Matrix A, Jama.Matrix B) {
+		if(A.getColumnDimension() != B.getColumnDimension())
+			throw new RuntimeException("Dimensions of matrices being concatenated are not consistent.");
+		double[][] dataA = A.getArray();
+		double[][] dataB = B.getArray();
+		double[][] data = new double[A.getRowDimension()+B.getRowDimension()][A.getColumnDimension()];
+		int idx = 0;
+		for(int i=0;i<dataA.length;i++)
+			System.arraycopy(dataA[i], 0, data[idx++], 0, A.getColumnDimension());
+		for(int i=0;i<dataB.length;i++)
+			System.arraycopy(dataB[i], 0, data[idx++], 0, A.getColumnDimension());
+		
+		return new Jama.Matrix(data);
+	}
 }
