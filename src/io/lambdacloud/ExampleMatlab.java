@@ -6,7 +6,7 @@ public class ExampleMatlab {
 		MatlabEngine.exec("A=[1 2; 3 4]; b=[3 4]'; A\\b");
 		
 		System.out.println("Computing Fibonacci(46): ");
-		MatlabEngine.exec("function fib(n) if n<=1; 1L; else fib(n-1)+fib(n-2); end end"
+		MatlabEngine.exec("function fib(n), if n<=1; 1L; else fib(n-1)+fib(n-2); end end"
 				+ " tic; fib(46)\n toc");
 	}
 
