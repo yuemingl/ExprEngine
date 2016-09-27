@@ -534,13 +534,49 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEnd_index(MatlabGrammarParser.End_indexContext ctx) { }
+	@Override public void enterAa_range(MatlabGrammarParser.Aa_rangeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEnd_index(MatlabGrammarParser.End_indexContext ctx) { }
+	@Override public void exitAa_range(MatlabGrammarParser.Aa_rangeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAa_range_start(MatlabGrammarParser.Aa_range_startContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAa_range_start(MatlabGrammarParser.Aa_range_startContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAa_range_step(MatlabGrammarParser.Aa_range_stepContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAa_range_step(MatlabGrammarParser.Aa_range_stepContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAa_range_end(MatlabGrammarParser.Aa_range_endContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAa_range_end(MatlabGrammarParser.Aa_range_endContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

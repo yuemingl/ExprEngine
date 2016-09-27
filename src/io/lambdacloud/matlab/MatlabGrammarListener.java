@@ -496,15 +496,45 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitAa_index(MatlabGrammarParser.Aa_indexContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MatlabGrammarParser#end_index}.
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#aa_range}.
 	 * @param ctx the parse tree
 	 */
-	void enterEnd_index(MatlabGrammarParser.End_indexContext ctx);
+	void enterAa_range(MatlabGrammarParser.Aa_rangeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MatlabGrammarParser#end_index}.
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#aa_range}.
 	 * @param ctx the parse tree
 	 */
-	void exitEnd_index(MatlabGrammarParser.End_indexContext ctx);
+	void exitAa_range(MatlabGrammarParser.Aa_rangeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#aa_range_start}.
+	 * @param ctx the parse tree
+	 */
+	void enterAa_range_start(MatlabGrammarParser.Aa_range_startContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#aa_range_start}.
+	 * @param ctx the parse tree
+	 */
+	void exitAa_range_start(MatlabGrammarParser.Aa_range_startContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#aa_range_step}.
+	 * @param ctx the parse tree
+	 */
+	void enterAa_range_step(MatlabGrammarParser.Aa_range_stepContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#aa_range_step}.
+	 * @param ctx the parse tree
+	 */
+	void exitAa_range_step(MatlabGrammarParser.Aa_range_stepContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#aa_range_end}.
+	 * @param ctx the parse tree
+	 */
+	void enterAa_range_end(MatlabGrammarParser.Aa_range_endContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#aa_range_end}.
+	 * @param ctx the parse tree
+	 */
+	void exitAa_range_end(MatlabGrammarParser.Aa_range_endContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FuncDefNameArgs}
 	 * labeled alternative in {@link MatlabGrammarParser#func_name_args}.
