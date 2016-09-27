@@ -28,6 +28,7 @@ public class VariableNode extends ExprNode {
 	
 	//private ArrayList<ExprNode> valueList = new ArrayList<ExprNode>(); 
 	
+	//Optional parameter if true (for parameter type of variable)
 	private boolean isOptional = false;
 	
 	
