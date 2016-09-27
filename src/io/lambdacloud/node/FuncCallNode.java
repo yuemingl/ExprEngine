@@ -58,7 +58,10 @@ public class FuncCallNode extends ExprNode {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("call ").append(this.fullClassName).append(".").append(this.methodName).append("(");
+		if(null != this.obj)
+			sb.append("call ").append(this.obj.toString()).append(".").append(this.methodName).append("(");
+		else
+			sb.append("call ").append(this.fullClassName).append(".").append(this.methodName).append("(");
 		for (int i = args.size() - 1; i >= 0; i--) {
 			sb.append(args.get(i)).append(", ");
 		}
@@ -203,6 +206,9 @@ public class FuncCallNode extends ExprNode {
 //				}
 				Class<?> c;
 				try {
+					if(null != obj) {
+						this.fullClassName = obj.getType().getClassName();
+					}
 					c = Class.forName(fullClassName);
 					Method m = c.getMethod(methodName, this.getParameterClassTypes());
 					Type retType = Type.getType(m.getReturnType());
