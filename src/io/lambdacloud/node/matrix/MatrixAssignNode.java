@@ -8,11 +8,9 @@ import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
-import Jama.Matrix;
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
-import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
@@ -91,11 +89,11 @@ public class MatrixAssignNode extends ExprNode {
 			//A(B)=Value
 			if(this.indices.size() == 1 && null != this.indices.get(0).idxS) {
 				ExprNode idx = this.indices.get(0).idxS;
-				if(idx.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
+				if(idx.getType().equals(Type.getType(Jama.Matrix.class))) {
 					var.genCode(mg);
 					idx.genCode(mg);
 					this.value.genCode(mg);
-					if(this.value.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
+					if(this.value.getType().equals(Type.getType(Jama.Matrix.class))) {
 						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "setMatrix", "(LJama/Matrix;LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
 					} else {
 						Tools.insertConversionInsn(mg, this.value.getType(), Type.DOUBLE_TYPE);
@@ -104,17 +102,28 @@ public class MatrixAssignNode extends ExprNode {
 					if (genLoadInsn) {
 						mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
 					}
-				} else if(idx.getType().getSort() != Type.OBJECT && idx.getType().getSort() != Type.ARRAY) {
+				} else if(idx.getType().getSort() == Type.INT) {
 					var.genCode(mg);
 					idx.genCode(mg);
+					Tools.insertConversionInsn(mg, idx.getType(), Type.INT_TYPE);
 					if(MatrixAccessNode.INDEX_BASE == 1) {
 						mg.visitInsn(Opcodes.ICONST_1);
 						mg.visitInsn(Opcodes.ISUB);
 					}
-					Tools.insertConversionInsn(mg, idx.getType(), Type.INT_TYPE);
-					this.value.genCode(mg);
-					Tools.insertConversionInsn(mg, this.value.getType(), Type.DOUBLE_TYPE);
-					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "setElement", "(LJama/Matrix;ID)V", false);
+					ExprNode idxE = this.indices.get(0).idxE;
+					if(null == idxE) { //A(5)=50
+						this.value.genCode(mg);
+						Tools.insertConversionInsn(mg, this.value.getType(), Type.DOUBLE_TYPE);
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "setElement", "(LJama/Matrix;ID)V", false);
+					} else { //A(1:10)=C or A(1:end)=C
+						idxE.genCode(mg);
+						Tools.insertConversionInsn(mg, idxE.getType(), Type.INT_TYPE);
+						this.value.genCode(mg);
+						Tools.insertConversionInsn(mg, this.value.getType(), Type.DOUBLE_TYPE);
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "setMatrix", "(LJama/Matrix;IILJama/Matrix;)LJama/Matrix;", false);
+					}
+				} else {
+					throw new UnsupportedOperationException("Unknown start index: "+idx.toString());
 				}
 				if (genLoadInsn) {
 					mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
