@@ -161,8 +161,11 @@ ai_list : ( expression (COMMA|WS+) )* expression? ;
 
 // Use array_access for function call too
 array_access: WS* IDENTIFIER (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
-aa_index : expression | COLON | func_handle | end_index;
-end_index : ( expression WS* COLON WS* )* 'end' ;
+aa_index : expression | COLON | func_handle | aa_range;
+aa_range : aa_range_start WS* COLON WS* (aa_range_step WS* COLON WS*)? aa_range_end ;
+aa_range_start : 'end' | expression;
+aa_range_step : expression ;
+aa_range_end : 'end' | expression;
 
 func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
@@ -194,7 +197,7 @@ logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 
 assign_expr
  : WS* IDENTIFIER WS* ASSIGN expression   # ExprAssign
- | WS* IDENTIFIER WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ASSIGN expression # ExprArrayAssign
+ | array_access ASSIGN expression # ExprArrayAssign
  | WS* LBRK WS* ( IDENTIFIER WS* (COMMA|WS+) WS* )* IDENTIFIER? WS* RBRK WS* ASSIGN expression # ExprMultiAssign
  | WS* variable_entity WS* MUL_ASSIGN expression   # ExprMulAssign
  | WS* variable_entity WS* DIV_ASSIGN expression   # ExprDivAssign
