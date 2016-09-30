@@ -97,23 +97,48 @@ public class Tools {
 		}
 	}
 	
+	public static boolean canTypeConversion(Type from, Type to) {
+		if(from.getSort() == to.getSort())
+			return true;
+		int f = from.getSort();
+		int t = to.getSort();
+		if(f == Type.INT && t == Type.DOUBLE) {
+			return true;
+		} else if(f == Type.LONG && t == Type.DOUBLE) {
+			return true;
+		} else if(f == Type.LONG && t == Type.INT) {
+			return true;
+		} else if(f == Type.DOUBLE && t == Type.INT) {
+			return true;
+		} else if(f == Type.INT && t == Type.LONG) {
+			return true;
+		} else if(f == Type.DOUBLE && t == Type.LONG) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static void insertConversionInsn(MethodGenHelper mg, Type from, Type to) {
 		if(from.getSort() == to.getSort())
 			return;
 		int f = from.getSort();
 		int t = to.getSort();
-		if(f == Type.INT && t == Type.DOUBLE)
+		if(f == Type.INT && t == Type.DOUBLE) {
 			mg.visitInsn(Opcodes.I2D);
-		if(f == Type.LONG && t == Type.DOUBLE)
+		} else if(f == Type.LONG && t == Type.DOUBLE) {
 			mg.visitInsn(Opcodes.L2D);
-		if(f == Type.LONG && t == Type.INT)
+		} else if(f == Type.LONG && t == Type.INT) {
 			mg.visitInsn(Opcodes.L2I);
-		if(f == Type.DOUBLE && t == Type.INT)
+		} else if(f == Type.DOUBLE && t == Type.INT) {
 			mg.visitInsn(Opcodes.D2I);
-		if(f == Type.INT && t == Type.LONG)
+		} else if(f == Type.INT && t == Type.LONG) {
 			mg.visitInsn(Opcodes.I2L);
-		if(f == Type.DOUBLE && t == Type.LONG)
+		} else if(f == Type.DOUBLE && t == Type.LONG) {
 			mg.visitInsn(Opcodes.D2L);
+		} else {
+			throw new RuntimeException("Cannot convert type "+from+" to type "+to);
+		}
 	}
 	
 	public static Class<?> getIntClass(int dim) {

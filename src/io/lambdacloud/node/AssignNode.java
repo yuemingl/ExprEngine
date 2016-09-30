@@ -38,7 +38,7 @@ public class AssignNode extends BinaryOp {
 		
 		/**
 		 *  No need to insert type conversion since the type of var should be the same as the type of right
-		 *  We are 'over writing' the type of left. We need call setType of left to indicate we are on the state
+		 *  We are 'over writing' the type of left. We need call setType of left to indicate 
 		 *  that left has the type from right
 		 *  for example: "a=1; a=a+1.1;"
 		 *   
@@ -63,10 +63,21 @@ public class AssignNode extends BinaryOp {
 				if(!type.equals(myType.getDescriptor())) {
 					
 					Type ty = Type.getType(type);
-					right.genCode(mg);//if var exists in right, the type of var may be changed. e.g. sum=0; sum=sum+0.1;
-					Tools.insertConversionInsn(mg, myType, ty);
-					mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
-					
+					if(Tools.canTypeConversion(myType, ty)) {
+						right.genCode(mg);//if var exists in right, the type of var may be changed. e.g. sum=0; sum=sum+0.1;
+						Tools.insertConversionInsn(mg, myType, ty);
+						mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
+					} else {
+						if(ty.getSort() == Type.ARRAY || ty.getSort() == Type.OBJECT) {
+							mg.visitInsn(Opcodes.ACONST_NULL);
+							mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
+						} else {
+							mg.visitInsn(Opcodes.ICONST_0);
+							Tools.insertConversionInsn(mg, Type.INT_TYPE, ty);
+							mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
+							
+						}
+					}
 				}
 			}
 		}
