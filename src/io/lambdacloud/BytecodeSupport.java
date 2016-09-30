@@ -407,6 +407,10 @@ public class BytecodeSupport {
 		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
 		return A.minus(r);
 	}
+	public static Jama.Matrix minus(double d, Jama.Matrix A) {
+		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
+		return r.minus(A);
+	}
 	public static Jama.Matrix times(Jama.Matrix A, double d) {
 		return A.times(d);
 	}
