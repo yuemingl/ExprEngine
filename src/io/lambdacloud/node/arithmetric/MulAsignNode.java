@@ -35,11 +35,13 @@ public class MulAsignNode extends BinaryOp {
 				left.genCode(mg);
 				right.genCode(mg);
 				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "times", "(LJama/Matrix;)LJama/Matrix;", false);
+				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(rt.getDescriptor()));
 			} else if(lt.getSort() == Type.OBJECT) {
 				left.genCode(mg); // load
 				right.genCode(mg);
 				Tools.insertConversionInsn(mg, right.getType(), Type.DOUBLE_TYPE);
 				mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "timesEquals", "(D)LJama/Matrix;", false);
+				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(lt.getDescriptor()));
 			} else if(rt.getSort() == Type.OBJECT) {
 				right.genCode(mg);
 				left.genCode(mg);
