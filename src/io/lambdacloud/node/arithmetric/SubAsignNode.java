@@ -42,10 +42,10 @@ public class SubAsignNode extends BinaryOp {
 				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "minus", "(LJama/Matrix;D)LJama/Matrix;", false);
 				mg.visitVarInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(lt.getDescriptor()));
 			} else if(rt.getSort() == Type.OBJECT) {
-				right.genCode(mg);
 				left.genCode(mg);
 				Tools.insertConversionInsn(mg, lt, Type.DOUBLE_TYPE);
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "minus", "(LJama/Matrix;D)LJama/Matrix;", false);
+				right.genCode(mg);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "minus", "(DLJama/Matrix;)LJama/Matrix;", false);
 
 				var.setType(myType); // Change the variable type here for later reference of the variable
 				mg.updateLVTIndex();

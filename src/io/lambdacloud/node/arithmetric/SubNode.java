@@ -36,10 +36,10 @@ public class SubNode extends BinaryOp {
 				Tools.insertConversionInsn(mg, rt, Type.DOUBLE_TYPE);
 				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "minus", "(LJama/Matrix;D)LJama/Matrix;", false);
 			} else if(rt.getSort() == Type.OBJECT) {
-				right.genCode(mg);
 				left.genCode(mg);
 				Tools.insertConversionInsn(mg, lt, Type.DOUBLE_TYPE);
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "minus", "(LJama/Matrix;D)LJama/Matrix;", false);
+				right.genCode(mg);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "minus", "(DLJama/Matrix;)LJama/Matrix;", false);
 			} else {
 				throw new RuntimeException();
 			}
