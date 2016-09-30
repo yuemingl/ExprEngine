@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import Jama.Matrix;
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MatlabEngine;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 
@@ -15,9 +16,16 @@ public class TestMatlabEngine {
 	public static void main(String[] args){
 		//Test logical constant
 		//assertEqual(exec("if true, 1; else 2; end"), 1);
+		//assertEqual(exec("a=1; a-=[1 2;3 4]; a"), getMatrix(new double[][]{{0,-1},{-2,-3}}));
+		//assertEqual(exec("a=1; a+=[1 2;3 4]; a=1.0; a"),1.0);
+		//assertEqual(exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A"), getMatrix(new double[][]{{3,8},{7,18}}));
+
+//		exec("function fib(n)\n if n<=1\n 1; else fib(n-1)+fib(n-2); end\n end\n fib(29)");
+//		//BUgfix: Two calls of 'r=fib(n-1)+fib(n-2)' for shadow variable of r.
+//		exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)");
 		
-		testBasic();
-//		testBasic2();
+//		testBasic();
+		testBasic2();
 //		testBasic3();
 //		testPrint();
 //		testComment();
@@ -33,11 +41,11 @@ public class TestMatlabEngine {
 	}
 	
 	public static void testMatrixInit() {
-		assertEqual(exec("[1 2 3];"), getMatrix(1,2,3).transpose());
-		assertEqual(exec("[1,2,3];"), getMatrix(1,2,3).transpose());
-		assertEqual(exec("[1, 2, 3];"), getMatrix(1,2,3).transpose());
-		assertEqual(exec("[1  2   3];"), getMatrix(1,2,3).transpose());
-		assertEqual(exec("[1,  2  ,  3];"), getMatrix(1,2,3).transpose());
+		assertEqual(exec("[1 2 3];"), getVector(1,2,3).transpose());
+		assertEqual(exec("[1,2,3];"), getVector(1,2,3).transpose());
+		assertEqual(exec("[1, 2, 3];"), getVector(1,2,3).transpose());
+		assertEqual(exec("[1  2   3];"), getVector(1,2,3).transpose());
+		assertEqual(exec("[1,  2  ,  3];"), getVector(1,2,3).transpose());
 
 		assertEqual(exec("a=1; b=2; c=3; d=4; [a b; c d];"), getMatrix(new double[][]{{1,2},{3,4}}));
 		
@@ -143,24 +151,24 @@ public class TestMatlabEngine {
 		 * 13 14 15
 		 */
 		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9; 10 11 12; 13 14 15]; A(end:-1:1);"),
-				getMatrix(15,12,9,6,3,14,11,8,5,2,13,10,7,4,1));
+				getVector(15,12,9,6,3,14,11,8,5,2,13,10,7,4,1));
 		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9; 10 11 12; 13 14 15]; idx=1:2:10; A(idx);"),
-			getMatrix(1,7,13,5,11));
+			getVector(1,7,13,5,11));
 		
 		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9; 10 11 12; 13 14 15]; A(:);"),
-				getMatrix(1,4,7,10,13,2,5,8,11,14,3,6,9,12,15));
+				getVector(1,4,7,10,13,2,5,8,11,14,3,6,9,12,15));
 				
 		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9; 10 11 12; 13 14 15]; A(4:end,2:end);"),
 				getMatrix(new double[][]{{11,12},{14,15}}));
 
 		assertEqual(exec("A=[10 20 30; 40 50 60]; A(4:6);"),
-				getMatrix(50,30,60));
+				getVector(50,30,60));
 		assertEqual(exec("A=[10 20 30; 40 50 60]; A(4);"), 50.0);
 		assertEqual(exec("A=[10 20 30; 40 50 60]; A(4:end);"),
-				getMatrix(50,30,60));
+				getVector(50,30,60));
 		
 		assertEqual(exec("A=[10 20 30; 40 50 60]; A(1:3);"),
-				getMatrix(10,40,20));
+				getVector(10,40,20));
 
 
 	}
@@ -198,14 +206,14 @@ public class TestMatlabEngine {
 		
 		assertEqual(exec("cidx = (0:m-1)';\n 1;", getMap("m",5.0)),1);
 		
-		assertEqual(exec("cidx = (0:m-1)';", getMap("m",5.0)), getMatrix(0,1,2,3,4));
+		assertEqual(exec("cidx = (0:m-1)';", getMap("m",5.0)), getVector(0,1,2,3,4));
 
 		assertEqual(exec("A=[1 2 3]; B=[1 5 6]; isequaln(A(1),B(1));"), true);
 		assertEqual(exec("A=[1 2 3]; B=[1 5 6]; ~isequaln(A(1),B(1));"), false);
 		
-		assertEqual(exec("A=[1 2 3; 4 5 6]; A=A(:);"), getMatrix(1,4,2,5,3,6));
-		assertEqual(exec("A=[1 2 3]; A(1)=10; A;"), getMatrix(10,2,3).transpose());
-		assertEqual(exec("A=[1 2 3]; A(1,1)=10; A;"), getMatrix(10,2,3).transpose());
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A=A(:);"), getVector(1,4,2,5,3,6));
+		assertEqual(exec("A=[1 2 3]; A(1)=10; A;"), getVector(10,2,3).transpose());
+		assertEqual(exec("A=[1 2 3]; A(1,1)=10; A;"), getVector(10,2,3).transpose());
 		
 		assertEqual(exec("A=[1 2 3]; A(1);"),   1.0);
 		assertEqual(exec("A=[1 2 3]; A(1,1);"), 1.0);
@@ -222,34 +230,34 @@ public class TestMatlabEngine {
 		assertEqual(exec("A=[1 2 3]'; B=[1 2 3]; bsxfun(@plus, A,B);"),
 				getMatrix(new double[][]{{2,3,4},{3,4,5},{4,5,6}}));
 		
-		assertEqual(exec("A=[1 2 3]; B=[1 2 3]; bsxfun(@plus, A,B);"), getMatrix(2,4,6).transpose());
+		assertEqual(exec("A=[1 2 3]; B=[1 2 3]; bsxfun(@plus, A,B);"), getVector(2,4,6).transpose());
 
-		assertEqual(exec("A=[1 2 3]; B=[4 5 6]; [A, B];"), getMatrix(1,2,3,4,5,6).transpose());
+		assertEqual(exec("A=[1 2 3]; B=[4 5 6]; [A, B];"), getVector(1,2,3,4,5,6).transpose());
 		assertEqual(exec("A=[1 2 3]; B=[4 5 6]; [A; B];"), getMatrix(new double[][]{{1,2,3},{4,5,6}}));
 		
 		
 		assertEqual(exec("A=[4 5 6; 1 2 3]; B=[10 20 30 40 50 60 70 80 90]; B(A);"),
-				getMatrix(40,10,50,20,60,30));
+				getVector(40,10,50,20,60,30));
 		
 		assertEqual(exec("A=[1 2 3 4]; B=[10 20 30 40 50 60 70 80 90]; B(A);"),
-				getMatrix(10,20,30,40));
+				getVector(10,20,30,40));
 		
 		
-		assertEqual(exec("3:1"), getMatrix(3,2,1).transpose());
-		assertEqual(exec("A=[1 2 3 4 5]; B=A(1,3:1);"), getMatrix(3,2,1).transpose());
-		assertEqual(exec("cidx = (10:-1:1)';"), getMatrix(10,9,8,7,6,5,4,3,2,1));
-		assertEqual(exec("A=[1 2 3]; A(:);"), getMatrix(1,2,3));
+		assertEqual(exec("3:1"), getVector(3,2,1).transpose());
+		assertEqual(exec("A=[1 2 3 4 5]; B=A(1,3:1);"), getVector(3,2,1).transpose());
+		assertEqual(exec("cidx = (10:-1:1)';"), getVector(10,9,8,7,6,5,4,3,2,1));
+		assertEqual(exec("A=[1 2 3]; A(:);"), getVector(1,2,3));
 
-		assertEqual(exec("sum=0.0; for i=[1 2 3], sum+=i; end sum"), 6);
-		assertEqual(exec("cidx = ([0 1 2])'; cidx;"), getMatrix(0,1,2));
-		assertEqual(exec("cidx = (0.0:1.0:m-1)'; cidx;", getMap("m",5.0)), getMatrix(0,1,2,3,4));
-		assertEqual(exec("cidx = (0:m-1)'; cidx", getMap("m",5)), getMatrix(0,1,2,3,4));
+		assertEqual(exec("sum=0.0; for i=[1 2 3], sum+=i; end sum"), 6.0);
+		assertEqual(exec("cidx = ([0 1 2])'; cidx;"), getVector(0,1,2));
+		assertEqual(exec("cidx = (0.0:1.0:m-1)'; cidx;", getMap("m",5.0)), getVector(0,1,2,3,4));
+		assertEqual(exec("cidx = (0:m-1)'; cidx", getMap("m",5)), getVector(0,1,2,3,4));
 
 		assertEqual(exec("c>r && c>r", getMap("c",1,"r",2)), false);
 		assertEqual(exec("isnumeric(c) && isnumeric(r)", getMap("c",1,"r",2)), true);
 		
-		assertEqual(exec("10:-1:1"), getMatrix(10,9,8,7,6,5,4,3,2,1));
-		assertEqual(exec("A=[1 2 3]; B=[10 20 30]; bsxfun(@plus, A, B)"), getMatrix(11,22,33));
+		assertEqual(exec("10:-1:1"), getVector(10,9,8,7,6,5,4,3,2,1).transpose());
+		assertEqual(exec("A=[1 2 3]; B=[10 20 30]; bsxfun(@plus, A, B)"), getVector(11,22,33).transpose());
 		
 	}
 	
@@ -278,7 +286,7 @@ public class TestMatlabEngine {
 	}
 	
 	public static void testBuildinFunc(){
-		assertEqual(exec("A = [1 2; 3 4; 5 6]; size(A);"), getMatrix(3,2).transpose());
+		assertEqual(exec("A = [1 2; 3 4; 5 6]; size(A);"), getVector(3,2).transpose());
 
 		assertEqual(exec("mod(3.0, 0.0);"), 3.0);
 		assertEqual(exec("rem(3.0, 0.0);"), Double.NaN);
@@ -305,10 +313,10 @@ public class TestMatlabEngine {
 		assertEqual(exec("eye(3);"), getMatrix(new double[][]{{1,0,0},{0,1,0},{0,0,1}}));
 		assertEqual(exec("eye(3,5);"), getMatrix(new double[][]{{1,0,0,0,0},{0,1,0,0,0},{0,0,1,0,0}}));
 		
-		assertEqual(exec("size(rand(3));"), getMatrix(3,3).transpose());
-		assertEqual(exec("size(rand(3,4));"), getMatrix(3,4).transpose());
+		assertEqual(exec("size(rand(3));"), getVector(3,3).transpose());
+		assertEqual(exec("size(rand(3,4));"), getVector(3,4).transpose());
 		
-		assertEqual(exec("linspace(0,1,5);"), getMatrix(0,0.2,0.4,0.6,0.8,1.0).transpose());
+		assertEqual(exec("linspace(0,1,5);"), getVector(0,0.2,0.4,0.6,0.8,1.0).transpose());
 		
 		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
 
@@ -384,191 +392,230 @@ public class TestMatlabEngine {
 	}
 	
 	public static void testBasic2(){
-		exec("'aaa'");
-		exec("'aaa'+'bbbb'");
 		
+		assertEqual(exec("'aaa'"), "aaa");
+		assertEqual(exec("'aaa'+'bbbb'"), "aaabbbb");
+		assertEqual(exec("'aaa'+\"bbbb\""), "aaabbbb");
+		
+		assertEqual(exec(" 1~=2 "), true);
+		assertEqual(exec("if 1~=2, 3 end"), null);
+		assertEqual(exec("for i in 1:3, i; end"), null);
+		assertEqual(exec("for i in 1:3, i end"),  null);
+		assertEqual(exec("for i in 1:3, i end i"), 4);
 
-		exec(" 1~=2 ");
-		exec("if 1~=2, 3 end");
-		exec("for i in 1:3, i end");
-
+		assertEqual(exec("a=[1 2;3 4]; a+=1; a"), getMatrix(new double[][]{{2,3},{4,5}}));
 		
-		exec("a=[1 2;3 4]; a+=1; a");
-		
-//		exec("function myfun(n); a=n; a+=1.5; a=3; a end myfun(3)");
-//		exec("function myfun(n); R=zeros(n); R end myfun(3)");
-//		exec("function myfun(n); R=zeros(n); R end myfun(3.5)");
+		assertEqual(exec("function myfun(n); a=n; a+=1.5; a=3; a end myfun(3)"),3);
+		assertEqual(exec("function myfun(n); R=zeros(n); R end myfun(3)"),
+				getMatrix(new double[3][3]));
+		assertEqual(exec("function myfun(n); R=zeros(n); R end myfun(3.5)"),
+				getMatrix(new double[3][3]));
 		
 		//VariableNode.mapLVTIndex is set at constructor
-		exec("a=1; a=2L; a=1.1; a");
-		
-		exec("A=[1 2; 3 4]; A*= 10; A");
-		
+		assertEqual(exec("a=1; a=2L; a=1.1; a"), 1.1);
 
-	//	if(true) return;
-		
-		exec("if 1>2; 1+2; 2+2; elseif 2>3; 0+1; elseif 3>4; 1+2; else 2+3; 3/4; 5*7; end");
-//		exec("if 1>2; 1; elseif 1<2; 4; end");
+		assertEqual(exec("if 1>2; 1+2; 2+2; elseif 2>3; 0+1; elseif 3>4; 1+2; else 2+3; 3/4; 5*7; end"),35);
+		assertEqual(exec("if 1>2; 1; elseif 1<2; 4; end"), null);
+		//???else if???assertEqual(exec("a=0; if 1>2; a=1; elseif 1<2; a=4; end a"), 4);
 
-		exec("for i in 1:10; i end");
-		exec("if n>1; 10 else -10 end", new int[]{2});
-		exec("for i=1:3; for j=10:10:30; i+j end end");
+		assertEqual(exec("if n>1; 10 else -10 end", new int[]{2}),10);
+		assertEqual(exec("r=0; for i=1:3; for j=10:10:30; r=i+j end end r"),33);
 		assertEqual(exec("sum=0.0; for i=[10 20 30], sum+=i; end sum;"), 60.0);
 		assertEqual(exec("sum=0.0; for i=[10 20 30; 40 50 60], sum+=i; end sum;"), 210.0);
 		
-		exec("A=[1 2; 3 4]; A(1,:)=[100 200]; A");
-		exec("A=[1 2; 3 4]; A(1,1)=[100]; A");//???
-		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=[100 200 300; 111 222 333]; A");
+		assertEqual(exec("A=[1 2; 3 4]; A(1,:)=[100 200]; A"), getMatrix(new double[][]{{100,200},{3,4}}));
+		assertEqual(exec("A=[1 2; 3 4]; A(1,1)=[100]; A"), getMatrix(new double[][]{{100,2},{3,4}}));//???
+		assertEqual(exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=[100 300 500; 111 333 555]; A"), 
+				getMatrix(new double[][]{{100,2,300,4,500,6},{111,22,333,44,555,66}}));
 		
-		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,:)=300; A");
-		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(1,1)=300; A");
-		exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=300; A");
+		assertEqual(exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,:)=9; A"),
+				getMatrix(new double[][]{{9,9,9,9,9,9},{9,9,9,9,9,9}}));
 		
-		exec("while i<10; i+=1; i end", new int[]{5});
-		exec("5 % 3");
+		assertEqual(exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(1,1)=9; A"),
+				getMatrix(new double[][]{{9,2,3,4,5,6},{11,22,33,44,55,66}}));
 		
-//		exec("if (i%2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
-		exec("if mod(i,2)==0; a+=1; else b+=1; end a\n b\n", new int[]{4,10,0});
-		exec("a=10; b=0; tic; while i<10; i+=1;  end toc; a\n b\n", new int[]{5});
+		assertEqual(exec("A=[1 2 3 4 5 6; 11 22 33 44 55 66]; A(:,1:2:5)=9; A"),
+				getMatrix(new double[][]{{9,2,9,4,9,6},{9,22,9,44,9,66}}));
+		
+		assertEqual(exec("r=0; while i<10; i+=1; r=i end r", new int[]{5}),10);
+		
+		//////mode//////
+		assertEqual(exec("5 % 3"),5); //% is for comment
+		assertEqual(exec("mod(5,3)"),2.0);
+		
+		assertEqual(exec("if mod(i,2)==0; a+=1; else b+=1; end i\n a\n b\n", 
+				new int[]{4,10,0}),10);//a=4,b=10,i=0
+		
+		assertEqual(exec("a=10; b=0; tic; while i<10; i+=1;  end toc; a\n b\n", new int[]{5}),0);
 	
-//		exec("a=10; b=0; tic; while i<10; i+=1; if i%2==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
-		exec("a=10; b=0; tic; while i<10; i+=1; if mod(i,2)==0; a+=1; else b+=1; end end toc; a\n b\n", new int[]{5});
+		assertEqual(exec("a=10; b=0; tic; while i<10; i+=1; if mod(i,2)==0; a+=1; else b+=1; end end toc; a\n b\n", 
+				new int[]{5}),2);
+		//////////////
 
-		exec("A=[1 2; 3 4]; A+=[10 20; 30 40]; A");
-		exec("a=1; a+=1; a");
-		exec("A=[1 2; 3 4]; A-=[10 20; 30 40]; A");
+		assertEqual(exec("A=[1 2; 3 4]; A+=[10 20; 30 40]; A"), getMatrix(new double[][]{{11,22},{33,44}}));
+		assertEqual(exec("a=1; a+=1; a"),2);
+		assertEqual(exec("A=[1 2; 3 4]; A-=[10 20; 30 40]; A"), getMatrix(new double[][]{{-9,-18},{-27,-36}}));
 		
-		exec("A=[1 2; 3 4]; A*= 10; A");
-		exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A");
-		exec("A    =    [1 2; 3 4]; A    *=     10; A");
-		exec("A = [1 2; 3 4]; A *= [1 2; 1 3]; A");
+		assertEqual(exec("A=[1 2; 3 4]; A*= 10; A"), getMatrix(new double[][]{{10,20},{30,40}}));
+		
+		assertEqual(exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A"), getMatrix(new double[][]{{3,8},{7,18}}));
+		
+		assertEqual(exec("A    =    [1 2; 3 4]; A    *=     10; A"), getMatrix(new double[][]{{10,20},{30,40}}));
+		assertEqual(exec("A = [1 2; 3 4]; A *= [1 2; 1 3]; A"), getMatrix(new double[][]{{3,8},{7,18}}));
 		
 		
-		exec("A = [1 2; 3 4]; A(1,1)");
+		assertEqual(exec("A = [1 2; 3 4]; A(1,1)"),1.0);
 	
-		exec(" A = [1 2; 1 -1]\n b=[5 -1]'\n A/=b; A");
+		assertEqual(exec(" A = [1 2; 1 -1]\n b=[5 -1]'\n A/=b; A"), getMatrix(new double[][]{{1,2},{1,-1}}).solve(getVector(5,-1)));
 		Jama.Matrix A = getMatrix(new double[][]{{1,2},{1,-1}});
-		Jama.Matrix b = getMatrix(5,-1);
+		Jama.Matrix b = getVector(5,-1);
 		A.print(8, 2);
 		b.print(8, 2);
 		A.solve(b).print(8, 2);
 		
-		exec("A = [1 2; 3 4]; A(:)");
-		exec("A = [1 2; 3 4; 5 6]; size(A)");
-		exec("A = [1 2; 3 4]; length(A)");
+		assertEqual(exec("A = [1 2; 3 4]; A(:)"), getVector(1,3,2,4));
+		assertEqual(exec("A = [1 2; 3 4; 5 6]; size(A)"), getVector(3,2).transpose());
+		assertEqual(exec("A = [1 2; 3 4]; length(A)"), 2); //max(rowDim,colDim)
 
-		exec("A = [1 2; 3 4]; A(1.0, 1)");
+		assertEqual(exec("A = [1 2; 3 4]; A(1.0, 1)"),1.0);
 
-		exec("A = [1 2; 3 4; 5 6]\n reshape(A,2,3)");
-		exec("A = [1 3; 4 2]\n repmat(A,2,3)");
+		//1 2
+		//3 4
+		//5 6
+		assertEqual(exec("A = [1 2; 3 4; 5 6]\n reshape(A,2,3)"), getMatrix(new double[][]{{1,5,4},{3,2,6}}));
+		assertEqual(exec("A = [1 3; 4 2]\n repmat(A,2,3)"), 
+		//BytecodeSupport.repmat(getMatrix(new double[][]{{1 3},{4 2}}),2,3));
+				getMatrix(new double[][]{
+					{1.00,      3.00,      1.00,      3.00,      1.00,      3.00},
+					{4.00,      2.00,      4.00,      2.00,      4.00,      2.00},
+					{1.00,      3.00,      1.00,      3.00,      1.00,      3.00},
+					{4.00,      2.00,      4.00,      2.00,      4.00,      2.00}}));
+		
+		assertEqual(exec("A = [1 3; 4 2]; ones(A)"), getMatrix(new double[][]{{1,1},{1,1}}));
+		assertEqual(exec("A = [1 3; 4 2]; zeros(A)"), getMatrix(new double[][]{{0,0},{0,0}}));
+		
+		assertEqual(exec("A = []; A\n length(A)\n numel(A)"),0);
 
-		exec("A = [1 3; 4 2]; ones(A)");
-		exec("A = [1 3; 4 2]; zeros(A)");
+		assertEqual(exec("4^2"),16);
 		
-		exec("A = []; A\n length(A)\n numel(A)");
+		assertEqual(exec("r = -((n-j+1)*r*(n+j-1))/(j-1)^2; r", new double[]{1,2,3}),Double.NEGATIVE_INFINITY);
 		
+		assertEqual(exec("r=0; for i = 1:n; r+=i end r", new int[]{3}),6);
 		
+		//?????assertEqual(exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1)^2; end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3}),
+		//?????		Double.NEGATIVE_INFINITY);
+		//?????assertEqual(exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1); end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3}),
+		//?????		Double.NEGATIVE_INFINITY);
+		//?????assertEqual(exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1)); end p = ((n-i)*p*(n+i))/i end", new int[]{3}),
+		//?????		Double.NEGATIVE_INFINITY);
+		//assertEqual(exec("p=n; for i = 1:n; i^2  end", new int[]{3});
+		//assertEqual(exec("p=n; for i = 1:n; p^2; end", new int[]{3});
+		assertEqual(exec("r=0; if n>1; r=p^2 else r=p end r", new int[]{2,3}),9);
 
-		exec("4^2");
-		
-		
-		exec("r = -((n-j+1)*r*(n+j-1))/(j-1)^2; r", new double[]{1,2,3});
-		
-
-			
-		exec("for i = 1:n; i end", new int[]{3});
-		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1)^2; end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3});
-		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1))/(j-1); end p = ((n-i)*p*(n+i))/(i^2); end", new int[]{3});
-		exec("p=n; for i = 1:n; r = p*p; for j = i+1:n; r = -((n-j+1)*r*(n+j-1)); end p = ((n-i)*p*(n+i))/i end", new int[]{3});
-		//exec("p=n; for i = 1:n; i^2  end", new int[]{3});
-		//exec("p=n; for i = 1:n; p^2; end", new int[]{3});
-		exec("if n>1; p^2 else p end", new int[]{2,3});
-
-		exec("function H = invhilb(n); H=zeros(n); p = n; for i = 1:n; r = p*p;  p end r=0.0; p=0.0; end invhilb(3)");
+		//?????assertEqual(exec("function H = invhilb(n); H=zeros(n); p = n; for i = 1:n; r = p*p;  p end r=0.0; p=0.0; end invhilb(3)"),
+		//?????		100);
 //java.lang.IllegalArgumentException: wrong number of arguments
-//		exec("-((n-j+1)*r*(n+j-1))/((j-1)*(j-1))",getMap("i",1,"j",2,"n",3,"r",9));
-		exec("-((n-j+1)*r*(n+j-1))",getMap("j",2,"n",3,"r",9));
-		exec("(n-j+1)*r*(n+j-1)",getMap("j",2,"n",3,"r",9));
-		exec("r*(n+j-1)",getMap("j",2,"n",3,"r",9));
-		exec("(n-j+1)*r",getMap("j",2,"n",3,"r",9));
+//		assertEqual(exec("-((n-j+1)*r*(n+j-1))/((j-1)*(j-1))",getMap("i",1,"j",2,"n",3,"r",9));
+		assertEqual(exec("-((n-j+1)*r*(n+j-1))",getMap("j",2,"n",3,"r",9)),-72);
+		assertEqual(exec("(n-j+1)*r*(n+j-1)",getMap("j",2,"n",3,"r",9)),72);
+		assertEqual(exec("r*(n+j-1)",getMap("j",2,"n",3,"r",9)),36);
+		assertEqual(exec("(n-j+1)*r",getMap("j",2,"n",3,"r",9)),18);
 		
-		exec("n-j+1",getMap("j",2,"n",3)); //n-(j+1)???
-		exec("n+j-1",getMap("j",2,"n",3)); //n-(j+1)???
-		exec("n/j*2",getMap("j",2,"n",3)); //n-(j+1)???
-		exec("(n/j)*2",getMap("j",2,"n",3)); //n-(j+1)???
-		
-		
-		exec("((j-1)*(j-1))",getMap("j",2));
-		//exec("-((n-j+1)*r*(n+j-1))/((j-1)*(j-1))",getMap("j",2,"n",3,"r",9));
+		assertEqual(exec("n-j+1",getMap("j",2,"n",3)),2); //n-(j+1)???
+		assertEqual(exec("n+j-1",getMap("j",2,"n",3)),4);
+		assertEqual(exec("n/j*2",getMap("j",2,"n",3)),3.0);
+		assertEqual(exec("(n/j)*2",getMap("j",2,"n",3)),3.0);
 		
 		
-		exec("3*[1 2;3 4]");
-		exec("[1 2;3 4]*3");
-		exec("[1 2;3 4]*[1 2;3 4]");
+		assertEqual(exec("((j-1)*(j-1))",getMap("j",2)),1);
+		assertEqual(exec("-((n-j+1)*r*(n+j-1))/((j-1)*(j-1))",getMap("j",2,"n",3,"r",9)),-72.0);
 		
-		exec("3+[1 2;3 4]");
-		exec("[1 2;3 4]+3");
-		exec("[1 2;3 4]+[1 2;3 4]");
 		
-		exec("3-[1 2;3 4]");
-		exec("[1 2;3 4]-3");
-		exec("[1 2;3 4]-[1 2;3 4]");
+		assertEqual(exec("3*[1 2;3 4]"), getMatrix(new double[][]{{3,6},{9,12}}));
+		assertEqual(exec("[1 2;3 4]*3"), getMatrix(new double[][]{{3,6},{9,12}}));
+		assertEqual(exec("[1 2;3 4]*[1 2;3 4]"), getMatrix(new double[][]{{7,10},{15,22}}));
 		
-		exec("a=1; a=1.1; a");
-		exec("a=1; a=a+1.1; a");
-		exec("a=1; a=a+1.1; a=2; a");
+		assertEqual(exec("3+[1 2;3 4]"), getMatrix(new double[][]{{4,5},{6,7}}));
+		assertEqual(exec("[1 2;3 4]+3"), getMatrix(new double[][]{{4,5},{6,7}}));
+		assertEqual(exec("[1 2;3 4]+[1 2;3 4]"), getMatrix(new double[][]{{2,4},{6,8}}));
 		
-		exec("a=[1 2;3 4]; a+=1; a");
-		exec("a=1; a+=[1 2;3 4]; a");
-		exec("a=1; a+=[1 2;3 4]; a=1.0; a");
+		assertEqual(exec("3-[1 2;3 4]"), getMatrix(new double[][]{{2,1},{0,-1}}));
+		assertEqual(exec("[1 2;3 4]-3"), getMatrix(new double[][]{{-2,-1},{0,1}}));
+		assertEqual(exec("[1 2;3 4]-[1 2;3 4]"), getMatrix(new double[][]{{0,0},{0,0}}));
 		
-		exec("a=[1 2;3 4]; a*=2; a");
-		exec("a=2; a*=[1 2;3 4]; a");
-		exec("a=2; a*=[1 2;3 4]; a=1.0; a");
+		//Test shadow variables
+		assertEqual(exec("a=1; a=1.1; a"),1.1);
+		assertEqual(exec("a=1; a=a+1.1; a"),2.1);
+		assertEqual(exec("a=1; a=a+1.1; a=2; a"),2);
+		assertEqual(exec("a=[1 2;3 4]; a=1.0; a"), 1.0);
+		
+		assertEqual(exec("a=[1 2;3 4]; a+=1; a"), getMatrix(new double[][]{{2,3},{4,5}}));
+		assertEqual(exec("a=1; a+=[1 2;3 4]; a"), getMatrix(new double[][]{{2,3},{4,5}}));
+		assertEqual(exec("a=1; a+=[1 2;3 4]; a=1.0; a"),1.0);
+		
+		
+		assertEqual(exec("a=[1 2;3 4]; a*=2; a"), getMatrix(new double[][]{{2,4},{6,8}}));
+		assertEqual(exec("a=2; a*=[1 2;3 4]; a"), getMatrix(new double[][]{{2,4},{6,8}}));
+		assertEqual(exec("a=2; a*=[1 2;3 4]; a=1.0; a"),1.0);
 
-		exec("a=[1 2;3 4]; a-=1; a");
-		exec("a=1; a-=[1 2;3 4]; a");
-		exec("a=1; a-=[1 2;3 4]; a=1.0; a");
+		assertEqual(exec("a=[1 2;3 4]; a-=1; a"), getMatrix(new double[][]{{0,1},{2,3}}));
+		assertEqual(exec("a=1; a-=[1 2;3 4]; a"), getMatrix(new double[][]{{0,-1},{-2,-3}}));
+		assertEqual(exec("a=1; a-=[1 2;3 4]; a=1.0; a"),1.0);
 		
-		exec("a=[1 2;3 4]; a%=2; a");
-		exec("a=2; a%=[1 2;3 4]; a");
-		exec("a=2; a%=[1 2;3 4]; a=1.0; a");
+		//?????assertEqual(exec("a=[1 2;3 4]; a%=2; a"), getMatrix(new double[][]{{1,0},{1,0}}));
+		//?????assertEqual(exec("a=2; a%=[1 2;3 4]; a"), getMatrix(new double[][]{{0,0},{2,2}}));
+		//?????assertEqual(exec("a=2; a%=[1 2;3 4]; a=1.0; a"),1.0);
 		
-		exec("a=1; a+=1.5; a");
-		exec("a=1; a-=1.5; a");
-		exec("a=1; a*=1.5; a");
-		exec("a=1; a/=1.5; a");
+		assertEqual(exec("a=1; a+=1.5; a"),2.5);
+		assertEqual(exec("a=1; a-=1.5; a"),-0.5);
+		assertEqual(exec("a=1; a*=1.5; a"),1.5);
+		assertEqual(exec("a=1; a/=1.5; a"),1.0/1.5);
 		
-		exec("[1 2;3 4] % 3");
-		exec("[1 2;3 4]%[5 6 ;7 8]");
-		exec("2%[1 2;3 4]");
+		//?????assertEqual(exec("[1 2;3 4] % 3"), getMatrix(new double[][]{{1,2},{0,1}}));
+		//?????assertEqual(exec("[1 2;3 4]%[5 6 ;7 8]"), getMatrix(new double[][]{{1,2},{3,4}}));
+		//?????assertEqual(exec("2%[1 2;3 4]"), getMatrix(new double[][]{{0,0},{2,2}}));
 		
-		exec("A=[1 2; 3 4]; sz=size(A); m=sz(1,1); n=sz(1,2); m");
+		assertEqual(exec("A=[1 2 3; 4 5 6]; sz=size(A); m=sz(1,1); n=sz(1,2); m"), 2.0);
 		
-		exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2) end A=[1 2; 3 4]; GE(A)");
+		assertEqual(exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2) end A=[1 2 3; 4 5 6]; GE(A)"), 3.0);
 		
-		exec("A=[1 2 3; 4 5 6;  7 8 9]; triu(A)");
+		assertEqual(exec("A=[1 2 3; 4 5 6;  7 8 9]; triu(A)"), getMatrix(new double[][]{{1,2,3},{0,5,6},{0,0,9}}));
 
 		
 		
-		exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2); U=triu(A)\n m\n n\n end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
-		exec("function GE(A); U=A; U end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
-		exec("function U = GE(A); U=triu(A); end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)");
-		exec("A=[1 2 3; 4 5 6; 7 8 9]; for i=1:3; A(1:3,i) end");
-		exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3.0,1)");
-		exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3,1)=2*A(1:3,1)");
+		assertEqual(exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2); U=triu(A)\n m\n n\n end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
+				3.0);
+		assertEqual(exec("function GE(A); U=A; U end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
+				getMatrix(new double[][]{{1,2,3},{4,5,6},{7,8,9}}));
+		//???assertEqual(exec("function U = GE(A); U=triu(A); end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
+		//???		getMatrix(new double[][]{{1,2,3},{0,5,6},{0,0,9}}));
+		//???assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; for i=1:3; A(1:3,i) end"),
+		//???		getMatrix(new double[][]{{1,2,3},{0,4,5},{0,0,9}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3,1)"),
+				getVector(1,4,7));
+		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3,1)=2*A(1:3,1)"),
+				getMatrix(new double[][]{{2,2,3},{8,5,6},{14,8,9}}));
 		
 		
 //		assertEqual(exec("function r=fib(n)\n  r=fib(n-1); end\n fib(42)"),433494437);
 		
-		exec("A=[1 2; 3 4]; S=[1 2]; S\n S=size(A)");
-		exec("A=[1 2; 3 4]; S=[1 2]; S\n S(1,:)=size(A)");
+		assertEqual(exec("A=[1 2; 3 4]; S=[1 2]; S\n S=size(A)"),
+				getVector(2,2).transpose());
+		assertEqual(exec("A=[1 2; 3 4]; S=[1 2]; S\n S(1,:)=size(A)"),
+				getVector(2,2).transpose());
 
-		exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n");
-		exec("A=[1 2  3; 4 5 6]; [m, n]=size(A); m\n n\n");
-		exec("[m n]=[1 2]; m\n n\n");
+		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
+		assertEqual(exec("A=[1 2  3; 4 5 6]; [m, n]=size(A); m\n n\n"),3.0);
+		assertEqual(exec("[m n]=[1 2]; m\n n\n"),2.0);
+
+		//???assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)"),433494437);
 
 	}
+	
+//	assertEqual(exec("function r=fib(r, n); A=[1 1; 1 0]; if n<1; r=1; else r=A*r; r=fib(r, n-1); end end fib([1 1]', 5)"), 
+//	new Jama.Matrix(new double[]{13,8},2));
+	
+	
 	
 	public static void testBasic() {
 		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
@@ -585,15 +632,8 @@ public class TestMatlabEngine {
 
 		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
 		Matrix N = new Matrix(new double[][]{{10,20},{30,40}});
-		Matrix d = getMatrix(3,4); //column vector
+		Matrix d = getVector(3,4); //column vector
 		
-		assertEqual(exec("C(   :  , :  )", getMap("C",C)), C);
-		
-		assertEqual(exec("A(1:3,2:3)+B(1:3,2:3)",  getMap("A",A,"B",B)), A1.plus(B1));
-		exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)");
-		
-		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)"),433494437);
-
 		assertEqual(exec("-A",    getMap("A",A)),       A.uminus());
 		assertEqual(exec("A+B",   getMap("A",A,"B",B)), A.plus(B));
 		assertEqual(exec("A-B",   getMap("A",A,"B",B)), A.minus(B));
@@ -604,19 +644,14 @@ public class TestMatlabEngine {
 		assertEqual(exec("A.\\B", getMap("A",A,"B",B)), A.arrayLeftDivide(B));
 		assertEqual(exec("A./B",  getMap("A",A,"B",B)), A.arrayRightDivide(B));
 
-		
-//		assertEqual(exec("function r=fib(r, n); A=[1 1; 1 0]; if n<1; r=1; else r=A*r; r=fib(r, n-1); end end fib([1 1]', 5)"), 
-//		new Jama.Matrix(new double[]{13,8},2));
-
-		assertEqual(exec("tic; toc; 1"),1);
-		assertEqual(exec("tic; 9+10\n toc; 1"),1);
+		assertEqual(exec("tic; toc; 1;"),1);
+		assertEqual(exec("tic; 9+10\n toc; 1;"),1);
 
 		assertEqual(exec("[1 2; 3 4] + [11 22; 33 44]"), getMatrix(new double[][]{{12,24},{36,48}}));
 		assertEqual(exec("for i=1:2:10; i\n end"), null);
 		assertEqual(exec("for i=1:10; i\n end"), null);
 		assertEqual(exec("for i=1:10; i; end"), null);
 
-		
 		//Test order of parameters in the generated function
 		assertEqual(exec("b-a",   getMap("a",1,"b",3)), 2);
 		assertEqual(exec("a-b",   getMap("a",1,"b",3)), -2);
@@ -629,7 +664,7 @@ public class TestMatlabEngine {
 		assertEqual(MatlabEngine.exec("if n<=1; r=5;r;1\n else 7; 9; 8; end",new int[]{8}), 8);
 		assertEqual(MatlabEngine.exec("r=0; if n<=1; r=5\n end r",new int[]{0}), 5);
 		assertEqual(MatlabEngine.exec("r=0; if n<=1; r=5; end r",new int[]{0}), 5);
-		System.out.println(MatlabEngine.exec("1+1; 2\n r=9"));
+		assertEqual(MatlabEngine.exec("1+1; 2\n r=9"),9);
 		
 		assertEqual(exec("if 1>2; 3;   \nelse\n 4\n end"),4);
 		assertEqual(exec("if 1>2; 3\n else\n 4\n end"),4);
@@ -647,7 +682,7 @@ public class TestMatlabEngine {
 		assertEqual(exec("1 == 2"), false);
 		assertEqual(exec("1 != 2"), true);
 		
-		assertEqual(exec("[10.0 20.0 30.0]'"), getMatrix(10,20,30));
+		assertEqual(exec("[10.0 20.0 30.0]'"), getVector(10,20,30));
 
 		Matrix D = new Matrix(
 				new double[]{1,2,3,4,5,6,7,8,9,10,
@@ -669,27 +704,28 @@ public class TestMatlabEngine {
 			assertEqual(exec("C(:, 0:2:5)", getMap("C",C)), C.getMatrix(0,1, new int[]{0,2,4}));
 		}
 		
+		
 		assertEqual(exec("C(   :  , :  )", getMap("C",C)), C);
 		assertEqual(exec("C(:  , :)", getMap("C",C)), C);
 		assertEqual(exec("C(:, :)", getMap("C",C)), C);
 		assertEqual(exec("C(:,:)", getMap("C",C)), C);
 
-		assertEqual(exec("0.0 : 0.5 : 1.6"), getMatrix(0,0.5,1,1.5).transpose());
-		assertEqual(exec("0.0 : 0.5 : 1.4"), getMatrix(0,0.5,1).transpose());
-		assertEqual(exec("0.0 : 0.5 : 1.5"), getMatrix(0,0.5,1,1.5).transpose());
-		assertEqual(exec("1:2:6"), getMatrix(1,3,5).transpose());
-		assertEqual(exec("1:2:5"), getMatrix(1,3,5).transpose());
-		assertEqual(exec("1:5"), getMatrix(1,2,3,4,5).transpose());
+		assertEqual(exec("0.0 : 0.5 : 1.6"), getVector(0,0.5,1,1.5).transpose());
+		assertEqual(exec("0.0 : 0.5 : 1.4"), getVector(0,0.5,1).transpose());
+		assertEqual(exec("0.0 : 0.5 : 1.5"), getVector(0,0.5,1,1.5).transpose());
+		assertEqual(exec("1:2:6"), getVector(1,3,5).transpose());
+		assertEqual(exec("1:2:5"), getVector(1,3,5).transpose());
+		assertEqual(exec("1:5"), getVector(1,2,3,4,5).transpose());
 
 		if(MatrixAccessNode.INDEX_BASE == 1) {
 			assertEqual(exec("A(:,2:3)", getMap("A",A)), A.getMatrix(0,2,1,2));
-			assertEqual(exec("A=[1 2;3 4]\n A(:,1)"), getMatrix(1,3));
-			assertEqual(exec("A=[1 2;3 4]\n A(2,:)"), getMatrix(3,4).transpose());
+			assertEqual(exec("A=[1 2;3 4]\n A(:,1)"), getVector(1,3));
+			assertEqual(exec("A=[1 2;3 4]\n A(2,:)"), getVector(3,4).transpose());
 			assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
 		} else {
 			assertEqual(exec("A(:,1:2)", getMap("A",A)), A.getMatrix(0,2,1,2));
-			assertEqual(exec("A=[1 2;3 4]\n A(:,0)"), getMatrix(1,3));
-			assertEqual(exec("A=[1 2;3 4]\n A(1,:)"), getMatrix(3,4).transpose());
+			assertEqual(exec("A=[1 2;3 4]\n A(:,0)"), getVector(1,3));
+			assertEqual(exec("A=[1 2;3 4]\n A(1,:)"), getVector(3,4).transpose());
 			assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
 		}
 
@@ -755,7 +791,7 @@ public class TestMatlabEngine {
 			assertEqual(exec("A(1:2,2)", getMap("A",A)), A.getMatrix(1,2,2,2));
 		}
 		
-		assertEqual(exec("[1. .2 3.]"), getMatrix(1,0.2,3).transpose());
+		assertEqual(exec("[1. .2 3.]"), getVector(1,0.2,3).transpose());
 		
 		assertEqual(exec("A\\b", getMap("A",A,"b",b)), A.solve(b));
 		
@@ -767,11 +803,11 @@ public class TestMatlabEngine {
 		assertEqual(exec("a+b", getMap("a",2,"b",3)), 5);
 		
 		
-		assertEqual(exec("[10.0 20.0 30.0]"), getMatrix(10,20,30).transpose());
+		assertEqual(exec("[10.0 20.0 30.0]"), getVector(10,20,30).transpose());
 		
 	}
 	
-	public static Jama.Matrix getMatrix(double ...args) {
+	public static Jama.Matrix getVector(double ...args) {
 		return new Jama.Matrix(args, args.length);
 	}
 	
