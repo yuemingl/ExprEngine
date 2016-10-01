@@ -3,6 +3,9 @@ package io.lambdacloud.node;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.objectweb.asm.Type;
 
@@ -10,27 +13,28 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.MethodGenHelper;
 
+/**
+ * VariableNode represents a variable (or a function parameter).
+ *
+ * @author yueming.liu
+ *
+ */
 public class VariableNode extends ExprNode {
 	private String name;
-	private Type type;
-	
+	private Type activeType;
 	//Local Variable Table Index for each type of the variable
-	private HashMap<String, Integer> mapLVTIndex = new HashMap<String, Integer>(); 
+	private Map<Type, Integer> mapTypeLVTIdx = new LinkedHashMap<Type, Integer>(); 
 	
-	//Variable Scope Type: 1 parameter; 2 local variable; 3 global?
+	//Variable Scope Type: 1 parameter; 2 local variable; 3 global (TODO)
 	private int varLoc; 
 	
-	//This is mainly used to carry type info for arrays generated from list comprehension
-	//public ExprNode lastValue;
-	
 	//It is no need to keep a list of values for a VariableNode.
-	//What we really need is the type for each assignment 
-	
+	//What we really need is the type for each assignment statement. 
 	//private ArrayList<ExprNode> valueList = new ArrayList<ExprNode>(); 
 	
-	//Optional parameter if true (for parameter type of variable)
-	private boolean isOptional = false;
-	
+	//Indicate if a function parameter is optional
+	//Ignore this flag for local/gobal variables
+	private boolean isOptionalParam = false;
 	
 	public String getName() {
 		return name;
@@ -40,38 +44,36 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public ArrayList<String> getVarTypes() {
-////		this.updateLVTIndex();
 		ArrayList<String> ret = new ArrayList<String>();
-		ret.addAll(this.mapLVTIndex.keySet());
+		for(Entry<Type, Integer> e : this.mapTypeLVTIdx.entrySet()) {
+			ret.add(e.getKey().getDescriptor());
+		}
 		return ret;
 	}
 	
 	public void setLVTIndex(String typeDesc, int idx) {
-		this.mapLVTIndex.put(typeDesc, idx);
+		this.mapTypeLVTIdx.put(Type.getType(typeDesc), idx);
+	}
+
+	public void setLVTIndex(Type type, int idx) {
+		this.mapTypeLVTIdx.put(type, idx);
 	}
 	
 	public int getLVTIndex() {
-		return this.mapLVTIndex.get(type.getDescriptor());
+		return this.mapTypeLVTIdx.get(this.activeType).intValue();
 	}
 	
 	public int getLVTIndex(String typeDesc) {
-		Integer idx =  this.mapLVTIndex.get(typeDesc);
-		//if(idx == null || idx == -1) {
+		return getLVTIndex(Type.getType(typeDesc));
+	}
+	
+	public int getLVTIndex(Type type) {
+		Integer idx =  this.mapTypeLVTIdx.get(type);
 		if(idx == null) {
-			throw new RuntimeException("The LVT index of "+typeDesc+" is "+idx);
+			throw new RuntimeException("The variable "+name+" cannot be of type "+type.getDescriptor());
 		}
 		return idx;
 	}
-	
-//	public void addValue(ExprNode val) {
-//		this.valueList.add(val);
-//		//We don't need to get type from value when adding value expression to the variable
-//		//The type information (mapLVTIndex) can be obtained in the call of updateType()
-//		
-//		//if(null != val.getType())
-//		//	this.mapLVTIndex.put(val.getType().getDescriptor(), -1);
-//		//this.type = val.getType();
-//	}
 	
 	public boolean isParameter() {
 		return varLoc == 1;
@@ -90,7 +92,7 @@ public class VariableNode extends ExprNode {
 	}
 	
 	/**
-	 * Create a parameter variable in LVT
+	 * Create a parameter variable
 	 * @param name
 	 * @param type 'null' is allowed for type
 	 * @return
@@ -98,15 +100,15 @@ public class VariableNode extends ExprNode {
 	public static VariableNode newParameter(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
-		node.type = type;
+		node.activeType = type;
 		if(null != type)
-			node.mapLVTIndex.put(type.getDescriptor(), -1);
+			node.mapTypeLVTIdx.put(type, -1);
 		node.varLoc = 1;
 		return node;
 	}
 	
 	/**
-	 * Create a locate variable in LVT
+	 * Create a locate variable
 	 * @param name
 	 * @param type 'null' is allowed for type
 	 * @return
@@ -114,87 +116,67 @@ public class VariableNode extends ExprNode {
 	public static VariableNode newLocalVar(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
-		node.type = type;
+		node.activeType = type;
 		if(null != type)
-			node.mapLVTIndex.put(type.getDescriptor(), -1);
+			node.mapTypeLVTIdx.put(type, -1);
 		node.varLoc = 2;
 		return node;
 	}
 	
-	private VariableNode() {
-	}
-	
-//	@Override 
-//	public Type getType() {
-//		if(null != this.lastValue && this != this.lastValue) {
-//			return this.lastValue.getType();
-//		} else {
-//			return type;
-//		}
-//	}
-	
 	public String toString() {
 		String loc = "L";
 		if(this.varLoc == 1) loc = "P";
-		if(this.isOptional) loc += "?";
-		return this.name + ":" + type + ":" + loc + ":" + this.mapLVTIndex.toString();
+		if(this.isOptionalParam) loc += "?";
+		return this.name + "__" + activeType.getDescriptor() + "_" + loc + this.mapTypeLVTIdx.toString();
 	}
 	
 	public void genCode(MethodGenHelper mg) {
 		mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), this.getLVTIndex());
 	}
 
+	/**
+	 * Set type of the variable.
+	 * For a variable with more than one types, this type is set as currently active type
+	 * of the variable
+	 */
 	@Override
 	public void setType(Type type) {
 		if(null == type) {
-			this.type = null;
+			this.activeType = null;
 			return;
 		}
-		Integer idx = this.mapLVTIndex.get(type.getDescriptor());
-		//Clear the map for function parameter since arguments should be at the beginning of LVT with write type
-		//no other types are needed.
+		Integer idx = this.mapTypeLVTIdx.get(type);
+		
+		//Clear the map for function arguments since a argument (or parameter) should be 
+		//at the very beginning of LVT with the desired type
+		//No more than two types are allowed for a argument.
 		if(this.isParameter()) {
-			this.mapLVTIndex.clear();
+			this.mapTypeLVTIdx.clear();
 		}
+		
 		if(null == idx) {
-			this.mapLVTIndex.put(type.getDescriptor(), -1);
+			this.mapTypeLVTIdx.put(type, -1); //-1 for undetermined type
 		} else {
-			this.mapLVTIndex.put(type.getDescriptor(), idx);
+			this.mapTypeLVTIdx.put(type, idx);
 		}
-		this.type = type;
+		this.activeType = type;
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-//		/////////////Use this to avoid fixType() call
-//		if(null != this.lastValue)
-//			return this.lastValue.getType(stack);
-//		///////////////////////////////
-		return this.type;
+		return this.activeType;
 	}
 
 	@Override
 	public void updateType(Deque<Object> stack) {
-//		if(null != this.lastValue)
-//			this.lastValue.fixType(stack);
-//		
 //		throw new RuntimeException("This is deprecated");
 	}
 	
-//	public void updateLVTIndex() {
-//		for(ExprNode expr : this.valueList) {
-//			Type ty = expr.getType();
-//			Integer idx = this.mapLVTIndex.get(ty.getDescriptor());
-//			if(null == idx)
-//				this.mapLVTIndex.put(ty.getDescriptor(), -1);
-//		}
-//	}
-	
 	public boolean isOptional() {
-		return this.isOptional;
+		return this.isOptionalParam;
 	}
 	
 	public void setOptional(boolean isOptional) {
-		this.isOptional = isOptional;
+		this.isOptionalParam = isOptional;
 	}
 }
