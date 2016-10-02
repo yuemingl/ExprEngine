@@ -7,11 +7,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.Type;
+
 import Jama.Matrix;
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MatlabEngine;
+import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 
+/**
+ * The type of an optional function parameter is set to null. All the null type of function parameters
+ * will be ignored when generating bytecode. Two problems are solved:
+ * (1) A function call with less parameters than the declared number of parameters of a function;
+ * (2) The optional parameter in the expression of the function body can be ignored/skipped if the parameter appears 
+ * in a call of a function.
+ * Question (TODO):
+ * exec("function R=myProd(m, n), if nargin==1, r=m*m; else r=m*n; end end myProd(3);")
+ * m*n cannot be compiled if the type of n is null
+ * Bugs fixed:
+ * <1> exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)")
+ * two times assignement for 'r=fib(n-1)+fib(n-2);' due to two types of 'r' (e.g. I and D)
+ * 
+ * 
+ * TODO
+ * multi-assign:
+ * [A B;C] = D;
+ * 
+ * 
+ * 
+ * @author yueming.liu
+ *
+ */
 public class TestMatlabEngine {
 	public static void main(String[] args){
 		//Test logical constant
@@ -20,17 +46,36 @@ public class TestMatlabEngine {
 		//assertEqual(exec("a=1; a+=[1 2;3 4]; a=1.0; a"),1.0);
 		//assertEqual(exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A"), getMatrix(new double[][]{{3,8},{7,18}}));
 
-//		exec("function fib(n)\n if n<=1\n 1; else fib(n-1)+fib(n-2); end\n end\n fib(29)");
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end A=myfun() ");
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A]=myfun() ");
+
+//		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
+
+		
+//		//If the caller only pass one argument m, what's the type of n in the call of zeros(m,n)?
+//		exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3)");
+//		//exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3,2)");
+//		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
+//				getMatrix(new double[3][3]));
+//		
+//		//how to compile m*n if the type of n is null ?
+//		assertEqual(exec("function R=myProd(m, n), if nargin==1, r=m*m; else r=m*n; end end myProd(3);"),
+//				getMatrix(new double[3][3]));
+		
+		//		exec("function fib(n)\n if n<=1\n 1; else fib(n-1)+fib(n-2); end\n end\n fib(29)");
 //		//BUgfix: Two calls of 'r=fib(n-1)+fib(n-2)' for shadow variable of r.
 //		exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)");
-		
+//		testVariableNode();
+//		
 //		testBasic();
-		testBasic2();
+//		testBasic2();
 //		testBasic3();
 //		testPrint();
 //		testComment();
 //		testEndIndex();
-//		testNArgin();
+		testNArgin();
 //		testShaddowVariables();
 //		testBuildinFunc();
 //		testFunction();
@@ -38,6 +83,18 @@ public class TestMatlabEngine {
 //		testMatrixAssign();
 //		testMatrixAccess();
 		
+	}
+	
+	public static void testVariableNode() {
+		VariableNode v = new VariableNode();
+		v.setType(Type.DOUBLE_TYPE);
+		v.setLVTIndex(Type.DOUBLE_TYPE, 1);
+		v.setType(Type.getType("D"));
+		v.setLVTIndex("D", 2);
+		assertEqual(v.getLVTIndex(),2);
+		
+		v.setType(Type.DOUBLE_TYPE);
+		assertEqual(v.getLVTIndex(),2);
 	}
 	
 	public static void testMatrixInit() {
@@ -90,16 +147,78 @@ public class TestMatlabEngine {
 			{7.00,      8.00,     44.00,     88.00} }));
 	}
 	
-	public static void testMatrixAssign() {
+	/**
+	 * [A, B] = [C, D]
+	 * [m, n] = size(A)
+	 */
+	public static void testMultiAssign() {
 //		exec("[a b]=[2 3]; a");
 //		exec("[a b]=[2 3]; b");
 		
 //		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [C D]=[A B]; C\n D\n [C D]=[2 3]; C\n D\n");
 		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [C D]=[A B]; C\n D\n");
+
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end A=myfun() ");
+//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A]=myfun() ");
+//		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [C D]=[A B]; C\n D\n [C D]=[2 3]; C\n D\n");
+		exec("A=[1 2; 3 4]; B=[5 6 7 8]; [C D]=[A B]; C\n D\n");		
+}
+	
+	/**
+	 * A(:)=[1 2 3]
+	 * A(:,1)=[1 2 3]'
+	 */
+	public static void testMatrixAssign() { //ExprArrayAssign
+//		exec("[a b]=[2 3]; a");
+//		exec("[a b]=[2 3]; b");
+		
+
 	}
 	
+	/**
+	 * A(1,2)
+	 * A(:)
+	 * A(1:3,1:2:5)
+	 */
 	public static  void testMatrixAccess() {
+		double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+		double[][] array3 = {{1,2,3,4,5,6},{11,22,33,44,55,66}};
+		Matrix A = new Matrix(array);
+		Matrix C = new Matrix(array3);
+		Matrix M = new Matrix(new double[][]{{1,2},{3,4}});
+
+		Matrix D = new Matrix(
+				new double[]{1,2,3,4,5,6,7,8,9,10,
+						11,12,13,14,15,16,17,18,19,20,
+						21,22,23,24,25,26,27,28,29,30},
+				10).transpose();
 		
+		if(MatrixAccessNode.INDEX_BASE == 1) {
+			assertEqual(exec("A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]; A(1, 1:2)"), 
+					D.getMatrix(0, 0, 0, 1));
+			assertEqual(exec("C ( 2, 2:3:6 )", getMap("C",C)), C.getMatrix(1,1, new int[]{1,4}));
+			assertEqual(exec("C(1, 1:2:6)", getMap("C",C)), C.getMatrix(0,0, new int[]{0,2,4}));
+			assertEqual(exec("C(:, 1:2:6)", getMap("C",C)), C.getMatrix(0,1, new int[]{0,2,4}));
+		} else {
+			assertEqual(exec("A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]; A(0, 0:1)"), 
+					D.getMatrix(0, 0, 0, 1));
+			assertEqual(exec("C ( 1, 1:3:5 )", getMap("C",C)), C.getMatrix(1,1, new int[]{1,4}));
+			assertEqual(exec("C(0, 0:2:5)", getMap("C",C)), C.getMatrix(0,0, new int[]{0,2,4}));
+			assertEqual(exec("C(:, 0:2:5)", getMap("C",C)), C.getMatrix(0,1, new int[]{0,2,4}));
+		}
+		if(MatrixAccessNode.INDEX_BASE == 1) {
+			assertEqual(exec("A(:,2:3)", getMap("A",A)), A.getMatrix(0,2,1,2));
+			assertEqual(exec("A=[1 2;3 4]\n A(:,1)"), getVector(1,3));
+			assertEqual(exec("A=[1 2;3 4]\n A(2,:)"), getVector(3,4).transpose());
+			assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
+		} else {
+			assertEqual(exec("A(:,1:2)", getMap("A",A)), A.getMatrix(0,2,1,2));
+			assertEqual(exec("A=[1 2;3 4]\n A(:,0)"), getVector(1,3));
+			assertEqual(exec("A=[1 2;3 4]\n A(1,:)"), getVector(3,4).transpose());
+			assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
+		}	
 	}
 	
 	public static void testShaddowVariables() {
@@ -262,26 +381,37 @@ public class TestMatlabEngine {
 	}
 	
 	public static void testNArgin() {
-		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
-				getMatrix(new double[3][3]));
-		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(2,3);"),
-				getMatrix(new double[2][3]));
-		
-		//return value need to be specified????
-		//exec("function fun(a), if a<0, return end a+1; end fun(-1)");
-		assertEqual(exec("function r=fun(a), if a<0, return end a+1; end fun(-1)"), 0);
-		
-		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun();"),   0);
-		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  1);
-		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1,2);"),2);
 		assertEqual(exec("function fun(a, b), nargin; end fun()"),   0);
 		assertEqual(exec("function fun(a, b), nargin; end fun(2)"),  1);
 		assertEqual(exec("function fun(a, b), nargin; end fun(2,4)"),2);
 
+//		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
+//				getMatrix(new double[3][3]));
+//		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(2,3);"),
+//				getMatrix(new double[2][3]));
 		
-		//exec("function fun(a, b), a+b; end fun(2,4,6)"); //Too many parameters for function fun!
-		assertEqual(exec("function fun(a, b), a+b; end fun(2,4)"), 6);
-		assertEqual(exec("function fun(a, b), a+b; end fun(2)"), 2);
+		//early return test
+		//TODO: return value need to be specified in the following case
+		//exec("function fun(a), if a<0, return end a+1; end fun(-1)");
+		//exec("function fun(a), if a<0, return 0 end a+1; end fun(-1)");
+		//type of return value ('r')? 
+		//TODO: assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
+		assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
+
+		//Two possible ways to 
+		//1. Set the default value of optional parameter to 0/null
+		//   Problem: it is not good for function calls inside the body, e.g. zeros(a,b) (what if no overloaded function zeros(double, double) provided?)
+		//2. Set type of an optional parameter to null, so the parameter can be ignored
+		//   Problem: how to  compile a+b ?
+		//3. Combine the two ways? (sounds good)
+//		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun();"),   0);
+		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  1);
+		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1,2);"),3);
+//
+//		
+//		//exec("function fun(a, b), a+b; end fun(2,4,6)"); //Too many parameters for function fun!
+//		assertEqual(exec("function fun(a, b), a+b; end fun(2,4)"), 6);
+//		assertEqual(exec("function fun(a, b), a+b; end fun(2)"), 2);
 		
 	}
 	
@@ -330,7 +460,11 @@ public class TestMatlabEngine {
 	
 	public static void testFunction(){
 
-//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6 7 8]; end myfun()");
+		exec(" A=[1 2; 3 4]; B=[5 6; 7 8]; [A B] ");
+		exec("function A=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+		exec("function B=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+		exec("function myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; [A B]; end myfun()");
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
 		
 //		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
 //
@@ -388,7 +522,26 @@ public class TestMatlabEngine {
 //		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"), getMatrix(110,-90).transpose());
 //		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"), getMatrix(110,-90).transpose());
 //		assertEqual(exec("function c = myfun(a, b)\nc=a+b\nend\nmyfun(10,100)"),110);
-//
+		
+
+		assertEqual(exec("function myfun(n); a=n; a+=1.5; a=3; a end myfun(3)"),3);
+		assertEqual(exec("function myfun(n); R=zeros(n); R end myfun(3)"),
+				getMatrix(new double[3][3]));
+		assertEqual(exec("function myfun(n); R=zeros(n); R end myfun(3.5)"),
+				getMatrix(new double[3][3]));
+		assertEqual(exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2) end A=[1 2 3; 4 5 6]; GE(A)"), 3.0);
+		assertEqual(exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2); U=triu(A)\n m\n n\n end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
+				3.0);
+		assertEqual(exec("function GE(A); U=A; U end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
+				getMatrix(new double[][]{{1,2,3},{4,5,6},{7,8,9}}));
+		assertEqual(exec("function U = GE(A); U=triu(A); end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
+				getMatrix(new double[][]{{1,2,3},{0,5,6},{0,0,9}}));
+//		assertEqual(exec("function r=fib(n)\n  r=fib(n-1); end\n fib(42)"),433494437);
+		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(4)"),5);
+		
+		System.out.println("testing fib(42):");
+		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
+		System.out.println("done!");
 	}
 	
 	public static void testBasic2(){
@@ -404,13 +557,7 @@ public class TestMatlabEngine {
 		assertEqual(exec("for i in 1:3, i end i"), 4);
 
 		assertEqual(exec("a=[1 2;3 4]; a+=1; a"), getMatrix(new double[][]{{2,3},{4,5}}));
-		
-		assertEqual(exec("function myfun(n); a=n; a+=1.5; a=3; a end myfun(3)"),3);
-		assertEqual(exec("function myfun(n); R=zeros(n); R end myfun(3)"),
-				getMatrix(new double[3][3]));
-		assertEqual(exec("function myfun(n); R=zeros(n); R end myfun(3.5)"),
-				getMatrix(new double[3][3]));
-		
+				
 		//VariableNode.mapLVTIndex is set at constructor
 		assertEqual(exec("a=1; a=2L; a=1.1; a"), 1.1);
 
@@ -576,28 +723,14 @@ public class TestMatlabEngine {
 		//?????assertEqual(exec("2%[1 2;3 4]"), getMatrix(new double[][]{{0,0},{2,2}}));
 		
 		assertEqual(exec("A=[1 2 3; 4 5 6]; sz=size(A); m=sz(1,1); n=sz(1,2); m"), 2.0);
-		
-		assertEqual(exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2) end A=[1 2 3; 4 5 6]; GE(A)"), 3.0);
-		
 		assertEqual(exec("A=[1 2 3; 4 5 6;  7 8 9]; triu(A)"), getMatrix(new double[][]{{1,2,3},{0,5,6},{0,0,9}}));
-
 		
-		
-		assertEqual(exec("function GE(A); sz=size(A); m=sz(1,1); n=sz(1,2); U=triu(A)\n m\n n\n end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
-				3.0);
-		assertEqual(exec("function GE(A); U=A; U end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
-				getMatrix(new double[][]{{1,2,3},{4,5,6},{7,8,9}}));
-		//???assertEqual(exec("function U = GE(A); U=triu(A); end A=[1 2 3; 4 5 6; 7 8 9]; GE(A)"),
-		//???		getMatrix(new double[][]{{1,2,3},{0,5,6},{0,0,9}}));
-		//???assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; for i=1:3; A(1:3,i) end"),
-		//???		getMatrix(new double[][]{{1,2,3},{0,4,5},{0,0,9}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; r=[]; for i=1:3; r=A(1:3,i) end r"),
+				getVector(3,6,9));
 		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3,1)"),
 				getVector(1,4,7));
 		assertEqual(exec("A=[1 2 3; 4 5 6; 7 8 9]; A(1:3,1)=2*A(1:3,1)"),
 				getMatrix(new double[][]{{2,2,3},{8,5,6},{14,8,9}}));
-		
-		
-//		assertEqual(exec("function r=fib(n)\n  r=fib(n-1); end\n fib(42)"),433494437);
 		
 		assertEqual(exec("A=[1 2; 3 4]; S=[1 2]; S\n S=size(A)"),
 				getVector(2,2).transpose());
@@ -608,7 +741,6 @@ public class TestMatlabEngine {
 		assertEqual(exec("A=[1 2  3; 4 5 6]; [m, n]=size(A); m\n n\n"),3.0);
 		assertEqual(exec("[m n]=[1 2]; m\n n\n"),2.0);
 
-		//???assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)"),433494437);
 
 	}
 	
@@ -684,27 +816,6 @@ public class TestMatlabEngine {
 		
 		assertEqual(exec("[10.0 20.0 30.0]'"), getVector(10,20,30));
 
-		Matrix D = new Matrix(
-				new double[]{1,2,3,4,5,6,7,8,9,10,
-						11,12,13,14,15,16,17,18,19,20,
-						21,22,23,24,25,26,27,28,29,30},
-				10).transpose();
-		
-		if(MatrixAccessNode.INDEX_BASE == 1) {
-			assertEqual(exec("A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]; A(1, 1:2)"), 
-					D.getMatrix(0, 0, 0, 1));
-			assertEqual(exec("C ( 2, 2:3:6 )", getMap("C",C)), C.getMatrix(1,1, new int[]{1,4}));
-			assertEqual(exec("C(1, 1:2:6)", getMap("C",C)), C.getMatrix(0,0, new int[]{0,2,4}));
-			assertEqual(exec("C(:, 1:2:6)", getMap("C",C)), C.getMatrix(0,1, new int[]{0,2,4}));
-		} else {
-			assertEqual(exec("A=[1 2 3 4 5 6 7 8 9 10; 11 12 13 14 15 16 17 18 19 20; 21 22 23 24 25 26 27 28 29 30]; A(0, 0:1)"), 
-					D.getMatrix(0, 0, 0, 1));
-			assertEqual(exec("C ( 1, 1:3:5 )", getMap("C",C)), C.getMatrix(1,1, new int[]{1,4}));
-			assertEqual(exec("C(0, 0:2:5)", getMap("C",C)), C.getMatrix(0,0, new int[]{0,2,4}));
-			assertEqual(exec("C(:, 0:2:5)", getMap("C",C)), C.getMatrix(0,1, new int[]{0,2,4}));
-		}
-		
-		
 		assertEqual(exec("C(   :  , :  )", getMap("C",C)), C);
 		assertEqual(exec("C(:  , :)", getMap("C",C)), C);
 		assertEqual(exec("C(:, :)", getMap("C",C)), C);
@@ -717,17 +828,7 @@ public class TestMatlabEngine {
 		assertEqual(exec("1:2:5"), getVector(1,3,5).transpose());
 		assertEqual(exec("1:5"), getVector(1,2,3,4,5).transpose());
 
-		if(MatrixAccessNode.INDEX_BASE == 1) {
-			assertEqual(exec("A(:,2:3)", getMap("A",A)), A.getMatrix(0,2,1,2));
-			assertEqual(exec("A=[1 2;3 4]\n A(:,1)"), getVector(1,3));
-			assertEqual(exec("A=[1 2;3 4]\n A(2,:)"), getVector(3,4).transpose());
-			assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
-		} else {
-			assertEqual(exec("A(:,1:2)", getMap("A",A)), A.getMatrix(0,2,1,2));
-			assertEqual(exec("A=[1 2;3 4]\n A(:,0)"), getVector(1,3));
-			assertEqual(exec("A=[1 2;3 4]\n A(1,:)"), getVector(3,4).transpose());
-			assertEqual(exec("A=[1 2;3 4]\n A(:,:)"), M);
-		}
+
 
 		assertEqual(exec("M=[1 2; 3 4]\n d=[3 4]'\n M\\d"), M.solve(d));
 		assertEqual(exec("M=[1 2; 3 4]; d=[3 4]'; M\\d"), M.solve(d));
