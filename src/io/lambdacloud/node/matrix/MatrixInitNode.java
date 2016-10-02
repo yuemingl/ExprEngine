@@ -23,6 +23,16 @@ public class MatrixInitNode extends ExprNode {
 	public List<Integer> colLenList = new ArrayList<Integer>();
 	//public int nCols = 0;
 	
+	/**
+	 * 
+	 * function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end 
+	 * When calling myfun(), we want to return two matrices A and B
+	 * instead of a big matrix that is the same as vertcat(A,B) 
+	 * if flag is set to 1, a array of matrix is returned. A and B can be assigned by the returned array of matrices
+	 * if flag is set to 2, a single concatenated matrix is returned.
+	 * 
+	 * Note: an array of matrix cannot be constructed using Matlab gramma so far
+	 */
 	private int flag = 0; //0: return Jama.Matrix; 1 return an array
 	
 //	/**
@@ -91,19 +101,21 @@ public class MatrixInitNode extends ExprNode {
 				initExprList.get(i).genCode(mg);
 				mg.visitInsn(eleType.getOpcode(IASTORE));
 			}
-			mg.visitLdcInsn(this.colLenList.size()); //size of new array
-			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.INT_TYPE, false));
-			idx = 0;
-			for (int i=0; i<this.colLenList.size(); i++) {
-				mg.visitInsn(DUP);
-				mg.visitLdcInsn(idx++);
-				mg.visitLdcInsn(this.colLenList.get(i));
-				mg.visitInsn(IASTORE);
-			}
 			
-			//return a Matrix
-			if(flag == 0) {
+			if(flag == 0) {//return a Matrix
+				mg.visitLdcInsn(this.colLenList.size()); //size of new array
+				mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.INT_TYPE, false));
+				idx = 0;
+				for (int i=0; i<this.colLenList.size(); i++) {
+					mg.visitInsn(DUP);
+					mg.visitLdcInsn(idx++);
+					mg.visitLdcInsn(this.colLenList.get(i));
+					mg.visitInsn(IASTORE);
+				}
 				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "([LJama/Matrix;[I)LJama/Matrix;", false);
+			} else {
+				//return an array
+				//Do nothing. 
 			}
 		} else if(eleType.getSort() == Type.DOUBLE || eleType.getSort() == Type.INT) {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
