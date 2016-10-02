@@ -2,7 +2,6 @@ package io.lambdacloud.node;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,10 +42,15 @@ public class VariableNode extends ExprNode {
 		return name+typeDesc.replaceAll("/", "_").replaceAll(";", "").replaceAll("\\[", "_");
 	}
 	
+	/**
+	 * Get a list of variable types
+	 * @return
+	 */
 	public ArrayList<String> getVarTypes() {
 		ArrayList<String> ret = new ArrayList<String>();
 		for(Entry<Type, Integer> e : this.mapTypeLVTIdx.entrySet()) {
-			ret.add(e.getKey().getDescriptor());
+			Type ty = e.getKey();
+			ret.add(ty.getDescriptor());
 		}
 		return ret;
 	}
@@ -60,6 +64,8 @@ public class VariableNode extends ExprNode {
 	}
 	
 	public int getLVTIndex() {
+		if(null == this.activeType)
+			return Integer.MAX_VALUE;
 		return this.mapTypeLVTIdx.get(this.activeType).intValue();
 	}
 	
@@ -127,11 +133,16 @@ public class VariableNode extends ExprNode {
 		String loc = "L";
 		if(this.varLoc == 1) loc = "P";
 		if(this.isOptionalParam) loc += "?";
-		return this.name + "__" + activeType.getDescriptor() + "_" + loc + this.mapTypeLVTIdx.toString();
+		if(this.activeType != null)
+			return this.name + "__" + activeType.getDescriptor() + "_" + loc + this.mapTypeLVTIdx.toString();
+		else
+			return this.name + "__null_" + loc + this.mapTypeLVTIdx.toString();
 	}
 	
 	public void genCode(MethodGenHelper mg) {
-		mg.visitIntInsn(getType().getOpcode(Opcodes.ILOAD), this.getLVTIndex());
+		Type ty = this.getType();
+		if(ty != null)
+			mg.visitIntInsn(ty.getOpcode(Opcodes.ILOAD), this.getLVTIndex());
 	}
 
 	/**
