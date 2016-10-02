@@ -262,8 +262,11 @@ public class FuncDefNode extends ExprNode {
 			} else {
 				mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			}
+			
+			//Generate local variabel table
 			List<VariableNode> nodeList = new ArrayList<VariableNode>();
 			nodeList.addAll(funcVarMap.values());
+			//Sort variables by LVT index
 			Collections.sort(nodeList, new Comparator<VariableNode>() {
 				@Override
 				public int compare(VariableNode o1, VariableNode o2) {
