@@ -465,14 +465,14 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				if(this.defaultParameterTypeOrInterface.isInterface()) {
 					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
 					//TODO need better solution
-					val = VariableNode.newParameter(varName, Type.getType(double.class));
+					val = VariableNode.newParameter(varName, null);
 				} else {
 					val = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
 				}
 			} else {
 				//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
 				//TODO need better solution
-				val = VariableNode.newParameter(varName, Type.getType(double.class));
+				val = VariableNode.newParameter(varName, null);
 			}
 			currentScope().varMap.put(varName, val);
 		}
@@ -871,9 +871,13 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		this.currentScope().stack.push(new AssignNode(var, value));
 	}
 	
-	@Override public void exitFuncDefNameArgs(MatlabGrammarParser.FuncDefNameArgsContext ctx) { 
-		//Add function level scope for stack and varMap
+	/**
+	 * Extract function name and arguments (parameter names)
+	 */
+	@Override public void exitFuncDefNameArgs(MatlabGrammarParser.FuncDefNameArgsContext ctx) {
+		
 		String funcName = ctx.IDENTIFIER(0).getText();
+		//Add function level scope for stack and varMap in enterFuncDef()
 		//this.addScope(funcName);
 		
 		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(funcName);
@@ -892,7 +896,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				//Bugfix: put param node into varMap too!
 				VariableNode paramNode = currentScope().varMap.get(paramName);
 				if(null == paramNode)
-					paramNode = VariableNode.newParameter(paramName, Type.DOUBLE_TYPE);
+					paramNode = VariableNode.newParameter(paramName, null); //the default of type is null
 				paramNode.setAsParameter();
 				currentScope().varMap.put(paramName, paramNode);
 			}
