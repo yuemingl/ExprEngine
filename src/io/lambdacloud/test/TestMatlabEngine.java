@@ -40,6 +40,9 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  null);
+
+		
 		//Test logical constant
 		//assertEqual(exec("if true, 1; else 2; end"), 1);
 		//assertEqual(exec("a=1; a-=[1 2;3 4]; a"), getMatrix(new double[][]{{0,-1},{-2,-3}}));
@@ -385,17 +388,18 @@ public class TestMatlabEngine {
 		assertEqual(exec("function fun(a, b), nargin; end fun(2)"),  1);
 		assertEqual(exec("function fun(a, b), nargin; end fun(2,4)"),2);
 
-//		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
-//				getMatrix(new double[3][3]));
-//		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(2,3);"),
-//				getMatrix(new double[2][3]));
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
+				getMatrix(new double[3][3]));
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(2,3);"),
+				getMatrix(new double[2][3]));
 		
 		//early return test
 		//TODO: return value need to be specified in the following case
 		//exec("function fun(a), if a<0, return end a+1; end fun(-1)");
-		//exec("function fun(a), if a<0, return 0 end a+1; end fun(-1)");
-		//type of return value ('r')? 
-		//TODO: assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
+		exec("function fun(a), if a<0, return 0 end a+1; end fun(-1)");
+		
+		//TODO:type of return value ('r')? 
+		// assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
 		assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
 
 		//Two possible ways to 
@@ -404,14 +408,14 @@ public class TestMatlabEngine {
 		//2. Set type of an optional parameter to null, so the parameter can be ignored
 		//   Problem: how to  compile a+b ?
 		//3. Combine the two ways? (sounds good)
-//		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun();"),   0);
-		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  1);
+		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun();"),   null);
+		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  null);
 		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1,2);"),3);
 //
 //		
 //		//exec("function fun(a, b), a+b; end fun(2,4,6)"); //Too many parameters for function fun!
-//		assertEqual(exec("function fun(a, b), a+b; end fun(2,4)"), 6);
-//		assertEqual(exec("function fun(a, b), a+b; end fun(2)"), 2);
+		assertEqual(exec("function fun(a, b), a+b; end fun(2,4)"), 6);
+		assertEqual(exec("function fun(a, b), a+b; end fun(2)"), 2);
 		
 	}
 	

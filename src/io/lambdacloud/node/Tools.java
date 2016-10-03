@@ -66,12 +66,14 @@ public class Tools {
 	}
 	
 	public static Type typeConversion(Type type1, Type type2) {
-		if(null == type1 && null == type2) {
+		if(null == type1 || null == type2) {
 			return null;
-		} else if(null == type1) {
-			return type2;
-		} else if(null == type2) {
-			return type1;
+//		if(null == type1 && null == type2) {
+//		return null;
+//		} else if(null == type1) {
+//			return type2;
+//		} else if(null == type2) {
+//			return type1;
 		} else {
 			int t1 = type1.getSort();
 			int t2 = type2.getSort();

@@ -21,13 +21,14 @@ public class ReturnNode extends UnaryOp {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		if (null != expr) {
+		if (null != expr && null != expr.getType()) {
 			expr.genCode(mg);
 			mg.visitInsn(this.getType().getOpcode(Opcodes.IRETURN));
-		} else if(null != refFunc.retExpr){
+			return;
+		} else if(null != refFunc.retExpr && null != refFunc.retExpr.getType()){
 			refFunc.retExpr.genCode(mg);
 			mg.visitInsn(refFunc.retExpr.getType().getOpcode(Opcodes.IRETURN));
-			
+			return;
 		} else {
 			mg.visitInsn(Opcodes.RETURN);
 		}

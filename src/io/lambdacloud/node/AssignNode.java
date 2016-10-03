@@ -31,6 +31,7 @@ public class AssignNode extends BinaryOp {
 		VariableNode var = (VariableNode)left;
 		
 		Type myType = this.getType();
+		if(null == myType) return;
 		
 		//move this after mg.updateLVTIndex() to handle the case like sum=0; for cond, sum=sum+0.1 end;
 		//that is to say, update the type of var first then generate code for RHS
