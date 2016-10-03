@@ -161,7 +161,8 @@ public class AssignNode extends BinaryOp {
 		
 		if(null == right.getType(stack)) {
 			//throw new RuntimeException("Cannot get type for "+right);
-			left.setType(null);
+			//Don't affect the type of left side
+			//left.setType(null);
 		} else {
 			Type rType = right.getType(stack);
 			left.setType(rType);
