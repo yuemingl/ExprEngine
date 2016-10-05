@@ -179,7 +179,7 @@ logical_expr
  | WS* NOT logical_expr                 # LogicalExpressionNot
  | WS* LPAREN logical_expr RPAREN WS*   # LogicalExpressionInParen
  | logical_entity                       # LogicalExpressionEntity
- | variable_entity                      # LogicalVariableEntity1
+ | WS* variable_entity WS*              # LogicalVariableEntity1
  ;
 
  comparison_expr 
