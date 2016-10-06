@@ -7,6 +7,12 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.UnaryOp;
 import io.lambdacloud.node.VariableNode;
 
+/**
+ * i--
+ * 
+ * @author yueming.liu
+ *
+ */
 public class DescNode extends UnaryOp {
 
 	public DescNode(VariableNode var) {
@@ -22,6 +28,9 @@ public class DescNode extends UnaryOp {
 		VariableNode var = (VariableNode) expr;
 
 		Type myType = this.getType();
+		if(null == myType)
+			return;
+
 		if (myType.getSort() == Type.LONG) {
 			var.genCode(mg);
 			mg.visitInsn(Opcodes.DUP2);

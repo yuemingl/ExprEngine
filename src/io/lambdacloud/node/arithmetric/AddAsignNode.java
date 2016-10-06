@@ -26,10 +26,13 @@ public class AddAsignNode extends BinaryOp {
 	}
 
 	public void genCode(MethodGenHelper mg) {
-		VariableNode var = (VariableNode) left;
-		Type myType = this.getType();
 		Type lt = left.getType();
 		Type rt = right.getType();
+		if(null == lt || null == rt)
+			return;
+		
+		VariableNode var = (VariableNode) left;
+		Type myType = this.getType();
 		
 		if(myType.getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
 			left.genCode(mg);
@@ -112,7 +115,7 @@ public class AddAsignNode extends BinaryOp {
 		
 		if(null == this.getType(stack)) {
 			//throw new RuntimeException("Cannot get type for "+right);
-			left.setType(null);
+			//left.setType(null);
 		} else {
 			left.setType(this.getType(stack));
 		}

@@ -33,6 +33,8 @@ public class NEQNode extends BinaryOp {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(null == left.getType() || null == right.getType())
+			return;
 		Type ty = Tools.typeConversion(left.getType(), right.getType());
 		left.genCode(mg);
 		Tools.insertConversionInsn(mg, left.getType(), ty);
@@ -51,7 +53,7 @@ public class NEQNode extends BinaryOp {
 			mg.visitInsn(ICONST_0);
 			mg.visitLabel(l2);
 			// mv.visitInsn(Opcodes.NOP);
-		} else if (ty.getSort() == Type.INT) {
+		} else if (ty.getSort() == Type.INT || ty.getSort() == Type.BOOLEAN) {
 			Label l1 = new Label();
 			mg.visitJumpInsn(IF_ICMPEQ, l1);
 			mg.visitInsn(ICONST_1);
@@ -80,11 +82,15 @@ public class NEQNode extends BinaryOp {
 
 	@Override
 	public Type getType() {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 

@@ -36,6 +36,8 @@ public class GTNode extends BinaryOp {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(null == left.getType() || null == right.getType())
+			return;
 		Type ty = Tools.typeConversion(left.getType(), right.getType());
 		left.genCode(mg);
 		Tools.insertConversionInsn(mg, left.getType(), ty);
@@ -71,11 +73,15 @@ public class GTNode extends BinaryOp {
 
 	@Override
 	public Type getType() {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 

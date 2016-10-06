@@ -22,6 +22,9 @@ public class IncNode extends UnaryOp {
 		VariableNode var = (VariableNode) expr;
 
 		Type myType = this.getType();
+		if(null == myType)
+			return;
+		
 		if (myType.getSort() == Type.LONG) {
 			expr.genCode(mg);
 			mg.visitInsn(Opcodes.DUP2);

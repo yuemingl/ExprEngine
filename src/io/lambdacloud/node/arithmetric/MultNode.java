@@ -24,6 +24,8 @@ public class MultNode extends BinaryOp {
 		Type myType = this.getType();
 		Type lt = left.getType();
 		Type rt = right.getType();
+		if(null == lt || null == rt)
+			return;
 		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
 			if(lt.getSort() == Type.OBJECT && rt.getSort() == Type.OBJECT) {
 				left.genCode(mg);

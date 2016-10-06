@@ -27,6 +27,8 @@ public class OrNode extends BinaryOp {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(null == left.getType() || null == right.getType())
+			return;
 		left.genCode(mg);
 		Label l1 = new Label();
 		mg.visitJumpInsn(IFNE, l1);
@@ -43,11 +45,15 @@ public class OrNode extends BinaryOp {
 	
 	@Override
 	public Type getType() {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 	

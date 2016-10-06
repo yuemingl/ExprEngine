@@ -3,7 +3,6 @@ package io.lambdacloud.node.arithmetric;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import Jama.Matrix;
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.BinaryOp;
@@ -29,13 +28,13 @@ public class AddNode extends BinaryOp {
 		Type rt = right.getType();
 		if(null == lt || null == rt)
 			return;
-		if(myType.getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
+		if(myType.equals(Type.getType(String.class))) {
 			left.genCode(mg);
 			Tools.insertConversionInsn(mg, left.getType(), myType);
 			right.genCode(mg);
 			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
-		} else if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
+		} else if((myType.equals(Type.getType(Jama.Matrix.class)))) {
 			if(lt.getSort() == Type.OBJECT && rt.getSort() == Type.OBJECT) {
 				left.genCode(mg);
 				right.genCode(mg);

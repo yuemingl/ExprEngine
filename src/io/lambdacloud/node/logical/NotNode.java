@@ -27,6 +27,8 @@ public class NotNode extends UnaryOp {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(null == expr.getType())
+			return;
 		expr.genCode(mg);
 		Label l1 = new Label();
 		mg.visitJumpInsn(IFEQ, l1);
@@ -41,11 +43,15 @@ public class NotNode extends UnaryOp {
 	
 	@Override
 	public Type getType() {
+		if(null == expr.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(null == expr.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 	

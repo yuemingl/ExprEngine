@@ -23,6 +23,10 @@ public class DivNode extends BinaryOp {
 	}
 
 	public void genCode(MethodGenHelper mg) {
+		Type lt = left.getType();
+		Type rt = right.getType();
+		if(null == lt || null == rt)
+			return;
 		Type myType = this.getType();
 		left.genCode(mg);
 		Tools.insertConversionInsn(mg, left.getType(), myType);
@@ -37,10 +41,23 @@ public class DivNode extends BinaryOp {
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
-		if(left.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()) ||
-			right.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()) ) {
+		//circle check
+		if(stack.contains(this)) 
+			return null;
+		
+		stack.push(this);
+		Type lType = left.getType(stack);
+		Type rType = right.getType(stack);
+		if(null == lType || null == rType) {
+			stack.pop();
+			return null;
+		}
+		if(Type.getType(Jama.Matrix.class).equals(lType) ||
+				Type.getType(Jama.Matrix.class).equals(rType) ) {
+			stack.pop();
 			return Type.getType(Jama.Matrix.class);
 		}
+		stack.pop();
 		return Type.DOUBLE_TYPE;
 	}
 

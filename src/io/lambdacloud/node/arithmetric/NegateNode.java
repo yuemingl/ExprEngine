@@ -20,6 +20,9 @@ public class NegateNode extends UnaryOp {
 
 	public void genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
+		if(null == myType)
+			return;
+		
 		expr.genCode(mg);
 		if((myType.getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor()))) {
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "uminus", "()LJama/Matrix;", false);

@@ -29,6 +29,8 @@ public class RemAsignNode extends BinaryOp {
 		Type myType = this.getType();
 		Type lt = left.getType();
 		Type rt = right.getType();
+		if(null == lt || null == rt)
+			return;
 		
 		if(myType.getDescriptor().equals(Type.getType(String.class).getDescriptor())) {
 			left.genCode(mg);

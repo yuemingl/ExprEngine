@@ -28,6 +28,8 @@ public class AndNode extends BinaryOp {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(null == left.getType() || null == right.getType())
+			return;
 		left.genCode(mg);
 		Label l1 = new Label();
 		mg.visitJumpInsn(IFEQ, l1);
@@ -44,11 +46,15 @@ public class AndNode extends BinaryOp {
 
 	@Override
 	public Type getType() {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(null == left.getType() || null == right.getType())
+			return null;
 		return Type.BOOLEAN_TYPE;
 	}
 
