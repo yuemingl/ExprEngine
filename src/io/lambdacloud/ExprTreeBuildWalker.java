@@ -200,12 +200,12 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		System.out.println("Parameters:");
 		for(VariableNode n : currentScope().varMap.values()) {
 			if(n.isParameter())
-				System.out.println(n.name+": "+n.getType().getDescriptor());
+				System.out.println(n.getName()+": "+n.getType().getDescriptor());
 		}
 		System.out.println("Local Variables:");
 		for(VariableNode n : currentScope().varMap.values()) {
 			if(n.isLocalVar())
-				System.out.println(n.name+": "+n.getType().getDescriptor());
+				System.out.println(n.getName()+": "+n.getType().getDescriptor());
 		}
 	}
 	
@@ -218,7 +218,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		
@@ -228,13 +228,13 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			
 			//Fix parameter types according the passed in types
 			if(null == mapParameterTypes)
-				throw new RuntimeException("Need parameter for variable: "+node.name);
-			Class<?> cls = mapParameterTypes.get(node.name);
+				throw new RuntimeException("Need parameter for variable: "+node.getName());
+			Class<?> cls = mapParameterTypes.get(node.getName());
 			if(null == cls)
-				throw new RuntimeException("Need parameter for variable: "+node.name);
-			node.setType(Type.getType(mapParameterTypes.get(node.name)));
+				throw new RuntimeException("Need parameter for variable: "+node.getName());
+			node.setType(Type.getType(mapParameterTypes.get(node.getName())));
 			
-			ret[i] = Type.getType(mapParameterTypes.get(node.name));
+			ret[i] = Type.getType(mapParameterTypes.get(node.getName()));
 			
 			i++;
 		}
@@ -250,7 +250,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		
@@ -264,7 +264,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			
 			ret[i] = Type.getType(aryParameterTypes[i]);
 			
-			this.mapParameterTypes.put(node.name, aryParameterTypes[i]);
+			this.mapParameterTypes.put(node.getName(), aryParameterTypes[i]);
 			
 			i++;
 		}
@@ -280,7 +280,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		
@@ -311,7 +311,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		Collections.sort(pList, new Comparator<VariableNode>() {
 			@Override
 			public int compare(VariableNode o1, VariableNode o2) {
-				return o1.name.compareTo(o2.name);
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		Class<?>[] ret = new Class<?>[pList.size()];
@@ -322,7 +322,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		} else {
 			int i = 0;
 			for(VariableNode node : pList) {
-				ret[i] = mapParameterTypes.get(node.name);
+				ret[i] = mapParameterTypes.get(node.getName());
 				
 				i++;
 			}
@@ -457,8 +457,8 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 				mg.visitLocalVariable("this", "L"+className+";", 
 						null, cgen.labelStart, cgen.lableEnd, 0);
 			for(VariableNode var : currentScope().varMap.values()) {
-				mg.visitLocalVariable(var.name, var.getType().getDescriptor(),
-						null, cgen.labelStart, cgen.lableEnd, var.idxLVT);
+				mg.visitLocalVariable(var.getName(), var.getType().getDescriptor(),
+						null, cgen.labelStart, cgen.lableEnd, var.getLVTIndex());
 			}
 			
 			mg.visitMaxs(-1, -1); //Auto generated
@@ -1229,7 +1229,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	@Override public void exitExprReturn(ExprGrammarParser.ExprReturnContext ctx) {
 		ReturnNode node = null;
 		if(null != ctx.expression()) {
-			node = new ReturnNode(this.currentScope().stack.pop());
+			node = new ReturnNode(this.currentScope().stack.pop(), null);
 		} else {
 			node = new ReturnNode();
 		}
