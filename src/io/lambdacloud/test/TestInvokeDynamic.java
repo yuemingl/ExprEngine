@@ -83,7 +83,7 @@ public class TestInvokeDynamic {
 			
 			//Handle bootstrap = new Handle(Opcodes.INVOKESTATIC, "package1/Test2", "bootstrap",
 			//		mt.toMethodDescriptorString());
-			Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, "io/lambdacloud/TestInvokeDynamic",
+			Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, "io/lambdacloud/test/TestInvokeDynamic",
 			        "bootstrap", mt.toMethodDescriptorString());
 			
 			mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
