@@ -322,7 +322,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						updateExprTypes();
 						//Check m.getReturnType() == retType ? 
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
-						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+						if(null == retType) {
+							//retType = Type.VOID_TYPE; 
+							throw new RuntimeException("Return type (top element of stack) is null!");
+						}
 						cgen.startMethod(access, m.getName(),
 								Type.getMethodDescriptor(retType, paramTypes));
 					} else {
@@ -335,7 +338,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						paramTypes = getAndFixParameterTypes(pTypes);
 						updateExprTypes();
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
-						if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+						if(null == retType) {
+							//retType = Type.VOID_TYPE; 
+							throw new RuntimeException("Return type (top element of stack) is null!");
+						}
 						cgen.startMethod(access, methodName,
 								Type.getMethodDescriptor(retType, paramTypes));
 					}
@@ -343,7 +349,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					paramTypes = getAndFixParameterTypes(this.mapParameterTypes);
 					updateExprTypes();
 					retType = currentScope().stack.peek().getType(); //return type of the last expression
-					if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+					if(null == retType) {
+						//retType = Type.VOID_TYPE; 
+						throw new RuntimeException("Return type (top element of stack) is null!");
+					}
 					cgen.startMethod(access, methodName,
 							Type.getMethodDescriptor(retType, paramTypes));
 				}
@@ -351,7 +360,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				paramTypes = getAndFixParameterTypes(aryParameterTypes);
 				updateExprTypes();
 				retType = currentScope().stack.peek().getType(); //return type of the last expression
-				if(null == retType) throw new RuntimeException("Return type (top element of stack) is null!");
+				if(null == retType) {
+					//retType = Type.VOID_TYPE; 
+					throw new RuntimeException("Return type (top element of stack) is null!");
+				}
 				cgen.startMethod(access, methodName,
 						Type.getMethodDescriptor(retType, paramTypes));
 			}
@@ -404,8 +416,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			}
 
 			
-			
-			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+//			if(null == retType)
+//				mg.visitInsn(Opcodes.RETURN);
+//			else
+				mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			if(!isStatic)
 				mg.visitLocalVariable("this", "L"+className+";", 
 						null, cgen.labelStart, cgen.lableEnd, 0);
