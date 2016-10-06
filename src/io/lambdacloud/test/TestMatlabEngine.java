@@ -40,52 +40,130 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  null);
-
-		
-		//Test logical constant
-		//assertEqual(exec("if true, 1; else 2; end"), 1);
-		//assertEqual(exec("a=1; a-=[1 2;3 4]; a"), getMatrix(new double[][]{{0,-1},{-2,-3}}));
-		//assertEqual(exec("a=1; a+=[1 2;3 4]; a=1.0; a"),1.0);
-		//assertEqual(exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A"), getMatrix(new double[][]{{3,8},{7,18}}));
-
-//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
-//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
-//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end A=myfun() ");
-//		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A]=myfun() ");
-
-//		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
-
-		
-//		//If the caller only pass one argument m, what's the type of n in the call of zeros(m,n)?
-//		exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3)");
-//		//exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3,2)");
-//		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
-//				getMatrix(new double[3][3]));
-//		
-//		//how to compile m*n if the type of n is null ?
-//		assertEqual(exec("function R=myProd(m, n), if nargin==1, r=m*m; else r=m*n; end end myProd(3);"),
-//				getMatrix(new double[3][3]));
-		
-		//		exec("function fib(n)\n if n<=1\n 1; else fib(n-1)+fib(n-2); end\n end\n fib(29)");
-//		//BUgfix: Two calls of 'r=fib(n-1)+fib(n-2)' for shadow variable of r.
-//		exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)");
+		//assertEqual(exec("a{1:2}[0]"),  null);
+		//assertEqual(exec("a[0]{1:2}"),  null);
+		assertEqual(exec("a[0][1]"),  null);
+	
 //		testVariableNode();
-//		
 //		testBasic();
 //		testBasic2();
 //		testBasic3();
 //		testPrint();
 //		testComment();
 //		testEndIndex();
-		testNArgin();
+//		testNArgin();
 //		testShaddowVariables();
 //		testBuildinFunc();
 //		testFunction();
 //		testMatrixInit();
 //		testMatrixAssign();
 //		testMatrixAccess();
+//		testOptionalParamters();
+//		testMisc();
+		testString();
+	}
+	
+	public static void testMisc() {
+		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(4)"),5);
+		assertEqual(exec("function c=fun(a, b), if nargin < 2, return; end c=a+b; end fun(1);"),  null);
+
 		
+		//Test logical constant
+		assertEqual(exec("if true, 1; else 2; end"), 1);
+		
+		
+		assertEqual(exec("a=1; a-=[1 2;3 4]; a"), getMatrix(new double[][]{{0,-1},{-2,-3}}));
+		assertEqual(exec("a=1; a+=[1 2;3 4]; a=1.0; a"),1.0);
+		assertEqual(exec("A=[1 2; 3 4]; A*=[1 2; 1 3]; A"), getMatrix(new double[][]{{3,8},{7,18}}));
+		
+//		//BUgfix: Two calls of 'r=fib(n-1)+fib(n-2)' for shadow variable of r.
+		exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(29)");
+		exec("function fib(n)\n if n<=1\n 1; else fib(n-1)+fib(n-2); end\n end\n fib(29)");
+		
+	}
+	
+	public static void testString() {
+		assertEqual(exec("'aaa'+a;", new Object[]{"bbb"}),"aaabbb");
+//		//assertEqual(exec("'aaa'+a", new Object[]{5}),"aaabbb");
+		assertEqual(exec("function fun(a,b), a+b; end fun('aaa','bbb');"),"aaabbb");
+		assertEqual(exec("function fun(a,b), a+b; end fun('aaa');"),null);
+		assertEqual(exec("function fun(a,b), a+b; end fun(3,5);"),8);
+		
+	}
+	
+	public static void testOptionalParamters() {
+		
+//		//If the caller only pass one argument m, what's the type of n in the call of zeros(m,n)?
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3)"),
+				getMatrix(new double[3][3]));
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3,2)"),
+				getMatrix(new double[3][2]));
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,1+n); end end myZeros(3)"),
+				getMatrix(new double[3][3]));
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,1+n); end end myZeros(3,1)"),
+				getMatrix(new double[3][2]));
+
+		assertEqual(exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end myZeros(3);"),
+				getMatrix(new double[3][3]));
+		
+		assertEqual(exec("function fun(a, b), a+b; end fun(1,2)"),  3);
+		
+		assertEqual(exec("function fun(a, b), a+b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a-b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a*b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a/b; end fun(1)"),  null);
+		
+		//java.lang.NoSuchMethodException: io.lambdacloud.BytecodeSupport.mod(int)
+		//assertEqual(exec("function fun(a, b), mod(a,b); end fun(1)"),  null);
+		
+		assertEqual(exec("function fun(a, b), a+=b; a;  end fun(1)"), 1);
+		assertEqual(exec("function fun(a, b), a+=b; a;  end fun(1,2)"),  3);
+		assertEqual(exec("function fun(a, b), a+=b; end fun(1,2)"),  3);
+		
+		assertEqual(exec("function fun(a, b), a+=b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a-=b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a*=b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a/=b; end fun(1)"),  null);
+		
+		//assertEqual(exec("function fun(a, b), a++; end fun(1)"),  null);
+		//assertEqual(exec("function fun(a, b), a--; end fun(1)"),  null);
+		
+		assertEqual(exec("function fun(a, b), a=b; end fun(1,2)"),  2);
+		assertEqual(exec("function fun(a, b), a=b; end fun(1)"),  null);
+		
+//		//optional parameter in function call
+//		assertEqual(exec("range(5)"),  5);
+//		//assertEqual(exec("range(1:5)"),  5);
+//		assertEqual(exec("function fun(a, b, c), range(a:c:b); end fun(1,10,2)"),  
+//				getVector(1,3,5,7,9).transpose());
+		assertEqual(exec("function fun(a, b, c), range(a:c:b); end fun(1,5)"),  
+				getVector(1,2,3,4,5).transpose());
+		
+		assertEqual(exec("function fun(a, b), a==b; end fun(1,2)"),  false);
+		assertEqual(exec("function fun(a, b), a==b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a>b; end fun(1)"),   null);
+		assertEqual(exec("function fun(a, b), a>=b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a<b; end fun(1)"),   null);
+		assertEqual(exec("function fun(a, b), a<=b; end fun(1)"),  null);
+		
+		assertEqual(exec("function fun(a, b), a and b; end fun(1)"),  null);
+		assertEqual(exec("function fun(a, b), a && b; end fun(1)"),   null);
+		assertEqual(exec("function fun(a, b), a or b; end fun(1)"),   null);
+		assertEqual(exec("function fun(a, b), a || b; end fun(1)"),   null);
+		assertEqual(exec("function fun(a, b), a != b; end fun(1)"),   null);
+		assertEqual(exec("function fun(a, b), a ~= b; end fun(1)"),   null);
+		
+		//optional parameter in if/for/while condition
+		
+		assertEqual(exec("function fun(a,b,c,d,e), [a,b,c,d,e]; end fun(1,2,3,4,5)"), getVector(1,2,3,4,5).transpose());
+		assertEqual(exec("function fun(a,b,c,d,e), [a,b,c,d,e]; end fun(1)"), getVector(1).transpose());
+		assertEqual(exec("function fun(a,b,c,d,e), [a,b,c,d,e]; end fun(1,2)"), getVector(1,2).transpose());
+		assertEqual(exec("function fun(a,b,c,d,e), [a,b,c,d,e]; end fun(1,2,3)"), getVector(1,2,3).transpose());
+		assertEqual(exec("function fun(a,b,c,d,e), [a,b,c,d,e]; end fun(1,2,3,4)"), getVector(1,2,3,4).transpose());
+
+//		//how to compile m*n if the type of n is null ?
+		assertEqual(exec("function r=myProd(m, n), if nargin==1, r=m*m; else r=m*n; end end myProd(3);"),9);
+
 	}
 	
 	public static void testVariableNode() {
@@ -415,7 +493,7 @@ public class TestMatlabEngine {
 //		
 //		//exec("function fun(a, b), a+b; end fun(2,4,6)"); //Too many parameters for function fun!
 		assertEqual(exec("function fun(a, b), a+b; end fun(2,4)"), 6);
-		assertEqual(exec("function fun(a, b), a+b; end fun(2)"), 2);
+		assertEqual(exec("function fun(a, b), a+b; end fun(2)"), null);
 		
 	}
 	
@@ -465,67 +543,87 @@ public class TestMatlabEngine {
 	public static void testFunction(){
 
 		exec(" A=[1 2; 3 4]; B=[5 6; 7 8]; [A B] ");
+		
 		exec("function A=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
 		exec("function B=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
 		exec("function myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; [A B]; end myfun()");
-		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
 		
-//		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
-//
-//		
-////		Jama.Matrix[] o = (Jama.Matrix[])exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
-////		for(Jama.Matrix m : o) m.print(8, 2);
+		//function call and assignment
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end A=myfun() ");
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A]=myfun() ");
+
+		
+		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
+
+		
+//		Jama.Matrix[] o = (Jama.Matrix[])exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
+//		for(Jama.Matrix m : o) m.print(8, 2);
 //		Jama.Matrix o = (Jama.Matrix)exec("A=[1 2; 3 4]; B=[5 6 7 8]; [A B];");
 //		o.print(8, 2);
-//		
-//	
-//		exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)");
-//		exec("function a=fun(x), if x<0, return end a=x*x; end fun(-1)");
-//		exec("function a=fun(x), if x<0, return end a=x*[1 2; 3 4]; end fun(1)");
-//		exec("function a=fun(x), if x<0, return end a=x*[1 2; 3 4]; end fun(-1)");
-//
-//		exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(1)");
-//		exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(6)");
-//		//exec("function fun(a) b=a+2; return 1; end fun(1);");
-//
-//		exec("function H = invhilb(n)\n H = zeros(n)\n end invhilb(3)");
-//
-//		
-//		//Test order of parameters in function arguments
-//		assertEqual(exec("function fib(r, n); A=[1 1; 1 0]; if n<1; r; else r=A*r; fib(r, n-1); end end fib([1 1]', 5)"), 
-//				new Jama.Matrix(new double[]{13,8},2));
-//		assertEqual(exec("function fib(a, n); A=[1 1; 1 0]; if n<1; a; else a=A*a; fib(a, n-1); end end fib([1 1]', 5)"),
-//				new Jama.Matrix(new double[]{13,8},2));
-//		assertEqual(exec("function myfun(b, a); a-b; end myfun(3,1)"),-2);
-//		assertEqual(exec("function myfun(a, b); b-a; end myfun(3,1)"),-2);
-//		assertEqual(exec("function s=fun(n), s=n+1\n end fun(5);"),6);
-//
-//
-//		assertEqual(exec("function s=fun(n), s=n+1\n end fun(5);"),6);
-//		
-//		assertEqual(exec("function fib(n), if n<=1; 1; else fib(n-1)+fib(n-2); end; end; fib(42)"),433494437);
-////		assertEqual(exec("function fib(n) if n<=1; 1; else fib(n-1)+fib(n-2); end end fib(42)"),433494437);
-////java.lang.RuntimeException: Cannot infer type for if statement: if(var(n:I:param:0) <= 1) {[var(r:D:local:1)=1]} else {[var(r:D:local:1)=call FCfib9.fib(var(n:I:param:0) - 1, ) + call FCfib9.fib(var(n:I:param:0) - 2, )]}
-////		at io.lambdacloud.node.IfNode.getType(IfNode.java:194)
-//
-//		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
-//		//This case is hard to fix
-//		//the stack frame is not balanced
-//		//assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2)\n end end\n fib(42)"),433494437);
-//
-//		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), getMatrix(110,-90).transpose());
-//		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), getMatrix(110,-90).transpose());
-//		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)"), getMatrix(110,-90).transpose());
-//		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10.,100.)"), getMatrix(110,-90).transpose());
-//		
-//		assertEqual(exec("function myfun(a)\n a+1\n a+2; end\n myfun(1)"), 3);
-//		assertEqual(exec("function myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 3);
-//		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1);"), 1);
-//		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 1);
-//		
-//		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"), getMatrix(110,-90).transpose());
-//		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"), getMatrix(110,-90).transpose());
-//		assertEqual(exec("function c = myfun(a, b)\nc=a+b\nend\nmyfun(10,100)"),110);
+		
+	
+		assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
+		assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(-1)"),0);
+
+		assertEqual(exec("function a=fun(x), if x<0, return end a=x*[1 2; 3 4]; end fun(1)"),
+				getMatrix(new double[][]{{1,2},{3,4}}));
+		assertEqual(exec("function a=fun(x), if x<0, return end a=x*[1 2; 3 4]; end fun(-1)"),
+				null);
+		//a = ???
+		assertEqual(exec("function a=fun(x), if x<0, return a end a=x*[1 2; 3 4]; end fun(-1)"),
+				null);
+
+		assertEqual(exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(1)"), 3);
+		assertEqual(exec("function fun(a), b=a+2; if b>3, return 0 end return b; end fun(6)"), 0);
+		assertEqual(exec("function fun(a), b=a+2; return 1; end fun(1);"),1);
+
+		assertEqual(exec("function H = invhilb(n)\n H = zeros(n)\n end invhilb(3)"), 
+				getMatrix(new double[3][3]));
+
+		
+		//Test order of parameters in function arguments
+		assertEqual(exec("function fib(r, n); A=[1 1; 1 0]; if n<1; r; else r=A*r; fib(r, n-1); end end fib([1 1]', 5)"), 
+				new Jama.Matrix(new double[]{13,8},2));
+		assertEqual(exec("function fib(a, n); A=[1 1; 1 0]; if n<1; a; else a=A*a; fib(a, n-1); end end fib([1 1]', 5)"),
+				new Jama.Matrix(new double[]{13,8},2));
+		assertEqual(exec("function myfun(b, a); a-b; end myfun(3,1)"),-2);
+		assertEqual(exec("function myfun(a, b); b-a; end myfun(3,1)"),-2);
+		assertEqual(exec("function s=fun(n), s=n+1\n end fun(5);"),6);
+
+
+		assertEqual(exec("function s=fun(n), s=n+1\n end fun(5);"),6);
+		
+		assertEqual(exec("function fib(n), if n<=1; 1; else fib(n-1)+fib(n-2); end; end; fib(42)"),433494437);
+//		assertEqual(exec("function fib(n) if n<=1; 1; else fib(n-1)+fib(n-2); end end fib(42)"),433494437);
+//java.lang.RuntimeException: Cannot infer type for if statement: if(var(n:I:param:0) <= 1) {[var(r:D:local:1)=1]} else {[var(r:D:local:1)=call FCfib9.fib(var(n:I:param:0) - 1, ) + call FCfib9.fib(var(n:I:param:0) - 2, )]}
+//		at io.lambdacloud.node.IfNode.getType(IfNode.java:194)
+
+		assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2); end\n end\n fib(42)"),433494437);
+		//This case is hard to fix
+		//the stack frame is not balanced
+		//assertEqual(exec("function r=fib(n)\n if n<=1\n r=1; else r=fib(n-1)+fib(n-2)\n end end\n fib(42)"),433494437);
+
+		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
+				getVector(110,-90).transpose());
+		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
+				getVector(110,-90).transpose());
+		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)"), 
+				getVector(110,-90).transpose());
+		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10.,100.)"), 
+				getVector(110,-90).transpose());
+		
+		assertEqual(exec("function myfun(a)\n a+1\n a+2; end\n myfun(1)"), 3);
+		assertEqual(exec("function myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 3);
+		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1);"), 1);
+		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 1);
+		
+		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"), 
+				getVector(110,-90).transpose());
+		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"), 
+				getVector(110,-90).transpose());
+		assertEqual(exec("function c = myfun(a, b)\nc=a+b\nend\nmyfun(10,100)"),110);
 		
 
 		assertEqual(exec("function myfun(n); a=n; a+=1.5; a=3; a end myfun(3)"),3);
@@ -909,6 +1007,16 @@ public class TestMatlabEngine {
 		
 		
 		assertEqual(exec("[10.0 20.0 30.0]"), getVector(10,20,30).transpose());
+		
+		assertEqual(exec("a&&b", new Object[]{true, false}),   false);
+		assertEqual(exec("a && b", new Object[]{true, true}),  true);
+		assertEqual(exec("a and b", new Object[]{true, true}), true);
+		assertEqual(exec("a || b", new Object[]{true, true}),  true);
+		assertEqual(exec("a or b", new Object[]{true, true}),  true);
+		assertEqual(exec("a != b", new Object[]{1, 2}),        true);
+		assertEqual(exec("a != b", new Object[]{true, false}), true);
+		assertEqual(exec("a ~= b", new Object[]{true, true}),  false);
+
 		
 	}
 	
