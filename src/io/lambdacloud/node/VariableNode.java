@@ -106,7 +106,7 @@ public class VariableNode extends ExprNode {
 	public static VariableNode newParameter(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
-		node.activeType = type;
+		node.setActiveType(type);
 		if(null != type)
 			node.mapTypeLVTIdx.put(type, -1);
 		node.varLoc = 1;
@@ -122,7 +122,7 @@ public class VariableNode extends ExprNode {
 	public static VariableNode newLocalVar(String name, Type type) {
 		VariableNode node = new VariableNode();
 		node.name = name;
-		node.activeType = type;
+		node.setActiveType(type);
 		if(null != type)
 			node.mapTypeLVTIdx.put(type, -1);
 		node.varLoc = 2;
@@ -153,7 +153,7 @@ public class VariableNode extends ExprNode {
 	@Override
 	public void setType(Type type) {
 		if(null == type) {
-			this.activeType = null;
+			setActiveType(null);
 			return;
 		}
 		Integer idx = this.mapTypeLVTIdx.get(type);
@@ -170,7 +170,7 @@ public class VariableNode extends ExprNode {
 		} else {
 			this.mapTypeLVTIdx.put(type, idx);
 		}
-		this.activeType = type;
+		setActiveType(type);
 	}
 
 	@Override
@@ -189,5 +189,9 @@ public class VariableNode extends ExprNode {
 	
 	public void setOptional(boolean isOptional) {
 		this.isOptionalParam = isOptional;
+	}
+	
+	private void setActiveType(Type ty) {
+		this.activeType = ty;
 	}
 }
