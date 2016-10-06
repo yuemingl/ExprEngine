@@ -69,10 +69,20 @@ public class MatrixInitNode extends ExprNode {
 	public Type getElementType() {
 		if(initExprList.size() == 0)
 			return Type.DOUBLE_TYPE;
-		Type eleType = initExprList.get(0).getType();
+		Type eleType = null;
+		for (int i = 0; i < initExprList.size(); i++) {
+			Type tmp = this.initExprList.get(i).getType();
+			if(null != tmp) {
+				eleType = tmp;
+				break;
+			}
+		}
 		if (initExprList.size() > 1) {
-			for (int i = 1; i < initExprList.size(); i++)
-				eleType = Tools.typeConversion(eleType, initExprList.get(i).getType());
+			for (int i = 0; i < initExprList.size(); i++) {
+				Type tmp = this.initExprList.get(i).getType();
+				if(null != tmp)
+					eleType = Tools.typeConversion(eleType, initExprList.get(i).getType());
+			}
 		}
 		return eleType;
 	}
@@ -89,6 +99,7 @@ public class MatrixInitNode extends ExprNode {
 			return;
 		}
 		
+		//Get element type
 		Type eleType = getElementType();
 		if (eleType.getSort() == Type.OBJECT) { //Jama.Matrix
 			
@@ -120,12 +131,15 @@ public class MatrixInitNode extends ExprNode {
 		} else if(eleType.getSort() == Type.DOUBLE || eleType.getSort() == Type.INT) {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
-			//Get element type
-			mg.visitLdcInsn(initExprList.size()); //size of new array
+			
+			//mg.visitLdcInsn(initExprList.size()); //size of new array
+			mg.visitLdcInsn(getValidNumberOfElement()); //size of new array
+			
 			eleType = Type.DOUBLE_TYPE;
 			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.DOUBLE_TYPE, false));
 			int idx = 0;
 			for (int i = initExprList.size() - 1; i >= 0; i--) {
+				if(null == this.initExprList.get(i).getType()) continue;
 				mg.visitInsn(DUP);
 				mg.visitLdcInsn(idx++);
 				initExprList.get(i).genCode(mg);
@@ -135,7 +149,13 @@ public class MatrixInitNode extends ExprNode {
 			
 			//mg.visitInsn(DUP);
 			//mg.visitInsn(Opcodes.ARRAYLENGTH);
-			mg.visitLdcInsn(colLenList.get(0));
+			
+			//mg.visitLdcInsn(colLenList.get(0));
+			if(colLenList.get(0) == this.initExprList.size())
+				mg.visitLdcInsn(getValidNumberOfElement());
+			else
+				mg.visitLdcInsn(colLenList.get(0));
+			
 			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
 		} else {
@@ -143,6 +163,14 @@ public class MatrixInitNode extends ExprNode {
 		}
 	}
 
+	public int getValidNumberOfElement() {
+		int n = 0;
+		for(int i=0; i<this.initExprList.size(); i++) {
+			if(null != this.initExprList.get(i).getType())
+				n++;
+		}
+		return n;
+	}
 	public String toString() {
 		return this.initExprList.toString();
 	}

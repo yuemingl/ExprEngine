@@ -57,7 +57,7 @@ public class RangeNode extends ExprNode {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
 			if(start != null) {
-				if(null == this.step) { //range(1, 10)
+				if(null == this.step || null == this.step.getType()) { //range(1, 10)
 					start.genCode(mg);
 					Tools.insertConversionInsn(mg, start.getType(), eleType);
 					end.genCode(mg);
