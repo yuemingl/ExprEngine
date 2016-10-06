@@ -23,6 +23,12 @@ import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 import io.lambdacloud.CodeGenerator;
 import io.lambdacloud.ExprClassLoader;
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.node.arithmetric.AddAsignNode;
+import io.lambdacloud.node.arithmetric.DescNode;
+import io.lambdacloud.node.arithmetric.DivAsignNode;
+import io.lambdacloud.node.arithmetric.IncNode;
+import io.lambdacloud.node.arithmetric.MulAsignNode;
+import io.lambdacloud.node.arithmetric.SubAsignNode;
 
 public class FuncDefNode extends ExprNode {
 	public String name;
@@ -162,7 +168,10 @@ public class FuncDefNode extends ExprNode {
 				return retType;
 			}
 		}
-		return null; //null indicate that we cannot infer return type
+		//null indicate that we cannot infer return type
+		//changed to void type. null indicate the type of an expression is not specified
+		//
+		return Type.VOID_TYPE; 
 	}
 
 	//this is introduced by fixing AssignNode 
@@ -253,14 +262,30 @@ public class FuncDefNode extends ExprNode {
 			}
 			
 			// Generate code for all the expressions
-			for (int i = this.body.size() - 1; i >= 0; i--) {
+			for (int i = this.body.size() - 1; i >= 1; i--) {
 				ExprNode expr = this.body.get(i);
 				expr.genCode(mg);
 			}
-			if(this.body.size() > 0 && this.body.get(0) instanceof ReturnNode) {
-				
+			if(this.body.size() > 0) {
+				ExprNode lastExpr = this.body.get(0);
+				if(lastExpr instanceof ReturnNode) {
+					lastExpr.genCode(mg);
+				} else {
+					if(lastExpr instanceof AddAsignNode ||
+							lastExpr instanceof SubAsignNode ||
+							lastExpr instanceof MulAsignNode ||
+							lastExpr instanceof DivAsignNode ||
+							lastExpr instanceof IncNode ||
+							lastExpr instanceof DescNode ||
+							lastExpr instanceof AssignNode
+							) {
+						lastExpr.genLoadInsn(true);
+					}
+					lastExpr.genCode(mg);
+					mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+				}
 			} else {
-				mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+				mg.visitInsn(Opcodes.RETURN);
 			}
 			
 			//Generate local variabel table
