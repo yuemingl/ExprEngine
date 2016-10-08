@@ -15,33 +15,16 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
-import io.lambdacloud.node.VariableNode;
+import io.lambdacloud.node.tool.IndexPair;
 
 public class MatrixAccessNode extends ExprNode {
 	public static int INDEX_BASE = 1;
 	
-	public VariableNode var;
+	public ExprNode var;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
-	public MatrixAccessNode(VariableNode var) {
+	public MatrixAccessNode(ExprNode var) {
 		this.var = var;
-	}
-	
-	//This is used to efficiently get a sub-matrix
-	//Using RangeNode needs to generate an intermediate array which is not efficient
-	public static class IndexPair {
-		public ExprNode idxS; //start index
-		public ExprNode idxE; //end index
-		public IndexPair(ExprNode idxS, ExprNode idxE) {
-			this.idxE = idxE;
-			this.idxS = idxS;
-		}
-		public String toString() {
-			if(null == idxE)
-				return idxS.toString();
-			else
-				return idxS+":"+idxE;
-		}
 	}
 	
 	public void addIndex(ExprNode idxS, ExprNode idxE) {
