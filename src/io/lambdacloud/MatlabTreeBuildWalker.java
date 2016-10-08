@@ -1,5 +1,7 @@
 package io.lambdacloud;
 
+import static io.lambdacloud.MatlabEngine.exec;
+
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
+import io.lambdacloud.matlab.MatlabGrammarParser.Aa_indexContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.Expr_endContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
@@ -462,33 +465,85 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		return null;
 	}
 	@Override public void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx) {
+		
 		//System.out.println("exitEntityVariable: "+ctx.getText());
-		String varName = ctx.getText();
+		
+		String varName = ctx.IDENTIFIER().getText();
+		//If the variable exists in the varMap of current scope the variable is used instead of 
+		//creating a new one
 		VariableNode val = currentScope().varMap.get(varName);
+		
 		if(null == val) {
+//			if(null != this.mapParameterTypes) {
+//				Class<?> varCls = this.mapParameterTypes.get(varName);
+//				if(null != varCls) {
+//					val = VariableNode.newParameter(varName, Type.getType(varCls));
+//				} else {
+//					val = VariableNode.newParameter(varName, null);
+//					//val = VariableNode.newLocalVar(varName, null);
+//					//throw new RuntimeException("No type info provied for '"+varName+"'!");
+//				}
+//				currentScope().varMap.put(varName, val);
+//			} else if(null != this.defaultParameterTypeOrInterface) {
+//				//default to double
+//				if(this.defaultParameterTypeOrInterface.isInterface()) {
+//					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+//					//TODO need better solution
+//					val = VariableNode.newParameter(varName, null);
+//					throw new RuntimeException("Need test if varMap is correctly set!");
+//				} else {
+//					//for case of 'r=5'
+//					//how do we know r is a local variable or a parameter?
+//					val = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
+//				}
+//				currentScope().varMap.put(varName, val);
+//			} else {
+//				//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
+//				//TODO need better solution
+//				val = VariableNode.newParameter(varName, null);
+//				
+//				//function name in a function call should not be here
+//				currentScope().varMap.put(varName, val);
+//			}
+//			
+//			//Put the varName in varMap in AssignNode
+//			//for paramters, check mapParameterTypes. If exist put it in varMap, otherwise do nothing
+//			//currentScope().varMap.put(varName, val);
+//			//**********************************************
+//			//TODO: change (Add,Sub,Mult,Div,Rem)AssignNode
+//			//**********************************************
+//			if(ctx.getParent() instanceof MatlabGrammarParser.ExprAssignContext ||
+//					ctx.getParent() instanceof MatlabGrammarParser.ArrayAccessOrFuncCallContext) {
+//				val.setAsLeftHandSideVar();
+//			}
+			
+			val = VariableNode.newParameter(varName, null);
 			if(null != this.mapParameterTypes) {
 				Class<?> varCls = this.mapParameterTypes.get(varName);
-				if(null != varCls)
-					val = VariableNode.newParameter(varName, Type.getType(varCls));
-				else
-					val = VariableNode.newLocalVar(varName, Type.getType(double.class));
-					//throw new RuntimeException("No type info provied for '"+varName+"'!");
-				
-			} else if(null != this.defaultParameterTypeOrInterface) {
-				//default to double
-				if(this.defaultParameterTypeOrInterface.isInterface()) {
-					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-					//TODO need better solution
-					val = VariableNode.newParameter(varName, null);
-				} else {
-					val = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
+				if(null != varCls) {
+					val.setType(Type.getType(varCls));
+					currentScope().varMap.put(varName, val);
 				}
-			} else {
-				//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-				//TODO need better solution
-				val = VariableNode.newParameter(varName, null);
 			}
-			currentScope().varMap.put(varName, val);
+			
+			if(ctx.getParent() instanceof MatlabGrammarParser.ExprAssignContext) {
+				if(val.getType() == null) {
+					val.setAsLocalVar();
+				}
+				currentScope().varMap.put(varName, val);
+			}
+			
+			if(ctx.getParent() instanceof MatlabGrammarParser.ArrayAccessOrFuncCallContext) {
+				//Do nothing if it is a ArrayAccessOrFuncCallContext. varName could be a function name
+			} else {
+				if(null!=this.defaultParameterTypeOrInterface){
+					val.setType(Type.getType(this.defaultParameterTypeOrInterface));
+					currentScope().varMap.put(varName, val);
+				} else {
+					currentScope().varMap.put(varName, val);
+				}
+			}
+			
 		}
 		currentScope().stack.push(val);
 	}
@@ -547,26 +602,127 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //		currentScope().stack.push(new SolveNode(v1, v2));
 //	}
 	
+	public void exitArrayAccessOrFuncCallTest(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
+		System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
+		System.out.println(">>exitArrayAccessOrFuncCall: "+ctx.aa_index().size());
+		System.out.println(">>>exitArrayAccessOrFuncCall: "+ctx.IDENTIFIER());
+		System.out.println(">>>>exitArrayAccessOrFuncCall: "+ctx.variable_entity().getText());
+		
+		StringBuilder sb = new StringBuilder();
+		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
+			sb.append(".").append(ctx.IDENTIFIER(i).getText());
+		}
+		
+		List<ExprNode> indices = new ArrayList<ExprNode>();
+		for(int i=0; i<ctx.aa_index().size(); i++) {
+			indices.add(this.currentScope().stack.pop());
+		}
+		System.out.println(indices);
+		ExprNode n = this.currentScope().stack.pop();
+		System.out.println(n.toString()+sb.toString());
+		
+		this.currentScope().stack.push(n);
+		
+		
+	}
+	
+	
+	@Override public void exitCellAccess(MatlabGrammarParser.CellAccessContext ctx) { 
+		System.out.println("exitCellAccess: "+ctx.getText());
+	}
+	
 	@Override public void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
-		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
 		
-		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
-		VariableNode var = this.currentScope().varMap.get(varName);
-		Class<?> paramType = null;
-		if(null != mapParameterTypes)
-			paramType = mapParameterTypes.get(varName);
-		//Function call
-		if( null != func || (var == null && null == paramType) ) {
-			String methodName = varName;
-			
-			StringBuilder sb = new StringBuilder();
-			//for(int i= ctx.IDENTIFIER().size()-1; i>0; i--) {
-			for(int i=0; i<ctx.array_access().IDENTIFIER().size()-1; i++) {
-				TerminalNode node = ctx.array_access().IDENTIFIER(i);
-				sb.append(".").append(node.getText());
+		boolean isFuncCall = false;
+		
+		StringBuilder sbNames = new StringBuilder();
+		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
+			sbNames.append(".").append(ctx.IDENTIFIER(i).getText());
+		}
+		
+		//Pop all the indices from the stack and keep them in a list
+		List<ExprNode> indices = new ArrayList<ExprNode>();
+		for(int i=0; i<ctx.aa_index().size(); i++) {
+			if(null == ctx.aa_index(i).COLON()) {
+				if(null != ctx.aa_index(i).aa_range()) {
+					//---end
+					if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
+						indices.add(this.currentScope().stack.pop());
+					}
+					//---step
+					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+						indices.add(this.currentScope().stack.pop());
+					}
+					//---start
+					if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
+						indices.add(this.currentScope().stack.pop());
+					}
+				} else {
+					indices.add(this.currentScope().stack.pop());
+				}
 			}
-			String className = sb.length()>0?sb.delete(0, 1).toString():"";
+		}
+		
+
+		System.out.println("exitArrayAccessOrFuncCall()-indices: "+indices);
+		//Pop the variable 
+		ExprNode var = this.currentScope().stack.pop();
+		
+		//Push back the indices to the stack for further process
+		for(int i=indices.size()-1; i>=0; i--) {
+			this.currentScope().stack.push(indices.get(i));
+		}
+		
+		//TODO this.currentScope().stack.push(n);
+		
+		String varName = null;
+		//Check if this is a function call
+		if(var instanceof VariableNode) {
+			VariableNode varNode = (VariableNode)var;
+			varName = varNode.getName();
+			System.out.println("exitArrayAccessOrFuncCall()-varName: "+varName);
+		
+			FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+			if(null == func) {
+				//Check if the variable is from external parameter
+				if(null != this.mapParameterTypes && null != this.mapParameterTypes.get(varName)) {
+					isFuncCall = false;
+				} else {
+					VariableNode localVar = this.currentScope().varMap.get(varName);
+					if(null == localVar)
+						isFuncCall = true;
+					
+//					if(localVar == null) {
+//						isFuncCall = true;
+//					} else {
+//						//if(localVar.isParameter() && null == localVar.getType()) //this.defaultParameterTypeOrInterface
+//						if(localVar.isParameter()) 
+//							isFuncCall = true;
+//					}
+				}
+
+
+			} else {
+				isFuncCall = true;
+			}
+		}
+		
+		if(isFuncCall) {
+//			//Remove varName from varMap for function name in a function call statement
+//			this.currentScope().varMap.remove(varName);
+
+			String fullName = varName+sbNames.toString();
+			System.out.println("exitArrayAccessOrFuncCall()-full_var_name="+fullName);
+			String[] ss = fullName.split("\\.");
+			ArrayList<String> l = new ArrayList<String>();
+			Collections.addAll(l, ss);
+			
+			String className = "";
+			if(l.size() > 0)
+				className = String.join(".", l.subList(0, l.size()-1));
+			String methodName = ss[ss.length-1];
+			
 			//Class name transform
 			if(className.equalsIgnoreCase("math"))
 				className = "java.lang.Math";
@@ -594,8 +750,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					System.out.println("Call "+methodName+" in scope "+this.currentScope());
 				
 				List<ExprNode> args = new ArrayList<ExprNode>();
-				for(int i=0; i<ctx.array_access().aa_index().size(); i++) {
+				for(int i=0; i<ctx.aa_index().size(); i++) {
 					//System.out.println(ctx.expression(i).getText());
+					//TODO?			if(null == ctx.aa_index(i).COLON())
+
 					ExprNode arg = currentScope().stack.pop();
 					if(arg instanceof AssignNode) {
 						arg.genLoadInsn(true);
@@ -628,41 +786,42 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		
 		//------Array Access------
-		if(null == var) {
-			var = VariableNode.newParameter(varName, null); //default to double??
-			currentScope().varMap.put(varName, var);
-		}
+//		if(null == var) {
+//			var = VariableNode.newParameter(varName, null); //default to double??
+//			currentScope().varMap.put(varName, var);
+//		}
+		System.out.println("exitArrayAccessOrFuncCall()-varMap: "+this.currentScope().varMap);
 
 		MatrixAccessNode node = new MatrixAccessNode(var);
-		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
-			if(null != ctx.array_access().aa_index(i).COLON()) {
+		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
+			if(null != ctx.aa_index(i).COLON()) {
 				//A(:)
 				//Access all rows or columns
 				node.addIndex(null, null);
-			} else if(null != ctx.array_access().aa_index(i).aa_range()) {
+			} else if(null != ctx.aa_index(i).aa_range()) {
 				//A(1:10), A(1:end), A(end:-1:1)
 				ExprNode idxS = null;
 				ExprNode idxStep = null;
 				ExprNode idxE = null;
 				
-				//A(5:end, 2:2:end)
-				if(ctx.array_access().aa_index().size() > 1) {
+				//A(5:end, 2:2:end), A(end:1,end:2:1)
+				if(ctx.aa_index().size() > 1) {
 					String dimMethodName = "getRowDimension";
 					if(i == 1) {
 						dimMethodName = "getColumnDimension";
 					}
 					//---end
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_end().expression())
 						idxE = this.currentScope().stack.pop();
 					else { //end='end'
 						idxE = new FuncCallNode(var, dimMethodName, false);
 					}
 					//---step
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
+					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
 						idxStep = this.currentScope().stack.pop();
 					}
 					//---start
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_start().expression())
 						idxS = this.currentScope().stack.pop();
 					else { //start='end'
 						idxS = new FuncCallNode(var, dimMethodName, false);
@@ -670,7 +829,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				} else {
 					//A(x:x:end)
 					//---end
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_end().expression())
 						idxE = this.currentScope().stack.pop();
 					else { //end='end'
 						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
@@ -678,11 +837,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						idxE = endNode;
 					}
 					//---step
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
+					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
 						idxStep = this.currentScope().stack.pop();
 					}
 					//---start
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_start().expression())
 						idxS = this.currentScope().stack.pop();
 					else { //start='end'
 						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
@@ -705,86 +864,246 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		this.currentScope().stack.push(node);
 	}
 
-	@Override public void exitExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx) {
-		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
-		VariableNode var = this.currentScope().varMap.get(varName);
-		if(null == var) {
-			var = VariableNode.newParameter(varName, null); //default to double??
-			currentScope().varMap.put(varName, var);
-		}
-		ExprNode value = this.currentScope().stack.pop();
-		
-		MatrixAssignNode node = new MatrixAssignNode(var, value);
-		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
-			if(null != ctx.array_access().aa_index(i).COLON()) {
-				//A(:)
-				//Access all rows or columns
-				node.addIndex(null, null);
-			} else if(null != ctx.array_access().aa_index(i).aa_range()) {
-				//A(1:10), A(1:end), A(end:-1:1)
-				ExprNode idxS = null;
-				ExprNode idxStep = null;
-				ExprNode idxE = null;
-				
-				//A(5:end, 2:2:end)
-				if(ctx.array_access().aa_index().size() > 1) {
-					String dimMethodName = "getRowDimension";
-					if(i == 1) {
-						dimMethodName = "getColumnDimension";
-					}
-					//---end
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
-						idxE = this.currentScope().stack.pop();
-					else { //end='end'
-						idxE = new FuncCallNode(var, dimMethodName, false);
-					}
-					//---step
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
-						idxStep = this.currentScope().stack.pop();
-					}
-					//---start
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
-						idxS = this.currentScope().stack.pop();
-					else { //start='end'
-						idxS = new FuncCallNode(var, dimMethodName, false);
-					}
-				} else {
-					//A(x:x:end)
-					//---end
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
-						idxE = this.currentScope().stack.pop();
-					else { //end='end'
-						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-						endNode.args.add(var);
-						idxE = endNode;
-					}
-					//---step
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
-						idxStep = this.currentScope().stack.pop();
-					}
-					//---start
-					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
-						idxS = this.currentScope().stack.pop();
-					else { //start='end'
-						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-						endNode.args.add(var);
-						idxS = endNode;
-					}
-				}
-				if(null == idxStep)
-					node.addIndex(idxS, idxE);
-				else
-					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
-			} else {
-				//aa_index : expression | COLON | func_handle | aa_range;
-				ExprNode idxS = this.currentScope().stack.pop(); //expression
-				ExprNode idxE = null;
-				node.addIndex(idxS, idxE);
-			}
-		}
+	
+//	@Override public void exitArrayAccessOrFuncCall_Backup(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
+//		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
+//		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
+//		
+//		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+//		VariableNode var = this.currentScope().varMap.get(varName);
+//		Class<?> paramType = null;
+//		if(null != mapParameterTypes)
+//			paramType = mapParameterTypes.get(varName);
+//		//Function call
+//		if( null != func || (var == null && null == paramType) ) {
+//			String methodName = varName;
+//			
+//			StringBuilder sb = new StringBuilder();
+//			//for(int i= ctx.IDENTIFIER().size()-1; i>0; i--) {
+//			for(int i=0; i<ctx.array_access().IDENTIFIER().size()-1; i++) {
+//				TerminalNode node = ctx.array_access().IDENTIFIER(i);
+//				sb.append(".").append(node.getText());
+//			}
+//			String className = sb.length()>0?sb.delete(0, 1).toString():"";
+//			//Class name transform
+//			if(className.equalsIgnoreCase("math"))
+//				className = "java.lang.Math";
+//			else if( methodName.equalsIgnoreCase("print")
+//					|| methodName.equalsIgnoreCase("println") 
+//					//|| methodName.equalsIgnoreCase("range")
+//				  ) {
+//					className = "io.lambdacloud.BytecodeSupport";
+//			} else if(className.length() == 0){
+//				className = "io.lambdacloud.BytecodeSupport";
+//			}
+//			
+//			//Method name transform
+//			if(methodName.equalsIgnoreCase("range")) {
+////				ExprNode start = null;
+////				ExprNode end = currentScope().stack.pop();
+////				if(ctx.expression().size() > 1) {
+////					start = currentScope().stack.pop();
+////				}
+////				RangeNode node = new RangeNode(start, end, false);
+////				currentScope().stack.push(node);
+//			} else {
+//				FuncDefNode funcDef = ExprTreeBuildWalker.funcMap.get(methodName);
+//				if(DEBUG)
+//					System.out.println("Call "+methodName+" in scope "+this.currentScope());
+//				
+//				List<ExprNode> args = new ArrayList<ExprNode>();
+//				for(int i=0; i<ctx.array_access().aa_index().size(); i++) {
+//					//System.out.println(ctx.expression(i).getText());
+//					ExprNode arg = currentScope().stack.pop();
+//					if(arg instanceof AssignNode) {
+//						arg.genLoadInsn(true);
+//					}
+//					args.add(arg);
+//				}
+//				
+//				boolean isDynamicCall = false;
+//				if(null != funcDef && !funcDef.name.equals(this.currentScope().toString())) {
+//					className = funcDef.getFuncClassName();//"global";
+//					isDynamicCall = true;
+//				} else if(null != funcDef && funcDef.name.equals(this.currentScope().toString())) {
+//					//This is the case that the recursively call of the function
+//					//The body of the function is not available here see enterFuncDef()
+//					className = funcDef.getFuncClassName();
+//					isDynamicCall = false; //TODO We are not able to determine this here! We need to determine it at code generation phase
+//				}
+//				FuncCallNode funcCall = new FuncCallNode(className, methodName, isDynamicCall);
+//				funcCall.args = args;
+//				funcCall.refFuncDefNode = funcDef;
+//				//Type body of funcDef has not been processed here if it is an recursive call
+//				//funcDef.setParamTypes(funcCall.getParameterClassTypes());
+//				//System.out.println(Type.getMethodDescriptor(funcCall.getType(), funcCall.getParameterTypes()));
+//				//System.out.println(funcDef.getType().getDescriptor());
+//				currentScope().stack.push(funcCall);
+//			}
+//			
+//			
+//			return;
+//		}
+//		
+//		//------Array Access------
+//		if(null == var) {
+//			var = VariableNode.newParameter(varName, null); //default to double??
+//			currentScope().varMap.put(varName, var);
+//		}
+//
+//		MatrixAccessNode node = new MatrixAccessNode(var);
+//		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
+//			if(null != ctx.array_access().aa_index(i).COLON()) {
+//				//A(:)
+//				//Access all rows or columns
+//				node.addIndex(null, null);
+//			} else if(null != ctx.array_access().aa_index(i).aa_range()) {
+//				//A(1:10), A(1:end), A(end:-1:1)
+//				ExprNode idxS = null;
+//				ExprNode idxStep = null;
+//				ExprNode idxE = null;
+//				
+//				//A(5:end, 2:2:end), A(end:1,end:2:1)
+//				if(ctx.array_access().aa_index().size() > 1) {
+//					String dimMethodName = "getRowDimension";
+//					if(i == 1) {
+//						dimMethodName = "getColumnDimension";
+//					}
+//					//---end
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
+//						idxE = this.currentScope().stack.pop();
+//					else { //end='end'
+//						idxE = new FuncCallNode(var, dimMethodName, false);
+//					}
+//					//---step
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
+//						idxStep = this.currentScope().stack.pop();
+//					}
+//					//---start
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
+//						idxS = this.currentScope().stack.pop();
+//					else { //start='end'
+//						idxS = new FuncCallNode(var, dimMethodName, false);
+//					}
+//				} else {
+//					//A(x:x:end)
+//					//---end
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
+//						idxE = this.currentScope().stack.pop();
+//					else { //end='end'
+//						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+//						endNode.args.add(var);
+//						idxE = endNode;
+//					}
+//					//---step
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
+//						idxStep = this.currentScope().stack.pop();
+//					}
+//					//---start
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
+//						idxS = this.currentScope().stack.pop();
+//					else { //start='end'
+//						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+//						endNode.args.add(var);
+//						idxS = endNode;
+//					}
+//				}
+//				if(null == idxStep)
+//					node.addIndex(idxS, idxE);
+//				else
+//					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
+//			} else {
+//				//aa_index : expression | COLON | func_handle | aa_range;
+//				ExprNode idxS = this.currentScope().stack.pop(); //expression
+//				ExprNode idxE = null;
+//				node.addIndex(idxS, idxE);
+//			}
+//		}
+//
+//		this.currentScope().stack.push(node);
+//	}
 
-		this.currentScope().stack.push(node);
-	}
+	//ArrayAssign is moved to ExprAssign
+//	@Override public void exitExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx) {
+//		String varName = ctx.array_access().IDENTIFIER(ctx.array_access().IDENTIFIER().size()-1).getText();
+//		VariableNode var = this.currentScope().varMap.get(varName);
+//		if(null == var) {
+//			var = VariableNode.newParameter(varName, null); //default to double??
+//			currentScope().varMap.put(varName, var);
+//		}
+//		ExprNode value = this.currentScope().stack.pop();
+//		
+//		MatrixAssignNode node = new MatrixAssignNode(var, value);
+//		for(int i=ctx.array_access().aa_index().size()-1; i>=0; i--) {
+//			if(null != ctx.array_access().aa_index(i).COLON()) {
+//				//A(:)
+//				//Access all rows or columns
+//				node.addIndex(null, null);
+//			} else if(null != ctx.array_access().aa_index(i).aa_range()) {
+//				//A(1:10), A(1:end), A(end:-1:1)
+//				ExprNode idxS = null;
+//				ExprNode idxStep = null;
+//				ExprNode idxE = null;
+//				
+//				//A(5:end, 2:2:end)
+//				if(ctx.array_access().aa_index().size() > 1) {
+//					String dimMethodName = "getRowDimension";
+//					if(i == 1) {
+//						dimMethodName = "getColumnDimension";
+//					}
+//					//---end
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
+//						idxE = this.currentScope().stack.pop();
+//					else { //end='end'
+//						idxE = new FuncCallNode(var, dimMethodName, false);
+//					}
+//					//---step
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
+//						idxStep = this.currentScope().stack.pop();
+//					}
+//					//---start
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
+//						idxS = this.currentScope().stack.pop();
+//					else { //start='end'
+//						idxS = new FuncCallNode(var, dimMethodName, false);
+//					}
+//				} else {
+//					//A(x:x:end)
+//					//---end
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_end().expression())
+//						idxE = this.currentScope().stack.pop();
+//					else { //end='end'
+//						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+//						endNode.args.add(var);
+//						idxE = endNode;
+//					}
+//					//---step
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_step()) {
+//						idxStep = this.currentScope().stack.pop();
+//					}
+//					//---start
+//					if(null != ctx.array_access().aa_index(i).aa_range().aa_range_start().expression())
+//						idxS = this.currentScope().stack.pop();
+//					else { //start='end'
+//						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+//						endNode.args.add(var);
+//						idxS = endNode;
+//					}
+//				}
+//				if(null == idxStep)
+//					node.addIndex(idxS, idxE);
+//				else
+//					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
+//			} else {
+//				//aa_index : expression | COLON | func_handle | aa_range;
+//				ExprNode idxS = this.currentScope().stack.pop(); //expression
+//				ExprNode idxE = null;
+//				node.addIndex(idxS, idxE);
+//			}
+//		}
+//
+//		this.currentScope().stack.push(node);
+//	}
 
 @Override public void exitArithmeticExpressionAddSub(MatlabGrammarParser.ArithmeticExpressionAddSubContext ctx) {
 	String op = ctx.add_sub_operator().getText();
@@ -872,18 +1191,53 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//System.out.println("exitArithmeticExpressionEntity:"+ctx.getText());
 		//Do nothing
 	}
+	
 	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) {
-		String varName = ctx.IDENTIFIER().getText();
+
+//		String varName = ctx.IDENTIFIER().getText();
+//		ExprNode value = this.currentScope().stack.pop();
+//		VariableNode var = this.currentScope().varMap.get(varName);
+//		if(null == var) {
+//			//Specify a null type when creating a new local variable
+//			//var = VariableNode.newLocalVar(varName, value.getType());
+//			var = VariableNode.newLocalVar(varName, null);
+//			this.currentScope().varMap.put(varName, var);
+//		}
+//		this.currentScope().stack.push(new AssignNode(var, value));
+		
 		ExprNode value = this.currentScope().stack.pop();
-		VariableNode var = this.currentScope().varMap.get(varName);
-		if(null == var) {
-			//Specify a null type when creating a new local variable
-			//var = VariableNode.newLocalVar(varName, value.getType());
-			var = VariableNode.newLocalVar(varName, null);
-			this.currentScope().varMap.put(varName, var);
+		ExprNode variable_entity = this.currentScope().stack.pop();
+		if(variable_entity instanceof VariableNode) {
+			VariableNode var = (VariableNode)variable_entity;
+			
+//			//If var is not in current varMap, it must be a local variable. 
+//			//Put it in varMap
+//			if(!this.currentScope().varMap.containsKey(var.getName())) {
+//				var.setAsLocalVar();
+//				this.currentScope().varMap.put(var.getName(), var);
+//			} else {
+//				if(var.isLeftHandSideVar())
+//					var.setAsLocalVar(); //TODO Can we assign a parameter variable?
+//				//		assertEqual(exec("function fib(r, n); A=[1 1; 1 0]; if n<1; r; else r=A*r; fib(r, n-1); end end fib([1 1]', 5)"), 
+//				//new Jama.Matrix(new double[]{13,8},2));
+//				//java.lang.RuntimeException: Parameter r__null_L{} of fib is not marked as parameter type!
+//				//at io.lambdacloud.node.FuncDefNode.setParamTypes(FuncDefNode.java:78)
+//
+//			}
+			
+			this.currentScope().stack.push(new AssignNode(var, value));
+		} else if(variable_entity instanceof MatrixAccessNode) {
+			MatrixAccessNode mnode = (MatrixAccessNode)variable_entity;
+			MatrixAssignNode ma = new MatrixAssignNode((VariableNode)mnode.var, value);
+			ma.indices = mnode.indices;
+			this.currentScope().stack.push(ma);
+		} else {
+			throw new RuntimeException("");
 		}
-		this.currentScope().stack.push(new AssignNode(var, value));
+
 	}
+	
+
 	
 	/**
 	 * Extract function name and arguments (parameter names)
