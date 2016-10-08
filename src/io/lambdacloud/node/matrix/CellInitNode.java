@@ -19,6 +19,14 @@ import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.Cell;
 
+/**
+ * Copied from MatrixInitNode
+ * 
+ * The underlining container has class Cell
+ * 
+ * @author yueming.liu
+ *
+ */
 public class CellInitNode extends ExprNode {
 	public List<ExprNode> initExprList = new ArrayList<ExprNode>();
 	public List<Integer> colLenList = new ArrayList<Integer>();

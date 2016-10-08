@@ -17,6 +17,11 @@ import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.IndexPair;
 
+/**
+ * Copied from MatrixAccessNode
+ * @author yueming.liu
+ *
+ */
 public class CellAccessNode extends ExprNode {
 	public static int INDEX_BASE = 1;
 	
