@@ -402,6 +402,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprCellInit(MatlabGrammarParser.ExprCellInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprCellInit(MatlabGrammarParser.ExprCellInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAdd_sub_operator(MatlabGrammarParser.Add_sub_operatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -505,6 +517,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArray_init(MatlabGrammarParser.Array_initContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCell_init(MatlabGrammarParser.Cell_initContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCell_init(MatlabGrammarParser.Cell_initContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

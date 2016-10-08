@@ -378,6 +378,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitArithmeticExpressionAddSub(MatlabGrammarParser.ArithmeticExpressionAddSubContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprCellInit}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprCellInit(MatlabGrammarParser.ExprCellInitContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprCellInit}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprCellInit(MatlabGrammarParser.ExprCellInitContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#add_sub_operator}.
 	 * @param ctx the parse tree
 	 */
@@ -477,6 +489,16 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArray_init(MatlabGrammarParser.Array_initContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#cell_init}.
+	 * @param ctx the parse tree
+	 */
+	void enterCell_init(MatlabGrammarParser.Cell_initContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#cell_init}.
+	 * @param ctx the parse tree
+	 */
+	void exitCell_init(MatlabGrammarParser.Cell_initContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#ai_list}.
 	 * @param ctx the parse tree
