@@ -40,6 +40,10 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		
+		exec("{10,20,30}");
+		exec("a=[1,2,3]; a{1:2}");
+		//assertEqual(exec("a=[1,2,3]; a{1}=10"),  null);
 //		assertEqual(exec("a{1:2}(0)"),  null);
 //		//assertEqual(exec("a[0]{1:2}"),  null);
 //		assertEqual(exec("a(0){1}"),  null);
@@ -55,23 +59,23 @@ public class TestMatlabEngine {
 //		assertEqual(exec("a", getMap("a",1)),  1);
 
 
-		testVariableNode();
-		testBasic();
-		testBasic2();
-		testBasic3();
-		testPrint();
-		testComment();
-		testEndIndex();
-		testNArgin();
-		testShaddowVariables();
-		testBuildinFunc();
-		testFunction();
-		testMatrixInit();
-		testMatrixAssign();
-		testMatrixAccess();
-		testOptionalParamters();
-		testMisc();
-		testString();
+//		testVariableNode();
+//		testBasic();
+//		testBasic2();
+//		testBasic3();
+//		testPrint();
+//		testComment();
+//		testEndIndex();
+//		testNArgin();
+//		testShaddowVariables();
+//		testBuildinFunc();
+//		testFunction();
+//		testMatrixInit();
+//		testMatrixAssign();
+//		testMatrixAccess();
+//		testOptionalParamters();
+//		testMisc();
+//		testString();
 	}
 	
 	public static void testMisc() {
@@ -108,7 +112,9 @@ public class TestMatlabEngine {
 //		assertEqual(exec("function fib(r, n); A=[1 1; 1 0]; if n<1; r; else r=A*r; fib(r, n-1); end end fib([1 1]', 5)"), 
 //				new Jama.Matrix(new double[]{13,8},2));
 
-		
+		//func_def_return is for 'function HERE=fun(a,b) ... end'
+		assertEqual(exec("function fun(a,b), return a+b end fun(1,2)"),3);
+
 	}
 	
 	public static void testString() {
