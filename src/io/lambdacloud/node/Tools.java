@@ -302,4 +302,9 @@ public class Tools {
 	public static Object[] listToObjectArray(List<Object> list) {
 		return list.toArray();
 	}
+	
+	public static String getClassNameForASM(Class<?> c) {
+		return c.getName().replaceAll("\\.", "/");
+	}
+
 }
