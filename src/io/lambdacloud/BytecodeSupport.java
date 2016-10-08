@@ -3,6 +3,8 @@ package io.lambdacloud;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.lambdacloud.node.tool.Cell;
+
 public class BytecodeSupport {
 	public static String getMyName() {
 		return BytecodeSupport.class.getName().replaceAll("\\.", "/");
@@ -72,6 +74,10 @@ public class BytecodeSupport {
 			}
 		}
 		System.out.print("]");
+		return o;
+	}
+	public static Cell println(Cell o) {
+		System.out.println(o.toString());
 		return o;
 	}
 	
