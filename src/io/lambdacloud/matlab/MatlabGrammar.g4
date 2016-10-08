@@ -131,6 +131,7 @@ arithmetic_expr
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
  | array_init                                         # ExprArrayInit
+ | cell_init                                          # ExprCellInit
  | numeric_entity                                     # ArithmeticExpressionEntity
  | WS* 'nargin' WS* expr_end?                         # NArgIn
  | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange1
@@ -153,24 +154,20 @@ float_entity
  ;
 variable_entity
  : IDENTIFIER                     # EntityVariable
-// | array_access                   # ArrayAccessOrFuncCall
-// | cell_access                    # CellAccess
  | variable_entity (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # ArrayAccessOrFuncCall
  | variable_entity (PERIOD IDENTIFIER)* WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB       # CellAccess
  ;
 
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
+cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
 ai_list : ( expression (COMMA|WS+) )* expression? ;
 
-// Use array_access for function call too
-//array_access: variable_entity (PERIOD variable_entity)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN WS* ;
+//array access index
 aa_index : expression | COLON | func_handle | aa_range;
 aa_range : aa_range_start WS* COLON WS* (aa_range_step WS* COLON WS*)? aa_range_end ;
 aa_range_start : 'end' | expression;
 aa_range_step : expression ;
 aa_range_end : 'end' | expression;
-
-//cell_access: variable_entity (PERIOD variable_entity)* WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB WS* ;
 
 func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
@@ -201,10 +198,7 @@ logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 ///////////////////////////
 
 assign_expr
- : WS* variable_entity WS* ASSIGN expression   # ExprAssign
-// : WS* IDENTIFIER WS* ASSIGN expression      # ExprAssign
-// | array_access ASSIGN expression            # ExprArrayAssign
-// | cell_access ASSIGN expression             # ExprCellAssign
+ : WS* variable_entity WS* ASSIGN expression       # ExprAssign
  | WS* LBRK WS* ( IDENTIFIER WS* (COMMA|WS+) WS* )* IDENTIFIER? WS* RBRK WS* ASSIGN expression # ExprMultiAssign
  | WS* variable_entity WS* MUL_ASSIGN expression   # ExprMulAssign
  | WS* variable_entity WS* DIV_ASSIGN expression   # ExprDivAssign
