@@ -444,6 +444,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code CellAccess}
+	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
+	 * @param ctx the parse tree
+	 */
+	void enterCellAccess(MatlabGrammarParser.CellAccessContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code CellAccess}
+	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
+	 * @param ctx the parse tree
+	 */
+	void exitCellAccess(MatlabGrammarParser.CellAccessContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArrayAccessOrFuncCall}
 	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
 	 * @param ctx the parse tree
@@ -475,16 +487,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAi_list(MatlabGrammarParser.Ai_listContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MatlabGrammarParser#array_access}.
-	 * @param ctx the parse tree
-	 */
-	void enterArray_access(MatlabGrammarParser.Array_accessContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MatlabGrammarParser#array_access}.
-	 * @param ctx the parse tree
-	 */
-	void exitArray_access(MatlabGrammarParser.Array_accessContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#aa_index}.
 	 * @param ctx the parse tree
@@ -709,18 +711,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ExprArrayAssign}
-	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExprArrayAssign}
-	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprMultiAssign}
 	 * labeled alternative in {@link MatlabGrammarParser#assign_expr}.

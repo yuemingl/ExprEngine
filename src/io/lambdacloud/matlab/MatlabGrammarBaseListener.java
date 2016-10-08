@@ -474,6 +474,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCellAccess(MatlabGrammarParser.CellAccessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCellAccess(MatlabGrammarParser.CellAccessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -505,18 +517,6 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAi_list(MatlabGrammarParser.Ai_listContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterArray_access(MatlabGrammarParser.Array_accessContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArray_access(MatlabGrammarParser.Array_accessContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -757,18 +757,6 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExprArrayAssign(MatlabGrammarParser.ExprArrayAssignContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
