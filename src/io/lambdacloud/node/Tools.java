@@ -138,6 +138,16 @@ public class Tools {
 			mg.visitInsn(Opcodes.I2L);
 		} else if(f == Type.DOUBLE && t == Type.LONG) {
 			mg.visitInsn(Opcodes.D2L);
+		} else if(f == Type.INT && t == Type.OBJECT) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+		} else if(f == Type.DOUBLE && t == Type.OBJECT) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+		} else if(f == Type.LONG && t == Type.OBJECT) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+		} else if(f == Type.BOOLEAN && t == Type.OBJECT) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+		} else if(from.equals(Type.getType(String.class)) && t == Type.OBJECT) {
+			//Do nothing
 		} else {
 			throw new RuntimeException("Cannot convert type "+from+" to type "+to);
 		}
