@@ -41,8 +41,9 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 public class TestMatlabEngine {
 	public static void main(String[] args){
 		
-		exec("{10,20,30}");
-		exec("a=[1,2,3]; a{1:2}");
+		exec("{10,20,30,'ttt',1L,3.5,true}");
+		//exec("{10,20,30,'ttt',1L}");
+		//exec("a=[1,2,3]; a{1:2}");
 		//assertEqual(exec("a=[1,2,3]; a{1}=10"),  null);
 //		assertEqual(exec("a{1:2}(0)"),  null);
 //		//assertEqual(exec("a[0]{1:2}"),  null);
@@ -59,23 +60,23 @@ public class TestMatlabEngine {
 //		assertEqual(exec("a", getMap("a",1)),  1);
 
 
-//		testVariableNode();
-//		testBasic();
-//		testBasic2();
-//		testBasic3();
-//		testPrint();
-//		testComment();
-//		testEndIndex();
-//		testNArgin();
-//		testShaddowVariables();
-//		testBuildinFunc();
-//		testFunction();
-//		testMatrixInit();
-//		testMatrixAssign();
-//		testMatrixAccess();
-//		testOptionalParamters();
-//		testMisc();
-//		testString();
+		testVariableNode();
+		testBasic();
+		testBasic2();
+		testBasic3();
+		testPrint();
+		testComment();
+		testEndIndex();
+		testNArgin();
+		testShaddowVariables();
+		testBuildinFunc();
+		testFunction();
+		testMatrixInit();
+		testMatrixAssign();
+		testMatrixAccess();
+		testOptionalParamters();
+		testMisc();
+		testString();
 	}
 	
 	public static void testMisc() {

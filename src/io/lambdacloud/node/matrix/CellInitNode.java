@@ -58,69 +58,29 @@ public class CellInitNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
-
 		if(initExprList.size() == 0) {
 			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
 			mg.visitInsn(DUP);
-			mg.visitLdcInsn(0);
-			mg.visitLdcInsn(0);
-			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "(II)V", false);
+			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, Tools.getClassNameForASM(Cell.class), "<init>", "()V", false);
 			return;
 		}
 		
-		//Get element type
-		Type eleType = getElementType();
-		if (eleType.getSort() == Type.OBJECT) { //Jama.Matrix
-			
-			mg.visitLdcInsn(this.initExprList.size()); //size of new array
-			mg.visitTypeInsn(ANEWARRAY, eleType.getInternalName());
-			int idx = 0;
-			for (int i = this.initExprList.size() - 1; i >= 0; i--) {
-				mg.visitInsn(DUP);
-				mg.visitLdcInsn(idx++);
-				initExprList.get(i).genCode(mg);
-				mg.visitInsn(eleType.getOpcode(IASTORE));
-			}
-			
-				//return a Matrix
-				mg.visitLdcInsn(this.colLenList.size()); //size of new array
-				mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.INT_TYPE, false));
-				idx = 0;
-				for (int i=0; i<this.colLenList.size(); i++) {
-					mg.visitInsn(DUP);
-					mg.visitLdcInsn(idx++);
-					mg.visitLdcInsn(this.colLenList.get(i));
-					mg.visitInsn(IASTORE);
-				}
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "([LJama/Matrix;[I)LJama/Matrix;", false);
-		} else if(eleType.getSort() == Type.DOUBLE || eleType.getSort() == Type.INT) {
-			mg.visitTypeInsn(Opcodes.NEW, Tools.getClassNameForASM(Cell.class));
+		mg.visitTypeInsn(Opcodes.NEW, Tools.getClassNameForASM(Cell.class));
+		mg.visitInsn(DUP);
+		
+		mg.visitLdcInsn(getValidNumberOfElement()); //size of new array
+		mg.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+		int idx = 0;
+		for (int i = initExprList.size() - 1; i >= 0; i--) {
+			if(null == this.initExprList.get(i).getType()) continue;
 			mg.visitInsn(DUP);
-			
-			//mg.visitLdcInsn(initExprList.size()); //size of new array
-			mg.visitLdcInsn(getValidNumberOfElement()); //size of new array
-			
-			eleType = Type.DOUBLE_TYPE;
-			mg.visitIntInsn(NEWARRAY, Tools.getTypeForNEWARRAY(Type.DOUBLE_TYPE, false));
-			int idx = 0;
-			for (int i = initExprList.size() - 1; i >= 0; i--) {
-				if(null == this.initExprList.get(i).getType()) continue;
-				mg.visitInsn(DUP);
-				mg.visitLdcInsn(idx++);
-				initExprList.get(i).genCode(mg);
-				Tools.insertConversionInsn(mg, initExprList.get(i).getType(), eleType);
-				mg.visitInsn(eleType.getOpcode(IASTORE));
-			}
-			
-//			if(colLenList.get(0) == this.initExprList.size())
-//				mg.visitLdcInsn(getValidNumberOfElement());
-//			else
-//				mg.visitLdcInsn(colLenList.get(0));
-			
-			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, Tools.getClassNameForASM(Cell.class), "<init>", "([D)V", false);
-		} else {
-			throw new RuntimeException("Unsupported type: "+eleType);
+			mg.visitLdcInsn(idx++);
+			initExprList.get(i).genCode(mg);
+			Tools.insertConversionInsn(mg, initExprList.get(i).getType(), Type.getType(Object.class));
+			mg.visitInsn(Opcodes.AASTORE);
 		}
+		
+		mg.visitMethodInsn(Opcodes.INVOKESPECIAL, Tools.getClassNameForASM(Cell.class), "<init>", "([Ljava/lang/Object;)V", false);
 	}
 
 	public int getValidNumberOfElement() {
@@ -151,4 +111,54 @@ public class CellInitNode extends ExprNode {
 		}
 		stack.pop();
 	}
+	public static void test() {
+		Object[] o = new Object[]{1L,2.0,"3",true};
+		System.out.println(o);
+	}
+	/**
+	 * 
+mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "test", "()V", null, null);
+mv.visitCode();
+Label l0 = new Label();
+mv.visitLabel(l0);
+mv.visitLineNumber(116, l0);
+mv.visitInsn(ICONST_4);
+mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+mv.visitInsn(DUP);
+mv.visitInsn(ICONST_0);
+mv.visitInsn(LCONST_1);
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+mv.visitInsn(AASTORE);
+mv.visitInsn(DUP);
+mv.visitInsn(ICONST_1);
+mv.visitLdcInsn(new Double("2.0"));
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+mv.visitInsn(AASTORE);
+mv.visitInsn(DUP);
+mv.visitInsn(ICONST_2);
+mv.visitLdcInsn("3");
+mv.visitInsn(AASTORE);
+mv.visitInsn(DUP);
+mv.visitInsn(ICONST_3);
+mv.visitInsn(ICONST_1);
+mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+mv.visitInsn(AASTORE);
+mv.visitVarInsn(ASTORE, 0);
+Label l1 = new Label();
+mv.visitLabel(l1);
+mv.visitLineNumber(117, l1);
+mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+mv.visitVarInsn(ALOAD, 0);
+mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+Label l2 = new Label();
+mv.visitLabel(l2);
+mv.visitLineNumber(118, l2);
+mv.visitInsn(RETURN);
+Label l3 = new Label();
+mv.visitLabel(l3);
+mv.visitLocalVariable("o", "[Ljava/lang/Object;", null, l1, l3, 0);
+mv.visitMaxs(5, 1);
+mv.visitEnd();
+
+	 */
 }

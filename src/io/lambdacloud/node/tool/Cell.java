@@ -13,7 +13,7 @@ public class Cell extends HashMap<Object, Object> {
 		
 	}
 
-	public Cell(double[] data) {
+	public Cell(Object[] data) {
 		for(int i=0; i<data.length; i++) {
 			this.put(i, data[i]);
 		}
