@@ -160,7 +160,7 @@ variable_entity
 
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
 cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
-ai_list : ( expression (COMMA|WS+) )* expression? ;
+ai_list : ( expression (COMMA|WS)+ )* expression? ;
 
 //array access index
 aa_index : expression | COLON | func_handle | aa_range;
@@ -215,7 +215,7 @@ assign_expr
  ;
  
  string_entity
- : WS* StringLiteral WS*      # StringConst
+ : StringLiteral              # StringConst
  | WS* variable_entity WS*    # StringVariable1
  ;
 
