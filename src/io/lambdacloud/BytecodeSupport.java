@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.lambdacloud.node.tool.Cell;
+import io.lambdacloud.util.ObjectArray;
 
 public class BytecodeSupport {
 	public static String getMyName() {
@@ -62,6 +63,20 @@ public class BytecodeSupport {
 	public static Jama.Matrix println(Jama.Matrix o) {
 		if(null != o) {
 			o.print(8, 2);
+		}
+		return o;
+	}
+
+	public static ObjectArray println(ObjectArray o) {
+		if(null != o) {
+			int  m = o.getRowDimension();
+			int n = o.getColumnDimension();
+			for(int i=0; i<m; i++) {
+				for(int j=0; j<n; j++) {
+					System.out.print(o.data[i][j]+"  ");
+				}
+				System.out.println();
+			}
 		}
 		return o;
 	}
