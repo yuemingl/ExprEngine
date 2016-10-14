@@ -154,7 +154,7 @@ public class MatrixInitNode extends ExprNode {
 			if(colLenList.get(0) == this.initExprList.size())
 				mg.visitLdcInsn(getValidNumberOfElement());
 			else
-				mg.visitLdcInsn(colLenList.get(0));
+				mg.visitLdcInsn(colLenList.get(0)); // each row should has the same columns
 			
 			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "([DI)V", false);
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "Jama/Matrix", "transpose", "()LJama/Matrix;", false);
