@@ -41,7 +41,15 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 public class TestMatlabEngine {
 	public static void main(String[] args){
 		
-		exec("{10,20,30,'ttt',1L,3.5,true}");
+		exec("{ 30,    'ttt'    }");
+		exec("{ {10, 20}, {30, 'ttt'} }");
+		exec("{ {10, 20, 30, 'ttt'}; {1L, 3.5}, {true, false} }");
+		exec("{ {10, 20}, {30, 'ttt'}, {1L, 3.5}, {true, false} }");
+		exec("{ {10; 20}, {30; 'ttt'}, {1L; 3.5}, {true; false} }");
+		exec("{10; 20; 30; 'ttt'; 1L; 3.5; true; false}");
+		exec("{10,20; 30,'ttt'; 1L,3.5; true,false}");
+		exec("{10,20,30,'ttt';  1L,3.5,true,false}");
+		//exec("{10,20,30,'ttt',1L,3.5,true}");
 		//exec("{10,20,30,'ttt',1L}");
 		//exec("a=[1,2,3]; a{1:2}");
 		//assertEqual(exec("a=[1,2,3]; a{1}=10"),  null);
