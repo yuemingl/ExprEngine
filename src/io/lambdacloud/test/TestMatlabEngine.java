@@ -40,34 +40,8 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		
-		exec("{ 30,    'ttt'    }");
-		exec("{ {10, 20}, {30, 'ttt'} }");
-		exec("{ {10, 20, 30, 'ttt'}; {1L, 3.5}, {true, false} }");
-		exec("{ {10, 20}, {30, 'ttt'}, {1L, 3.5}, {true, false} }");
-		exec("{ {10; 20}, {30; 'ttt'}, {1L; 3.5}, {true; false} }");
-		exec("{10; 20; 30; 'ttt'; 1L; 3.5; true; false}");
-		exec("{10,20; 30,'ttt'; 1L,3.5; true,false}");
-		exec("{10,20,30,'ttt';  1L,3.5,true,false}");
-		//exec("{10,20,30,'ttt',1L,3.5,true}");
-		//exec("{10,20,30,'ttt',1L}");
-		//exec("a=[1,2,3]; a{1:2}");
-		//assertEqual(exec("a=[1,2,3]; a{1}=10"),  null);
-//		assertEqual(exec("a{1:2}(0)"),  null);
-//		//assertEqual(exec("a[0]{1:2}"),  null);
-//		assertEqual(exec("a(0){1}"),  null);
-//		assertEqual(exec("a{1:2}{0}"),  null);
-//		assertEqual(exec("a.b{1:2}{0}"),  null);
-//		assertEqual(exec("a.b(1:2)(0)"),  null);
-//		assertEqual(exec("aa.bb(1:2).cc(0)"),  null);
-		//assertEqual(exec("dd(1:2,3,4)"),  null);
-//		assertEqual(exec("a=[1,2,3,4]; a(3);"),  3.0);
-//		assertEqual(exec("math.sin(1.0);"),  Math.sin(1.0));
-//		assertEqual(exec("rem(3.0,2.0);"),  1.0);
-//		assertEqual(exec("mod(3.0,2.0);"),  1.0);
-//		assertEqual(exec("a", getMap("a",1)),  1);
 
-
+		testCellArray();
 		testVariableNode();
 		testBasic();
 		testBasic2();
@@ -85,6 +59,86 @@ public class TestMatlabEngine {
 		testOptionalParamters();
 		testMisc();
 		testString();
+	}
+	
+	public static void testCellArray() {
+//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; for i=1:8, a{i} end");
+
+		
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,1:3}={1,2,3;4,5,6}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,1:3:4}={1,2;3,4}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,end:-1:1}={1,2,3,4;5,6,7,8}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{[1 2],[1 3 4]}={1,2,3;4,5,6}");
+////		//exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end:1}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end:-1:1}={1,2,3,4,5,6,7,8}");
+//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2,2}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2:4}={1,2,3}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2:8}={1,2,3,4}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2:2:8}={1,2,3,4}");
+//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{3}={100}");
+//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{5}={100}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}={1,2,3,4;5,6,7,8}");
+		
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,1:3}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,1:3:4}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,end:-1:1}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{[1 2],[1 3 4]}=100");
+//		//exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end:1}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end:-1:1}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2,2}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2:4}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2:8}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2:2:8}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{3}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{5}=100");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}=100");
+
+		
+		exec("a=[1 2 3 4 5; 10 20 30 40 50]; a([1 2],[1 3 4])");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,1:3}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,1:3:4}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:2,end:-1:1}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{[1 2],[1 3 4]}");
+		//exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end:1}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end:-1:1}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2,2}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2:4}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{2:2:8}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{3}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{5}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}");
+
+		
+		exec("{ 30,    'ttt'    }");
+		exec("{ {10, 20}, {30, 'ttt'} }");
+		exec("{ {10, 20, 30, 'ttt'}; {1L, 3.5}, {true, false} }");
+		exec("{ {10, 20}, {30, 'ttt'}, {1L, 3.5}, {true, false} }");
+		exec("{ {10; 20}, {30; 'ttt'}, {1L; 3.5}, {true; false} }");
+		exec("{10; 20; 30; 'ttt'; 1L; 3.5; true; false}");
+		exec("{10,20; 30,'ttt'; 1L,3.5; true,false}");
+		exec("{10,20,30,'ttt';  1L,3.5,true,false}");
+		exec("{10,20,30,'ttt',1L,3.5,true}");
+		exec("{10,20,30,'ttt',1L}");
+		
+		
+		//exec("a=[1,2,3]; a{1:2}");
+		//assertEqual(exec("a=[1,2,3]; a{1}=10"),  null);
+		//assertEqual(exec("a{1:2}(0)"),  null);
+		//assertEqual(exec("a[0]{1:2}"),  null);
+		//assertEqual(exec("a(0){1}"),  null);
+		//assertEqual(exec("a{1:2}{0}"),  null);
+		//assertEqual(exec("a.b{1:2}{0}"),  null);
+		//assertEqual(exec("a.b(1:2)(0)"),  null);
+		//assertEqual(exec("aa.bb(1:2).cc(0)"),  null);
+		//assertEqual(exec("dd(1:2,3,4)"),  null);
+		//assertEqual(exec("a=[1,2,3,4]; a(3);"),  3.0);
+		//assertEqual(exec("math.sin(1.0);"),  Math.sin(1.0));
+		//assertEqual(exec("rem(3.0,2.0);"),  1.0);
+		//assertEqual(exec("mod(3.0,2.0);"),  1.0);
+		//assertEqual(exec("a", getMap("a",1)),  1);		
 	}
 	
 	public static void testMisc() {
