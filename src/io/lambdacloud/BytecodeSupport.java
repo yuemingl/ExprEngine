@@ -3,8 +3,8 @@ package io.lambdacloud;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.lambdacloud.node.tool.Cell;
 import io.lambdacloud.util.ObjectArray;
+import io.lambdacloud.util.Struct;
 
 public class BytecodeSupport {
 	public static String getMyName() {
@@ -91,7 +91,7 @@ public class BytecodeSupport {
 		System.out.print("]");
 		return o;
 	}
-	public static Cell println(Cell o) {
+	public static Struct println(Struct o) {
 		System.out.println(o.toString());
 		return o;
 	}
@@ -675,10 +675,21 @@ public class BytecodeSupport {
 		double[] ary = m.getColumnPackedCopy();
 		return convert(ary);
 	}
+	public static int[] convert_m1(Jama.Matrix m) {
+		double[] ary = m.getColumnPackedCopy();
+		return convert_m1(ary);
+	}
 	public static int[] convert(double[] ary) {
 		int[] r = new int[ary.length];
 		for(int i=0; i<ary.length; i++) {
 			r[i] = (int)ary[i];
+		}
+		return r;
+	}
+	public static int[] convert_m1(double[] ary) {
+		int[] r = new int[ary.length];
+		for(int i=0; i<ary.length; i++) {
+			r[i] = (int)ary[i]-1;
 		}
 		return r;
 	}
@@ -827,6 +838,7 @@ public class BytecodeSupport {
 			return A.get(n%nRow, n/nRow);
 		}
 	}
+	
 	public static void setElement(Jama.Matrix A, int n, double val) {
 		if(A.getRowDimension() == 1) {
 			A.set(0, n, val);
@@ -836,6 +848,7 @@ public class BytecodeSupport {
 			A.set(n%A.getRowDimension(), n/A.getRowDimension(), val);
 		}
 	}
+	
 	public static Jama.Matrix getMatrix(Jama.Matrix A, int s, int e) {
 		double[] ret = new double[e-s];
 		int idx = 0;
@@ -870,4 +883,22 @@ public class BytecodeSupport {
 		
 		return new Jama.Matrix(data);
 	}
+	
+	public static Jama.Matrix size(ObjectArray m) {
+		Jama.Matrix r = new Jama.Matrix(new double[]{m.getRowDimension(), m.getColumnDimension()},2).transpose();
+		return r;
+	}
+	public static int length(ObjectArray m) {
+		return Math.max(m.getRowDimension(), m.getColumnDimension());
+	}
+	public static int numel(ObjectArray m) {
+		return m.getRowDimension()*m.getColumnDimension();
+	}
+	
+	public static Struct struct(Object key, Object val) {
+		Struct s = new Struct();
+		s.put(key, val);
+		return s;
+	}
+
 }
