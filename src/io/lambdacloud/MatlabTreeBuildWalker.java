@@ -58,6 +58,7 @@ import io.lambdacloud.node.logical.NEQNode;
 import io.lambdacloud.node.logical.NotNode;
 import io.lambdacloud.node.logical.OrNode;
 import io.lambdacloud.node.matrix.CellAccessNode;
+import io.lambdacloud.node.matrix.CellAssignNode;
 import io.lambdacloud.node.matrix.CellInitNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.node.matrix.MatrixAssignNode;
@@ -980,6 +981,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		} else if(variable_entity instanceof MatrixAccessNode) {
 			MatrixAccessNode mnode = (MatrixAccessNode)variable_entity;
 			MatrixAssignNode ma = new MatrixAssignNode((VariableNode)mnode.var, value);
+			ma.indices = mnode.indices;
+			this.currentScope().stack.push(ma);
+		} else if(variable_entity instanceof CellAccessNode) {
+			CellAccessNode mnode = (CellAccessNode)variable_entity;
+			CellAssignNode ma = new CellAssignNode((VariableNode)mnode.var, value);
 			ma.indices = mnode.indices;
 			this.currentScope().stack.push(ma);
 		} else {
