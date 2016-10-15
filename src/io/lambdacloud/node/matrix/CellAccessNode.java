@@ -1,5 +1,6 @@
 package io.lambdacloud.node.matrix;
 
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import java.util.ArrayList;
@@ -9,16 +10,18 @@ import org.objectweb.asm.Type;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
-import Jama.Matrix;
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.ObjectArray;
 
 /**
- * Copied from MatrixAccessNode
+ * Copied from MatrixAccessNode.
+ * CellAccessNode has the same logic.
+ * 
  * @author yueming.liu
  *
  */
@@ -39,7 +42,7 @@ public class CellAccessNode extends ExprNode {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for(int i=this.indices.size()-1; i>=0; i--)
-			sb.append("["+this.indices.get(i)+"]");
+			sb.append("{"+this.indices.get(i)+"}");
 		return var+sb.toString();
 	}
 
@@ -50,7 +53,7 @@ public class CellAccessNode extends ExprNode {
 	private boolean isAccessElement() {
 		if(this.indices.size() == 1) {
 			ExprNode idx = this.indices.get(0).idxS;
-			if(null != idx && idx.getType().getSort() != Type.OBJECT && idx.getType().getSort() != Type.ARRAY) {
+			if(null != idx && idx.getType().getSort() != Type.OBJECT) {
 				ExprNode idxE = this.indices.get(0).idxE;
 				if(null == idxE)
 					return true;
@@ -61,8 +64,8 @@ public class CellAccessNode extends ExprNode {
 			ExprNode idx2S = this.indices.get(1).idxS;
 			ExprNode idx2E = this.indices.get(1).idxE;
 			if(null == idx1S  || null == idx2S) return false;
-			if(!(idx1S instanceof RangeNode) && null == idx1E &&
-				!(idx2S instanceof RangeNode) && null == idx2E ) {
+			if(!(idx1S instanceof RangeNode || idx1S instanceof MatrixInitNode) && null == idx1E &&
+				!(idx2S instanceof RangeNode || idx1S instanceof MatrixInitNode) && null == idx2E ) {
 				return true;
 			}
 		}
@@ -79,17 +82,16 @@ public class CellAccessNode extends ExprNode {
 		if(this.indices.size() == 1) {
 			if(null == this.indices.get(0).idxS) {  //A(:)
 				var.genCode(mg);
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "matToVec", "(LJama/Matrix;)LJama/Matrix;", false);
-//				FuncCallNode func = new FuncCallNode(BytecodeSupport.class.getName(),"matToVec", false);
-//				func.args.add(var);
-//				func.genCode(mg);
+				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
+						"to1DArray", "()"+Type.getType(ObjectArray.class), false);
 				return;
 			} else {   //A(B) or A(5) or A(1:10) or A(1:2:10)
 				ExprNode idxS = this.indices.get(0).idxS;
 				if(idxS.getType().equals(Type.getType(Jama.Matrix.class))) { // A(B) or A(range)
 					var.genCode(mg);
 					idxS.genCode(mg);
-					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
+					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
+							"get", "(LJama/Matrix;)"+Type.getType(ObjectArray.class), false);
 				} else if(idxS.getType().getSort() == Type.INT) {
 					var.genCode(mg);
 					idxS.genCode(mg);
@@ -99,11 +101,11 @@ public class CellAccessNode extends ExprNode {
 					}
 					ExprNode idxE = this.indices.get(0).idxE;
 					if(null == idxE) { //A(5)
-						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getElement", "(LJama/Matrix;I)D", false);
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", "(I)"+Type.getType(Object.class), false);
 					} else { //A(1:10) or A(1:end)
 						idxE.genCode(mg);
 						Tools.insertConversionInsn(mg, idxE.getType(), Type.INT_TYPE);
-						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;II)LJama/Matrix;", false);
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getAs1DArray", "(II)"+Type.getType(ObjectArray.class), false);
 					}
 				} else {
 					throw new UnsupportedOperationException("Unknown start index: "+idxS.toString());
@@ -114,7 +116,7 @@ public class CellAccessNode extends ExprNode {
 		
 		var.genCode(mg);
 
-		if(isAccessElement()) {
+		if(isAccessElement()) { //A{1,2}
 			ExprNode idx1S = this.indices.get(1).idxS;
 			ExprNode idx2S = this.indices.get(0).idxS;
 			idx1S.genCode(mg);
@@ -129,7 +131,7 @@ public class CellAccessNode extends ExprNode {
 				mg.visitInsn(Opcodes.ICONST_1);
 				mg.visitInsn(Opcodes.ISUB);
 			}
-			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", "(II)Ljava/lang/Object;", false);
 			return;
 		}
 		int type = 0x0;
@@ -139,11 +141,11 @@ public class CellAccessNode extends ExprNode {
 				mg.visitInsn(Opcodes.ICONST_0);
 				var.genCode(mg);
 				if(i == 1) {
-					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getRowDimension", "()I", false);
+					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getRowDimension", "()I", false);
 					mg.visitInsn(Opcodes.ICONST_1);
 					mg.visitInsn(Opcodes.ISUB);
 				} else if(i == 0) {
-					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getColumnDimension", "()I", false);
+					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnDimension", "()I", false);
 					mg.visitInsn(Opcodes.ICONST_1);
 					mg.visitInsn(Opcodes.ISUB);
 				}
@@ -156,14 +158,38 @@ public class CellAccessNode extends ExprNode {
 					}
 					if(i == 1) {
 						ip.idxS.genCode(mg);
-						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
+						mg.visitMethodInsn(INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
 						type |= 0x1;
 					} else if(i == 0) {
 						ip.idxS.genCode(mg);
-						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
+						mg.visitMethodInsn(INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
 						type |= 0x2;
 					} else
 						throw new RuntimeException();
+				} else if(ip.idxS instanceof MatrixInitNode) {
+					if(INDEX_BASE == 1) {
+						if(i == 1) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert_m1", "(LJama/Matrix;)[I", false);
+							type |= 0x1;
+						} else if(i == 0) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert_m1", "(LJama/Matrix;)[I", false);
+							type |= 0x2;
+						} else
+							throw new RuntimeException();
+					} else {
+						if(i == 1) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
+							type |= 0x1;
+						} else if(i == 0) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
+							type |= 0x2;
+						} else
+							throw new RuntimeException();
+					}
 				} else { //A(1:10, 2:end)
 					ip.idxS.genCode(mg);
 					Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
@@ -185,28 +211,25 @@ public class CellAccessNode extends ExprNode {
 			}
 		}
 		if(type == 0x0)
-			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(IIII)LJama/Matrix;", false);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
+					"(IIII)"+Type.getType(ObjectArray.class), false);
 		else if(type == 0x1)
-			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "([III)LJama/Matrix;", false);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
+					"([III)"+Type.getType(ObjectArray.class), false);
 		else if(type == 0x2)
-			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "(II[I)LJama/Matrix;", false);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
+					"(II[I)"+Type.getType(ObjectArray.class), false);
 		else if(type == 0x3)
-			mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "getMatrix", "([I[I)LJama/Matrix;", false);
-	}
-	
-	public Matrix test(Matrix A) {
-		return A.getMatrix(1, 2, 1, 2);
-	}
-	public double test2(Matrix A) {
-		return A.get(1, 2);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
+					"([I[I)"+Type.getType(ObjectArray.class), false);
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
 		if(this.isAccessElement())
-			return Type.DOUBLE_TYPE;
+			return Type.getType(Object.class);
 		else
-			return Type.getType(Jama.Matrix.class);
+			return Type.getType(ObjectArray.class);
 	}
 
 	@Override

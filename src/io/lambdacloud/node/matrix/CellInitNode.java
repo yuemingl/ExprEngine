@@ -12,12 +12,18 @@ import java.util.List;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.util.ObjectArray;
 
+/**
+ * Initialize an matrix (actually an array) of object (different form 
+ * MatrixInitNode which initializes an matrix of double)
+ * 
+ * @author yueming.liu
+ *
+ */
 public class CellInitNode extends ExprNode {
 	public List<ExprNode> initExprList = new ArrayList<ExprNode>();
 	public List<Integer> colLenList = new ArrayList<Integer>();
