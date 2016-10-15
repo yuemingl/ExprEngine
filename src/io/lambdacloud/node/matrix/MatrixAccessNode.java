@@ -56,8 +56,8 @@ public class MatrixAccessNode extends ExprNode {
 			ExprNode idx2S = this.indices.get(1).idxS;
 			ExprNode idx2E = this.indices.get(1).idxE;
 			if(null == idx1S  || null == idx2S) return false;
-			if(!(idx1S instanceof RangeNode) && null == idx1E &&
-				!(idx2S instanceof RangeNode) && null == idx2E ) {
+			if(!(idx1S instanceof RangeNode || idx1S instanceof MatrixInitNode) && null == idx1E &&
+				!(idx2S instanceof RangeNode || idx2S instanceof MatrixInitNode) && null == idx2E ) {
 				return true;
 			}
 		}
@@ -159,6 +159,31 @@ public class MatrixAccessNode extends ExprNode {
 						type |= 0x2;
 					} else
 						throw new RuntimeException();
+				} else if(ip.idxS instanceof MatrixInitNode) {
+					if(INDEX_BASE == 1) {
+						if(i == 1) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert_m1", "(LJama/Matrix;)[I", false);
+							type |= 0x1;
+						} else if(i == 0) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert_m1", "(LJama/Matrix;)[I", false);
+							type |= 0x2;
+						} else
+							throw new RuntimeException();
+					} else {
+						if(i == 1) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
+							type |= 0x1;
+						} else if(i == 0) {
+							ip.idxS.genCode(mg);
+							mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "convert", "(LJama/Matrix;)[I", false);
+							type |= 0x2;
+						} else
+							throw new RuntimeException();
+						
+					}
 				} else { //A(1:10, 2:end)
 					ip.idxS.genCode(mg);
 					Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
