@@ -30,6 +30,44 @@ public class ObjectArray {
 	public Object get(int m, int n) {
 		return data[m][n];
 	}
+	
+	public ObjectArray set(int m, int n, Object v) {
+		data[m][n] = v;
+		return this;
+	}
+
+	public ObjectArray getAs1DArray(int start, int end) {
+		Object[][] d = this.to1DArray().data;
+		int N = end - start;
+		Object[][] rlt = new Object[1][N];
+		for(int i=0; i<N; i++) {
+			rlt[0][i] = d[0][start+i];
+		}
+		return new ObjectArray(rlt);
+	}
+	
+	public ObjectArray setAs1DArray(int start, int end, Object v) {
+		Object[] d = this.getColumnPackedCopy();
+		int N = end - start + 1;
+		for(int i=0; i<N; i++) {
+			d[start+i] = v;
+		}
+		ObjectArray rlt = new ObjectArray(d, this.getColumnDimension());
+		this.data = rlt.data;
+		return this;
+	}
+	
+	public ObjectArray setAs1DArray(int start, int end, ObjectArray ary) {
+		Object[] d = this.getColumnPackedCopy();
+		Object[] d2 = ary.getColumnPackedCopy();
+		int N = end - start + 1;
+		for(int i=0; i<N; i++) {
+			d[start+i] = d2[i];
+		}
+		ObjectArray rlt = new ObjectArray(d, this.getColumnDimension());
+		this.data = rlt.data;
+		return this;
+	}
 
 	public Object get(int idx) {
 		int m = data.length;
@@ -38,17 +76,32 @@ public class ObjectArray {
 			n = data[0].length;
 
 		if (m == 1) {
-			return get(0, n);
+			return get(0, idx);
 		} else if (n == 1) {
-			return get(n, 0);
+			return get(idx, 0);
 		} else {
 			return get(idx % m, idx / m);
 		}
 	}
 
+	public ObjectArray set(int idx, Object v) {
+		int m = data.length;
+		int n = 0;
+		if (data.length > 0)
+			n = data[0].length;
+
+		if (m == 1) {
+			return set(0, n, v);
+		} else if (n == 1) {
+			return set(n, 0, v);
+		} else {
+			return set(idx % m, idx / m, v);
+		}
+	}
+
 	public ObjectArray get(int ms, int me, int ns, int ne) {
-		int row = me - ms;
-		int col = ne - ns;
+		int row = me - ms + 1;
+		int col = ne - ns + 1;
 		Object[][] rlt = new Object[row][col];
 		for (int i = 0; i < row; i++)
 			for (int j = 0; j < col; j++) {
@@ -57,6 +110,37 @@ public class ObjectArray {
 		return new ObjectArray(rlt);
 	}
 
+	public ObjectArray set(int ms, int me, int ns, int ne, Object v) {
+		int row = me - ms + 1;
+		int col = ne - ns + 1;
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++) {
+				data[ms + i][ns + j] = v;
+			}
+		return this;
+	}
+	
+	public ObjectArray set(int ms, int me, int ns, int ne, ObjectArray ary) {
+		int row = me - ms + 1;
+		int col = ne - ns + 1;
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++) {
+				data[ms + i][ns + j] = ary.data[i][j];
+			}
+		return this;
+	}
+
+	public ObjectArray get(int ms, int me, int ns, int ne, ObjectArray ary) {
+		int row = me - ms;
+		int col = ne - ns;
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++) {
+				data[ms + i][ns + j] = ary.data[i][j];
+			}
+		return this;
+	}
+
+	
 	public ObjectArray get(int ms, int me, int[] aryn) {
 		int row = me - ms;
 		int col = aryn.length;
@@ -66,6 +150,16 @@ public class ObjectArray {
 				rlt[i][j] = data[ms + i][aryn[j]];
 			}
 		return new ObjectArray(rlt);
+	}
+
+	public ObjectArray set(int ms, int me, int[] aryn, ObjectArray ary) {
+		int row = me - ms;
+		int col = aryn.length;
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++) {
+				data[ms + i][aryn[j]] = ary.data[i][j];
+			}
+		return this;
 	}
 
 	public ObjectArray get(int[] arym, int ns, int ne) {
@@ -79,17 +173,97 @@ public class ObjectArray {
 		return new ObjectArray(rlt);
 	}
 
+	public ObjectArray set(int[] arym, int ns, int ne, ObjectArray ary) {
+		int row = arym.length;
+		int col = ne - ns;
+		for (int i = 0; i < row; i++)
+			for (int j = 0; j < col; j++) {
+				data[arym[i]][ns + j] = ary.data[i][j];
+			}
+		return this;
+	}
+
 	public ObjectArray get(int[] arym, int[] aryn) {
 		int row = arym.length;
 		int col = aryn.length;
 		Object[][] rlt = new Object[row][col];
-		for (int i = 0; i < row; i++)
+		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < col; j++) {
 				rlt[i][j] = data[arym[i]][aryn[j]];
 			}
+		}
 		return new ObjectArray(rlt);
 	}
 
+	public ObjectArray set(int[] arym, int[] aryn, Object v) {
+		int row = arym.length;
+		int col = aryn.length;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				data[arym[i]][aryn[j]] = v;
+			}
+		}
+		return this;
+	}
+
+	public ObjectArray set(int[] arym, int[] aryn, ObjectArray ary) {
+		int row = arym.length;
+		int col = aryn.length;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				data[arym[i]][aryn[j]] = ary.data[i][j];
+			}
+		}
+		return this;
+	}
+	
+	public ObjectArray get(int[] arym, int[] aryn, ObjectArray ary) {
+		int row = arym.length;
+		int col = aryn.length;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				data[arym[i]][aryn[j]] = ary.data[i][j];
+			}
+		}
+		return this;
+	}
+
+	public ObjectArray to1DArray() {
+		int m = this.getRowDimension();
+		int n = this.getColumnDimension();
+		int N = m*n;
+		int idx = 0;
+		Object[][] rlt = new Object[1][N];
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				rlt[0][idx++] = this.data[i][j];
+			}
+		}
+		return new ObjectArray(rlt);
+	}
+
+	public ObjectArray set(Jama.Matrix idx, Object v) {
+		int nRow=getRowDimension();
+		for(int i=idx.getRowDimension()-1; i>=0; i--) {
+			for(int j=idx.getColumnDimension()-1; j>=0; j--) {
+				int index = ((int)idx.get(i, j))-1;
+				set(index%nRow, index/nRow, v);
+			}
+		}
+		return this;
+	}
+	
+	public ObjectArray set(Jama.Matrix idx, ObjectArray ary) {
+		int nRow=getRowDimension();
+		for(int i=idx.getRowDimension()-1; i>=0; i--) {
+			for(int j=idx.getColumnDimension()-1; j>=0; j--) {
+				int index = ((int)idx.get(i, j))-1;
+				set(index%nRow, index/nRow, ary.data[i][j]);
+			}
+		}
+		return this;
+	}
+	
 	public int getRowDimension() {
 		return data.length;
 	}
@@ -168,5 +342,55 @@ public class ObjectArray {
 			blockRows[i] = getObjectArray(blockRow, 1);
 		}
 		return getObjectArray(blockRows, nCols.length);
+	}
+
+	public ObjectArray get(Jama.Matrix Idx) {
+		Object[][] dataA = this.to1DArray().data;
+		double[] dataIdx = Idx.getColumnPackedCopy();
+		Object[][] ret = new Object[1][dataIdx.length];
+		for(int i=0; i<dataIdx.length; i++) {
+			ret[0][i] = dataA[0][(int)dataIdx[i]-1];
+		}
+		return new ObjectArray(ret);
+	}
+	
+	public Object[] getColumnPackedCopy() {
+		int m = this.getRowDimension();
+		int n = this.getColumnDimension();
+		int N = m*n;
+		int idx = 0;
+		Object[] rlt = new Object[N];
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				rlt[idx++] = this.data[i][j];
+			}
+		}
+		return rlt;
+	}
+	
+	public ObjectArray reshape(int m, int n) {
+		ObjectArray r = new ObjectArray(getColumnPackedCopy(), m);
+		return r;
+	}
+	
+	public ObjectArray repmat(int n) {
+		return repmat(n,n);
+	}
+	
+	public ObjectArray repmat(int m, int n) {
+		Object[] newData = new Object[getRowDimension()*getColumnDimension()*m*n];
+		int destPos = 0;
+		for(int k=0; k<n; k++) {
+			for(int j=0; j<data.length; j++) {
+				for(int i=0; i<m; i++) {
+					System.arraycopy(data[j], 0, newData, destPos, data[j].length);
+					destPos += data[j].length;
+				}
+			}
+		}
+		return new ObjectArray(newData, getRowDimension()*m);
+	}
+	public static int numel(ObjectArray m) {
+		return m.getRowDimension()*m.getColumnDimension();
 	}
 }
