@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 
 public class Tools {
@@ -148,6 +149,14 @@ public class Tools {
 			mg.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
 		} else if(from.equals(Type.getType(String.class)) && t == Type.OBJECT) {
 			//Do nothing
+		} else if(from.equals(Type.getType(Object.class)) && t == Type.INT) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "object2int", "(Ljava/lang/Object;)I", false);
+		} else if(from.equals(Type.getType(Object.class)) && t == Type.DOUBLE) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "object2double", "(Ljava/lang/Object;)D", false);
+		} else if(from.equals(Type.getType(Object.class)) && t == Type.LONG) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "object2long", "(Ljava/lang/Object;)J", false);
+		} else if(from.equals(Type.getType(Object.class)) && t == Type.BOOLEAN) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "object2boolean", "(Ljava/lang/Object;)Z", false);
 		} else {
 			throw new RuntimeException("Cannot convert type "+from+" to type "+to);
 		}
@@ -315,6 +324,17 @@ public class Tools {
 	
 	public static String getClassNameForASM(Class<?> c) {
 		return c.getName().replaceAll("\\.", "/");
+	}
+	
+	public static String join(String[] list, String sep) {
+		if(null == list || list.length == 0)
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for(String s : list) {
+			sb.append(s).append(sep);
+		}
+		sb.delete(sb.length()-sep.length(), sb.length());
+		return sb.toString();
 	}
 
 }
