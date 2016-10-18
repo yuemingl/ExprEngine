@@ -2,7 +2,9 @@ package io.lambdacloud.node;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,6 +13,7 @@ import org.objectweb.asm.Type;
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.util.Struct;
 
 /**
  * VariableNode represents a variable (or a function parameter).
@@ -42,6 +45,12 @@ public class VariableNode extends ExprNode {
 		return name+typeDesc.replaceAll("/", "_").replaceAll(";", "").replaceAll("\\[", "_");
 	}
 	
+	/**
+	 * Contains the element type of the container types
+	 * mainly used for Struct
+	 */
+	private Map<Type, Map<String, Type>> mapTypeType = new LinkedHashMap<Type, Map<String, Type>>(); 
+
 	/**
 	 * Get a list of variable types
 	 * @return
@@ -141,8 +150,9 @@ public class VariableNode extends ExprNode {
 	
 	public void genCode(MethodGenHelper mg) {
 		Type ty = this.getType();
-		if(ty != null)
+		if(ty != null) {
 			mg.visitIntInsn(ty.getOpcode(Opcodes.ILOAD), this.getLVTIndex());
+		}
 	}
 
 	/**
@@ -176,6 +186,19 @@ public class VariableNode extends ExprNode {
 	@Override
 	public Type getType(Deque<Object> stack) {
 		return this.activeType;
+	}
+	
+	public void setElementType(Type type, String key, Type elementType) {
+		Map<String, Type> map = this.mapTypeType.get(type);
+		if(null == map) {
+			map = new HashMap<String, Type>();
+			this.mapTypeType.put(type, map);
+		}
+		map.put(key, elementType);
+	}
+	
+	public Type getElementType(String key) {
+		return this.mapTypeType.get(this.activeType).get(key);
 	}
 
 	@Override
