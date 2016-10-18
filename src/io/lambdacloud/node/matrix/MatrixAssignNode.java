@@ -15,11 +15,14 @@ import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.ObjectArray;
 public class MatrixAssignNode extends ExprNode {
 	public VariableNode var;
 	public ExprNode value;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
+	private CellAssignNode cellAssignNode;
+
 	public MatrixAssignNode(VariableNode var, ExprNode value) {
 		this.var = var;
 		this.value = value;
@@ -39,6 +42,17 @@ public class MatrixAssignNode extends ExprNode {
 
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(cellAssignNode == null) {
+			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+				cellAssignNode = this.toCellAssignNode();
+				cellAssignNode.genCode(mg);
+				return;
+			}
+		} else {
+			cellAssignNode.genCode(mg);
+			return;
+		}
+
 		Type myType = this.getType();
 
 		if(this.indices.size() > 2) {
@@ -150,6 +164,7 @@ public class MatrixAssignNode extends ExprNode {
 						type |= 0x2;
 					} else
 						throw new RuntimeException();
+				//TODO for Jama.Matrix
 				} else {
 					ip.idxS.genCode(mg);
 					Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
@@ -199,10 +214,25 @@ public class MatrixAssignNode extends ExprNode {
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(cellAssignNode == null) {
+			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+				cellAssignNode = this.toCellAssignNode();
+				return cellAssignNode.getType();
+			}
+		} else {
+			return cellAssignNode.getType();
+		}
 		return Type.getType(Jama.Matrix.class);
 	}
 
 	@Override
 	public void updateType(Deque<Object> stack) {
 	}
+	
+	
+	public CellAssignNode toCellAssignNode() {
+		CellAssignNode n = new CellAssignNode(this.var, this.value);
+		n.indices = this.indices;
+		return n;
+	}	
 }
