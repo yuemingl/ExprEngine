@@ -14,6 +14,7 @@ import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MatlabEngine;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
+import io.lambdacloud.util.Struct;
 
 /**
  * The type of an optional function parameter is set to null. All the null type of function parameters
@@ -40,6 +41,37 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+	
+		exec("a={1,3.0,'abc'}; a(3)");
+		exec("a={1,3.0,'abc'}; a{3}");
+		exec("a={1,3.0,'abc'}; a{1:3}");
+		exec("a={1,3.0,'abc'}; a(1:3)");
+
+		
+//		System.out.println(exec("a.b=[1 2; 3 4]; a.c=2; a.d=false"));
+//		exec("a.b=[1 2; 3 4]; a.c=2; a.b+a.c");
+		//exec("car.monitor.mpg=35.0; car.monitor.miles=2000; car.monitor.mpg+car.monitor.miles");
+		//exec("car.monitor.mpg=35.0; car.monitor.miles=2000; car");
+		
+//		exec("car.monitor.mpg=35.0; car.monitor.mpg+2");
+//		exec("car.monitor.mpg=35L; car.monitor.mpg+2");
+//		exec("car.monitor.mpg=false; car.monitor.mpg || 2>1");
+//		exec("car.monitor.mpg=35; car.monitor.mpg+2");
+//		exec("car.monitor.mpg=[1 2;3 4]; car.monitor.mpg");
+//		exec("car.monitor.mpg=[1 2;3 4]; car.monitor.mpg+2");
+//		exec("car.monitor.mpg=35; car.monitor.mpg");
+//		exec("car.monitor.mpg=35; car.monitor");
+//		exec("car.monitor.mpg.a.b.c=35");
+//		exec("car.monitor.mpg=35");
+//		
+//		Struct s = new Struct();
+//		//s.put("mpg", new Jama.Matrix(3,3));
+//		s.put("mpg", 35);
+//		Struct ss = new Struct();
+//		ss.put("monitor", s);
+//		exec("car.monitor.mpg", new Object[]{ss});
+//		exec("car.mpg", new Object[]{s});
+//		exec("car", new Object[]{s});
 
 		testCellArray();
 		testVariableNode();
