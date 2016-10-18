@@ -42,10 +42,21 @@ import io.lambdacloud.util.Struct;
 public class TestMatlabEngine {
 	public static void main(String[] args){
 	
-		exec("a={1,3.0,'abc'}; a(3)");
-		exec("a={1,3.0,'abc'}; a{3}");
-		exec("a={1,3.0,'abc'}; a{1:3}");
-		exec("a={1,3.0,'abc'}; a(1:3)");
+		exec("a={1,3.0,'abc'}; a{1}=100");
+		exec("a={1,3.0,'abc'}; a{2}=100");
+		exec("a={1,3.0,'abc'}; a{3}=100");
+		exec("a={1,3.0,'abc'}; a(1)=100");
+		exec("a={1,3.0,'abc'}; a(2)=100");
+		exec("a={1,3.0,'abc'}; a(3)=100");
+//		exec("a={1,3.0,'abc'}; a(1,3)=100");
+//		exec("a={1,3.0,'abc'}; a{1,3}=100");
+//		exec("a={1,3.0,'abc'}; a{1:3}");
+//		exec("a={1,3.0,'abc'}; a(1:3)");
+//
+//		exec("a={1,3.0,'abc'}; a(3)");
+//		exec("a={1,3.0,'abc'}; a{3}");
+//		exec("a={1,3.0,'abc'}; a{1:3}");
+//		exec("a={1,3.0,'abc'}; a(1:3)");
 
 		
 //		System.out.println(exec("a.b=[1 2; 3 4]; a.c=2; a.d=false"));
@@ -73,24 +84,24 @@ public class TestMatlabEngine {
 //		exec("car.mpg", new Object[]{s});
 //		exec("car", new Object[]{s});
 
-		testCellArray();
-		testVariableNode();
-		testBasic();
-		testBasic2();
-		testBasic3();
-		testPrint();
-		testComment();
-		testEndIndex();
-		testNArgin();
-		testShaddowVariables();
-		testBuildinFunc();
-		testFunction();
-		testMatrixInit();
-		testMatrixAssign();
-		testMatrixAccess();
-		testOptionalParamters();
-		testMisc();
-		testString();
+//		testCellArray();
+//		testVariableNode();
+//		testBasic();
+//		testBasic2();
+//		testBasic3();
+//		testPrint();
+//		testComment();
+//		testEndIndex();
+//		testNArgin();
+//		testShaddowVariables();
+//		testBuildinFunc();
+//		testFunction();
+//		testMatrixInit();
+//		testMatrixAssign();
+//		testMatrixAccess();
+//		testOptionalParamters();
+//		testMisc();
+//		testString();
 	}
 	
 	public static void testCellArray() {
