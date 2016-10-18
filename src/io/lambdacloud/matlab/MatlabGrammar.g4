@@ -153,7 +153,7 @@ float_entity
  : FLOAT                          # EntityConstFloat
  ;
 variable_entity
- : IDENTIFIER                     # EntityVariable
+ : IDENTIFIER (PERIOD IDENTIFIER)*   # EntityVariable
  | variable_entity (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # ArrayAccessOrFuncCall
  | variable_entity (PERIOD IDENTIFIER)* WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB       # CellAccess
  ;
