@@ -71,12 +71,16 @@ public class BytecodeSupport {
 		if(null != o) {
 			int  m = o.getRowDimension();
 			int n = o.getColumnDimension();
+			System.out.println("{");
 			for(int i=0; i<m; i++) {
 				for(int j=0; j<n; j++) {
 					System.out.print(o.data[i][j]+"  ");
 				}
 				System.out.println();
 			}
+			System.out.println("}");
+		} else {
+			System.out.println("null (ObjectArray)");
 		}
 		return o;
 	}
@@ -900,5 +904,21 @@ public class BytecodeSupport {
 		s.put(key, val);
 		return s;
 	}
-
+	
+	public static int object2int(Object o) {
+		Integer i = (Integer)o;
+		return i.intValue();
+	}
+	public static double object2double(Object o) {
+		Double i = (Double)o;
+		return i.doubleValue();
+	}
+	public static long object2long(Object o) {
+		Long i = (Long)o;
+		return i.longValue();
+	}
+	public static boolean object2boolean(Object o) {
+		Boolean i = (Boolean)o;
+		return i.booleanValue();
+	}
 }
