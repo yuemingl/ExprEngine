@@ -1,7 +1,5 @@
 package io.lambdacloud;
 
-import static io.lambdacloud.MatlabEngine.exec;
-
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,14 +14,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
-import io.lambdacloud.matlab.MatlabGrammarParser.Aa_indexContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.Expr_endContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
