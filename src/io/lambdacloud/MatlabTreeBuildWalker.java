@@ -67,11 +67,15 @@ import io.lambdacloud.node.matrix.MatrixDMulNode;
 import io.lambdacloud.node.matrix.MatrixDRDivNode;
 import io.lambdacloud.node.matrix.MatrixInitNode;
 import io.lambdacloud.node.matrix.SolveNode;
+import io.lambdacloud.node.matrix.StructAccessNode;
+import io.lambdacloud.node.matrix.StructAssignNode;
+import io.lambdacloud.node.matrix.StructInitNode;
 import io.lambdacloud.node.matrix.TransposeNode;
 import io.lambdacloud.node.string.StringConcatNode;
 import io.lambdacloud.node.string.StringNode;
 import io.lambdacloud.node.tool.ArrayAccess;
 import io.lambdacloud.node.tool.ArrayLength;
+import io.lambdacloud.util.Struct;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	public static boolean DEBUG = false;
@@ -470,13 +474,16 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx) {
 		//System.out.println("exitEntityVariable: "+ctx.getText());
 		
-		String varName = ctx.IDENTIFIER().getText();
+		String varName = ctx.IDENTIFIER(0).getText();
 		//If the variable exists in the varMap of current scope
 		//the variable is used directly instead of creating a new one
 		VariableNode val = currentScope().varMap.get(varName);
+		boolean isNewVariable = false;
 		
 		//We see varName for the first time
 		if(null == val) {
+			isNewVariable = true;
+			
 			//Don't change currentScope().varMap in other functions
 			//It is suggested to change currentScope().varMap here only.
 			
@@ -507,9 +514,19 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				}
 				currentScope().varMap.put(varName, val);
 			}
-			
 		}
-		currentScope().stack.push(val);
+		if(ctx.IDENTIFIER().size() <= 1) {
+			currentScope().stack.push(val);
+		} else {
+			StructAccessNode san = new StructAccessNode();
+			san.var = val;
+			san.var.setType(Type.getType(Struct.class));
+			for(int i=1; i<ctx.IDENTIFIER().size(); i++)
+				san.fields.add(ctx.IDENTIFIER(i).getText());
+			if(isNewVariable)
+				currentScope().stack.push(new AssignNode(san.var, new StructInitNode()));
+			currentScope().stack.push(san);
+		}
 	}
 	
 	@Override public void exitProg(MatlabGrammarParser.ProgContext ctx) {
@@ -979,15 +996,20 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			VariableNode var = (VariableNode)variable_entity;
 			this.currentScope().stack.push(new AssignNode(var, value));
 		} else if(variable_entity instanceof MatrixAccessNode) {
-			MatrixAccessNode mnode = (MatrixAccessNode)variable_entity;
-			MatrixAssignNode ma = new MatrixAssignNode((VariableNode)mnode.var, value);
-			ma.indices = mnode.indices;
-			this.currentScope().stack.push(ma);
+			MatrixAccessNode acc_node = (MatrixAccessNode)variable_entity;
+			MatrixAssignNode ass_node = new MatrixAssignNode((VariableNode)acc_node.var, value);
+			ass_node.indices = acc_node.indices;
+			this.currentScope().stack.push(ass_node);
 		} else if(variable_entity instanceof CellAccessNode) {
-			CellAccessNode mnode = (CellAccessNode)variable_entity;
-			CellAssignNode ma = new CellAssignNode((VariableNode)mnode.var, value);
-			ma.indices = mnode.indices;
-			this.currentScope().stack.push(ma);
+			CellAccessNode acc_node = (CellAccessNode)variable_entity;
+			CellAssignNode ass_node = new CellAssignNode((VariableNode)acc_node.var, value);
+			ass_node.indices = acc_node.indices;
+			this.currentScope().stack.push(ass_node);
+		} else if(variable_entity instanceof StructAccessNode) {
+			StructAccessNode acc_node = (StructAccessNode)variable_entity;
+			StructAssignNode ass_node = new StructAssignNode(acc_node.var, value);
+			ass_node.fields = acc_node.fields;
+			this.currentScope().stack.push(ass_node);
 		} else {
 			throw new RuntimeException("exitExprAssign: "+variable_entity+"  "+value);
 		}
