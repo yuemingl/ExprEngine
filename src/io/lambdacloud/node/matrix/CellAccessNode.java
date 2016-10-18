@@ -101,11 +101,13 @@ public class CellAccessNode extends ExprNode {
 					}
 					ExprNode idxE = this.indices.get(0).idxE;
 					if(null == idxE) { //A(5)
-						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", "(I)"+Type.getType(Object.class), false);
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
+								"getAsObjectArray", "(I)"+Type.getType(ObjectArray.class), false);
 					} else { //A(1:10) or A(1:end)
 						idxE.genCode(mg);
 						Tools.insertConversionInsn(mg, idxE.getType(), Type.INT_TYPE);
-						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getAs1DArray", "(II)"+Type.getType(ObjectArray.class), false);
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
+								"getAs1DArray", "(II)"+Type.getType(ObjectArray.class), false);
 					}
 				} else {
 					throw new UnsupportedOperationException("Unknown start index: "+idxS.toString());
@@ -131,7 +133,8 @@ public class CellAccessNode extends ExprNode {
 				mg.visitInsn(Opcodes.ICONST_1);
 				mg.visitInsn(Opcodes.ISUB);
 			}
-			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", "(II)Ljava/lang/Object;", false);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
+					"getAsObjectArray", "(II)"+Type.getType(ObjectArray.class), false);
 			return;
 		}
 		int type = 0x0;
@@ -226,10 +229,11 @@ public class CellAccessNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		if(this.isAccessElement())
-			return Type.getType(Object.class);
-		else
-			return Type.getType(ObjectArray.class);
+//		if(this.isAccessElement())
+//			return Type.getType(Object.class);
+//		else
+//			return Type.getType(ObjectArray.class);
+		return Type.getType(ObjectArray.class);
 	}
 
 	@Override
