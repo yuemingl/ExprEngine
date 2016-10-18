@@ -16,12 +16,15 @@ import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.ObjectArray;
 
 public class MatrixAccessNode extends ExprNode {
 	public static int INDEX_BASE = 1;
 	
 	public ExprNode var;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
+	
+	private CellAccessNode cellAccessNode;
 	
 	public MatrixAccessNode(ExprNode var) {
 		this.var = var;
@@ -66,6 +69,17 @@ public class MatrixAccessNode extends ExprNode {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
+		if(cellAccessNode == null) {
+			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+				cellAccessNode = this.toCellAccessNode();
+				cellAccessNode.genCode(mg);
+				return;
+			}
+		} else {
+			cellAccessNode.genCode(mg);
+			return;
+		}
+		
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException("");
 		}
@@ -223,6 +237,15 @@ public class MatrixAccessNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(cellAccessNode == null) {
+			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+				cellAccessNode = this.toCellAccessNode();
+				return cellAccessNode.getType();
+			}
+		} else {
+			return cellAccessNode.getType();
+		}
+
 		if(this.isAccessElement())
 			return Type.DOUBLE_TYPE;
 		else
@@ -244,5 +267,10 @@ public class MatrixAccessNode extends ExprNode {
 		}
 		stack.pop();
 	}
-
+	
+	public CellAccessNode toCellAccessNode() {
+		CellAccessNode n = new CellAccessNode(this.var);
+		n.indices = this.indices;
+		return n;
+	}
 }
