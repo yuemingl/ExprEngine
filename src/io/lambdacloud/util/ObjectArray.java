@@ -31,6 +31,10 @@ public class ObjectArray {
 		return data[m][n];
 	}
 	
+	public ObjectArray getAsObjectArray(int m, int n) {
+		return new ObjectArray(new Object[][] {{data[m][n]}});
+	}
+	
 	public ObjectArray set(int m, int n, Object v) {
 		data[m][n] = v;
 		return this;
@@ -83,6 +87,10 @@ public class ObjectArray {
 			return get(idx % m, idx / m);
 		}
 	}
+	
+	public ObjectArray getAsObjectArray(int idx) {
+		return new ObjectArray(new Object[][]{{get(idx)}});
+	}
 
 	public ObjectArray set(int idx, Object v) {
 		int m = data.length;
@@ -91,9 +99,9 @@ public class ObjectArray {
 			n = data[0].length;
 
 		if (m == 1) {
-			return set(0, n, v);
+			return set(0, idx, v);
 		} else if (n == 1) {
-			return set(n, 0, v);
+			return set(idx, 0, v);
 		} else {
 			return set(idx % m, idx / m, v);
 		}
