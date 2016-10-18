@@ -53,8 +53,7 @@ public class BytecodeSupport {
 			System.out.println("]");
 		} else if(o instanceof Jama.Matrix) {
 			((Jama.Matrix)o).print(8, 2);
-		}
-		else {
+		} else {
 			System.out.println(o);
 		}
 		return o;
