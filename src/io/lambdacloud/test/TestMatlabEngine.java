@@ -34,6 +34,16 @@ import io.lambdacloud.util.Struct;
  * multi-assign:
  * [A B;C] = D;
  * 
+ * TODO
+ *   object operation +,-,*,/
+ *   remove value form VariableNode
+ *   **bootstrap function for object arguments
+ *   finish test for assignment with comma-separated list on right hand side
+ *   multi-variable assignement test
+ *   fix confilict for math.sin(x) and math.sin Struct
+ *   *fix all tests
+ * 
+ * 
  * 
  * 
  * @author yueming.liu
@@ -41,26 +51,37 @@ import io.lambdacloud.util.Struct;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+	
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; [a b c]=C{1:3}; a\n b\n c\n");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:3}");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{1:3}; a");
+		//assertEqual(exec("sum=0.0; for i=[10 20 30], sum+=i; end sum;"), 60.0);
+
+		testCommaSeparatedList();
+	}
+	public static void testCommaSeparatedList() {
 		exec("function [A B]=myfun(), A=1; B=2; end [a b]=myfun(); a\n b");
 		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
 
-		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{2,3}; a");
-		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{1:3}; a");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{2,3}; a");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{1:3}; a");
 
-//		exec("C = [1, 2, 3]; [a b c]=C(1:3)'; a\n b\n c\n");
-//		exec("C = [1, 2, 3]; [a b c]=C(:)'; a\n b\n c\n");
-//		exec("C = [1, 2, 3]; [a b c]=C; a\n b\n c\n");
-//
-////		exec("C = {'one', 'two', 'three'; 1, 2, 3}; [a b c]=C{1:3}");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:3}");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");
+		exec("C = [1, 2, 3]; [a b c]=C(1:3)'; a\n b\n c\n");
+		exec("C = [1, 2, 3]; [a b c]=C(:)'; a\n b\n c\n");
+		exec("C = [1, 2, 3]; [a b c]=C; a\n b\n c\n");
 
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1,1:3)");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:2,1:2}");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1,1:3}");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1,1:3) = {'first','second','third'}");
+		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; [a b c]=C{1:3}"); //string type?
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:3}");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");
+
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1,1:3)");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:2,1:2}");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1,1:3}");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1,1:3) = {'first','second','third'}");
+		
+		//error: invalid assignment to cs-list outside multiple assignment
 //		exec("a={1,3.0,'abc'}; a{1}=100");
 //		exec("a={1,3.0,'abc'}; a{2}=100");
 //		exec("a={1,3.0,'abc'}; a{3}=100");
@@ -69,31 +90,31 @@ public class TestMatlabEngine {
 //		exec("a={1,3.0,'abc'}; a(3)=100");
 //		exec("a={1,3.0,'abc'}; a(1,3)=100");
 //		exec("a={1,3.0,'abc'}; a{1,3}=100");
-//		exec("a={1,3.0,'abc'}; a{1:3}");
-//		exec("a={1,3.0,'abc'}; a(1:3)");
-//
-//		exec("a={1,3.0,'abc'}; a(3)");
-//		exec("a={1,3.0,'abc'}; a{3}");
-//		exec("a={1,3.0,'abc'}; a{1:3}");
-//		exec("a={1,3.0,'abc'}; a(1:3)");
+		exec("a={1,3.0,'abc'}; a{1:3}");
+		exec("a={1,3.0,'abc'}; a(1:3)");
+
+		exec("a={1,3.0,'abc'}; a(3)");
+		exec("a={1,3.0,'abc'}; a{3}");
+		exec("a={1,3.0,'abc'}; a{1:3}");
+		exec("a={1,3.0,'abc'}; a(1:3)");
 
 		
-//		System.out.println(exec("a.b=[1 2; 3 4]; a.c=2; a.d=false"));
-//		exec("a.b=[1 2; 3 4]; a.c=2; a.b+a.c");
+		System.out.println(exec("a.b=[1 2; 3 4]; a.c=2; a.d=false"));
+		exec("a.b=[1 2; 3 4]; a.c=2; a.b+a.c");
 		//exec("car.monitor.mpg=35.0; car.monitor.miles=2000; car.monitor.mpg+car.monitor.miles");
 		//exec("car.monitor.mpg=35.0; car.monitor.miles=2000; car");
 		
-//		exec("car.monitor.mpg=35.0; car.monitor.mpg+2");
-//		exec("car.monitor.mpg=35L; car.monitor.mpg+2");
-//		exec("car.monitor.mpg=false; car.monitor.mpg || 2>1");
-//		exec("car.monitor.mpg=35; car.monitor.mpg+2");
-//		exec("car.monitor.mpg=[1 2;3 4]; car.monitor.mpg");
-//		exec("car.monitor.mpg=[1 2;3 4]; car.monitor.mpg+2");
-//		exec("car.monitor.mpg=35; car.monitor.mpg");
-//		exec("car.monitor.mpg=35; car.monitor");
-//		exec("car.monitor.mpg.a.b.c=35");
-//		exec("car.monitor.mpg=35");
-//		
+		exec("car.monitor.mpg=35.0; car.monitor.mpg+2");
+		exec("car.monitor.mpg=35L; car.monitor.mpg+2");
+		exec("car.monitor.mpg=false; car.monitor.mpg || 2>1");
+		exec("car.monitor.mpg=35; car.monitor.mpg+2");
+		exec("car.monitor.mpg=[1 2;3 4]; car.monitor.mpg");
+		exec("car.monitor.mpg=[1 2;3 4]; car.monitor.mpg+2");
+		exec("car.monitor.mpg=35; car.monitor.mpg");
+		exec("car.monitor.mpg=35; car.monitor");
+		exec("car.monitor.mpg.a.b.c=35");
+		exec("car.monitor.mpg=35");
+		
 //		Struct s = new Struct();
 //		//s.put("mpg", new Jama.Matrix(3,3));
 //		s.put("mpg", 35);
@@ -107,18 +128,18 @@ public class TestMatlabEngine {
 //		testVariableNode();
 //		testBasic();
 //		testBasic2();
-//		testBasic3();
+////		testBasic3();
 //		testPrint();
 //		testComment();
 //		testEndIndex();
 //		testNArgin();
-//		testShaddowVariables();
-//		testBuildinFunc();
-//		testFunction();
+////		testShaddowVariables();
+//		//testBuildinFunc();
+////		testFunction();
 //		testMatrixInit();
 //		testMatrixAssign();
 //		testMatrixAccess();
-//		testOptionalParamters();
+////		testOptionalParamters();
 //		testMisc();
 //		testString();
 	}
@@ -1238,7 +1259,6 @@ public class TestMatlabEngine {
 				m2.print(8, 2);
 				throw new RuntimeException("Assert fail!");
 			}
-				
 		}
 		if(!o1.equals(o2)) {
 			System.err.println(o1 + " != "+o2);

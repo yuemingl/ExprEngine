@@ -407,4 +407,10 @@ public class ObjectArray {
 		System.out.println(o.getClass().getName());
 		String s = (String)o;
 	}
+	
+	
+	public CSList getCSList() {
+		return new CSList(this.getColumnPackedCopy());
+	}
+
 }

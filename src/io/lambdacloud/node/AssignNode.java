@@ -9,12 +9,14 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
-import io.lambdacloud.node.matrix.CellInitNode;
+import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
 
 public class AssignNode extends BinaryOp {
 	public ArrayList<VariableNode> multiAssignVars = new ArrayList<VariableNode>();
-	boolean isArray = false;
+	
+	//Indicate if the right hand side is a comma-separated list (CSList)
+	boolean isCSList = false;
 
 	public AssignNode(VariableNode left, ExprNode right) {
 		//left.genLoadInsn(true);???
@@ -40,13 +42,7 @@ public class AssignNode extends BinaryOp {
 		
 		Type myType = this.getType();
 		if(null == myType) return;
-		
-		//Java array type is treated as a comma-separated list
-		if(myType.getSort() == Type.ARRAY) {
-			myType = myType.getElementType();
-			isArray = true;
-		}
-		
+				
 		//move this after mg.updateLVTIndex() to handle the case like sum=0; for cond, sum=sum+0.1 end;
 		//that is to say, update the type of var first then generate code for RHS
 		//right.genCode(mg);
@@ -63,9 +59,13 @@ public class AssignNode extends BinaryOp {
 		var.setType(myType); //we still need to change this since a variable could be assigned to many types
 		mg.updateLVTIndex();
 		right.genCode(mg);
-		if(isArray) {
-			mg.visitLdcInsn(0);
-			mg.visitInsn(myType.getOpcode(Opcodes.IALOAD));
+		if(multiAssignVars.size() > 0) {
+		} else {
+			if(isCSList) {
+				mg.visitLdcInsn(0);
+				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(CSList.class), 
+						"get", "(I)"+Type.getType(Object.class), false);
+			}
 		}
 		
 		//Load right node in case of a=b=c;
@@ -122,19 +122,35 @@ public class AssignNode extends BinaryOp {
 				}
 				
 			} else {
-				for(int i=0; i<this.multiAssignVars.size(); i++) {
-					VariableNode v =  this.multiAssignVars.get(i);
-					v.setType(Type.DOUBLE_TYPE);
-					
-					//we still need to change this since a variable could be assigned to many types
-					mg.updateLVTIndex();
-					mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
-					
-					//the first row
-					mg.visitLdcInsn(0);
-					mg.visitLdcInsn(i);
-					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
-					mg.visitIntInsn(Type.DOUBLE_TYPE.getOpcode(Opcodes.ISTORE), v.getLVTIndex(Type.DOUBLE_TYPE.getDescriptor()));
+				if(this.isCSList) {
+					for(int i=0; i<this.multiAssignVars.size(); i++) {
+						VariableNode v =  this.multiAssignVars.get(i);
+						
+						//we still need to change this since a variable could be assigned to many types
+						mg.updateLVTIndex();
+						mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+						
+						//the first row
+						mg.visitLdcInsn(i);
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(CSList.class), 
+								"get", "(I)"+Type.getType(Object.class), false);
+						mg.visitIntInsn(Opcodes.ASTORE, v.getLVTIndex(myType.getDescriptor()));
+					}
+				} else {
+					for(int i=0; i<this.multiAssignVars.size(); i++) {
+						VariableNode v =  this.multiAssignVars.get(i);
+						v.setType(Type.DOUBLE_TYPE);
+						
+						//we still need to change this since a variable could be assigned to many types
+						mg.updateLVTIndex();
+						mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
+						
+						//the first row
+						mg.visitLdcInsn(0);
+						mg.visitLdcInsn(i);
+						mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
+						mg.visitIntInsn(Type.DOUBLE_TYPE.getOpcode(Opcodes.ISTORE), v.getLVTIndex(Type.DOUBLE_TYPE.getDescriptor()));
+					}
 				}
 			}
 		}
@@ -154,23 +170,24 @@ public class AssignNode extends BinaryOp {
 		stack.push(this);
 		//Here we use right.getType() since the type form right will override the type of left
 		Type retType = right.getType(stack);
-		if(retType.getSort() == Type.ARRAY) {
-			this.isArray = true;
-			Type t = retType.getElementType();
+		
+		//see updateType() for updating flag isCSList
+		if(this.isCSList) {
+			Type t = Type.getType(Object.class);
 			stack.pop();
 			return t;
 		}
 		
-		//Do we need to update the type of variables in multiple assign here?
-		if(multiAssignVars.size() > 0) {
-			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
-			if(retType.getDescriptor().equals("[LJama/Matrix;")) {
-				for(int i=0; i<this.multiAssignVars.size(); i++) {
-					VariableNode v =  this.multiAssignVars.get(i);
-					v.setType(typeJamaMatrix);
-				}
-			}
-		}
+//		//Do we need to update the type of variables in multiple assign here?
+//		if(multiAssignVars.size() > 0) {
+//			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
+//			if(retType.getDescriptor().equals("[LJama/Matrix;")) {
+//				for(int i=0; i<this.multiAssignVars.size(); i++) {
+//					VariableNode v =  this.multiAssignVars.get(i);
+//					v.setType(typeJamaMatrix);
+//				}
+//			}
+//		}
 
 		stack.pop();
 		return retType;
@@ -190,9 +207,9 @@ public class AssignNode extends BinaryOp {
 			//left.setType(null);
 		} else {
 			Type rType = right.getType(stack);
-			if(rType.getSort() == Type.ARRAY) {
-				this.isArray = true;
-				Type t = rType.getElementType();
+			if(rType.equals(Type.getType(CSList.class))) {
+				this.isCSList = true;
+				Type t = Type.getType(Object.class);
 				//keep value of the variable???
 				((VariableNode)left).setType(t, this.right);
 			} else {
@@ -210,15 +227,22 @@ public class AssignNode extends BinaryOp {
 			
 			if(multiAssignVars.size() > 0) {
 				Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
-				if(rType.getDescriptor().equals("[LJama/Matrix;")) {
+				if(rType.equals(Type.getType(Jama.Matrix[].class))) {
 					for(int i=0; i<this.multiAssignVars.size(); i++) {
 						VariableNode v =  this.multiAssignVars.get(i);
 						v.setType(typeJamaMatrix);
 					}
 				} else {
-					for(int i=0; i<this.multiAssignVars.size(); i++) {
-						VariableNode v =  this.multiAssignVars.get(i);
-						v.setType(Type.DOUBLE_TYPE);
+					if(this.isCSList) {
+						for(int i=0; i<this.multiAssignVars.size(); i++) {
+							VariableNode v =  this.multiAssignVars.get(i);
+							v.setType(Type.getType(Object.class));
+						}
+					} else {
+						for(int i=0; i<this.multiAssignVars.size(); i++) {
+							VariableNode v =  this.multiAssignVars.get(i);
+							v.setType(Type.DOUBLE_TYPE);
+						}
 					}
 				}
 			}

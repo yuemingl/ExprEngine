@@ -16,6 +16,7 @@ import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
 
 /**
@@ -86,8 +87,10 @@ public class CellAccessNode extends ExprNode {
 				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 						"to1DArray", "()"+Type.getType(ObjectArray.class), false);
 				if(isAccessObject) {
-					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
-							"()"+Type.getType(Object[].class), false);
+//					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+//							"()"+Type.getType(Object[].class), false);
+					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getCSList", 
+							"()"+Type.getType(CSList.class), false);
 				}
 				return;
 			} else {   //A(B) or A(5) or A(1:10) or A(1:2:10)
@@ -98,8 +101,10 @@ public class CellAccessNode extends ExprNode {
 					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 							"get", "(LJama/Matrix;)"+Type.getType(ObjectArray.class), false);
 					if(isAccessObject) {
-						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
-						"()"+Type.getType(Object[].class), false);
+//						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+//						"()"+Type.getType(Object[].class), false);
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getCSList", 
+								"()"+Type.getType(CSList.class), false);
 					}
 				} else if(idxS.getType().getSort() == Type.INT) {
 					var.genCode(mg);
@@ -124,8 +129,10 @@ public class CellAccessNode extends ExprNode {
 						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 								"getAs1DArray", "(II)"+Type.getType(ObjectArray.class), false);
 						if(isAccessObject) {
-							mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
-							"()"+Type.getType(Object[].class), false);
+//							mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+//							"()"+Type.getType(Object[].class), false);
+							mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getCSList", 
+									"()"+Type.getType(CSList.class), false);
 						}
 					}
 				} else {
@@ -252,8 +259,10 @@ public class CellAccessNode extends ExprNode {
 					"([I[I)"+Type.getType(ObjectArray.class), false);
 		
 		if(isAccessObject) {
-			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
-					"()"+Type.getType(Object[].class), false);
+//			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+//					"()"+Type.getType(Object[].class), false);
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getCSList", 
+					"()"+Type.getType(CSList.class), false);
 		}
 	}
 
@@ -264,7 +273,7 @@ public class CellAccessNode extends ExprNode {
 				return Type.getType(Object.class);
 		} else {
 			if(this.isAccessObject) {
-				return Type.getType(Object[].class);
+				return Type.getType(CSList.class);
 			}
 		}
 		return Type.getType(ObjectArray.class);
