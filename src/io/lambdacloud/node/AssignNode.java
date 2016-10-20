@@ -9,9 +9,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.node.matrix.CellInitNode;
+import io.lambdacloud.util.ObjectArray;
 
 public class AssignNode extends BinaryOp {
 	public ArrayList<VariableNode> multiAssignVars = new ArrayList<VariableNode>();
+	boolean isArray = false;
 
 	public AssignNode(VariableNode left, ExprNode right) {
 		//left.genLoadInsn(true);???
@@ -26,12 +29,23 @@ public class AssignNode extends BinaryOp {
 	public String toString() {
 		return left + "=" + right;
 	}
+	
+	public static Object test2() {
+		ObjectArray a = new ObjectArray(1,1);
+		return a.getColumnPackedCopy()[0];
+	}
 
 	public void genCode(MethodGenHelper mg) {
 		VariableNode var = (VariableNode)left;
 		
 		Type myType = this.getType();
 		if(null == myType) return;
+		
+		//Java array type is treated as a comma-separated list
+		if(myType.getSort() == Type.ARRAY) {
+			myType = myType.getElementType();
+			isArray = true;
+		}
 		
 		//move this after mg.updateLVTIndex() to handle the case like sum=0; for cond, sum=sum+0.1 end;
 		//that is to say, update the type of var first then generate code for RHS
@@ -49,6 +63,10 @@ public class AssignNode extends BinaryOp {
 		var.setType(myType); //we still need to change this since a variable could be assigned to many types
 		mg.updateLVTIndex();
 		right.genCode(mg);
+		if(isArray) {
+			mg.visitLdcInsn(0);
+			mg.visitInsn(myType.getOpcode(Opcodes.IALOAD));
+		}
 		
 		//Load right node in case of a=b=c;
 		if (right instanceof AssignNode) {
@@ -112,6 +130,7 @@ public class AssignNode extends BinaryOp {
 					mg.updateLVTIndex();
 					mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex(myType.getDescriptor()));
 					
+					//the first row
 					mg.visitLdcInsn(0);
 					mg.visitLdcInsn(i);
 					mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "get", "(II)D", false);
@@ -135,7 +154,12 @@ public class AssignNode extends BinaryOp {
 		stack.push(this);
 		//Here we use right.getType() since the type form right will override the type of left
 		Type retType = right.getType(stack);
-		stack.pop();
+		if(retType.getSort() == Type.ARRAY) {
+			this.isArray = true;
+			Type t = retType.getElementType();
+			stack.pop();
+			return t;
+		}
 		
 		//Do we need to update the type of variables in multiple assign here?
 		if(multiAssignVars.size() > 0) {
@@ -148,6 +172,7 @@ public class AssignNode extends BinaryOp {
 			}
 		}
 
+		stack.pop();
 		return retType;
 	}
 
@@ -165,7 +190,24 @@ public class AssignNode extends BinaryOp {
 			//left.setType(null);
 		} else {
 			Type rType = right.getType(stack);
-			left.setType(rType);
+			if(rType.getSort() == Type.ARRAY) {
+				this.isArray = true;
+				Type t = rType.getElementType();
+				//keep value of the variable???
+				((VariableNode)left).setType(t, this.right);
+			} else {
+				((VariableNode)left).setType(rType, this.right);
+				
+			}
+//
+//			//left.setType(rType);
+//			((VariableNode)left).setType(rType, this.right);
+//			//update element type for left??? or keep right at left???
+////			if(right instanceof CellInitNode) {
+////				CellInitNode cin = (CellInitNode)right;
+////				cin.
+////			}
+			
 			if(multiAssignVars.size() > 0) {
 				Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
 				if(rType.getDescriptor().equals("[LJama/Matrix;")) {
@@ -179,8 +221,8 @@ public class AssignNode extends BinaryOp {
 						v.setType(Type.DOUBLE_TYPE);
 					}
 				}
-
-			} 
+			}
+			
 		}
 	}
 }
