@@ -35,6 +35,7 @@ public class AddNode extends BinaryOp {
 			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
 		} else if((myType.equals(Type.getType(Jama.Matrix.class)))) {
+			//myType is Jama.Matrix
 			if(lt.getSort() == Type.OBJECT && rt.getSort() == Type.OBJECT) {
 				left.genCode(mg);
 				right.genCode(mg);
@@ -52,12 +53,20 @@ public class AddNode extends BinaryOp {
 			} else {
 				throw new RuntimeException();
 			}
-		} else {
+		} else if(myType.getSort() == Type.DOUBLE ||
+				  myType.getSort() == Type.LONG   ||
+				  myType.getSort() == Type.INT
+				){
 			left.genCode(mg);
 			Tools.insertConversionInsn(mg, left.getType(), myType);
 			right.genCode(mg);
 			Tools.insertConversionInsn(mg, right.getType(), myType);
 			mg.visitInsn(myType.getOpcode(Opcodes.IADD));
+		} else {
+			left.genCode(mg);
+			right.genCode(mg);
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+					"plus", "("+Type.getType(Object.class)+Type.getType(Object.class)+")"+Type.getType(Object.class), false);
 		}
 	}
 }
