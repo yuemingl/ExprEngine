@@ -31,6 +31,7 @@ import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.NArgInNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.ReturnNode;
+import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.WhileNode;
 import io.lambdacloud.node.arithmetric.AddAsignNode;
@@ -478,6 +479,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//the variable is used directly instead of creating a new one
 		VariableNode val = currentScope().varMap.get(varName);
 		boolean isNewVariable = false;
+		boolean isAssign = false;
 		
 		//We see varName for the first time
 		if(null == val) {
@@ -498,7 +500,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			}
 			
 			//For ExprAssign, varName must be a new local variable
+			//Add varName to varMap to generate local variable table
 			if(ctx.getParent() instanceof MatlabGrammarParser.ExprAssignContext) {
+				isAssign = true;
 				if(val.getType() == null) {
 					val.setAsLocalVar();
 				}
@@ -522,7 +526,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			san.var.setType(Type.getType(Struct.class));
 			for(int i=1; i<ctx.IDENTIFIER().size(); i++)
 				san.fields.add(ctx.IDENTIFIER(i).getText());
-			if(isNewVariable)
+			if(isNewVariable && isAssign)
 				currentScope().stack.push(new AssignNode(san.var, new StructInitNode()));
 			currentScope().stack.push(san);
 		}
@@ -582,36 +586,31 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //		currentScope().stack.push(new SolveNode(v1, v2));
 //	}
 	
-	public void exitArrayAccessOrFuncCallTest(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
-		System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
-		System.out.println(">>exitArrayAccessOrFuncCall: "+ctx.aa_index().size());
-		System.out.println(">>>exitArrayAccessOrFuncCall: "+ctx.IDENTIFIER());
-		System.out.println(">>>>exitArrayAccessOrFuncCall: "+ctx.variable_entity().getText());
-		
-		StringBuilder sb = new StringBuilder();
-		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
-			sb.append(".").append(ctx.IDENTIFIER(i).getText());
-		}
-		
-		List<ExprNode> indices = new ArrayList<ExprNode>();
-		for(int i=0; i<ctx.aa_index().size(); i++) {
-			indices.add(this.currentScope().stack.pop());
-		}
-		System.out.println(indices);
-		ExprNode n = this.currentScope().stack.pop();
-		System.out.println(n.toString()+sb.toString());
-		
-		this.currentScope().stack.push(n);
-	}
+//	public void exitArrayAccessOrFuncCallTest(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
+//		System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
+//		System.out.println(">>exitArrayAccessOrFuncCall: "+ctx.aa_index().size());
+//		System.out.println(">>>exitArrayAccessOrFuncCall: "+ctx.IDENTIFIER());
+//		System.out.println(">>>>exitArrayAccessOrFuncCall: "+ctx.variable_entity().getText());
+//		
+//		StringBuilder sb = new StringBuilder();
+//		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
+//			sb.append(".").append(ctx.IDENTIFIER(i).getText());
+//		}
+//		
+//		List<ExprNode> indices = new ArrayList<ExprNode>();
+//		for(int i=0; i<ctx.aa_index().size(); i++) {
+//			indices.add(this.currentScope().stack.pop());
+//		}
+//		System.out.println(indices);
+//		ExprNode n = this.currentScope().stack.pop();
+//		System.out.println(n.toString()+sb.toString());
+//		
+//		this.currentScope().stack.push(n);
+//	}
 	
 	@Override public void exitCellAccess(MatlabGrammarParser.CellAccessContext ctx) { 
 		System.out.println("exitCellAccess: "+ctx.getText());
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
-		
-		StringBuilder sbNames = new StringBuilder();
-		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
-			sbNames.append(".").append(ctx.IDENTIFIER(i).getText());
-		}
 		
 		//Pop all the indices from the stack and keep them in a list
 		List<ExprNode> indices = new ArrayList<ExprNode>();
@@ -725,14 +724,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	@Override public void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
-		
-		boolean isFuncCall = false;
-		
-		StringBuilder sbNames = new StringBuilder();
-		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
-			sbNames.append(".").append(ctx.IDENTIFIER(i).getText());
-		}
-		
+
 		//Pop all the indices from the stack and keep them in a list
 		List<ExprNode> indices = new ArrayList<ExprNode>();
 		for(int i=0; i<ctx.aa_index().size(); i++) {
@@ -755,7 +747,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				}
 			}
 		}
-		
 
 		//System.out.println("exitArrayAccessOrFuncCall()-indices: "+indices);
 		//Pop the variable 
@@ -766,28 +757,37 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			this.currentScope().stack.push(indices.get(i));
 		}
 		
+		boolean isFuncCall = false;
 		String varName = null;
+		StringBuilder sbNames = new StringBuilder();
 		//Check if this is a function call
 		if(var instanceof VariableNode) {
 			VariableNode varNode = (VariableNode)var;
 			varName = varNode.getName();
 			//System.out.println("exitArrayAccessOrFuncCall()-varName: "+varName);
-		
-			FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
-			if(null == func) {
-				//Check if the variable is from external parameter
-				if(null != this.mapParameterTypes && null != this.mapParameterTypes.get(varName)) {
-					isFuncCall = false;
-				} else {
-					VariableNode localVar = this.currentScope().varMap.get(varName);
-					if(null == localVar)
-						isFuncCall = true;
-				}
-			} else {
-				isFuncCall = true;
-			}
+		} else if(var instanceof StructAccessNode) {
+			StructAccessNode san = (StructAccessNode)var;
+			var = san.var;
+			varName = san.var.getName();
+			if(san.fields.size() > 0)
+				sbNames.append(".").append(Tools.join(san.fields.toArray(new String[0]), "."));
+		} else {
+			throw new RuntimeException();
 		}
-		
+		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+		if(null == func) {
+			//Check if the variable is from external parameter
+			if(null != this.mapParameterTypes && null != this.mapParameterTypes.get(varName)) {
+				isFuncCall = false;
+			} else {
+				VariableNode localVar = this.currentScope().varMap.get(varName);
+				if(null == localVar)
+					isFuncCall = true;
+			}
+		} else {
+			isFuncCall = true;
+		}
+
 		if(isFuncCall) {
 			String fullName = varName+sbNames.toString();
 //			System.out.println("exitArrayAccessOrFuncCall()-full_var_name="+fullName);

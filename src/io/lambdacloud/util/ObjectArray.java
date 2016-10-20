@@ -402,11 +402,11 @@ public class ObjectArray {
 		return m.getRowDimension()*m.getColumnDimension();
 	}
 	
-	public static void main(String[] args) {
-		Object o = "abc";
-		System.out.println(o.getClass().getName());
-		String s = (String)o;
-	}
+//	public static void main(String[] args) {
+//		Object o = "abc";
+//		System.out.println(o.getClass().getName());
+//		String s = (String)o;
+//	}
 	
 	
 	public CSList getCSList() {
