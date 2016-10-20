@@ -32,6 +32,23 @@ public class CellInitNode extends ExprNode {
 		initExprList.add(val);
 	}
 
+	/**
+	 * What if the index is a variable instead of a number?
+	 * We cannot get the value of the variable, so it is not possible
+	 * to obtain the type of the element.
+	 * 
+	 * 
+	 * @param m
+	 * @param n
+	 * @return
+	 */
+	public Type getElementType(int m, int n) {
+		int idx = 0;
+		for(int i=0; i<m-1; i++)
+			idx += this.colLenList.get(i);
+		idx += n;
+		return this.initExprList.get(idx).getType();
+	}
 	public Type getElementType() {
       if(initExprList.size() == 0)
         return Type.DOUBLE_TYPE;
@@ -68,6 +85,7 @@ public class CellInitNode extends ExprNode {
 		
 		//Get element type
 		Type eleType = getElementType();
+		//Blockwise initialization {A,B,C;D}
 		if (eleType.equals(Type.getType(ObjectArray.class))) {
 			
 			mg.visitLdcInsn(this.initExprList.size()); //size of new array

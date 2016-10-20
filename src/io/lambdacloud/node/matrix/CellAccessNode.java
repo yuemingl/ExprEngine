@@ -27,6 +27,7 @@ import io.lambdacloud.util.ObjectArray;
  */
 public class CellAccessNode extends ExprNode {
 	public static int INDEX_BASE = 1;
+	private boolean isAccessObject = false;
 	
 	public ExprNode var;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
@@ -84,6 +85,10 @@ public class CellAccessNode extends ExprNode {
 				var.genCode(mg);
 				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 						"to1DArray", "()"+Type.getType(ObjectArray.class), false);
+				if(isAccessObject) {
+					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+							"()"+Type.getType(Object[].class), false);
+				}
 				return;
 			} else {   //A(B) or A(5) or A(1:10) or A(1:2:10)
 				ExprNode idxS = this.indices.get(0).idxS;
@@ -92,6 +97,10 @@ public class CellAccessNode extends ExprNode {
 					idxS.genCode(mg);
 					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 							"get", "(LJama/Matrix;)"+Type.getType(ObjectArray.class), false);
+					if(isAccessObject) {
+						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+						"()"+Type.getType(Object[].class), false);
+					}
 				} else if(idxS.getType().getSort() == Type.INT) {
 					var.genCode(mg);
 					idxS.genCode(mg);
@@ -103,22 +112,33 @@ public class CellAccessNode extends ExprNode {
 					if(null == idxE) { //A(5)
 						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 								"getAsObjectArray", "(I)"+Type.getType(ObjectArray.class), false);
+						if(isAccessObject) {
+							mg.visitLdcInsn(0);
+							mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
+									"(I)"+Type.getType(Object.class), false);
+						}
+
 					} else { //A(1:10) or A(1:end)
 						idxE.genCode(mg);
 						Tools.insertConversionInsn(mg, idxE.getType(), Type.INT_TYPE);
 						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 								"getAs1DArray", "(II)"+Type.getType(ObjectArray.class), false);
+						if(isAccessObject) {
+							mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+							"()"+Type.getType(Object[].class), false);
+						}
 					}
 				} else {
 					throw new UnsupportedOperationException("Unknown start index: "+idxS.toString());
 				}
+
 				return;
 			}
 		}
 		
 		var.genCode(mg);
 
-		if(isAccessElement()) { //A{1,2}
+		if(isAccessElement()) { //A(1,2)
 			ExprNode idx1S = this.indices.get(1).idxS;
 			ExprNode idx2S = this.indices.get(0).idxS;
 			idx1S.genCode(mg);
@@ -135,6 +155,11 @@ public class CellAccessNode extends ExprNode {
 			}
 			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 					"getAsObjectArray", "(II)"+Type.getType(ObjectArray.class), false);
+			if(isAccessObject) {
+				mg.visitLdcInsn(0);
+				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
+						"(I)"+Type.getType(Object.class), false);
+			}
 			return;
 		}
 		int type = 0x0;
@@ -225,14 +250,23 @@ public class CellAccessNode extends ExprNode {
 		else if(type == 0x3)
 			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "get", 
 					"([I[I)"+Type.getType(ObjectArray.class), false);
+		
+		if(isAccessObject) {
+			mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), "getColumnPackedCopy", 
+					"()"+Type.getType(Object[].class), false);
+		}
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-//		if(this.isAccessElement())
-//			return Type.getType(Object.class);
-//		else
-//			return Type.getType(ObjectArray.class);
+		if(this.isAccessElement()) {
+			if(this.isAccessObject)
+				return Type.getType(Object.class);
+		} else {
+			if(this.isAccessObject) {
+				return Type.getType(Object[].class);
+			}
+		}
 		return Type.getType(ObjectArray.class);
 	}
 
@@ -250,6 +284,20 @@ public class CellAccessNode extends ExprNode {
 			if(null != idxE) idxE.updateType(stack);
 		}
 		stack.pop();
+	}
+	
+	/**
+	 * A{1.2}
+	 */
+	public void setToAccessObject() {
+		this.isAccessObject = true;
+	}
+	
+	/**
+	 * A(1,2)
+	 */
+	public void setToAccessCell() {
+		this.isAccessObject = false;
 	}
 
 }
