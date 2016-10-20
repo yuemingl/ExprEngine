@@ -17,15 +17,12 @@ public class AssignNode extends BinaryOp {
 	
 	//Indicate if the right hand side is a comma-separated list (CSList)
 	boolean isCSList = false;
+	
+	private boolean isUpdatedType = false;
 
 	public AssignNode(VariableNode left, ExprNode right) {
-		//left.genLoadInsn(true);???
-		VariableNode var = left;
-////		var.addValue(right);
-		
-		this.left = var;
+		this.left = left;
 		this.right = right;
-		//this.right.genLoadInsn(true);???
 	}
 
 	public String toString() {
@@ -163,67 +160,56 @@ public class AssignNode extends BinaryOp {
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
+		if(!isUpdatedType)
+			throw new RuntimeException("updateType() must be called before calling getType()");
+		
 		// circle check
 		if (stack.contains(this))
 			return null;
-
 		stack.push(this);
+
 		//Here we use right.getType() since the type form right will override the type of left
 		Type retType = right.getType(stack);
 		
-		//see updateType() for updating flag isCSList
+		//Flag isCSList should be updated in updateType()
 		if(this.isCSList) {
 			Type t = Type.getType(Object.class);
+			
 			stack.pop();
 			return t;
 		}
 		
-//		//Do we need to update the type of variables in multiple assign here?
-//		if(multiAssignVars.size() > 0) {
-//			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
-//			if(retType.getDescriptor().equals("[LJama/Matrix;")) {
-//				for(int i=0; i<this.multiAssignVars.size(); i++) {
-//					VariableNode v =  this.multiAssignVars.get(i);
-//					v.setType(typeJamaMatrix);
-//				}
-//			}
-//		}
-
+		//We don't need to update the type of variables in multiple assign here (see updateType())
 		stack.pop();
 		return retType;
 	}
 
 	public void updateType(Deque<Object> stack) {
+		isUpdatedType = true;
 		//circle check
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
+		
 		right.updateType(stack);
 		stack.pop();
 		
-		if(null == right.getType(stack)) {
-			//throw new RuntimeException("Cannot get type for "+right);
-			//Don't affect the type of left side
+		Type rType = right.getType(stack);
+		if(null == rType) {
+			//Do nothing if we cannot get the type of right
+			//Don't affect the type of left side in this case.
+			//example: ???
 			//left.setType(null);
-		} else {
-			Type rType = right.getType(stack);
+		} else { //Update the type of left
+			
+			//In case of comma-separated list, set Object type for left
 			if(rType.equals(Type.getType(CSList.class))) {
 				this.isCSList = true;
 				Type t = Type.getType(Object.class);
-				//keep value of the variable???
-				((VariableNode)left).setType(t, this.right);
+				((VariableNode)left).setType(t);
 			} else {
-				((VariableNode)left).setType(rType, this.right);
-				
+				((VariableNode)left).setType(rType);
 			}
-//
-//			//left.setType(rType);
-//			((VariableNode)left).setType(rType, this.right);
-//			//update element type for left??? or keep right at left???
-////			if(right instanceof CellInitNode) {
-////				CellInitNode cin = (CellInitNode)right;
-////				cin.
-////			}
 			
 			if(multiAssignVars.size() > 0) {
 				Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
