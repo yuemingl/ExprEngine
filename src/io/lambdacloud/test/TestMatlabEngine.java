@@ -51,15 +51,14 @@ import io.lambdacloud.util.Struct;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-	
-		exec("C = {'one', 'two', 'three'; 1, 2, 3}; [a b c]=C{1:3}; a\n b\n c\n");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:3}");
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{1:3}; a");
-		//assertEqual(exec("sum=0.0; for i=[10 20 30], sum+=i; end sum;"), 60.0);
+		exec("car.monitor.mpg=35");
+		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
 
-		testCommaSeparatedList();
-	}
-	public static void testCommaSeparatedList() {
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; [a b c]=C{1:3}; a\n b\n c\n");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:3}");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{1:3}; a");
+		assertEqual(exec("sum=0.0; for i=[10 20 30], sum+=i; end sum;"), 60.0);
+
 		exec("function [A B]=myfun(), A=1; B=2; end [a b]=myfun(); a\n b");
 		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
 
@@ -124,24 +123,24 @@ public class TestMatlabEngine {
 //		exec("car.mpg", new Object[]{s});
 //		exec("car", new Object[]{s});
 
-//		testCellArray();
-//		testVariableNode();
-//		testBasic();
-//		testBasic2();
-////		testBasic3();
-//		testPrint();
-//		testComment();
-//		testEndIndex();
-//		testNArgin();
-////		testShaddowVariables();
-//		//testBuildinFunc();
-////		testFunction();
-//		testMatrixInit();
-//		testMatrixAssign();
-//		testMatrixAccess();
-////		testOptionalParamters();
-//		testMisc();
-//		testString();
+		testCellArray();
+		testVariableNode();
+		testBasic();
+		testBasic2();
+		testBasic3();
+		testPrint();
+		testComment();
+		testEndIndex();
+		testNArgin();
+		testShaddowVariables();
+		testBuildinFunc();
+		testFunction();
+		testMatrixInit();
+		testMatrixAssign();
+		testMatrixAccess();
+		testOptionalParamters();
+		testMisc();
+		testString();
 	}
 	
 	public static void testCellArray() {
