@@ -3,6 +3,7 @@ package io.lambdacloud;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
 import io.lambdacloud.util.Struct;
 
@@ -40,6 +41,10 @@ public class BytecodeSupport {
 	
 	public static void println2(Object o) {
 		System.out.println(o);
+	}
+	
+	public static void println(CSList o) {
+		System.out.println(o.toString());
 	}
 	
 	public static Object[] println(Object[] ary) {
