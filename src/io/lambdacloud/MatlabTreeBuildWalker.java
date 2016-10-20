@@ -56,6 +56,7 @@ import io.lambdacloud.node.logical.OrNode;
 import io.lambdacloud.node.matrix.CellAccessNode;
 import io.lambdacloud.node.matrix.CellAssignNode;
 import io.lambdacloud.node.matrix.CellInitNode;
+import io.lambdacloud.node.matrix.CommaSeparatedListTest;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.node.matrix.MatrixAssignNode;
 import io.lambdacloud.node.matrix.MatrixDLDivNode;
@@ -431,7 +432,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						null, cgen.labelStart, cgen.lableEnd, 0);
 			
 			List<VariableNode> nodeList = new ArrayList<VariableNode>();
-			nodeList.addAll(currentScope().varMap.values());
+			
+			//nodeList.addAll(currentScope().varMap.values());
+			nodeList.addAll(sortedVarMap.values());
 			Collections.sort(nodeList, new Comparator<VariableNode>() {
 				@Override
 				public int compare(VariableNode o1, VariableNode o2) {
@@ -647,6 +650,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//System.out.println("exitArrayAccessOrFuncCall()-varMap: "+this.currentScope().varMap);
 
 		CellAccessNode node = new CellAccessNode(var);
+		node.setToAccessObject();
+		//CommaSeparatedList node = new CommaSeparatedList(var);
 		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
 			if(null != ctx.aa_index(i).COLON()) {
 				//A(:)
