@@ -49,7 +49,9 @@ public class VariableNode extends ExprNode {
 	 * Contains the element type of the container types
 	 * mainly used for Struct
 	 */
-	private Map<Type, Map<String, Type>> mapTypeType = new LinkedHashMap<Type, Map<String, Type>>(); 
+	private Map<Type, Map<String, Type>> mapTypeType = new LinkedHashMap<Type, Map<String, Type>>();
+	
+	private Map<Type, ExprNode> mapTypeValue = new LinkedHashMap<Type, ExprNode>(); 
 
 	/**
 	 * Get a list of variable types
@@ -183,6 +185,12 @@ public class VariableNode extends ExprNode {
 		setActiveType(type);
 	}
 
+	public void setType(Type type, ExprNode value) {
+		this.setType(type);
+		this.mapTypeValue.put(type, value);
+	}
+
+	
 	@Override
 	public Type getType(Deque<Object> stack) {
 		return this.activeType;
