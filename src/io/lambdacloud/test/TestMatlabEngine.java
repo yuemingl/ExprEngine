@@ -41,13 +41,32 @@ import io.lambdacloud.util.Struct;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-	
-		exec("a={1,3.0,'abc'}; a{1}=100");
-		exec("a={1,3.0,'abc'}; a{2}=100");
-		exec("a={1,3.0,'abc'}; a{3}=100");
-		exec("a={1,3.0,'abc'}; a(1)=100");
-		exec("a={1,3.0,'abc'}; a(2)=100");
-		exec("a={1,3.0,'abc'}; a(3)=100");
+		exec("function [A B]=myfun(), A=1; B=2; end [a b]=myfun(); a\n b");
+		exec("function [A B]=myfun(), A=1; B=2; end myfun()");
+
+		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{2,3}; a");
+		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; a=C{1:3}; a");
+
+//		exec("C = [1, 2, 3]; [a b c]=C(1:3)'; a\n b\n c\n");
+//		exec("C = [1, 2, 3]; [a b c]=C(:)'; a\n b\n c\n");
+//		exec("C = [1, 2, 3]; [a b c]=C; a\n b\n c\n");
+//
+////		exec("C = {'one', 'two', 'three'; 1, 2, 3}; [a b c]=C{1:3}");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:3}");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");
+
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1,1:3)");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1:2,1:2}");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1,1:3}");
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1,1:3) = {'first','second','third'}");
+//		exec("a={1,3.0,'abc'}; a{1}=100");
+//		exec("a={1,3.0,'abc'}; a{2}=100");
+//		exec("a={1,3.0,'abc'}; a{3}=100");
+//		exec("a={1,3.0,'abc'}; a(1)=100");
+//		exec("a={1,3.0,'abc'}; a(2)=100");
+//		exec("a={1,3.0,'abc'}; a(3)=100");
 //		exec("a={1,3.0,'abc'}; a(1,3)=100");
 //		exec("a={1,3.0,'abc'}; a{1,3}=100");
 //		exec("a={1,3.0,'abc'}; a{1:3}");
