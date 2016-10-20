@@ -139,8 +139,8 @@ public class ObjectArray {
 	}
 
 	public ObjectArray get(int ms, int me, int ns, int ne, ObjectArray ary) {
-		int row = me - ms;
-		int col = ne - ns;
+		int row = me - ms + 1;
+		int col = ne - ns + 1;
 		for (int i = 0; i < row; i++)
 			for (int j = 0; j < col; j++) {
 				data[ms + i][ns + j] = ary.data[i][j];
@@ -150,7 +150,7 @@ public class ObjectArray {
 
 	
 	public ObjectArray get(int ms, int me, int[] aryn) {
-		int row = me - ms;
+		int row = me - ms + 1;
 		int col = aryn.length;
 		Object[][] rlt = new Object[row][col];
 		for (int i = 0; i < row; i++)
@@ -161,7 +161,7 @@ public class ObjectArray {
 	}
 
 	public ObjectArray set(int ms, int me, int[] aryn, ObjectArray ary) {
-		int row = me - ms;
+		int row = me - ms + 1;
 		int col = aryn.length;
 		for (int i = 0; i < row; i++)
 			for (int j = 0; j < col; j++) {
@@ -172,7 +172,7 @@ public class ObjectArray {
 
 	public ObjectArray get(int[] arym, int ns, int ne) {
 		int row = arym.length;
-		int col = ne - ns;
+		int col = ne - ns + 1;
 		Object[][] rlt = new Object[row][col];
 		for (int i = 0; i < row; i++)
 			for (int j = 0; j < col; j++) {
@@ -183,7 +183,7 @@ public class ObjectArray {
 
 	public ObjectArray set(int[] arym, int ns, int ne, ObjectArray ary) {
 		int row = arym.length;
-		int col = ne - ns;
+		int col = ne - ns + 1;
 		for (int i = 0; i < row; i++)
 			for (int j = 0; j < col; j++) {
 				data[arym[i]][ns + j] = ary.data[i][j];
@@ -400,5 +400,11 @@ public class ObjectArray {
 	}
 	public static int numel(ObjectArray m) {
 		return m.getRowDimension()*m.getColumnDimension();
+	}
+	
+	public static void main(String[] args) {
+		Object o = "abc";
+		System.out.println(o.getClass().getName());
+		String s = (String)o;
 	}
 }
