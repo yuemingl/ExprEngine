@@ -38,6 +38,19 @@ public class BytecodeSupport {
 		//DO Nothing
 	}
 	
+	public static void println2(Object o) {
+		System.out.println(o);
+	}
+	
+	public static Object[] println(Object[] ary) {
+		System.out.println("[");
+		for(Object o : ary) {
+			System.out.println(o);
+		}
+		System.out.println("]");
+		return ary;
+	}
+	
 	public static Object println(Object o) {
 		if(o instanceof double[]) {
 			double[] a = (double[])o;
@@ -920,4 +933,14 @@ public class BytecodeSupport {
 		Boolean i = (Boolean)o;
 		return i.booleanValue();
 	}
+	
+	//////////////////////
+	public static Object plus(Object a, Object b) {
+		if(a instanceof String && b instanceof String) {
+			return ((String)a)+((String)b);
+		} else if(a instanceof Double || b instanceof Double) {
+			return ((Number)a).doubleValue()+((Number)b).doubleValue();
+		}
+		return null;
+ 	}
 }
