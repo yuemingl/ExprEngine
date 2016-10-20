@@ -221,20 +221,28 @@ public class Tools {
 			return byte.class;
 		case Type.OBJECT:
 			try {
-				if(t.getDescriptor().equals("LJama/Matrix;")) {
-					return getJamaMatrixClass(dim);
-				}
-				if(dim == 0)
-					return Class.forName(t.getInternalName().replaceAll("/", "\\."));
-				else
-					throw new RuntimeException();
+				String desc = t.getClassName();
+				return Class.forName(desc);
+//				if(t.getDescriptor().equals("LJama/Matrix;")) {
+//					return getJamaMatrixClass(dim);
+//				}
+//				if(dim == 0)
+//					return Class.forName(t.getInternalName().replaceAll("/", "\\."));
+//				else
+//					throw new RuntimeException();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		case Type.ARRAY:
-			//Type e = Tools.getElementType(t);
-			Type e = t.getElementType();
-			return typeToClass(e, dim+1);
+			String desc = t.getInternalName().replaceAll("/", "\\.");
+			try {
+				return Class.forName(desc);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+//			//Type e = Tools.getElementType(t);
+//			Type e = t.getElementType();
+//			return typeToClass(e, dim+1);
 		case Type.VOID:
 			return void.class;
 		}
@@ -337,4 +345,11 @@ public class Tools {
 		return sb.toString();
 	}
 
+	public static Class<?>[] getParameterArray(Object[] params) {
+		Class<?>[] rlt = new Class<?>[params.length];
+		for(int i=0; i<params.length; i++) {
+			rlt[i] = params[i].getClass();
+		}
+		return rlt;
+	}
 }
