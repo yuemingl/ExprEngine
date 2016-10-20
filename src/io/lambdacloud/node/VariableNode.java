@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,7 +12,6 @@ import org.objectweb.asm.Type;
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.MethodGenHelper;
-import io.lambdacloud.util.Struct;
 
 /**
  * VariableNode represents a variable (or a function parameter).
@@ -51,8 +49,6 @@ public class VariableNode extends ExprNode {
 	 */
 	private Map<Type, Map<String, Type>> mapTypeType = new LinkedHashMap<Type, Map<String, Type>>();
 	
-	private Map<Type, ExprNode> mapTypeValue = new LinkedHashMap<Type, ExprNode>(); 
-
 	/**
 	 * Get a list of variable types
 	 * @return
@@ -145,9 +141,9 @@ public class VariableNode extends ExprNode {
 		if(this.varLoc == 1) loc = "P";
 		if(this.isOptionalParam) loc += "?";
 		if(this.activeType != null)
-			return this.name + "__" + activeType.getDescriptor() + "_" + loc + this.mapTypeLVTIdx.toString();
+			return this.name + ":" + activeType.getDescriptor() + "_" + loc + this.mapTypeLVTIdx.toString();
 		else
-			return this.name + "__null_" + loc + this.mapTypeLVTIdx.toString();
+			return this.name + ":null_" + loc + this.mapTypeLVTIdx.toString();
 	}
 	
 	public void genCode(MethodGenHelper mg) {
@@ -184,12 +180,6 @@ public class VariableNode extends ExprNode {
 		}
 		setActiveType(type);
 	}
-
-	public void setType(Type type, ExprNode value) {
-		this.setType(type);
-		this.mapTypeValue.put(type, value);
-	}
-
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
@@ -211,7 +201,7 @@ public class VariableNode extends ExprNode {
 
 	@Override
 	public void updateType(Deque<Object> stack) {
-//		throw new RuntimeException("This is deprecated");
+		//Do nothing
 	}
 	
 	public boolean isOptional() {

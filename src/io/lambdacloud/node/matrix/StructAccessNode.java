@@ -14,6 +14,12 @@ import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.util.Struct;
 
+/**
+ * a.b.c
+ * 
+ * @author yueming.liu
+ *
+ */
 public class StructAccessNode extends ExprNode {
 	public VariableNode var;
 	
@@ -51,11 +57,6 @@ public class StructAccessNode extends ExprNode {
 		}
 		
 	}
-	
-	public static void test() {
-		Object o = new Struct();
-		Struct s = (Struct)o;
-	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
@@ -68,9 +69,5 @@ public class StructAccessNode extends ExprNode {
 
 	@Override
 	public void updateType(Deque<Object> stack) {
-		// TODO Auto-generated method stub
-		
 	}
-	
-
 }
