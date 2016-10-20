@@ -92,6 +92,7 @@ import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.ListComprehensionNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.ReturnNode;
+import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.WhileNode;
 import io.lambdacloud.node.ListComprehensionNode.LForNode;
@@ -196,6 +197,31 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		return new ConstantCallSite(mh);
 	}
 	
+	
+	/**
+	 * TODO
+	 * bootstrap for calling a function with Object type parameters
+	 * 
+	 */
+	static Map<String, Method> mapMethod = new HashMap<String, Method>();
+	public static Object bootstrap(String funcName, Object[] params) throws Exception {
+		Method m = mapMethod.get(funcName);
+		if(null == m) {
+			FuncDefNode fnode = funcMap.get(funcName);
+			
+			Deque<Object> stack = new LinkedList<Object>();
+			fnode.setParamTypes(stack, Tools.getParameterArray(params));
+			
+			if(DEBUG)
+				System.out.println("my bootstrap: "+fnode.getFuncClassName()+"."+funcName);
+			Class<?> cls = fnode.genFuncCode(true);
+			
+			Method[] ms = cls.getDeclaredMethods();
+			mapMethod.put(funcName, ms[0]);
+		}
+		return m.invoke(null, params);
+	}
+
 	public void printInfo() {
 		System.out.println("Parameters:");
 		for(VariableNode n : currentScope().varMap.values()) {
