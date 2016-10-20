@@ -154,8 +154,8 @@ float_entity
  ;
 variable_entity
  : IDENTIFIER (PERIOD IDENTIFIER)*   # EntityVariable
- | variable_entity (PERIOD IDENTIFIER)* WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # ArrayAccessOrFuncCall
- | variable_entity (PERIOD IDENTIFIER)* WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB       # CellAccess
+ | variable_entity WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # ArrayAccessOrFuncCall
+ | variable_entity WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB       # CellAccess
  ;
 
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
