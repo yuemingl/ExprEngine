@@ -617,7 +617,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		for(int i=0; i<ctx.aa_index().size(); i++) {
 			if(null != ctx.aa_index(i).COLON())
 				continue;
-			if("end".equals(ctx.aa_index(i).getText().trim())) {
+			if(null != ctx.aa_index(i).END()) {
 				continue;
 			}
 			if(null != ctx.aa_index(i).aa_range()) {
@@ -662,7 +662,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				//A(:)
 				//Access all rows or columns
 				node.addIndex(null, null);
-			} else if("end".equals(ctx.aa_index(i).getText().trim())) {
+			} else if(null != ctx.aa_index(i).END()) {
 				FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
 				endNode.args.add(var);
 				idxS = endNode;
@@ -738,7 +738,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		for(int i=0; i<ctx.aa_index().size(); i++) {
 			if(null != ctx.aa_index(i).COLON())
 				continue;
-			if("end".equals(ctx.aa_index(i).getText().trim())) {
+			if(null != ctx.aa_index(i).END()) {
 				//ExprNode end = this.currentScope().stack.pop();
 				//this.currentScope().varMap.remove("end");
 				continue;
@@ -887,7 +887,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				//A(:)
 				//Access all rows or columns
 				node.addIndex(null, null);
-			} else if("end".equals(ctx.aa_index(i).getText().trim())) {
+			} else if(null != ctx.aa_index(i).END()) {
 				FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
 				endNode.args.add(var);
 				idxS = endNode;
