@@ -19,6 +19,7 @@ DSUB : '.-' ;
 DMUL : '.*' ;
 DRDIV : './' ;
 DLDIV : '.\\' ;
+DPOW : '.**' | '.^';
 
 AND : 'and' | '&&' ;
 OR  : 'or' | '||' ;
@@ -92,7 +93,7 @@ expr_end2 : (WS* SEMI ('\n'|WS)*) | (WS* COMMA ('\n'|WS)*) | ( WS* '\n' WS*)+;
 
 statement
  : WS* (tic | toc) WS* expr_end?   # TicToc
- | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block 'end' WS* expr_end? EOF?   # FuncDef
+ | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block (('end' WS* expr_end?)|EOF)   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
  | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* for_range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
  | WS* 'while' logical_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprWhile
@@ -125,7 +126,7 @@ for_range_expr
 arithmetic_expr
  : arithmetic_expr (SQUOTE|DPRIME)                    # Transpose
  | WS* SUB arithmetic_expr                            # ArithmeticExpressionNegationEntity
- | arithmetic_expr POW arithmetic_expr                # ArithmeticExpressionPow
+ | arithmetic_expr (POW|DPOW) arithmetic_expr         # ArithmeticExpressionPow
  | arithmetic_expr mul_div_operator arithmetic_expr   # ArithmeticExpressionMulDiv
 // | arithmetic_expr '%' arithmetic_expr              # ArithmeticExpressionRem
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
@@ -210,8 +211,8 @@ assign_expr
  /////////////////////////
  
  string_expr
- : string_entity ADD string_entity # StringConcat
- | string_entity                   # StringEntity1
+ : WS* string_entity WS* ADD WS* string_entity WS* # StringConcat
+ | WS* string_entity WS*                           # StringEntity1
  ;
  
  string_entity
