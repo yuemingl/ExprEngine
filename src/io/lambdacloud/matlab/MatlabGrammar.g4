@@ -58,6 +58,7 @@ RBRK : ']' ;
 LCB : '{' ;
 RCB : '}' ;
 
+END : 'end' ;
 
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
@@ -80,8 +81,6 @@ COMMENT : ('//'|'%') ~[\r\n]* EOF? -> skip ;
 SKIP_TOKEN : (([\t\r\u000C]+)|('...'[ ]*[\r\n]+)) -> skip ; //'\n' is not a WS
 
 WS : [ \t] ;
-
-END : 'end' ;
 
 /* Parser rules */
 
