@@ -280,6 +280,13 @@ public class BytecodeSupport {
 	public static int pow(int base, int pow) {
 		return (int)Math.pow(base, pow);
 	}
+	public static Jama.Matrix pow(Jama.Matrix base, Jama.Matrix pow) {
+		double[][] data = new double[base.getRowDimension()][base.getColumnDimension()];
+		for(int i=0; i<data.length; i++)
+			for(int j=0; j<data[0].length; j++)
+				data[i][j] = Math.pow(base.get(i, j), pow.get(i, j));
+		return new Jama.Matrix(data);
+	}
 	////////////////////////////////////////
 	
 	public static void setMatrix(Jama.Matrix A, int[] r, int[] c, double v) {
@@ -948,4 +955,56 @@ public class BytecodeSupport {
 		}
 		return null;
  	}
+	
+	public static Jama.Matrix inv(Jama.Matrix m) {
+		return m.inverse();
+	}
+	public static Jama.Matrix sum(Jama.Matrix m) {
+		double[] rlt = new double[m.getColumnDimension()];
+		for(int i=0; i<m.getRowDimension(); i++) {
+			for(int j=0; j<m.getColumnDimension(); j++) {
+				rlt[j] += m.get(i, j); 
+			}
+		}
+		return new Jama.Matrix(rlt, 1);
+	}
+	
+	public static Jama.Matrix sum(Jama.Matrix m, int dim) {
+		if(dim == 1) return sum(m);
+		double[] rlt = new double[m.getRowDimension()];
+		for(int i=0; i<m.getColumnDimension(); i++) {
+			for(int j=0; j<m.getRowDimension(); j++) {
+				rlt[j] += m.get(j, i); 
+			}
+		}
+		return new Jama.Matrix(rlt, m.getRowDimension());
+	}
+	
+	public static Jama.Matrix sqrt(Jama.Matrix m) {
+		double[][] data = m.getArrayCopy();
+		for(int i=0; i<data.length; i++) {
+			for(int j=0; j<data[0].length; j++)
+				data[i][j] = Math.sqrt(data[i][j]);
+		}
+		return new Jama.Matrix(data);
+	}
+	
+	public static boolean ismatrix(Jama.Matrix o) {
+		return true;
+	}
+	public static boolean ismatrix(Object o) {
+		if(o instanceof Jama.Matrix)
+			return true;
+		return false;
+	}
+
+	public static Jama.Matrix diag(Jama.Matrix m) {
+		int len = Math.min(m.getRowDimension(), m.getColumnDimension());
+		double[] data = new double[len];
+		for(int i=0; i<data.length; i++) {
+			data[i] = m.get(i, i);
+		}
+		return new Jama.Matrix(data, data.length);
+	}
+
 }
