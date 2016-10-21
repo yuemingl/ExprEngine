@@ -51,37 +51,51 @@ import io.lambdacloud.util.Struct;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		assertEqual(exec("A=[1 2 3; 4 5 6; 7 7 8]; inv(A);"), new Jama.Matrix(new double[][]{
-			{1,2,3}, {4,5,6}, {7,7,8}
-		}).inverse());
-		
-		assertEqual(exec("n=5; d = ones(n,2); sum(d)"), new Jama.Matrix(new double[][]{
-			{5,5}
-		}));
-		
-		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 1)"), new Jama.Matrix(new double[][]{
-			{3,5,7}
-		}));
-		
-		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 2)"), new Jama.Matrix(new double[][]{
-			{3},{12}
-		}));
-		
-		assertEqual(exec("X = [4 9; 16 25]; sqrt(X)"), new Jama.Matrix(new double[][]{
-			{2,3},{4,5}
-		}));
 
-		assertEqual(exec("X = [4 9; 16 25]; ismatrix(X)"), true);
-		//TODO: fix this: assertEqual(exec("X = {[4 9; 16 25],'aaa'}; X=X{1}; ismatrix(X)"), true);
-		assertEqual(exec("X = {[4 9; 16 25],'aaa'}; Y=X{1}; ismatrix(Y)"), true);
-		
-		exec("diag([1 2; 3 4])");
-		exec("function t = trace(A)\n t = full(sum(diag(A))); end trace([1 2; 3 4])");
-		exec("classname='double'");
-		exec("classname = 'double'");
-		exec("[1 2; 3 4].^[2 2; 3 3]");
-		exec("[1 2; 3 4]^[2 2; 3 3]");
-		
+//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}={1,2,3,4;5,6,7,8}");
+//				exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
+//
+//		exec("a=[2 3]; a(:)");
+		exec("a=[2 3]; a(end)");
+//		exec("a=[2 3]; y = zeros(a(1),a(2))");
+//
+//		
+//		exec("a = ...\n 1; a");
+//		exec("a = ...\r 1; a");
+//		exec("a = ...  \n  1; a");
+
+//		
+//		assertEqual(exec("A=[1 2 3; 4 5 6; 7 7 8]; inv(A);"), new Jama.Matrix(new double[][]{
+//			{1,2,3}, {4,5,6}, {7,7,8}
+//		}).inverse());
+//		
+//		assertEqual(exec("n=5; d = ones(n,2); sum(d)"), new Jama.Matrix(new double[][]{
+//			{5,5}
+//		}));
+//		
+//		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 1)"), new Jama.Matrix(new double[][]{
+//			{3,5,7}
+//		}));
+//		
+//		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 2)"), new Jama.Matrix(new double[][]{
+//			{3},{12}
+//		}));
+//		
+//		assertEqual(exec("X = [4 9; 16 25]; sqrt(X)"), new Jama.Matrix(new double[][]{
+//			{2,3},{4,5}
+//		}));
+//
+//		assertEqual(exec("X = [4 9; 16 25]; ismatrix(X)"), true);
+//		//TODO: fix this: assertEqual(exec("X = {[4 9; 16 25],'aaa'}; X=X{1}; ismatrix(X)"), true);
+//		assertEqual(exec("X = {[4 9; 16 25],'aaa'}; Y=X{1}; ismatrix(Y)"), true);
+//		
+//		exec("diag([1 2; 3 4])");
+//		exec("function t = trace(A)\n t = full(sum(diag(A))); end trace([1 2; 3 4])");
+//		exec("classname='double'");
+//		exec("classname = 'double'");
+//		exec("[1 2; 3 4].^[2 2; 3 3]");
+//		exec("[1 2; 3 4]^[2 2; 3 3]");
+//		
 		testCellArray();
 		testVariableNode();
 		testBasic();

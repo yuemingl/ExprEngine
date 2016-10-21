@@ -615,23 +615,26 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Pop all the indices from the stack and keep them in a list
 		List<ExprNode> indices = new ArrayList<ExprNode>();
 		for(int i=0; i<ctx.aa_index().size(); i++) {
-			if(null == ctx.aa_index(i).COLON()) {
-				if(null != ctx.aa_index(i).aa_range()) {
-					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
-						indices.add(this.currentScope().stack.pop());
-					}
-					//---step
-					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
-						indices.add(this.currentScope().stack.pop());
-					}
-					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
-						indices.add(this.currentScope().stack.pop());
-					}
-				} else {
+			if(null != ctx.aa_index(i).COLON())
+				continue;
+			if("end".equals(ctx.aa_index(i).getText().trim())) {
+				continue;
+			}
+			if(null != ctx.aa_index(i).aa_range()) {
+				//---end
+				if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
 					indices.add(this.currentScope().stack.pop());
 				}
+				//---step
+				if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+					indices.add(this.currentScope().stack.pop());
+				}
+				//---start
+				if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
+					indices.add(this.currentScope().stack.pop());
+				}
+			} else {
+				indices.add(this.currentScope().stack.pop());
 			}
 		}
 		
@@ -652,15 +655,20 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		node.setToAccessObject();
 		//CommaSeparatedList node = new CommaSeparatedList(var);
 		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
+			ExprNode idxS = null;
+			ExprNode idxStep = null;
+			ExprNode idxE = null;
 			if(null != ctx.aa_index(i).COLON()) {
 				//A(:)
 				//Access all rows or columns
 				node.addIndex(null, null);
+			} else if("end".equals(ctx.aa_index(i).getText().trim())) {
+				FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+				endNode.args.add(var);
+				idxS = endNode;
+				node.addIndex(idxS, null);
 			} else if(null != ctx.aa_index(i).aa_range()) {
 				//A(1:10), A(1:end), A(end:-1:1)
-				ExprNode idxS = null;
-				ExprNode idxStep = null;
-				ExprNode idxE = null;
 				
 				//A(5:end, 2:2:end), A(end:1,end:2:1)
 				if(ctx.aa_index().size() > 1) {
@@ -713,8 +721,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
 			} else {
 				//aa_index : expression | COLON | func_handle | aa_range;
-				ExprNode idxS = this.currentScope().stack.pop(); //expression
-				ExprNode idxE = null;
+				idxS = this.currentScope().stack.pop(); //expression
+				idxE = null;
 				node.addIndex(idxS, idxE);
 			}
 		}
@@ -728,23 +736,28 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Pop all the indices from the stack and keep them in a list
 		List<ExprNode> indices = new ArrayList<ExprNode>();
 		for(int i=0; i<ctx.aa_index().size(); i++) {
-			if(null == ctx.aa_index(i).COLON()) {
-				if(null != ctx.aa_index(i).aa_range()) {
-					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
-						indices.add(this.currentScope().stack.pop());
-					}
-					//---step
-					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
-						indices.add(this.currentScope().stack.pop());
-					}
-					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
-						indices.add(this.currentScope().stack.pop());
-					}
-				} else {
+			if(null != ctx.aa_index(i).COLON())
+				continue;
+			if("end".equals(ctx.aa_index(i).getText().trim())) {
+				//ExprNode end = this.currentScope().stack.pop();
+				//this.currentScope().varMap.remove("end");
+				continue;
+			}
+			if(null != ctx.aa_index(i).aa_range()) {
+				//---end
+				if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
 					indices.add(this.currentScope().stack.pop());
 				}
+				//---step
+				if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+					indices.add(this.currentScope().stack.pop());
+				}
+				//---start
+				if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
+					indices.add(this.currentScope().stack.pop());
+				}
+			} else {
+				indices.add(this.currentScope().stack.pop());
 			}
 		}
 
@@ -867,15 +880,20 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 
 		MatrixAccessNode node = new MatrixAccessNode(var);
 		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
+			ExprNode idxS = null;
+			ExprNode idxStep = null;
+			ExprNode idxE = null;
 			if(null != ctx.aa_index(i).COLON()) {
 				//A(:)
 				//Access all rows or columns
 				node.addIndex(null, null);
+			} else if("end".equals(ctx.aa_index(i).getText().trim())) {
+				FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
+				endNode.args.add(var);
+				idxS = endNode;
+				node.addIndex(idxS, null);
 			} else if(null != ctx.aa_index(i).aa_range()) {
 				//A(1:10), A(1:end), A(end:-1:1)
-				ExprNode idxS = null;
-				ExprNode idxStep = null;
-				ExprNode idxE = null;
 				
 				//A(5:end, 2:2:end), A(end:1,end:2:1)
 				if(ctx.aa_index().size() > 1) {
@@ -928,8 +946,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
 			} else {
 				//aa_index : expression | COLON | func_handle | aa_range;
-				ExprNode idxS = this.currentScope().stack.pop(); //expression
-				ExprNode idxE = null;
+				idxS = this.currentScope().stack.pop(); //expression
+				idxE = null;
 				node.addIndex(idxS, idxE);
 			}
 		}
