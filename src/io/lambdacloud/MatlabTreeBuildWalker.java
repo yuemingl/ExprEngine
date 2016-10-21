@@ -797,7 +797,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			
 			String className = "";
 			if(l.size() > 0)
-				className = String.join(".", l.subList(0, l.size()-1));
+				className = Tools.join(l.subList(0, l.size()-1).toArray(new String[]{}), ".");
 			String methodName = ss[ss.length-1];
 			
 			//Class name transform
@@ -1274,7 +1274,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		if(forRange instanceof RangeNode) {
 			RangeNode rangeNode = (RangeNode)forRange;
 			rangeNode.setAsReturnArray();
-			loopVar.setType(rangeNode.getType().getElementType());
+			//loopVar.setType(rangeNode.getType().getElementType());
 			
 			forNode.init.add(0,new AssignNode(loopVar, rangeNode.start));
 			forNode.cond = new LENode(loopVar, rangeNode.end);
