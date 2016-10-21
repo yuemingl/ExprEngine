@@ -77,9 +77,11 @@ DPRIME : '.\'' ;
 // COMMENT and WS are stripped from the output token stream by sending
 // to a different channel 'skip'
 COMMENT : ('//'|'%') ~[\r\n]* EOF? -> skip ;
-SKIP_TOKEN : [\t\r\u000C]+ -> skip ; //'\n' is not a WS
+SKIP_TOKEN : (([\t\r\u000C]+)|('...'[ ]*[\r\n]+)) -> skip ; //'\n' is not a WS
 
 WS : [ \t] ;
+
+END : 'end' ;
 
 /* Parser rules */
 
@@ -164,8 +166,8 @@ cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
 ai_list : ( expression (COMMA|WS)+ )* expression? ;
 
 //array access index
-aa_index : expression | COLON | func_handle | aa_range;
-aa_range : aa_range_start WS* COLON WS* (aa_range_step WS* COLON WS*)? aa_range_end ;
+aa_index : expression | COLON | func_handle | aa_range | END;
+aa_range : aa_range_start WS* COLON WS* (aa_range_step WS* COLON WS*)? aa_range_end;
 aa_range_start : 'end' | expression;
 aa_range_step : expression ;
 aa_range_end : 'end' | expression;
