@@ -45,6 +45,9 @@ import io.lambdacloud.node.arithmetric.NegateNode;
 import io.lambdacloud.node.arithmetric.RemAsignNode;
 import io.lambdacloud.node.arithmetric.SubAsignNode;
 import io.lambdacloud.node.arithmetric.SubNode;
+import io.lambdacloud.node.binary.BAndNode;
+import io.lambdacloud.node.binary.BOrNode;
+import io.lambdacloud.node.binary.BXorNode;
 import io.lambdacloud.node.comparion.EQNode;
 import io.lambdacloud.node.comparion.GENode;
 import io.lambdacloud.node.comparion.GTNode;
@@ -501,7 +504,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			
 			//For ExprAssign, varName must be a new local variable
 			//Add varName to varMap to generate local variable table
-			if(ctx.getParent() instanceof MatlabGrammarParser.ExprAssignContext) {
+			//System.out.println(ctx.getParent().getClass().getName());
+			if(ctx.getParent() instanceof MatlabGrammarParser.ExprAssignContext ||
+					ctx.getParent() instanceof MatlabGrammarParser.ExprMultiAssignContext) {
 				isAssign = true;
 				if(val.getType() == null) {
 					val.setAsLocalVar();
@@ -1472,49 +1477,21 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	private int multi_assign_seq = 0;
 	@Override public void exitExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx) {
 		//System.out.println("exitExprMulAssign: "+ctx.getText());
+		ExprNode value = this.currentScope().stack.pop();
 		String tmpVarName = "";
 		ArrayList<VariableNode> multiAssignVars = new ArrayList<VariableNode>();
-		for(int i=0; i<ctx.IDENTIFIER().size(); i++) {
-			String varName = ctx.IDENTIFIER(i).getText();
+		for(int i=0; i<ctx.variable_entity().size(); i++) {
+			String varName = ctx.variable_entity(i).getText();
+			multiAssignVars.add(0,(VariableNode)this.currentScope().stack.pop());
 			tmpVarName += "_"+varName;
-			VariableNode varNode = currentScope().varMap.get(varName);
-			if(null == varNode) {
-				if(null != this.mapParameterTypes) {
-					Class<?> varCls = this.mapParameterTypes.get(varName);
-					if(null != varCls)
-						varNode = VariableNode.newParameter(varName, Type.getType(varCls));
-					else
-						varNode = VariableNode.newLocalVar(varName, Type.getType(double.class));
-						//throw new RuntimeException("No type info provied for '"+varName+"'!");
-					
-				} else if(null != this.defaultParameterTypeOrInterface) {
-					//default to double
-					if(this.defaultParameterTypeOrInterface.isInterface()) {
-						//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-						//TODO need better solution
-						varNode = VariableNode.newParameter(varName, Type.getType(double.class));
-					} else {
-						varNode = VariableNode.newParameter(varName, Type.getType(this.defaultParameterTypeOrInterface));
-					}
-				} else {
-					//call getAndFixParameterTypes(Class<?>[] aryParameterTypes) before generate code
-					//TODO need better solution
-					varNode = VariableNode.newLocalVar(varName, Type.getType(double.class));
-				}
-				currentScope().varMap.put(varName, varNode);
-			}
-			multiAssignVars.add(varNode);
 		}
-		ExprNode value = this.currentScope().stack.pop();
-////		VariableNode tmpVar = VariableNode.newLocalVar(tmpVarName, value.getType());
 		tmpVarName += multi_assign_seq;
-		multi_assign_seq++;
+		multi_assign_seq++; //unique
 		VariableNode tmpVar = VariableNode.newLocalVar(tmpVarName, null);
 		this.currentScope().varMap.put(tmpVarName, tmpVar);
 		AssignNode an = new AssignNode(tmpVar, value);
 		an.multiAssignVars.addAll(multiAssignVars);
 		this.currentScope().stack.push(an);
-		
 	}
 	
 	@Override public void exitStringConst(MatlabGrammarParser.StringConstContext ctx) {
@@ -1570,5 +1547,31 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		}
 		currentScope().stack.push(node);
 	}
-
+	@Override public void exitArithmeticExpressionBit(MatlabGrammarParser.ArithmeticExpressionBitContext ctx) {
+		String op = ctx.bit_operator().getText();
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		if(op.equals("&"))
+			currentScope().stack.push(new BAndNode(v1, v2));
+		else if(op.equals("|"))
+			currentScope().stack.push(new BOrNode(v1, v2));
+		else if(op.equals("^"))
+			currentScope().stack.push(new BXorNode(v1, v2));
+		else
+			throw new RuntimeException("Bad operator:"+op );
+	}
+	@Override public void exitLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx) { 
+		String op = ctx.bit_operator().getText();
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		if(op.equals("&"))
+			currentScope().stack.push(new BAndNode(v1, v2));
+		else if(op.equals("|"))
+			currentScope().stack.push(new BOrNode(v1, v2));
+		else if(op.equals("^"))
+			currentScope().stack.push(new BXorNode(v1, v2));
+		else
+			throw new RuntimeException("Bad operator:"+op );
+		
+	}
 }
