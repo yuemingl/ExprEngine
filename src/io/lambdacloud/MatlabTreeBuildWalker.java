@@ -1198,8 +1198,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		currentScope().stack.push(new NotNode(currentScope().stack.pop()));
 	}
 	
-	//@Override public void exitLogicalExpressionInParen(MatlabGrammarParser.LogicalExpressionInParenContext ctx) { }
-	//@Override public void exitComparisonExpression(MatlabGrammarParser.ComparisonExpressionContext ctx) { }
 	@Override public void exitComparisonArithmeticExpression(MatlabGrammarParser.ComparisonArithmeticExpressionContext ctx) {
 		String op = ctx.comp_operator().getText();
 		ExprNode v2 = currentScope().stack.pop();
@@ -1495,18 +1493,15 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	@Override public void exitStringConst(MatlabGrammarParser.StringConstContext ctx) {
-		//System.out.println("exitStringConst: "+ctx.getText());
-		String s = ctx.getText();
-		//System.out.println(s);
+		String s = ctx.StringLiteral().getText();
 		currentScope().stack.push(new StringNode(s.substring(1, s.length()-1)));
-		
 	}
 	
-	@Override public void exitStringConcat(MatlabGrammarParser.StringConcatContext ctx) {
-		ExprNode v2 = currentScope().stack.pop();
-		ExprNode v1 = currentScope().stack.pop();
-		currentScope().stack.push(new StringConcatNode(v1,v2));
-	}
+//	@Override public void exitStringConcat(MatlabGrammarParser.StringConcatContext ctx) {
+//		ExprNode v2 = currentScope().stack.pop();
+//		ExprNode v1 = currentScope().stack.pop();
+//		currentScope().stack.push(new StringConcatNode(v1,v2));
+//	}
 	
 	@Override public void exitExprReturn(MatlabGrammarParser.ExprReturnContext ctx) {
 		ReturnNode node = null;
@@ -1560,18 +1555,19 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		else
 			throw new RuntimeException("Bad operator:"+op );
 	}
-	@Override public void exitLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx) { 
-		String op = ctx.bit_operator().getText();
-		ExprNode v2 = currentScope().stack.pop();
-		ExprNode v1 = currentScope().stack.pop();
-		if(op.equals("&"))
-			currentScope().stack.push(new BAndNode(v1, v2));
-		else if(op.equals("|"))
-			currentScope().stack.push(new BOrNode(v1, v2));
-		else if(op.equals("^"))
-			currentScope().stack.push(new BXorNode(v1, v2));
-		else
-			throw new RuntimeException("Bad operator:"+op );
-		
-	}
+	
+//	@Override public void exitLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx) { 
+//		String op = ctx.bit_operator().getText();
+//		ExprNode v2 = currentScope().stack.pop();
+//		ExprNode v1 = currentScope().stack.pop();
+//		if(op.equals("&"))
+//			currentScope().stack.push(new BAndNode(v1, v2));
+//		else if(op.equals("|"))
+//			currentScope().stack.push(new BOrNode(v1, v2));
+//		else if(op.equals("^"))
+//			currentScope().stack.push(new BXorNode(v1, v2));
+//		else
+//			throw new RuntimeException("Bad operator:"+op );
+//		
+//	}
 }
