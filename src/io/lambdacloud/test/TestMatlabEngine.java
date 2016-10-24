@@ -43,59 +43,49 @@ import io.lambdacloud.util.Struct;
  *   fix confilict for math.sin(x) and math.sin Struct
  *   *fix all tests
  * 
- * 
+ * logical array
+ * false() function
+ * 'end' in expression, e.g. A(end-1)
+ * [varargout{1:max(nargout,1)}]=F(varargin{:})
  * 
  * 
  * @author yueming.liu
  *
  */
 public class TestMatlabEngine {
+	public static void test(String s) {
+		switch(s) {
+		case "a123":
+			System.out.println("aa");
+			break;
+		case "b456":
+			System.out.println("bb");
+			break;
+		case "c789":
+			System.out.println("cc");
+			break;
+		default:
+			System.out.println("dd");
+			break;
+			
+		}
+	}
 	public static void main(String[] args){
+//		exec("[varargout{1:max(nargout,1)}]");
+//		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
+//		
+//		//nargs = nargin(matname);
+//		//[classname,varargin{1:end-1}] //end-1
+//		exec("a=[2 3]; a(end-1)");
+		
+		
+		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
 
-//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}={1,2,3,4;5,6,7,8}");
-//				exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
-//
-//		exec("a=[2 3]; a(:)");
-		exec("a=[2 3]; a(end)");
-//		exec("a=[2 3]; y = zeros(a(1),a(2))");
-//
-//		
-//		exec("a = ...\n 1; a");
-//		exec("a = ...\r 1; a");
-//		exec("a = ...  \n  1; a");
-
-//		
-//		assertEqual(exec("A=[1 2 3; 4 5 6; 7 7 8]; inv(A);"), new Jama.Matrix(new double[][]{
-//			{1,2,3}, {4,5,6}, {7,7,8}
-//		}).inverse());
-//		
-//		assertEqual(exec("n=5; d = ones(n,2); sum(d)"), new Jama.Matrix(new double[][]{
-//			{5,5}
-//		}));
-//		
-//		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 1)"), new Jama.Matrix(new double[][]{
-//			{3,5,7}
-//		}));
-//		
-//		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 2)"), new Jama.Matrix(new double[][]{
-//			{3},{12}
-//		}));
-//		
-//		assertEqual(exec("X = [4 9; 16 25]; sqrt(X)"), new Jama.Matrix(new double[][]{
-//			{2,3},{4,5}
-//		}));
-//
-//		assertEqual(exec("X = [4 9; 16 25]; ismatrix(X)"), true);
-//		//TODO: fix this: assertEqual(exec("X = {[4 9; 16 25],'aaa'}; X=X{1}; ismatrix(X)"), true);
-//		assertEqual(exec("X = {[4 9; 16 25],'aaa'}; Y=X{1}; ismatrix(Y)"), true);
-//		
-//		exec("diag([1 2; 3 4])");
-//		exec("function t = trace(A)\n t = full(sum(diag(A))); end trace([1 2; 3 4])");
-//		exec("classname='double'");
-//		exec("classname = 'double'");
-//		exec("[1 2; 3 4].^[2 2; 3 3]");
-//		exec("[1 2; 3 4]^[2 2; 3 3]");
-//		
+		testSingleQuote();
+		testBitOperation();
+		testEnd();
+		testLineContinue();
+		testBuildinFunc2();
 		testCellArray();
 		testVariableNode();
 		testBasic();
@@ -115,6 +105,94 @@ public class TestMatlabEngine {
 		testMisc();
 		testString();
 		testCommaSeparatedList();
+	}
+	public static void testSingleQuote() {
+		//String s = "a=[1 2 3 4]; b=a'''; b";
+		//String s = "a=[1 2 3 4]; 'bbb'";
+		//String s = "'bbb'";
+		//String s = "'bbb'+'ccc'";
+		//String s = "'b\\'bb'+'ccc'";
+		//String s = "cidx = (0:m-1)';    t = t.';";
+//		s = s.replaceAll("\\\\'", "#1#");
+//		s = s.replaceAll("([^a-zA-Z_)'])(')([^']*)(')", "$1`$3`");
+//		s = s.replaceAll("^(')([^']*)(')", "`$2`");
+//		s = s.replaceAll("#1#", "\\`");
+//		System.out.println(s);
+//		exec(s);
+		
+		exec("a=[1 2 3]; a'''");
+		//exec("a=[1 2 3]; `ddd`");
+		exec("a=[1 2 3]; 'ddd'");
+		exec("a=[1 2 3]; \"dd\\\"d\"");
+		exec("'aaa'");
+		exec("\"aaa\"");
+		//exec("'aaa\"");
+		//exec("a=[1 2 3]; b=[4 5 6]; a.'; b.'");
+		exec("a=[1 2 3]; b=[4 5 6]; a'\n b'");
+	}
+	
+	public static void testBitOperation() {
+		
+		exec("1 & 2");
+		exec("1 | 2");
+		exec("2 ^ 3");  //!!!!!
+		exec("2>1 & 2<3");
+		exec("2>1 & 2==3");
+		exec("2>1 | 2==3");
+		//exec("2>1 ^ 2==3");
+		
+		exec("[1 2; 3 4].^[2 2; 3 3]");
+		exec("[1 2; 3 4]^[2 2; 3 3]");
+		
+	}
+	
+	public static void testEnd() {
+//		//[classname,varargin{1:end-1}] //end-1
+//		exec("a=[2 3]; a(end-1)");
+
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}={1,2,3,4;5,6,7,8}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
+
+		exec("a=[2 3]; a(:)");
+		exec("a=[2 3]; a(end)");
+		////exec("a=[2 3]; y = zeros(a(1),a(2))");
+	}
+	
+	public static void testLineContinue() {
+		exec("a = ...\n 1; a");
+		exec("a = ...\r 1; a");
+		exec("a = ...  \n  1; a");
+
+	}
+	
+	public static void testBuildinFunc2() {
+		assertEqual(exec("A=[1 2 3; 4 5 6; 7 7 8]; inv(A);"), new Jama.Matrix(new double[][]{
+			{1,2,3}, {4,5,6}, {7,7,8}
+		}).inverse());
+		
+		assertEqual(exec("n=5; d = ones(n,2); sum(d)"), new Jama.Matrix(new double[][]{
+			{5,5}
+		}));
+		
+		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 1)"), new Jama.Matrix(new double[][]{
+			{3,5,7}
+		}));
+		
+		assertEqual(exec("X = [0 1 2; 3 4 5]; sum(X, 2)"), new Jama.Matrix(new double[][]{
+			{3},{12}
+		}));
+		
+		assertEqual(exec("X = [4 9; 16 25]; sqrt(X)"), new Jama.Matrix(new double[][]{
+			{2,3},{4,5}
+		}));
+
+		assertEqual(exec("X = [4 9; 16 25]; ismatrix(X)"), true);
+		//TODO: fix this: assertEqual(exec("X = {[4 9; 16 25],'aaa'}; X=X{1}; ismatrix(X)"), true);
+		assertEqual(exec("X = {[4 9; 16 25],'aaa'}; Y=X{1}; ismatrix(Y)"), true);
+		
+		exec("diag([1 2; 3 4])");
+		exec("function t = trace(A)\n t = full(sum(diag(A))); end trace([1 2; 3 4])");
+		
 	}
 	
 	public static void testCommaSeparatedList() {
@@ -882,6 +960,10 @@ public class TestMatlabEngine {
 		assertEqual(exec("'aaa'"), "aaa");
 		assertEqual(exec("'aaa'+'bbbb'"), "aaabbbb");
 		assertEqual(exec("'aaa'+\"bbbb\""), "aaabbbb");
+		
+		assertEqual(exec("classname='double'"), "double");
+		assertEqual(exec("classname = 'double'"), "double");
+
 		
 		assertEqual(exec(" 1~=2 "), true);
 		assertEqual(exec("if 1~=2, 3 end"), null);
