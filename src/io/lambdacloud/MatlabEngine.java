@@ -24,8 +24,17 @@ import io.lambdacloud.matlab.MatlabGrammarParser;
 import io.lambdacloud.node.Tools;
 
 public class MatlabEngine {
+	public static String replaceAll(String s) {
+		//return s.replaceAll("([a-zA-Z_])(')+", "$1`");
+		s = s.replaceAll("\\\\'", "#1#");
+		s = s.replaceAll("([^a-zA-Z_'\\)\\}])(')([^']*)(')", "$1`$3`");
+		s = s.replaceAll("^(')([^']*)(')", "`$2`");
+		s = s.replaceAll("#1#", "\\`");
+		//System.out.println(s);
+		return s;
+	}
 	public static MatlabTreeBuildWalker parse(String str) {
-		ANTLRInputStream input = new ANTLRInputStream(str);
+		ANTLRInputStream input = new ANTLRInputStream(replaceAll(str));
 		MatlabGrammarLexer lexer = new MatlabGrammarLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		MatlabGrammarParser parser = new MatlabGrammarParser(tokens);
@@ -37,7 +46,7 @@ public class MatlabEngine {
 	}
 
 	public static MatlabTreeBuildWalker parse(String str, Class<?> defaultParameterTypeOrInterface) {
-		ANTLRInputStream input = new ANTLRInputStream(str);
+		ANTLRInputStream input = new ANTLRInputStream(replaceAll(str));
 		MatlabGrammarLexer lexer = new MatlabGrammarLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		MatlabGrammarParser parser = new MatlabGrammarParser(tokens);
@@ -49,7 +58,7 @@ public class MatlabEngine {
 	}
 
 	public static MatlabTreeBuildWalker parse(String str, Map<String, Class<?>> mapParameterTypes) {
-		ANTLRInputStream input = new ANTLRInputStream(str);
+		ANTLRInputStream input = new ANTLRInputStream(replaceAll(str));
 		MatlabGrammarLexer lexer = new MatlabGrammarLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		MatlabGrammarParser parser = new MatlabGrammarParser(tokens);
