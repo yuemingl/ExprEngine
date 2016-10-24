@@ -10,7 +10,7 @@ public class TestMatlabFiles {
 
 	public static void main(String[] args) {
 		compile("./test_matlab/spdiags.m");
-		//compile("./test_matlab/matlab/elmat");
+		compile("./test_matlab/matlab/elmat");
 	}
 	
 	/**

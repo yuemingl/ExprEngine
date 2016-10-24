@@ -78,7 +78,9 @@ public class TestMatlabEngine {
 //		//[classname,varargin{1:end-1}] //end-1
 //		exec("a=[2 3]; a(end-1)");
 		
-		
+		//TODO delete: new StringConcatNode(v1,v2)
+		//operator precedence
+
 		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
 
 		testSingleQuote();
@@ -398,6 +400,9 @@ public class TestMatlabEngine {
 		assertEqual(exec("function fun(a,b), a+b; end fun('aaa');"),null);
 		assertEqual(exec("function fun(a,b), a+b; end fun(3,5);"),8);
 		
+		assertEqual(exec("'aaa' + 'bbb'"), "aaabbb");
+		assertEqual(exec("'aaa' == 'bbb'"), false);
+		assertEqual(exec("'aaa' != 'bbb'"), true);
 	}
 	
 	public static void testOptionalParamters() {
@@ -761,6 +766,11 @@ public class TestMatlabEngine {
 		assertEqual(exec("cidx = ([0 1 2])'; cidx;"), getVector(0,1,2));
 		assertEqual(exec("cidx = (0.0:1.0:m-1)'; cidx;", getMap("m",5.0)), getVector(0,1,2,3,4));
 		assertEqual(exec("cidx = (0:m-1)'; cidx", getMap("m",5)), getVector(0,1,2,3,4));
+		
+		assertEqual(exec("0:m", getMap("m",5.0)), getVector(0,1,2,3,4,5).transpose());
+		assertEqual(exec("0:m-1", getMap("m",5.0)), getVector(0,1,2,3,4).transpose());
+		assertEqual(exec("(0:m-1)'", getMap("m",5.0)), getVector(0,1,2,3,4));
+		assertEqual(exec("cidx = (0:m-1)';", getMap("m",5.0)), getVector(0,1,2,3,4));
 
 		assertEqual(exec("c>r && c>r", getMap("c",1,"r",2)), false);
 		assertEqual(exec("isnumeric(c) && isnumeric(r)", getMap("c",1,"r",2)), true);
