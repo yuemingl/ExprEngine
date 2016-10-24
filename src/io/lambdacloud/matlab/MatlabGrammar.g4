@@ -103,7 +103,7 @@ statement
  | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block (('end' WS* expr_end?)|EOF)   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
  | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* for_range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
- | WS* 'while' logical_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprWhile
+ | WS* 'while' arithmetic_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprWhile
  | WS* 'return' expression? expr_end? WS*   # ExprReturn
  | WS* 'switch' expression expr_end2 ((WS* 'case') case_expr_and_body)* ((WS* 'otherwise' WS* expr_end?) otherwise_body)? (WS* 'end' WS* expr_end?)   # ExprSwitch
  | ( WS* '\n' WS*)+   # NewLines
@@ -116,7 +116,7 @@ expression_with_expr_end
  : expression expr_end   # ExprWithExprEnd
  ;
 
-if_cond_and_body : logical_expr expr_end2 statement_block ;
+if_cond_and_body : arithmetic_expr expr_end2 statement_block ;
 else_body : statement_block ;
 
 case_expr_and_body : expression expr_end2 statement_block ;
@@ -124,9 +124,7 @@ otherwise_body : statement_block ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
- | string_expr           # ExprString
  | assign_expr           # ExprAssign1
- | logical_expr          # ExprLogical
  ;
 
 for_range_expr
@@ -135,19 +133,29 @@ for_range_expr
 ;
 
 arithmetic_expr
- : arithmetic_expr ('\''|DPRIME)                    # Transpose
+ : arithmetic_expr ('\''|DPRIME)                      # Transpose
  | WS* SUB arithmetic_expr                            # ArithmeticExpressionNegationEntity
+
  | arithmetic_expr (POW|DPOW) arithmetic_expr         # ArithmeticExpressionPow
  | arithmetic_expr mul_div_operator arithmetic_expr   # ArithmeticExpressionMulDiv
-// | arithmetic_expr '%' arithmetic_expr              # ArithmeticExpressionRem
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
+
+ | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange1
+
+ | arithmetic_expr comp_operator arithmetic_expr      # ComparisonArithmeticExpression
+ 
+ | arithmetic_expr AND arithmetic_expr                # LogicalExpressionAnd
+ | arithmetic_expr OR arithmetic_expr                 # LogicalExpressionOr
+ | WS* NOT arithmetic_expr                            # LogicalExpressionNot
  | arithmetic_expr bit_operator arithmetic_expr       # ArithmeticExpressionBit
+ 
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
  | array_init                                         # ExprArrayInit
  | cell_init                                          # ExprCellInit
  | numeric_entity                                     # ArithmeticExpressionEntity
+ | logical_entity                                     # LogicalExpressionEntity
+ | string_entity                                      # StringEntity
  | WS* 'nargin' WS* expr_end?                         # NArgIn
- | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange1
  ;
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
@@ -189,22 +197,6 @@ func_def_return : WS* (variable_entity|array_init) WS* ;
 
 /////////////////////////
 
-logical_expr
- : comparison_expr                      # ComparisonExpression
- | logical_expr AND logical_expr        # LogicalExpressionAnd
- | logical_expr OR logical_expr         # LogicalExpressionOr
- | logical_expr bit_operator logical_expr   # LogicalExpressionBit
- | WS* NOT logical_expr                 # LogicalExpressionNot
- | WS* LPAREN logical_expr RPAREN WS*   # LogicalExpressionInParen
- | logical_entity                       # LogicalExpressionEntity
- | WS* variable_entity WS*              # LogicalVariableEntity1
- ;
-
- comparison_expr 
- : arithmetic_expr comp_operator arithmetic_expr           # ComparisonArithmeticExpression
- | string_expr string_comp_operator string_expr            # ComparisonStringExpression
- ;
-
 string_comp_operator : EQ | NEQ | NEQ2 ;
 
 comp_operator : GT | GE | LT | LE | EQ | NEQ | NEQ2;
@@ -225,15 +217,10 @@ assign_expr
  ;
 
  /////////////////////////
- 
- string_expr
- : WS* string_entity WS* ADD WS* string_entity WS* # StringConcat
- | WS* string_entity WS*                           # StringEntity1
- ;
- 
+
  string_entity
- : StringLiteral              # StringConst
- | WS* variable_entity WS*    # StringVariable1
+ : WS* StringLiteral WS*       # StringConst
+ | WS* variable_entity WS*     # StringVariable1
  ;
 
 StringLiteral : (SQUOTE Characters? SQUOTE) | (DQUOTE Characters? DQUOTE);
