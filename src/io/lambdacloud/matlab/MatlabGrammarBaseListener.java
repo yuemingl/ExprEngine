@@ -66,6 +66,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTicToc(MatlabGrammarParser.TicTocContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -138,13 +150,25 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx) { }
+	@Override public void enterExprSwitch(MatlabGrammarParser.ExprSwitchContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx) { }
+	@Override public void exitExprSwitch(MatlabGrammarParser.ExprSwitchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNewLines(MatlabGrammarParser.NewLinesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNewLines(MatlabGrammarParser.NewLinesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -205,6 +229,30 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitElse_body(MatlabGrammarParser.Else_bodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCase_expr_and_body(MatlabGrammarParser.Case_expr_and_bodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCase_expr_and_body(MatlabGrammarParser.Case_expr_and_bodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOtherwise_body(MatlabGrammarParser.Otherwise_bodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOtherwise_body(MatlabGrammarParser.Otherwise_bodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -390,6 +438,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArithmeticExpressionBit(MatlabGrammarParser.ArithmeticExpressionBitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpressionBit(MatlabGrammarParser.ArithmeticExpressionBitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArithmeticExpressionAddSub(MatlabGrammarParser.ArithmeticExpressionAddSubContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -438,6 +498,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBit_operator(MatlabGrammarParser.Bit_operatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBit_operator(MatlabGrammarParser.Bit_operatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNumeric_entity(MatlabGrammarParser.Numeric_entityContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -481,6 +553,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSpecialFuncCall(MatlabGrammarParser.SpecialFuncCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSpecialFuncCall(MatlabGrammarParser.SpecialFuncCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -625,6 +709,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunc_def_return(MatlabGrammarParser.Func_def_returnContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -50,6 +50,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExpr_end2(MatlabGrammarParser.Expr_end2Context ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprWithExprEnd1}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprWithExprEnd1}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx);
+	/**
 	 * Enter a parse tree produced by the {@code TicToc}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
@@ -122,17 +134,29 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitExprReturn(MatlabGrammarParser.ExprReturnContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprWithExprEnd1}
+	 * Enter a parse tree produced by the {@code ExprSwitch}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx);
+	void enterExprSwitch(MatlabGrammarParser.ExprSwitchContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprWithExprEnd1}
+	 * Exit a parse tree produced by the {@code ExprSwitch}
 	 * labeled alternative in {@link MatlabGrammarParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprWithExprEnd1(MatlabGrammarParser.ExprWithExprEnd1Context ctx);
+	void exitExprSwitch(MatlabGrammarParser.ExprSwitchContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NewLines}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNewLines(MatlabGrammarParser.NewLinesContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NewLines}
+	 * labeled alternative in {@link MatlabGrammarParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNewLines(MatlabGrammarParser.NewLinesContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#tic}.
 	 * @param ctx the parse tree
@@ -185,6 +209,26 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitElse_body(MatlabGrammarParser.Else_bodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#case_expr_and_body}.
+	 * @param ctx the parse tree
+	 */
+	void enterCase_expr_and_body(MatlabGrammarParser.Case_expr_and_bodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#case_expr_and_body}.
+	 * @param ctx the parse tree
+	 */
+	void exitCase_expr_and_body(MatlabGrammarParser.Case_expr_and_bodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#otherwise_body}.
+	 * @param ctx the parse tree
+	 */
+	void enterOtherwise_body(MatlabGrammarParser.Otherwise_bodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#otherwise_body}.
+	 * @param ctx the parse tree
+	 */
+	void exitOtherwise_body(MatlabGrammarParser.Otherwise_bodyContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprArithmetic}
 	 * labeled alternative in {@link MatlabGrammarParser#expression}.
@@ -366,6 +410,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitNArgIn(MatlabGrammarParser.NArgInContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ArithmeticExpressionBit}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpressionBit(MatlabGrammarParser.ArithmeticExpressionBitContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ArithmeticExpressionBit}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpressionBit(MatlabGrammarParser.ArithmeticExpressionBitContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionAddSub}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -409,6 +465,16 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMul_div_operator(MatlabGrammarParser.Mul_div_operatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#bit_operator}.
+	 * @param ctx the parse tree
+	 */
+	void enterBit_operator(MatlabGrammarParser.Bit_operatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#bit_operator}.
+	 * @param ctx the parse tree
+	 */
+	void exitBit_operator(MatlabGrammarParser.Bit_operatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#numeric_entity}.
 	 * @param ctx the parse tree
@@ -455,6 +521,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SpecialFuncCall}
+	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
+	 * @param ctx the parse tree
+	 */
+	void enterSpecialFuncCall(MatlabGrammarParser.SpecialFuncCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SpecialFuncCall}
+	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
+	 * @param ctx the parse tree
+	 */
+	void exitSpecialFuncCall(MatlabGrammarParser.SpecialFuncCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code CellAccess}
 	 * labeled alternative in {@link MatlabGrammarParser#variable_entity}.
@@ -581,6 +659,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunc_def_return(MatlabGrammarParser.Func_def_returnContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LogicalExpressionBit}
+	 * labeled alternative in {@link MatlabGrammarParser#logical_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LogicalExpressionBit}
+	 * labeled alternative in {@link MatlabGrammarParser#logical_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitLogicalExpressionBit(MatlabGrammarParser.LogicalExpressionBitContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code LogicalExpressionNot}
 	 * labeled alternative in {@link MatlabGrammarParser#logical_expr}.
