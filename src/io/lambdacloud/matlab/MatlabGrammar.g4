@@ -60,6 +60,11 @@ RCB : '}' ;
 
 END : 'end' ;
 
+BAND : '&' ;
+BOR  : '|' ;
+BXOR : '^' ; //conflict with pow???
+BNOT : '~' ;
+
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
 INTEGER : [0-9]+'L'? ;
@@ -71,8 +76,8 @@ COLON : ':' ;
 SEMI : ';' ; //we can only have one lexical rule for ';'
 PERIOD : '.' ;
 
-SQUOTE : '\'' ;
-DQUOTE : '"' ; 
+SQUOTE : '`'  ; //SPIKE: use ` instead of ' in order to support matrix transpose
+DQUOTE : '"'   ;
 DPRIME : '.\'' ;
 
 // COMMENT and WS are stripped from the output token stream by sending
@@ -93,13 +98,15 @@ expr_end : (WS* SEMI ('\n'|WS)*) | ( WS* '\n' WS*)+;
 expr_end2 : (WS* SEMI ('\n'|WS)*) | (WS* COMMA ('\n'|WS)*) | ( WS* '\n' WS*)+;
 
 statement
- : WS* (tic | toc) WS* expr_end?   # TicToc
+ : expression_with_expr_end   # ExprWithExprEnd1
+ | WS* (tic | toc) WS* expr_end?   # TicToc
  | WS* 'function' (func_def_return ASSIGN)? func_name_args expr_end2 statement_block (('end' WS* expr_end?)|EOF)   # FuncDef
  | WS* 'if' if_cond_and_body ((WS* 'elseif') if_cond_and_body)* ((WS* 'else' WS* expr_end?) else_body)? (WS* 'end' WS* expr_end?)   # ExprIf
  | WS* 'for' WS* IDENTIFIER WS* (ASSIGN|'in') WS* for_range_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprFor
  | WS* 'while' logical_expr expr_end2 statement_block 'end' WS* expr_end?   # ExprWhile
  | WS* 'return' expression? expr_end? WS*   # ExprReturn
- | expression_with_expr_end   # ExprWithExprEnd1
+ | WS* 'switch' expression expr_end2 ((WS* 'case') case_expr_and_body)* ((WS* 'otherwise' WS* expr_end?) otherwise_body)? (WS* 'end' WS* expr_end?)   # ExprSwitch
+ | ( WS* '\n' WS*)+   # NewLines
  ;
 
 tic : 'tic' ;
@@ -111,6 +118,9 @@ expression_with_expr_end
 
 if_cond_and_body : logical_expr expr_end2 statement_block ;
 else_body : statement_block ;
+
+case_expr_and_body : expression expr_end2 statement_block ;
+otherwise_body : statement_block ;
 
 expression
  : arithmetic_expr       # ExprArithmetic
@@ -125,12 +135,13 @@ for_range_expr
 ;
 
 arithmetic_expr
- : arithmetic_expr (SQUOTE|DPRIME)                    # Transpose
+ : arithmetic_expr ('\''|DPRIME)                    # Transpose
  | WS* SUB arithmetic_expr                            # ArithmeticExpressionNegationEntity
  | arithmetic_expr (POW|DPOW) arithmetic_expr         # ArithmeticExpressionPow
  | arithmetic_expr mul_div_operator arithmetic_expr   # ArithmeticExpressionMulDiv
 // | arithmetic_expr '%' arithmetic_expr              # ArithmeticExpressionRem
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
+ | arithmetic_expr bit_operator arithmetic_expr       # ArithmeticExpressionBit
  | WS* LPAREN arithmetic_expr RPAREN WS*              # ArithmeticExpressionParens
  | array_init                                         # ExprArrayInit
  | cell_init                                          # ExprCellInit
@@ -141,6 +152,7 @@ arithmetic_expr
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
 mul_div_operator : SOL | DIV | DLDIV | DRDIV | MUL | DMUL ;
+bit_operator     : BAND | BOR | BXOR | BNOT ;
 
 numeric_entity 
  : WS* integer_entity WS*
@@ -158,11 +170,12 @@ variable_entity
  : IDENTIFIER (PERIOD IDENTIFIER)*   # EntityVariable
  | variable_entity WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # ArrayAccessOrFuncCall
  | variable_entity WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB       # CellAccess
+ | ('false'|'true'|'nargin') WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # SpecialFuncCall
  ;
 
-array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* )* ai_list WS* RBRK WS* ;
+array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* ('\n')* WS* )* ai_list WS* RBRK WS* ;
 cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
-ai_list : ( expression (COMMA|WS)+ )* expression? ;
+ai_list : ( expression (COMMA|WS|'\n')+ )* expression? ;
 
 //array access index
 aa_index : expression | COLON | func_handle | aa_range | END;
@@ -180,6 +193,7 @@ logical_expr
  : comparison_expr                      # ComparisonExpression
  | logical_expr AND logical_expr        # LogicalExpressionAnd
  | logical_expr OR logical_expr         # LogicalExpressionOr
+ | logical_expr bit_operator logical_expr   # LogicalExpressionBit
  | WS* NOT logical_expr                 # LogicalExpressionNot
  | WS* LPAREN logical_expr RPAREN WS*   # LogicalExpressionInParen
  | logical_entity                       # LogicalExpressionEntity
@@ -201,7 +215,8 @@ logical_entity  : ( (WS* TRUE WS*) | (WS* FALSE WS*) ) # EntityLogicalConst ;
 
 assign_expr
  : WS* variable_entity WS* ASSIGN expression       # ExprAssign
- | WS* LBRK WS* ( IDENTIFIER WS* (COMMA|WS+) WS* )* IDENTIFIER? WS* RBRK WS* ASSIGN expression # ExprMultiAssign
+// | WS* LBRK WS* ( IDENTIFIER WS* (COMMA|WS+) WS* )* IDENTIFIER? WS* RBRK WS* ASSIGN expression # ExprMultiAssign
+ | WS* LBRK WS* ( variable_entity WS* (COMMA|WS+) WS* )* variable_entity? WS* RBRK WS* ASSIGN expression # ExprMultiAssign
  | WS* variable_entity WS* MUL_ASSIGN expression   # ExprMulAssign
  | WS* variable_entity WS* DIV_ASSIGN expression   # ExprDivAssign
  | WS* variable_entity WS* REM_ASSIGN expression   # ExprRemAssign
@@ -221,20 +236,20 @@ assign_expr
  | WS* variable_entity WS*    # StringVariable1
  ;
 
-StringLiteral : (DQUOTE|SQUOTE) Characters? (DQUOTE|SQUOTE);
+StringLiteral : (SQUOTE Characters? SQUOTE) | (DQUOTE Characters? DQUOTE);
 
 fragment
 Characters : Character+ ;
 
 fragment
 Character
- : ~['"\\\n]
+ : ~[`"\\\n]
  | EscapeSeq
  ;
 
 fragment
 EscapeSeq
- : '\\' [btnfr"'\\]
+ : '\\' [btnfr"`\\]
  ;
 
 //////////////////////////////
