@@ -3,16 +3,27 @@ package io.lambdacloud.test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
 import io.lambdacloud.MatlabEngine;
 
 public class TestMatlabFiles {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		File folder = new File("./test_matlab/matlab/elmat");
-		File[] listOfFiles = folder.listFiles();
+		compile("./test_matlab/spdiags.m");
+		//compile("./test_matlab/matlab/elmat");
+	}
+	
+	/**
+	 * 
+	 * @param path folder or file
+	 */
+	public static void compile(String path) {
+		File folder = new File(path);
+		File[] listOfFiles = null;
+		if(folder.isDirectory())
+			listOfFiles = folder.listFiles();
+		else
+			listOfFiles = new File[] {folder};
 
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()) {
