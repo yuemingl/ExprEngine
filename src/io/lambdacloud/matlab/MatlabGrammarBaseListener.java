@@ -642,6 +642,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSpecial_name(MatlabGrammarParser.Special_nameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSpecial_name(MatlabGrammarParser.Special_nameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterArray_init(MatlabGrammarParser.Array_initContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -757,18 +769,6 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunc_def_return(MatlabGrammarParser.Func_def_returnContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterString_comp_operator(MatlabGrammarParser.String_comp_operatorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitString_comp_operator(MatlabGrammarParser.String_comp_operatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

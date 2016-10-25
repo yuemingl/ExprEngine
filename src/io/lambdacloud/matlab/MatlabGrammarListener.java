@@ -606,6 +606,16 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MatlabGrammarParser#special_name}.
+	 * @param ctx the parse tree
+	 */
+	void enterSpecial_name(MatlabGrammarParser.Special_nameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MatlabGrammarParser#special_name}.
+	 * @param ctx the parse tree
+	 */
+	void exitSpecial_name(MatlabGrammarParser.Special_nameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#array_init}.
 	 * @param ctx the parse tree
 	 */
@@ -707,16 +717,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunc_def_return(MatlabGrammarParser.Func_def_returnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link MatlabGrammarParser#string_comp_operator}.
-	 * @param ctx the parse tree
-	 */
-	void enterString_comp_operator(MatlabGrammarParser.String_comp_operatorContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MatlabGrammarParser#string_comp_operator}.
-	 * @param ctx the parse tree
-	 */
-	void exitString_comp_operator(MatlabGrammarParser.String_comp_operatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#comp_operator}.
 	 * @param ctx the parse tree
