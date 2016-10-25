@@ -59,6 +59,7 @@ LCB : '{' ;
 RCB : '}' ;
 
 END : 'end' ;
+NARGIN : 'nargin' ;
 
 BAND : '&' ;
 BOR  : '|' ;
@@ -178,8 +179,10 @@ variable_entity
  : IDENTIFIER (PERIOD IDENTIFIER)*   # EntityVariable
  | variable_entity WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # ArrayAccessOrFuncCall
  | variable_entity WS* LCB WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RCB       # CellAccess
- | ('false'|'true'|'nargin') WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # SpecialFuncCall
+ | WS* special_name WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # SpecialFuncCall
  ;
+
+special_name : FALSE | TRUE | NARGIN ;
 
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* ('\n')* WS* )* ai_list WS* RBRK WS* ;
 cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
@@ -196,8 +199,6 @@ func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS
 func_def_return : WS* (variable_entity|array_init) WS* ;
 
 /////////////////////////
-
-string_comp_operator : EQ | NEQ | NEQ2 ;
 
 comp_operator : GT | GE | LT | LE | EQ | NEQ | NEQ2;
 
