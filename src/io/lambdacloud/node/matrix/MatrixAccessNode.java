@@ -16,6 +16,7 @@ import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
 
 public class MatrixAccessNode extends ExprNode {
@@ -95,10 +96,16 @@ public class MatrixAccessNode extends ExprNode {
 				return;
 			} else {   //A(B) or A(5) or A(1:10) or A(1:2:10)
 				ExprNode idxS = this.indices.get(0).idxS;
-				if(idxS.getType().equals(Type.getType(Jama.Matrix.class))) { // A(B) or A(range)
+				if(idxS.getType().equals(Type.getType(Jama.Matrix.class))) { // Linear indexing: A(B) or A(range)
 					var.genCode(mg);
 					idxS.genCode(mg);
-					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
+					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+							"getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
+				} else if(idxS.getType().equals(Type.getType(LogicalArray.class))) { // Logical indexing
+						var.genCode(mg);
+						idxS.genCode(mg);
+						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+							"getMatrix", "(LJama/Matrix;"+Type.getType(LogicalArray.class)+")LJama/Matrix;", false);
 				} else if(idxS.getType().getSort() == Type.INT) {
 					var.genCode(mg);
 					idxS.genCode(mg);
