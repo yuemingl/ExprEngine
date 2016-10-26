@@ -218,6 +218,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			
 			Method[] ms = cls.getDeclaredMethods();
 			mapMethod.put(funcName, ms[0]);
+			m = ms[0];
 		}
 		return m.invoke(null, params);
 	}

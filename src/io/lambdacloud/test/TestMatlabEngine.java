@@ -37,25 +37,25 @@ import io.lambdacloud.util.Struct;
  * [A B;C] = D;
  * 
  * TODO
- *   Add operator +,-,*,/ support for Object type (in cell)
- *   Remove value form VariableNode (DONE)
  *   **bootstrap function for object arguments
  *   Finish test for assignment with comma-separated list on right hand side
  *   Multi-variable assignement test
- *   Fix confilict for math.sin(x) and math.sin Struct (DONE)
+ *   Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
+ *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
+ *  false() function
+ *  'end' in expression, e.g. A(end-1)
+
  *   Logical array support
  *   Logical indexing
  *      I = find(A < 9)
  *      A(B) uses logical indexing, whereas A(I) uses linear indexing
  *      A(2<A<9), since it evaluates to A(2<A | A<9).
  *      A(A>5)=100
- *  Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
- *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
- *  false() function
- *  'end' in expression, e.g. A(end-1)
  *  [varargout{1:max(nargout,1)}]=F(varargin{:})
  *  Implement switch grammar and code generation
- * 
+ *   Add operator +,-,*,/ support for Object type (in cell) (DONE)
+ *   Remove value form VariableNode (DONE)
+ *   Fix confilict for math.sin(x) and math.sin Struct (DONE) * 
  * 
  * @author yueming.liu
  *
@@ -81,7 +81,11 @@ public class TestMatlabEngine {
 	
 	public static void main(String[] args){
 		
-		
+//		exec("a={1,2}; a(1)");
+//		exec("function fun(a,b), a+b; end a={1,2}; fun(a{1},a{2})");
+		assertEqual(exec("function r=fib(n), if n<=1, r=1; else r=fib(n-1)+fib(n-2); end end a={4}; fib(a{1})"),5);
+
+	
 //		exec("[varargout{1:max(nargout,1)}]");
 //		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
 //		
@@ -102,32 +106,32 @@ public class TestMatlabEngine {
 //
 //		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
 //
-		testLogicalArray();
-		testSingleQuote();
-		testBitOperation();
-		testEnd();
-		testLineContinue();
-		testBuildinFunc2();
-		testCellArray();
-		testVariableNode();
-		testBasic();
-		testBasic2();
-		testBasic3();
-		testPrint();
-		testComment();
-		testEndIndex();
-		testNArgin();
-		testShaddowVariables();
-		testBuildinFunc();
-		testFunction();
-		testMatrixInit();
-		testMatrixAssign();
-		testMatrixAccess();
-		testOptionalParamters();
-		testMisc();
-		testString();
-		testCommaSeparatedList();
-		testCellObjectOperation();
+//		testLogicalArray();
+//		testSingleQuote();
+//		testBitOperation();
+//		testEnd();
+//		testLineContinue();
+//		testBuildinFunc2();
+//		testCellArray();
+//		testVariableNode();
+//		testBasic();
+//		testBasic2();
+//		testBasic3();
+//		testPrint();
+//		testComment();
+//		testEndIndex();
+//		testNArgin();
+//		testShaddowVariables();
+//		testBuildinFunc();
+//		testFunction();
+//		testMatrixInit();
+//		testMatrixAssign();
+//		testMatrixAccess();
+//		testOptionalParamters();
+//		testMisc();
+//		testString();
+//		testCommaSeparatedList();
+//		testCellObjectOperation();
 	}
 	public static void testCellObjectOperation() {
 		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");

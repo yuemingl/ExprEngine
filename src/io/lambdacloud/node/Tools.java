@@ -348,7 +348,7 @@ public class Tools {
 	public static Class<?>[] getParameterArray(Object[] params) {
 		Class<?>[] rlt = new Class<?>[params.length];
 		for(int i=0; i<params.length; i++) {
-			rlt[i] = params[i].getClass();
+			rlt[i] = Tools.getPrimitiveClass(params[i].getClass());
 		}
 		return rlt;
 	}
