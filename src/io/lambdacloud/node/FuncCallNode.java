@@ -109,7 +109,7 @@ public class FuncCallNode extends ExprNode {
 				}
 			}
 			
-			if(isAllObjectTypes) {
+			if(isAllObjectTypes && paramTypes.length > 0) {
 				mg.visitLdcInsn(this.methodName);
 				ArrayNode ary = new ArrayNode();
 				for (int i = args.size() - 1; i >= 0; i--) {
@@ -220,7 +220,7 @@ public class FuncCallNode extends ExprNode {
 				}
 			}
 			
-			if(isAllObjectTypes) {
+			if(isAllObjectTypes && paramTypes.length > 0) {
 				return Type.getType(Object.class);
 			}
 

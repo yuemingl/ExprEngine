@@ -106,32 +106,32 @@ public class TestMatlabEngine {
 //
 //		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
 //
-//		testLogicalArray();
-//		testSingleQuote();
-//		testBitOperation();
-//		testEnd();
-//		testLineContinue();
-//		testBuildinFunc2();
-//		testCellArray();
-//		testVariableNode();
-//		testBasic();
-//		testBasic2();
-//		testBasic3();
-//		testPrint();
-//		testComment();
-//		testEndIndex();
-//		testNArgin();
-//		testShaddowVariables();
-//		testBuildinFunc();
-//		testFunction();
-//		testMatrixInit();
-//		testMatrixAssign();
-//		testMatrixAccess();
-//		testOptionalParamters();
-//		testMisc();
-//		testString();
-//		testCommaSeparatedList();
-//		testCellObjectOperation();
+		testLogicalArray();
+		testSingleQuote();
+		testBitOperation();
+		testEnd();
+		testLineContinue();
+		testBuildinFunc2();
+		testCellArray();
+		testVariableNode();
+		testBasic();
+		testBasic2();
+		testBasic3();
+		testPrint();
+		testComment();
+		testEndIndex();
+		testNArgin();
+		testShaddowVariables();
+		testBuildinFunc();
+		testFunction();
+		testMatrixInit();
+		testMatrixAssign();
+		testMatrixAccess();
+		testOptionalParamters();
+		testMisc();
+		testString();
+		testCommaSeparatedList();
+		testCellObjectOperation();
 	}
 	public static void testCellObjectOperation() {
 		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");
