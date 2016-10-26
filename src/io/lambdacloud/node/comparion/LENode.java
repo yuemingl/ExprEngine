@@ -13,10 +13,12 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.BinaryOp;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
+import io.lambdacloud.util.LogicalArray;
 
 public class LENode extends BinaryOp {
 
@@ -33,63 +35,76 @@ public class LENode extends BinaryOp {
 	
 	@Override
 	public void genCode(MethodGenHelper mg) {
-		if(null == left.getType() || null == right.getType())
+		Type lType = left.getType();
+		Type rType = right.getType();
+		if(null == lType || null == rType)
 			return;
-		Type ty = Tools.typeConversion(left.getType(), right.getType());
-		left.genCode(mg);
-		Tools.insertConversionInsn(mg, left.getType(), ty);
-		right.genCode(mg);
-		Tools.insertConversionInsn(mg, right.getType(), ty);
-		if(ty.getSort() == Type.DOUBLE) {
-			mg.visitInsn(DCMPG);
-			Label l1 = new Label();
-			mg.visitJumpInsn(IFGT, l1);
-			mg.visitInsn(ICONST_1);
-			Label l2 = new Label();
-			mg.visitJumpInsn(GOTO, l2);
-			mg.visitLabel(l1);
-			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mg.visitInsn(ICONST_0);
-			mg.visitLabel(l2);
-			//mv.visitInsn(Opcodes.NOP);
-		} else if(ty.getSort() == Type.INT) {
-			Label l1 = new Label();
-			mg.visitJumpInsn(IF_ICMPGT, l1);
-			mg.visitInsn(ICONST_1);
-			Label l2 = new Label();
-			mg.visitJumpInsn(GOTO, l2);
-			mg.visitLabel(l1);
-			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mg.visitInsn(ICONST_0);
-			mg.visitLabel(l2);
-			//mv.visitInsn(Opcodes.NOP);
-		} else if(ty.getSort() == Type.LONG) {
-			mg.visitInsn(Opcodes.LCMP);
-			Label l1 = new Label();
-			mg.visitJumpInsn(IFGT, l1);
-			mg.visitInsn(ICONST_1);
-			Label l2 = new Label();
-			mg.visitJumpInsn(GOTO, l2);
-			mg.visitLabel(l1);
-			mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
-			mg.visitInsn(ICONST_0);
-			mg.visitLabel(l2);
+		
+		if(lType.equals(Type.getType(Jama.Matrix.class)) || rType.equals(Type.getType(Jama.Matrix.class))) {
+			left.genCode(mg);
+			right.genCode(mg);
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+					"LE", "("+lType.getDescriptor()+rType.getDescriptor()+")"+Type.getType(LogicalArray.class), false);
+		} else {
+			Type ty = Tools.typeConversion(lType, rType);
+			left.genCode(mg);
+			Tools.insertConversionInsn(mg, left.getType(), ty);
+			right.genCode(mg);
+			Tools.insertConversionInsn(mg, right.getType(), ty);
+			if(ty.getSort() == Type.DOUBLE) {
+				mg.visitInsn(DCMPG);
+				Label l1 = new Label();
+				mg.visitJumpInsn(IFGT, l1);
+				mg.visitInsn(ICONST_1);
+				Label l2 = new Label();
+				mg.visitJumpInsn(GOTO, l2);
+				mg.visitLabel(l1);
+				mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+				mg.visitInsn(ICONST_0);
+				mg.visitLabel(l2);
+			} else if(ty.getSort() == Type.INT) {
+				Label l1 = new Label();
+				mg.visitJumpInsn(IF_ICMPGT, l1);
+				mg.visitInsn(ICONST_1);
+				Label l2 = new Label();
+				mg.visitJumpInsn(GOTO, l2);
+				mg.visitLabel(l1);
+				mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+				mg.visitInsn(ICONST_0);
+				mg.visitLabel(l2);
+			} else if(ty.getSort() == Type.LONG) {
+				mg.visitInsn(Opcodes.LCMP);
+				Label l1 = new Label();
+				mg.visitJumpInsn(IFGT, l1);
+				mg.visitInsn(ICONST_1);
+				Label l2 = new Label();
+				mg.visitJumpInsn(GOTO, l2);
+				mg.visitLabel(l1);
+				mg.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+				mg.visitInsn(ICONST_0);
+				mg.visitLabel(l2);
+			}
+			else
+				throw new RuntimeException();
 		}
-		else
-			throw new RuntimeException();
 	}
 	
 	@Override
 	public Type getType() {
-		if(null == left.getType() || null == right.getType())
-			return null;
-		return Type.BOOLEAN_TYPE;
+		return getType(null);
 	}
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		if(null == left.getType() || null == right.getType())
+		Type lType = left.getType();
+		Type rType = right.getType();
+		if(null == lType || null == rType)
 			return null;
+		
+		if(lType.equals(Type.getType(Jama.Matrix.class)) || rType.equals(Type.getType(Jama.Matrix.class))) {
+			return Type.getType(LogicalArray.class);
+		}
+		
 		return Type.BOOLEAN_TYPE;
 	}
 	
