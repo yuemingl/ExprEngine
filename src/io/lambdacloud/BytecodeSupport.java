@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.lambdacloud.util.CSList;
+import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
 import io.lambdacloud.util.Struct;
 
@@ -45,6 +46,24 @@ public class BytecodeSupport {
 	
 	public static void println(CSList o) {
 		System.out.println(o.toString());
+	}
+	
+	public static LogicalArray println(LogicalArray o) {
+		if(null != o) {
+			int  m = o.getRowDimension();
+			int n = o.getColumnDimension();
+			System.out.println("[");
+			for(int i=0; i<m; i++) {
+				for(int j=0; j<n; j++) {
+					System.out.print( (((Boolean)o.data[i][j]).booleanValue()?1:0)+" ");
+				}
+				System.out.println();
+			}
+			System.out.println("]");
+		} else {
+			System.out.println("null (LogicalArray)");
+		}
+		return o;
 	}
 	
 	public static Object[] println(Object[] ary) {
@@ -452,6 +471,10 @@ public class BytecodeSupport {
 		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
 		return A.plus(r);
 	}
+	public static Jama.Matrix plus(double d, Jama.Matrix A) {
+		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
+		return A.plus(r);
+	}
 	public static Jama.Matrix minus(Jama.Matrix A, double d) {
 		Jama.Matrix r = new Jama.Matrix(A.getRowDimension(), A.getColumnDimension(), d);
 		return A.minus(r);
@@ -462,6 +485,15 @@ public class BytecodeSupport {
 	}
 	public static Jama.Matrix times(Jama.Matrix A, double d) {
 		return A.times(d);
+	}
+	public static Jama.Matrix times(double d, Jama.Matrix A) {
+		return A.times(d);
+	}
+	public static Object div(Jama.Matrix a, double b) {
+		return a.times(1.0/b);
+	}
+	public static Object div(double a, Jama.Matrix b) {
+		return b.inverse().times(a);
 	}
 	public static Jama.Matrix rem(Jama.Matrix A, Jama.Matrix B) {
 		double[][] r = new double[A.getRowDimension()][A.getColumnDimension()];
@@ -950,12 +982,62 @@ public class BytecodeSupport {
 	public static Object plus(Object a, Object b) {
 		if(a instanceof String && b instanceof String) {
 			return ((String)a)+((String)b);
-		} else if(a instanceof Double || b instanceof Double) {
+		} else if(a instanceof Number && b instanceof Number) {
 			return ((Number)a).doubleValue()+((Number)b).doubleValue();
-		}
-		return null;
- 	}
+			
+		} else if(a instanceof Jama.Matrix && b instanceof Jama.Matrix) {
+			return ((Jama.Matrix)a).plus((Jama.Matrix)b);
+		} else if(a instanceof Jama.Matrix && b instanceof Number) {
+			return plus((Jama.Matrix)a, ((Number)b).doubleValue());
+		} else if(a instanceof Number && b instanceof Jama.Matrix) {
+			return plus(((Number)a).doubleValue(),(Jama.Matrix)b);
+		
+		} else
+			return null;
+	}
+	public static Object minus(Object a, Object b) {
+		if(a instanceof Number && b instanceof Number) {
+			return ((Number)a).doubleValue()-((Number)b).doubleValue();
+			
+		} else if(a instanceof Jama.Matrix && b instanceof Jama.Matrix) {
+			return ((Jama.Matrix)a).minus((Jama.Matrix)b);
+		} else if(a instanceof Jama.Matrix && b instanceof Number) {
+			return minus((Jama.Matrix)a, ((Number)b).doubleValue());
+		} else if(a instanceof Number && b instanceof Jama.Matrix) {
+			return minus(((Number)a).doubleValue(),(Jama.Matrix)b);
+		
+		} else
+			return null;
+	}
+	public static Object times(Object a, Object b) {
+		if(a instanceof Number && b instanceof Number) {
+			return ((Number)a).doubleValue()*((Number)b).doubleValue();
+			
+		} else if(a instanceof Jama.Matrix && b instanceof Jama.Matrix) {
+			return ((Jama.Matrix)a).times((Jama.Matrix)b);
+		} else if(a instanceof Jama.Matrix && b instanceof Number) {
+			return times((Jama.Matrix)a, ((Number)b).doubleValue());
+		} else if(a instanceof Number && b instanceof Jama.Matrix) {
+			return times(((Number)a).doubleValue(),(Jama.Matrix)b);
+		
+		} else
+			return null;
+	}
 	
+	public static Object div(Object a, Object b) {
+		if(a instanceof Number && b instanceof Number) {
+			return ((Number)a).doubleValue()/((Number)b).doubleValue();
+		} else if(a instanceof Jama.Matrix && b instanceof Jama.Matrix) {
+			return ((Jama.Matrix)a).solve((Jama.Matrix)b);
+		} else if(a instanceof Jama.Matrix && b instanceof Number) {
+			return times((Jama.Matrix)a, 1.0/((Number)b).doubleValue());
+		} else if(a instanceof Number && b instanceof Jama.Matrix) {
+			return ((Jama.Matrix)b).inverse().times(((Number)a).doubleValue());
+		
+		} else
+			return null;
+	}
+		
 	public static Jama.Matrix inv(Jama.Matrix m) {
 		return m.inverse();
 	}
@@ -1006,5 +1088,261 @@ public class BytecodeSupport {
 		}
 		return new Jama.Matrix(data, data.length);
 	}
+	
+	public static Jama.Matrix false1(int n) {
+		return zeros(n);
+	}
+	public static Jama.Matrix false1(int m, int n) {
+		return zeros(m,n);
+	}
 
+	//----------------------------------------------
+	
+	public static LogicalArray GT(Jama.Matrix a, double b) {
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) > b);
+		return ret;
+	}
+	public static LogicalArray GT(Jama.Matrix a, long b) {
+		return GT(a, (double)b);
+	}
+	public static LogicalArray GT(Jama.Matrix a, int b) {
+		return GT(a, (double)b);
+	}
+	public static LogicalArray GT(double a, Jama.Matrix b) {
+		return LE(b, a);
+	}
+	public static LogicalArray GT(long a, Jama.Matrix b) {
+		return LE(b, a);
+	}
+	public static LogicalArray GT(int a, Jama.Matrix b) {
+		return LE(b, a);
+	}
+	
+	public static LogicalArray GT(Jama.Matrix a, Jama.Matrix b) {
+		if(a.getRowDimension() != b.getRowDimension())
+			throw new RuntimeException("Row dimension mismatch!");
+		if(a.getColumnDimension() != b.getColumnDimension())
+			throw new RuntimeException("Column dimension mismatch!");
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) > b.get(i, j));
+		return ret;
+	}
+	
+	
+	public static LogicalArray GE(Jama.Matrix a, Jama.Matrix b) {
+		if(a.getRowDimension() != b.getRowDimension())
+			throw new RuntimeException("Row dimension mismatch!");
+		if(a.getColumnDimension() != b.getColumnDimension())
+			throw new RuntimeException("Column dimension mismatch!");
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) >= b.get(i, j));
+		return ret;
+	}
+	public static LogicalArray GE(Jama.Matrix a, double b) {
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) >= b);
+		return ret;
+	}
+	public static LogicalArray GE(Jama.Matrix a, long b) {
+		return GE(a, (double)b);
+	}
+	public static LogicalArray GE(Jama.Matrix a, int b) {
+		return GE(a, (double)b);
+	}
+	public static LogicalArray GE(double a, Jama.Matrix b) {
+		return LT(b, a);
+	}
+	public static LogicalArray GE(long a, Jama.Matrix b) {
+		return LT(b, a);
+	}
+	public static LogicalArray GE(int a, Jama.Matrix b) {
+		return LT(b, a);
+	}
+	
+	public static LogicalArray LT(Jama.Matrix a, Jama.Matrix b) {
+		if(a.getRowDimension() != b.getRowDimension())
+			throw new RuntimeException("Row dimension mismatch!");
+		if(a.getColumnDimension() != b.getColumnDimension())
+			throw new RuntimeException("Column dimension mismatch!");
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) < b.get(i, j));
+		return ret;
+	}
+	public static LogicalArray LT(Jama.Matrix a, double b) {
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) < b);
+		return ret;
+	}
+	public static LogicalArray LT(Jama.Matrix a, long b) {
+		return LT(a, (double)b);
+	}
+	public static LogicalArray LT(Jama.Matrix a, int b) {
+		return LT(a, (double)b);
+	}
+	public static LogicalArray LT(double a, Jama.Matrix b) {
+		return GE(b, a);
+	}
+	public static LogicalArray LT(long a, Jama.Matrix b) {
+		return GE(b, a);
+	}
+	public static LogicalArray LT(int a, Jama.Matrix b) {
+		return GE(b, a);
+	}
+	
+	public static LogicalArray LE(Jama.Matrix a, Jama.Matrix b) {
+		if(a.getRowDimension() != b.getRowDimension())
+			throw new RuntimeException("Row dimension mismatch!");
+		if(a.getColumnDimension() != b.getColumnDimension())
+			throw new RuntimeException("Column dimension mismatch!");
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) <= b.get(i, j));
+		return ret;
+	}
+	public static LogicalArray LE(Jama.Matrix a, double b) {
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) <= b);
+		return ret;
+	}
+	public static LogicalArray LE(Jama.Matrix a, long b) {
+		return LE(a, (double)b);
+	}
+	public static LogicalArray LE(Jama.Matrix a, int b) {
+		return LE(a, (double)b);
+	}
+	public static LogicalArray LE(double a, Jama.Matrix b) {
+		return GT(b, a);
+	}
+	public static LogicalArray LE(long a, Jama.Matrix b) {
+		return GT(b, a);
+	}
+	public static LogicalArray LE(int a, Jama.Matrix b) {
+		return GT(b, a);
+	}
+	
+	public static LogicalArray EQ(Jama.Matrix a, Jama.Matrix b) {
+		if(a.getRowDimension() != b.getRowDimension())
+			throw new RuntimeException("Row dimension mismatch!");
+		if(a.getColumnDimension() != b.getColumnDimension())
+			throw new RuntimeException("Column dimension mismatch!");
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) == b.get(i, j));
+		return ret;
+	}
+	public static LogicalArray EQ(Jama.Matrix a, double b) {
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) == b);
+		return ret;
+	}
+	public static LogicalArray EQ(Jama.Matrix a, long b) {
+		return EQ(a, (double)b);
+	}
+	public static LogicalArray EQ(Jama.Matrix a, int b) {
+		return EQ(a, (double)b);
+	}
+	public static LogicalArray EQ(double a, Jama.Matrix b) {
+		return EQ(b, a);
+	}
+	public static LogicalArray EQ(long a, Jama.Matrix b) {
+		return EQ(b, (double)a);
+	}
+	public static LogicalArray EQ(int a, Jama.Matrix b) {
+		return EQ(b, (double)a);
+	}
+	
+	public static LogicalArray NEQ(Jama.Matrix a, Jama.Matrix b) {
+		if(a.getRowDimension() != b.getRowDimension())
+			throw new RuntimeException("Row dimension mismatch!");
+		if(a.getColumnDimension() != b.getColumnDimension())
+			throw new RuntimeException("Column dimension mismatch!");
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) != b.get(i, j));
+		return ret;
+	}
+	public static LogicalArray NEQ(Jama.Matrix a, double b) {
+		int m = a.getRowDimension();
+		int n = a.getColumnDimension();
+		LogicalArray ret = new LogicalArray(m, n);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ret.data[i][j] = new Boolean(a.get(i, j) != b);
+		return ret;
+	}
+	public static LogicalArray NEQ(Jama.Matrix a, long b) {
+		return NEQ(a, (double)b);
+	}
+	public static LogicalArray NEQ(Jama.Matrix a, int b) {
+		return NEQ(a, (double)b);
+	}
+	public static LogicalArray NEQ(double a, Jama.Matrix b) {
+		return NEQ(b, a);
+	}
+	public static LogicalArray NEQ(long a, Jama.Matrix b) {
+		return NEQ(b, (double)a);
+	}
+	public static LogicalArray NEQ(int a, Jama.Matrix b) {
+		return NEQ(b, (double)a);
+	}
+	//--------------------------
+	
+	
+	public static Jama.Matrix getMatrix(Jama.Matrix A, LogicalArray Idx) {
+		ArrayList<Double> ret = new ArrayList<Double>();
+		int m = A.getRowDimension();
+		int n = A.getColumnDimension();
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++) {
+				if(Idx.get(i,j).equals(true))
+					ret.add(A.get(i,j));
+			}
+		double[] data = new double[ret.size()];
+		for(int i=0; i<ret.size(); i++)
+			data[i] = ret.get(i);
+		return new Jama.Matrix(data, data.length);
+	}
+	
 }
