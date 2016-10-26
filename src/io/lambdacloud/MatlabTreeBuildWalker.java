@@ -53,8 +53,8 @@ import io.lambdacloud.node.comparion.GENode;
 import io.lambdacloud.node.comparion.GTNode;
 import io.lambdacloud.node.comparion.LENode;
 import io.lambdacloud.node.comparion.LTNode;
+import io.lambdacloud.node.comparion.NEQNode;
 import io.lambdacloud.node.logical.AndNode;
-import io.lambdacloud.node.logical.NEQNode;
 import io.lambdacloud.node.logical.NotNode;
 import io.lambdacloud.node.logical.OrNode;
 import io.lambdacloud.node.matrix.CellAccessNode;
@@ -614,7 +614,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //	}
 	
 	@Override public void exitCellAccess(MatlabGrammarParser.CellAccessContext ctx) { 
-		System.out.println("exitCellAccess: "+ctx.getText());
+		//System.out.println("exitCellAccess: "+ctx.getText());
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 		
 		//Pop all the indices from the stack and keep them in a list
@@ -1570,4 +1570,23 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //			throw new RuntimeException("Bad operator:"+op );
 //		
 //	}
+	
+	@Override public void exitSpecialFuncCall(MatlabGrammarParser.SpecialFuncCallContext ctx) { 
+		//System.out.println(ctx.getText());
+		String methodName = ctx.special_name().getText()+"1"; //Add "1" to special function name
+		String className = BytecodeSupport.class.getName();
+			
+		List<ExprNode> args = new ArrayList<ExprNode>();
+		for(int i=0; i<ctx.aa_index().size(); i++) {
+			ExprNode arg = currentScope().stack.pop();
+			if(arg instanceof AssignNode) {
+				arg.genLoadInsn(true);
+			}
+			args.add(arg);
+		}
+		FuncCallNode funcCall = new FuncCallNode(className, methodName, false);
+		funcCall.args = args;
+		currentScope().stack.push(funcCall);
+	}
+
 }
