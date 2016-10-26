@@ -1524,7 +1524,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	@Override public void exitCell_init(MatlabGrammarParser.Cell_initContext ctx) { 
-		System.out.println("exitCell_init"+ctx.getText());
+		//System.out.println("exitCell_init"+ctx.getText());
 		
 		if(null == ctx.ai_list()) {
 			//empty matrix

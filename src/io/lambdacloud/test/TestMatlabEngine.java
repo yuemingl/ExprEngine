@@ -14,6 +14,8 @@ import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MatlabEngine;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
+import io.lambdacloud.util.LogicalArray;
+import io.lambdacloud.util.ObjectArray;
 import io.lambdacloud.util.Struct;
 
 /**
@@ -35,18 +37,24 @@ import io.lambdacloud.util.Struct;
  * [A B;C] = D;
  * 
  * TODO
- *   object operation +,-,*,/
- *   remove value form VariableNode
+ *   Add operator +,-,*,/ support for Object type (in cell)
+ *   Remove value form VariableNode (DONE)
  *   **bootstrap function for object arguments
- *   finish test for assignment with comma-separated list on right hand side
- *   multi-variable assignement test
- *   fix confilict for math.sin(x) and math.sin Struct
- *   *fix all tests
- * 
- * logical array
- * false() function
- * 'end' in expression, e.g. A(end-1)
- * [varargout{1:max(nargout,1)}]=F(varargin{:})
+ *   Finish test for assignment with comma-separated list on right hand side
+ *   Multi-variable assignement test
+ *   Fix confilict for math.sin(x) and math.sin Struct (DONE)
+ *   Logical array support
+ *   Logical indexing
+ *      I = find(A < 9)
+ *      A(B) uses logical indexing, whereas A(I) uses linear indexing
+ *      A(2<A<9), since it evaluates to A(2<A | A<9).
+ *      A(A>5)=100
+ *  Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
+ *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
+ *  false() function
+ *  'end' in expression, e.g. A(end-1)
+ *  [varargout{1:max(nargout,1)}]=F(varargin{:})
+ *  Implement switch grammar and code generation
  * 
  * 
  * @author yueming.liu
@@ -70,7 +78,10 @@ public class TestMatlabEngine {
 			
 		}
 	}
+	
 	public static void main(String[] args){
+		
+		
 //		exec("[varargout{1:max(nargout,1)}]");
 //		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
 //		
@@ -80,9 +91,18 @@ public class TestMatlabEngine {
 		
 		//TODO delete: new StringConcatNode(v1,v2)
 		//operator precedence
+	
 
-		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
 
+//		exec("A=[1 2 3; 4 5 6]; B=[3 1 1; 6 3 3]; A>B");
+//		exec("A=[1 2 3; 4 5 6]; B=[3 1 1; 6 3 3]; A(A>B)");
+//
+		
+//		//assertEqual(exec("false(3)"),3.0);
+//
+//		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
+//
+		testLogicalArray();
 		testSingleQuote();
 		testBitOperation();
 		testEnd();
@@ -107,7 +127,110 @@ public class TestMatlabEngine {
 		testMisc();
 		testString();
 		testCommaSeparatedList();
+		testCellObjectOperation();
 	}
+	public static void testCellObjectOperation() {
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{2}+C{4}");
+		exec("C = {[1 2; 3 4], [10 20; 30 40]}; C{1,1}+C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,1}+C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,2}+C{1,1}");
+
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{2}-C{4}");
+		exec("C = {[1 2; 3 4], [10 20; 30 40]}; C{1,1}-C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,1}-C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,2}-C{1,1}");
+
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{2}*C{4}");
+		exec("C = {[1 2; 3 4], [10 20; 30 40]}; C{1,1}*C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,1}*C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,2}*C{1,1}");
+
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{2}/C{4}");
+		exec("C = {[1 2; 3 4], [10 20; 30 40]}; C{1,1}/C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,1}/C{1,2}");
+		exec("C = {[1 2; 3 4], 5}; C{1,2}/C{1,1}");
+}
+	public static void testLogicalArray() {
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A==3"), 
+				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A==3L"), 
+				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A==3.0"), 
+				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3==A"), 
+				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3L==A"), 
+				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0==A"), 
+				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
+	
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A!=3"), 
+				new LogicalArray(new Object[][]{{true, true, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A!=3L"), 
+				new LogicalArray(new Object[][]{{true, true, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A!=3.0"), 
+				new LogicalArray(new Object[][]{{true, true, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3!=A"), 
+				new LogicalArray(new Object[][]{{true, true, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3L!=A"), 
+				new LogicalArray(new Object[][]{{true, true, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0!=A"), 
+				new LogicalArray(new Object[][]{{true, true, false},{true, true, true}}));
+	
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A>3"), 
+				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A>3L"), 
+				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A>3.0"), 
+				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3>A"), 
+				new LogicalArray(new Object[][]{{true, true, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3L>A"), 
+				new LogicalArray(new Object[][]{{true, true, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0>A"), 
+				new LogicalArray(new Object[][]{{true, true, true},{false, false, false}}));
+	
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A<3"), 
+				new LogicalArray(new Object[][]{{true, true, false},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A<3L"), 
+				new LogicalArray(new Object[][]{{true, true, false},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A<3.0"), 
+				new LogicalArray(new Object[][]{{true, true, false},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3<A"), 
+				new LogicalArray(new Object[][]{{false, false, true},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3L<A"), 
+				new LogicalArray(new Object[][]{{false, false, true},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0<A"), 
+				new LogicalArray(new Object[][]{{false, false, true},{true, true, true}}));
+	
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A>=3"), 
+				new LogicalArray(new Object[][]{{false, false, true},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A>=3L"), 
+				new LogicalArray(new Object[][]{{false, false, true},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A>=3.0"), 
+				new LogicalArray(new Object[][]{{false, false, true},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3>=A"), 
+				new LogicalArray(new Object[][]{{true, true, false},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3L>=A"), 
+				new LogicalArray(new Object[][]{{true, true, false},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0>=A"), 
+				new LogicalArray(new Object[][]{{true, true, false},{false, false, false}}));
+	
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A<=3"), 
+				new LogicalArray(new Object[][]{{true, true, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A<=3L"), 
+				new LogicalArray(new Object[][]{{true, true, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; A<=3.0"), 
+				new LogicalArray(new Object[][]{{true, true, true},{false, false, false}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3<=A"), 
+				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3L<=A"), 
+				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0<=A"), 
+				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+	}
+	
 	public static void testSingleQuote() {
 		//String s = "a=[1 2 3 4]; b=a'''; b";
 		//String s = "a=[1 2 3 4]; 'bbb'";
@@ -1401,6 +1524,17 @@ public class TestMatlabEngine {
 				m2.print(8, 2);
 				throw new RuntimeException("Assert fail!");
 			}
+		} else if(o1 instanceof ObjectArray && o2 instanceof ObjectArray) {
+			ObjectArray m1 = (ObjectArray)o1;
+			ObjectArray m2 = (ObjectArray)o2;
+			int m = m1.data.length;
+			int n = m1.data[0].length;
+			for(int i=0; i<m; i++)
+				for(int j=0; j<n; j++)
+					if(!m1.data[i][j].equals(m2.data[i][j])) {
+						throw new RuntimeException("Assert fail!");
+					}
+			return;
 		}
 		if(!o1.equals(o2)) {
 			System.err.println(o1 + " != "+o2);
