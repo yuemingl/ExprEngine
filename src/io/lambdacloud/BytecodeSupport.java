@@ -1,8 +1,13 @@
 package io.lambdacloud;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
+import io.lambdacloud.node.FuncDefNode;
+import io.lambdacloud.node.Tools;
 import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
@@ -1089,11 +1094,54 @@ public class BytecodeSupport {
 		return new Jama.Matrix(data, data.length);
 	}
 	
-	public static Jama.Matrix false1(int n) {
-		return zeros(n);
+	public static LogicalArray false1(int n) {
+		LogicalArray ary = new LogicalArray(new Object[n][n]);
+		for(int i=0; i<n; i++)
+			for(int j=0; j<n; j++)
+				ary.data[i][j] = false;
+		return ary;
 	}
-	public static Jama.Matrix false1(int m, int n) {
-		return zeros(m,n);
+	public static LogicalArray false1(int m, int n) {
+		LogicalArray ary = new LogicalArray(new Object[m][n]);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ary.data[i][j] = false;
+		return ary;
+	}
+	public static LogicalArray true1(int n) {
+		LogicalArray ary = new LogicalArray(new Object[n][n]);
+		for(int i=0; i<n; i++)
+			for(int j=0; j<n; j++)
+				ary.data[i][j] = true;
+		return ary;
+	}
+	public static LogicalArray true1(int m, int n) {
+		LogicalArray ary = new LogicalArray(new Object[m][n]);
+		for(int i=0; i<m; i++)
+			for(int j=0; j<n; j++)
+				ary.data[i][j] = true;
+		return ary;
+	}
+	public static int nargin1(String funcName) {
+		String className = Tools.getClassName(funcName);
+		String methodName = Tools.getMethodName(funcName);
+		FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(methodName);
+		if(null == fnode) {
+			try {
+				if(null == className) className = BytecodeSupport.class.getName();
+				Class<?> c = Class.forName(className);
+				Method[] ms = c.getDeclaredMethods();
+				for(Method m : ms) {
+					if(methodName.equals(m.getName()))
+						return m.getParameterTypes().length;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			return fnode.paramNames.size();
+		}
+		return 0;
 	}
 
 	//----------------------------------------------
