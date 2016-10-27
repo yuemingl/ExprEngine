@@ -18,9 +18,7 @@ import io.lambdacloud.node.VariableNode;
 public class MethodGenHelper {
 	private MethodVisitor mv;
 	public Map<String, VariableNode> varMap;
-	private boolean isStatic = true;
 	private int idxLVTGen = 0;
-	
 	
 	public Stack<Label> labelForIncStackTag = new Stack<Label>();
 	public VariableNode retNodeTag;
@@ -86,7 +84,6 @@ public class MethodGenHelper {
 	}
 	
 	public void initLVTIndex(boolean isStatic) {
-		this.isStatic = isStatic;
 		if(isStatic) 
 			idxLVTGen = 0;
 		else 
