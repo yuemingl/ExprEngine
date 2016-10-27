@@ -334,12 +334,36 @@ public class Tools {
 		return c.getName().replaceAll("\\.", "/");
 	}
 	
+	/**
+	 * For example: getClassName("java.lang.Math.sin") returns
+	 * "java.lang.Math"
+	 * 
+	 * @param funcName
+	 * @return
+	 */
+	public static String getClassName(String funcName) {
+		String[] s = funcName.split("\\.");
+		if(s.length <= 1) return null;
+		else
+			return join(s, 0, s.length-1, ".");
+	}
+	public static String getMethodName(String funcName) {
+		String[] s = funcName.split("\\.");
+		if(s.length <= 1) return funcName;
+		else
+			return s[s.length-1];
+	}
+	
 	public static String join(String[] list, String sep) {
+		return join(list, 0, list.length, sep);
+	}
+	
+	public static String join(String[] list, int s, int e, String sep) {
 		if(null == list || list.length == 0)
 			return "";
 		StringBuilder sb = new StringBuilder();
-		for(String s : list) {
-			sb.append(s).append(sep);
+		for(int i=s; i<e; i++) {
+			sb.append(list[i]).append(sep);
 		}
 		sb.delete(sb.length()-sep.length(), sb.length());
 		return sb.toString();
