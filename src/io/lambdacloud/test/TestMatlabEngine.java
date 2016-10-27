@@ -37,7 +37,8 @@ import io.lambdacloud.util.Struct;
  * [A B;C] = D;
  * 
  * TODO
- *   **bootstrap function for object arguments
+ *   CSList as function arguments
+ *   Bootstrap function for object arguments
  *   Finish test for assignment with comma-separated list on right hand side
  *   Multi-variable assignement test
  *   Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
@@ -55,7 +56,8 @@ import io.lambdacloud.util.Struct;
  *  Implement switch grammar and code generation
  *   Add operator +,-,*,/ support for Object type (in cell) (DONE)
  *   Remove value form VariableNode (DONE)
- *   Fix confilict for math.sin(x) and math.sin Struct (DONE) * 
+ *   Fix conflict for math.sin(x) and math.sin Struct (DONE) * 
+ *   
  * 
  * @author yueming.liu
  *
@@ -83,7 +85,13 @@ public class TestMatlabEngine {
 		
 //		exec("a={1,2}; a(1)");
 //		exec("function fun(a,b), a+b; end a={1,2}; fun(a{1},a{2})");
-		assertEqual(exec("function r=fib(n), if n<=1, r=1; else r=fib(n-1)+fib(n-2); end end a={4}; fib(a{1})"),5);
+//		assertEqual(exec("function r=fib(n), if n<=1, r=1; else r=fib(n-1)+fib(n-2); end end a={4}; fib(a{1})"),5);
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}");
+		
+		//  public static void fun(io.lambdacloud.util.CSList);
+		exec("function fun(a,b), a+b; end a={1,2}; fun(a{:})");
+		exec("math.max(1,2)");
+		exec("a={1,2}; java.lang.Math.max(a{:})");
 
 	
 //		exec("[varargout{1:max(nargout,1)}]");

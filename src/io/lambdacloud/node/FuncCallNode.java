@@ -17,6 +17,7 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.ExprTreeBuildWalker;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.array.ArrayNode;
+import io.lambdacloud.util.CSList;
 
 public class FuncCallNode extends ExprNode {
 	String fullClassName;
@@ -99,48 +100,50 @@ public class FuncCallNode extends ExprNode {
 				this.isDynamicCall = false;
 		}
 		
-		if (isDynamicCall) { //ExprTreeBuildWalker.funcMap must contain the key this.methodName
-			Type[] paramTypes = this.getParameterTypes();
-			boolean isAllObjectTypes = true;
-			for(int i=0; i<paramTypes.length; i++) {
-				if(!paramTypes[i].equals(Type.getType(Object.class))) {
-					isAllObjectTypes = false;
-					break;
-				}
+		Type[] paramTypes = this.getParameterTypes();
+		boolean isAllObjectTypes = true;
+		for(int i=0; i<paramTypes.length; i++) {
+			if(!paramTypes[i].equals(Type.getType(Object.class))) {
+				isAllObjectTypes = false;
+				break;
 			}
+		}
+		if(paramTypes.length > 0 && paramTypes[0].equals(Type.getType(CSList.class)))
+			isAllObjectTypes = true;
+		
+		if(isAllObjectTypes && paramTypes.length > 0 && !this.getMethodName().equals("println")) {
+			mg.visitLdcInsn(this.fullClassName+"."+this.methodName);
+			ArrayNode ary = new ArrayNode();
+			for (int i = args.size() - 1; i >= 0; i--) {
+				ary.init.add(args.get(i));
+			}
+			ary.genCode(mg);
+			MethodType mt = MethodType.methodType(Object.class, String.class, Object[].class);
+			mg.visitMethodInsn(INVOKESTATIC, Type.getType(ExprTreeBuildWalker.class).getInternalName(), 
+					"bootstrap",
+					//Type.getMethodDescriptor(Type.getType(Object.class), paramTypes);
+					mt.toMethodDescriptorString(), false);
+			return;
+		}
+		
+		if (isDynamicCall) { //ExprTreeBuildWalker.funcMap must contain the key this.methodName
+			MethodType mt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class,
+					MethodType.class);
 			
-			if(isAllObjectTypes && paramTypes.length > 0) {
-				mg.visitLdcInsn(this.methodName);
-				ArrayNode ary = new ArrayNode();
-				for (int i = args.size() - 1; i >= 0; i--) {
-					ary.init.add(args.get(i));
-				}
-				ary.genCode(mg);
-				MethodType mt = MethodType.methodType(Object.class, String.class, Object[].class);
-				mg.visitMethodInsn(INVOKESTATIC, Type.getType(ExprTreeBuildWalker.class).getInternalName(), 
-						"bootstrap",
-						//Type.getMethodDescriptor(Type.getType(Object.class), paramTypes);
-						mt.toMethodDescriptorString(), false);
-				
-			} else {
-				MethodType mt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class,
-						MethodType.class);
-				
-				Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, 
-						Type.getType(ExprTreeBuildWalker.class).getInternalName(), //"io/lambdacloud/ExprTreeBuildWalker"
-						"bootstrap", mt.toMethodDescriptorString());
-				for (int i = args.size() - 1; i >= 0; i--) {
-					args.get(i).genCode(mg);
-				}
-				Type retType = this.getType();
-				mg.visitInvokeDynamicInsn(this.methodName,
-						Type.getMethodDescriptor(retType, paramTypes), bootstrapHandle, new Object[0]);
-				if(retType.getSort() != Type.VOID && this.isPopReturn) {
-					if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
-						mg.visitInsn(Opcodes.POP2);
-					else
-						mg.visitInsn(Opcodes.POP);
-				}
+			Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, 
+					Type.getType(ExprTreeBuildWalker.class).getInternalName(), //"io/lambdacloud/ExprTreeBuildWalker"
+					"bootstrap", mt.toMethodDescriptorString());
+			for (int i = args.size() - 1; i >= 0; i--) {
+				args.get(i).genCode(mg);
+			}
+			Type retType = this.getType();
+			mg.visitInvokeDynamicInsn(this.methodName,
+					Type.getMethodDescriptor(retType, paramTypes), bootstrapHandle, new Object[0]);
+			if(retType.getSort() != Type.VOID && this.isPopReturn) {
+				if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
+					mg.visitInsn(Opcodes.POP2);
+				else
+					mg.visitInsn(Opcodes.POP);
 			}
 		} else { // 
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
@@ -210,23 +213,20 @@ public class FuncCallNode extends ExprNode {
 //			return ret;
 //		}
 		
-		if (isDynamicCall) {
-			Type[] paramTypes = this.getParameterTypes();
-			boolean isAllObjectTypes = true;
-			for(int i=0; i<paramTypes.length; i++) {
-				if(!paramTypes[i].equals(Type.getType(Object.class))) {
-					isAllObjectTypes = false;
-					break;
-				}
+		Type[] paramTypes = this.getParameterTypes();
+		boolean isAllObjectTypes = true;
+		for(int i=0; i<paramTypes.length; i++) {
+			if(!paramTypes[i].equals(Type.getType(Object.class))) {
+				isAllObjectTypes = false;
+				break;
 			}
-			
-			if(isAllObjectTypes && paramTypes.length > 0) {
-				return Type.getType(Object.class);
-			}
+		}
+		//The return value of bootstrap is Object
+		if(paramTypes.length > 0 && (isAllObjectTypes || paramTypes[0].equals(Type.getType(CSList.class))) && !this.getMethodName().equals("println"))
+			return Type.getType(Object.class);
 
-				
+		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
-			
 			//We need specify parameter types before inferring return type
 			fnode.setParamTypes(stack, paramTypes);
 			Type retType = fnode.inferRetType(stack);

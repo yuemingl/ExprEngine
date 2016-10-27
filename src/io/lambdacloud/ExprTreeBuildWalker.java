@@ -1,5 +1,7 @@
 package io.lambdacloud;
 
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+
 import java.io.FileOutputStream;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
@@ -133,6 +135,7 @@ import io.lambdacloud.node.matrix.SolveNode;
 import io.lambdacloud.node.string.StringCompareNode;
 import io.lambdacloud.node.string.StringConcatNode;
 import io.lambdacloud.node.string.StringNode;
+import io.lambdacloud.util.CSList;
 
 public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	public static boolean DEBUG = false;
@@ -205,21 +208,36 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	 */
 	static Map<String, Method> mapMethod = new HashMap<String, Method>();
 	public static Object bootstrap(String funcName, Object[] params) throws Exception {
-		Method m = mapMethod.get(funcName);
-		if(null == m) {
-			FuncDefNode fnode = funcMap.get(funcName);
-			
-			Deque<Object> stack = new LinkedList<Object>();
-			fnode.setParamTypes(stack, Tools.getParameterArray(params));
-			
-			if(DEBUG)
-				System.out.println("my bootstrap: "+fnode.getFuncClassName()+"."+funcName);
-			Class<?> cls = fnode.genFuncCode(true);
-			
-			Method[] ms = cls.getDeclaredMethods();
-			mapMethod.put(funcName, ms[0]);
-			m = ms[0];
+		String className = Tools.getClassName(funcName);
+		String methodName = Tools.getMethodName(funcName);
+		Method m = mapMethod.get(methodName);
+		if(params.length > 0 && params[0] instanceof CSList) {
+			CSList argList = (CSList)params[0];
+			params = argList.getData(); //!!!
 		}
+		if(null == m) {
+			FuncDefNode fnode = funcMap.get(methodName);
+			if(null == fnode) {
+				try {
+					if(null == className) className = BytecodeSupport.class.getName();
+					Class<?> c = Class.forName(className);
+					m = c.getMethod(methodName, Tools.getParameterArray(params));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				Deque<Object> stack = new LinkedList<Object>();
+				fnode.setParamTypes(stack, Tools.getParameterArray(params));
+				if(DEBUG)
+					System.out.println("my bootstrap: "+fnode.getFuncClassName()+"."+funcName);
+				Class<?> cls = fnode.genFuncCode(true);
+				
+				Method[] ms = cls.getDeclaredMethods();
+				mapMethod.put(funcName, ms[0]);
+				m = ms[0];
+			}
+		}
+		
 		return m.invoke(null, params);
 	}
 
