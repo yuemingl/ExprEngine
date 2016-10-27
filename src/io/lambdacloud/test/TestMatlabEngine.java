@@ -37,26 +37,28 @@ import io.lambdacloud.util.Struct;
  * [A B;C] = D;
  * 
  * TODO
- *   CSList as function arguments
- *   Bootstrap function for object arguments
  *   Finish test for assignment with comma-separated list on right hand side
  *   Multi-variable assignement test
  *   Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
  *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
- *  false() function
  *  'end' in expression, e.g. A(end-1)
-
+ *   ***[varargout{1:max(nargout,1)}]=F(varargin{:})
+ *
+ *  DONE:
  *   Logical array support
  *   Logical indexing
  *      I = find(A < 9)
  *      A(B) uses logical indexing, whereas A(I) uses linear indexing
  *      A(2<A<9), since it evaluates to A(2<A | A<9).
  *      A(A>5)=100
- *  [varargout{1:max(nargout,1)}]=F(varargin{:})
- *  Implement switch grammar and code generation
+ *  
+ *   Implement 'switch case' grammar and code generation
  *   Add operator +,-,*,/ support for Object type (in cell) (DONE)
  *   Remove value form VariableNode (DONE)
  *   Fix conflict for math.sin(x) and math.sin Struct (DONE) * 
+ *   CSList as function arguments
+ *   Bootstrap function for object arguments
+ *   Special functions, likeL false(), true(), nvararg
  *   
  * 
  * @author yueming.liu
@@ -82,18 +84,6 @@ public class TestMatlabEngine {
 	}
 	
 	public static void main(String[] args){
-		
-//		exec("a={1,2}; a(1)");
-//		exec("function fun(a,b), a+b; end a={1,2}; fun(a{1},a{2})");
-//		assertEqual(exec("function r=fib(n), if n<=1, r=1; else r=fib(n-1)+fib(n-2); end end a={4}; fib(a{1})"),5);
-		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}");
-		
-		//  public static void fun(io.lambdacloud.util.CSList);
-		exec("function fun(a,b), a+b; end a={1,2}; fun(a{:})");
-		exec("math.max(1,2)");
-		exec("a={1,2}; java.lang.Math.max(a{:})");
-
-	
 //		exec("[varargout{1:max(nargout,1)}]");
 //		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
 //		
@@ -103,28 +93,15 @@ public class TestMatlabEngine {
 		
 		//TODO delete: new StringConcatNode(v1,v2)
 		//operator precedence
-	
 
-
-//		exec("A=[1 2 3; 4 5 6]; B=[3 1 1; 6 3 3]; A>B");
-//		exec("A=[1 2 3; 4 5 6]; B=[3 1 1; 6 3 3]; A(A>B)");
-//
-		
-//		//assertEqual(exec("false(3)"),3.0);
-//
-//		assertEqual(exec("A=[1 2  3; 4 5 6]; [m n]=size(A); m\n n\n"),3.0);
-//
-		testLogicalArray();
-		testSingleQuote();
-		testBitOperation();
+		testBasic();
+		testBasic2();
+		testBasic3();
 		testEnd();
 		testLineContinue();
 		testBuildinFunc2();
 		testCellArray();
 		testVariableNode();
-		testBasic();
-		testBasic2();
-		testBasic3();
 		testPrint();
 		testComment();
 		testEndIndex();
@@ -140,6 +117,29 @@ public class TestMatlabEngine {
 		testString();
 		testCommaSeparatedList();
 		testCellObjectOperation();
+		testSpecialFunctions();
+		testObjectArgumentFunctionCalls();
+		testLogicalArray();
+		testSingleQuote();
+		testBitOperation();
+	}
+	
+	public static void testObjectArgumentFunctionCalls() {
+		//Test object aruguments function calls
+		exec("a={1,2}; a(1)");
+		exec("function fun(a,b), a+b; end a={1,2}; fun(a{1},a{2})");
+		assertEqual(exec("function r=fib(n), if n<=1, r=1; else r=fib(n-1)+fib(n-2); end end a={4}; fib(a{1})"),5);
+		exec("function fun(a,b), a+b; end a={1,2}; fun(a{:})");
+		exec("math.max(1,2)");
+		exec("a={1,2}; java.lang.Math.max(a{:})");
+		
+	}
+	public static void testSpecialFunctions() {
+		//Test special functions
+		assertEqual(exec("true(3)"),new LogicalArray(new Object[][]{{true, true, true},{true, true, true},{true, true, true}}));
+		assertEqual(exec("false(3)"),new LogicalArray(new Object[][]{{false, false, false},{false, false, false},{false, false, false}}));
+		exec("function fun(a,b), a+b; end nargin('fun')");
+		
 	}
 	public static void testCellObjectOperation() {
 		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C{1}+C{1,2}");
@@ -162,7 +162,8 @@ public class TestMatlabEngine {
 		exec("C = {[1 2; 3 4], [10 20; 30 40]}; C{1,1}/C{1,2}");
 		exec("C = {[1 2; 3 4], 5}; C{1,1}/C{1,2}");
 		exec("C = {[1 2; 3 4], 5}; C{1,2}/C{1,1}");
-}
+	}
+	
 	public static void testLogicalArray() {
 		assertEqual(exec("A=[1 2 3; 4 5 6]; A==3"), 
 				new LogicalArray(new Object[][]{{false, false, true},{false, false, false}}));
@@ -241,6 +242,11 @@ public class TestMatlabEngine {
 				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
 		assertEqual(exec("A=[1 2 3; 4 5 6]; 3.0<=A"), 
 				new LogicalArray(new Object[][]{{false, false, false},{true, true, true}}));
+		
+		assertEqual(exec("A=[1 2 3; 4 5 6]; B=[3 1 1; 6 3 3]; A>B"), 
+				new LogicalArray(new Object[][]{{false, true, true},{false, true, true}}));
+		assertEqual(exec("A=[1 2 3; 4 5 6]; B=[3 1 1; 6 3 3]; A(A>B)"), getVector(2,3,5,6));
+
 	}
 	
 	public static void testSingleQuote() {
