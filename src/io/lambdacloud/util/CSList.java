@@ -25,4 +25,8 @@ public class CSList {
 			sb.append(data[data.length-1]);
 		return sb.toString();
 	}
+	
+	public Object[] getData() {
+		return this.data;
+	}
 }
