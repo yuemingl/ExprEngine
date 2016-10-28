@@ -20,7 +20,11 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
+import io.lambdacloud.matlab.MatlabGrammarParser.Case_expr_and_bodyContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.Expr_endContext;
+import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
+import io.lambdacloud.matlab.MatlabGrammarParser.StatementContext;
+import io.lambdacloud.matlab.MatlabGrammarParser.Statement_blockContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
@@ -31,6 +35,8 @@ import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.NArgInNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.ReturnNode;
+import io.lambdacloud.node.StatementNode;
+import io.lambdacloud.node.SwitchNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.WhileNode;
@@ -1585,6 +1591,47 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		FuncCallNode funcCall = new FuncCallNode(className, methodName, false);
 		funcCall.args = args;
 		currentScope().stack.push(funcCall);
+	}
+
+	@Override public void exitExprSwitch(MatlabGrammarParser.ExprSwitchContext ctx) { 
+		SwitchNode sn = new SwitchNode();
+		//System.out.println(this.currentScope().stack.toString());
+		
+		//otherwise body
+		if(null != ctx.otherwise_body()) {
+			StatementNode defaultBlock = new StatementNode();
+			if(null != ctx.otherwise_body().statement_block() && null != ctx.otherwise_body().statement_block().expression()) {
+				defaultBlock.exprs.add(this.currentScope().stack.pop());
+			}
+			List<StatementContext> stmtList = ctx.otherwise_body().statement_block().statement();
+			for(int j=stmtList.size()-1; j>=0; j--) {
+				defaultBlock.exprs.add(this.currentScope().stack.pop());
+			}
+			sn.defaultBlock = defaultBlock;
+		}
+
+		//cases
+		List<Case_expr_and_bodyContext> caseExprBodyList = ctx.case_expr_and_body();
+		for(int i=caseExprBodyList.size()-1; i>=0; i--) {
+			Case_expr_and_bodyContext caseExprBody = caseExprBodyList.get(i);
+			StatementNode caseBody = new StatementNode();
+			if(null != caseExprBody.statement_block() && null != caseExprBody.statement_block().expression()) {
+				caseBody.exprs.add(this.currentScope().stack.pop());
+			}
+			List<StatementContext> stmtList = caseExprBody.statement_block().statement();
+			for(int j=stmtList.size()-1; j>=0; j--) {
+				caseBody.exprs.add(this.currentScope().stack.pop());
+			}
+			sn.caseBlock.add(caseBody);
+			
+			sn.caseExprs.add(this.currentScope().stack.pop());
+			
+		}
+		
+		//switch
+		sn.switchExpr = this.currentScope().stack.pop();
+		
+		this.currentScope().stack.push(sn);
 	}
 
 }

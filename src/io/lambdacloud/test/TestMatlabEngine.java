@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import Jama.Matrix;
@@ -17,6 +19,7 @@ import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
 import io.lambdacloud.util.Struct;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * The type of an optional function parameter is set to null. All the null type of function parameters
@@ -51,7 +54,9 @@ import io.lambdacloud.util.Struct;
  *      A(B) uses logical indexing, whereas A(I) uses linear indexing
  *      A(2<A<9), since it evaluates to A(2<A | A<9).
  *      A(A>5)=100
- *  
+ *   **try catch end
+ *   **classdef
+ *   
  *   Implement 'switch case' grammar and code generation
  *   Add operator +,-,*,/ support for Object type (in cell) (DONE)
  *   Remove value form VariableNode (DONE)
@@ -83,6 +88,8 @@ public class TestMatlabEngine {
 		}
 	}
 	
+
+	
 	public static void main(String[] args){
 //		exec("[varargout{1:max(nargout,1)}]");
 //		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
@@ -93,6 +100,18 @@ public class TestMatlabEngine {
 		
 		//TODO delete: new StringConcatNode(v1,v2)
 		//operator precedence
+
+//		exec("a='abc'; switch a\n case 'aaa'\n 100\n case 'bbb'\n 200\n case 'abc'\n 300\n otherwise\n 500\n end");
+//
+//		exec("a=1; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
+//		exec("a=2; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
+//		exec("a=3; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
+		
+		assertEqual(exec("a=1; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),100);
+		assertEqual(exec("a=2; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),200);
+		assertEqual(exec("a=3; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),500);
+		
+		assertEqual(exec("a='abc'; b=0; switch a\n case 'aaa'\n b=100\n case 'bbb'\n b=200\n case 'abc'\n b=300\n otherwise\n b=500\n end b"), 300);
 
 		testBasic();
 		testBasic2();
