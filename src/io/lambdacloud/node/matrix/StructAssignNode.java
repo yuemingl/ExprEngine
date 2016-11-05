@@ -34,7 +34,7 @@ public class StructAssignNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		// TODO Auto-generated method stub
 		var.genCode(mg);
 		if(var.getType() != null) {

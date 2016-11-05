@@ -11,7 +11,7 @@ public class StatementNode extends ExprNode {
 	public ArrayList<ExprNode> exprs = new ArrayList<ExprNode>();
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		for(int i=exprs.size()-1; i>=0; i--) {
 			exprs.get(i).genCode(mg);
 		}

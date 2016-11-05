@@ -1,5 +1,6 @@
 package io.lambdacloud.node;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -8,13 +9,26 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 
 public abstract class ExprNode {
-	boolean freezeType = false;
+	boolean freezeType = false; //no use?
 	// protected Type type;
-	protected Object tag;
+	protected Object tag; //no use?
 	protected boolean genLoadInsn = false;
 
-	public abstract void genCode(MethodGenHelper mg);
+	protected ArrayList<ExprNode> beforeExprs = new ArrayList<ExprNode>();
+	protected ArrayList<ExprNode> afterExprs = new ArrayList<ExprNode>();
 
+	public abstract void _genCode(MethodGenHelper mg);
+
+	public void genCode(MethodGenHelper mg) {
+		for(int i=0; i<beforeExprs.size(); i++) {
+			beforeExprs.get(i)._genCode(mg);
+		}
+		_genCode(mg);
+		for(int i=0; i<afterExprs.size(); i++) {
+			afterExprs.get(i)._genCode(mg);
+		}
+	}
+	
 	public Type getType() {
 		Deque<Object> stack = new LinkedList<Object>();
 		return getType(stack);
@@ -63,5 +77,28 @@ public abstract class ExprNode {
 //	}
 
 	public abstract void updateType(Deque<Object> stack);
+	
+	
+	//////////////////Tree transformation functions////////////////
+	
+	/**
+	 * Check if target exists in the current expression
+	 * by comparing java object reference
+	 * 
+	 * @param target
+	 * @return
+	 */
+	public abstract boolean contains(ExprNode target);
+	
+	
+	//public abstract void replaceChild(ExprNode oldNode, ExprNode newNode);
+	
+	public void insertBefore(ExprNode node) {
+		this.beforeExprs.add(0, node);
+	}
+	
+	public void insertAfter(ExprNode node) {
+		this.afterExprs.add(node);
+	}
 
 }

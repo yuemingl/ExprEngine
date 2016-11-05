@@ -19,7 +19,7 @@ public class StringConcatNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(left instanceof StringNode && right instanceof StringNode) {
 			StringNode node = new StringNode(((StringNode)left).strVal+((StringNode)right).strVal);
 			node.genCode(mg);

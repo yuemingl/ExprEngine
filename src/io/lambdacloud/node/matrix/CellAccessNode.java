@@ -75,7 +75,7 @@ public class CellAccessNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException("");
 		}

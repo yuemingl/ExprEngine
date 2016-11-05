@@ -21,7 +21,7 @@ public class StringCompareNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if("==".equals(opcode)) {
 			left.genCode(mg);
 			right.genCode(mg);

@@ -24,7 +24,7 @@ public class SwitchNode extends ExprNode {
 	
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		
 		VariableNode svar = mg.newLocalVariable("switch_value", this.switchExpr.getType());
 		Type svarType = svar.getType();

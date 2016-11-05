@@ -22,7 +22,7 @@ public class IfNode extends ExprNode {
 	public List<ExprNode> elseBlockExprs = new ArrayList<ExprNode>();
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		this.condition.genCode(mg);
 		//if(...){...} else{...}
 		if(this.elseBlockExprs.size() > 0) {

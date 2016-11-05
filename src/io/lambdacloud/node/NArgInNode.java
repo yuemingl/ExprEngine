@@ -14,7 +14,7 @@ public class NArgInNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type[] ty = refFunc.getParameterTypes(false);
 		mg.visitLdcInsn(ty.length);
 	}

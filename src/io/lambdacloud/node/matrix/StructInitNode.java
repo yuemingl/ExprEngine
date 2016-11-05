@@ -20,7 +20,7 @@ import io.lambdacloud.util.Struct;
 public class StructInitNode extends ExprNode {
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 			mg.visitTypeInsn(Opcodes.NEW, Tools.getClassNameForASM(Struct.class));
 			mg.visitInsn(DUP);
 			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, Tools.getClassNameForASM(Struct.class), "<init>", "()V", false);

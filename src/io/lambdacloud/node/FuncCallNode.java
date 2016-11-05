@@ -89,7 +89,7 @@ public class FuncCallNode extends ExprNode {
 		return ret;
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 
 		if(null != this.refFuncDefNode) {
 			String sFuncCall = Type.getMethodDescriptor(this.getType(), this.getParameterTypes());

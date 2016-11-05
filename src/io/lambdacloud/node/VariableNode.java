@@ -146,7 +146,7 @@ public class VariableNode extends ExprNode {
 			return this.name + ":null_" + loc + this.mapTypeLVTIdx.toString();
 	}
 	
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type ty = this.getType();
 		if(ty != null) {
 			mg.visitIntInsn(ty.getOpcode(Opcodes.ILOAD), this.getLVTIndex());

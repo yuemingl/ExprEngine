@@ -11,7 +11,7 @@ public class BinaryOp extends ExprNode {
 	public ExprNode right;
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		throw new UnsupportedOperationException();
 	}
 

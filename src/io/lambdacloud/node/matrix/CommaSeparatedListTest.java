@@ -39,7 +39,7 @@ public class CommaSeparatedListTest extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		IndexPair ip = indices.get(0);
 		RangeNode r = (RangeNode)ip.idxS;
 		

@@ -33,7 +33,7 @@ public class ArrayNode extends ExprNode {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		mg.visitLdcInsn(init.size());
 
 		Type eleType = init.get(0).getType();

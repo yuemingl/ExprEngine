@@ -15,7 +15,7 @@ public class NArgOutNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(refFunc.retExpr instanceof MatrixInitNode) {
 			MatrixInitNode node = (MatrixInitNode)refFunc.retExpr;
 			mg.visitLdcInsn(node.initExprList.size());

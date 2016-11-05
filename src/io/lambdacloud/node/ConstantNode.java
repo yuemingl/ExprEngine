@@ -59,7 +59,7 @@ public class ConstantNode extends ExprNode {
 		this.type = type;
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(type.getSort() == Type.DOUBLE) {
 			mg.visitLdcInsn(getDouble());
 		} else if(type.getSort() == Type.INT) {

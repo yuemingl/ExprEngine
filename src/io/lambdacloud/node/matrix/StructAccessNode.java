@@ -31,7 +31,7 @@ public class StructAccessNode extends ExprNode {
 	public List<String> fields = new ArrayList<String>();
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		// TODO Auto-generated method stub
 		var.genCode(mg);
 		if(var.getType() != null) {

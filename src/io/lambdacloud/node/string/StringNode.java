@@ -15,7 +15,7 @@ public class StringNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		mg.visitLdcInsn(strVal);
 	}
 	

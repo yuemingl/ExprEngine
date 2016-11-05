@@ -72,7 +72,7 @@ public class CellInitNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 
 		if(initExprList.size() == 0) {
 			mg.visitTypeInsn(Opcodes.NEW, Tools.getClassNameForASM(ObjectArray.class));

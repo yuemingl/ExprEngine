@@ -23,7 +23,7 @@ public class ForNode extends ExprNode {
 	public List<ExprNode> block = new ArrayList<ExprNode>();
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		for(int i=init.size()-1; i>=0; i--) {
 			init.get(i).genCode(mg);
 		}

@@ -35,7 +35,7 @@ public class RangeNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		String type2 = "(III)[I"; //start:end
 		String type3 = "(IIII)[I"; //start:step:end
 		

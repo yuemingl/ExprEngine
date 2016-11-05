@@ -18,7 +18,7 @@ public class ArrayAccess extends ExprNode {
 		
 	}
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		array.genCode(mg);
 		index.genCode(mg);
 		mg.visitInsn(getType().getOpcode(Opcodes.IALOAD));

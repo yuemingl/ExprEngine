@@ -326,7 +326,7 @@ public class FuncDefNode extends ExprNode {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		throw new UnsupportedOperationException("Call genFuncCode() instead!");
 	}
 

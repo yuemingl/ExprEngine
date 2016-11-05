@@ -19,7 +19,7 @@ public class WhileNode extends ExprNode {
 	public List<ExprNode> block = new ArrayList<ExprNode>();
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Label labelCondition = new Label();
 		mg.visitJumpInsn(Opcodes.GOTO, labelCondition);
 		

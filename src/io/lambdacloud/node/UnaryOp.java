@@ -10,7 +10,7 @@ public class UnaryOp extends ExprNode {
 	public ExprNode expr;
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		throw new UnsupportedOperationException();
 	}
 	

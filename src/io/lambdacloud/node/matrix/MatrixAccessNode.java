@@ -69,7 +69,7 @@ public class MatrixAccessNode extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(cellAccessNode == null) {
 			if(var.getType().equals(Type.getType(ObjectArray.class))) {
 				cellAccessNode = this.toCellAccessNode();

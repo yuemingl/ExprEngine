@@ -41,7 +41,7 @@ public class MatrixAssignNode extends ExprNode {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(cellAssignNode == null) {
 			if(var.getType().equals(Type.getType(ObjectArray.class))) {
 				cellAssignNode = this.toCellAssignNode();

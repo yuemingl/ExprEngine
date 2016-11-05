@@ -16,7 +16,7 @@ public class ArrayLength extends ExprNode {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		array.genCode(mg);
 		mg.visitInsn(Opcodes.ARRAYLENGTH);
 	}

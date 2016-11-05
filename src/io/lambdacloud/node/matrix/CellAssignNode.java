@@ -39,7 +39,7 @@ public class CellAssignNode extends ExprNode {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		
 		String ObjAryDesc = Type.getType(ObjectArray.class).getDescriptor();
 		String ObjDesc = Type.getType(Object.class).getDescriptor();
