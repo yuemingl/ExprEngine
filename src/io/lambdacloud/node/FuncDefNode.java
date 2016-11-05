@@ -362,4 +362,15 @@ public class FuncDefNode extends ExprNode {
 	public static void test(int a, int b) {
 		Jama.Matrix m = null;
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.body) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
+	}
 }

@@ -194,4 +194,21 @@ public class RangeNode extends ExprNode {
 	public void setAsReturnArray() {
 		this.returnMatrix = false;
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(null != this.start) {
+			if(this.start.contains(target))
+				return true;
+		}
+		if(null != this.step) {
+			if(this.step.contains(target))
+				return true;
+		}
+		if(null != this.end) {
+			if(this.end.contains(target))
+				return true;
+		}
+		return false;
+	}
 }

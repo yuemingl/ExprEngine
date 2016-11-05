@@ -304,4 +304,10 @@ mv.visitLocalVariable("arg", "Ljava/util/List;", "Ljava/util/List<Ljava/lang/Int
 		}
 		stack.pop();
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

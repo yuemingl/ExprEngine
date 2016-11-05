@@ -68,4 +68,12 @@ public class StringConcatNode extends ExprNode {
 		stack.pop();
 	}
 
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target) 
+			return true;
+		if(this.left.contains(target) || this.right.contains(target))
+			return true;
+		return false;
+	}
 }

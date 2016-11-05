@@ -69,4 +69,13 @@ public class StringCompareNode extends ExprNode {
 		right.updateType(stack);
 		stack.pop();
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target) 
+			return true;
+		if(this.left.contains(target) || this.right.contains(target))
+			return true;
+		return false;
+	}
 }

@@ -26,6 +26,12 @@ public class NArgInNode extends ExprNode {
 
 	@Override
 	public void updateType(Deque<Object> stack) {
+		refFunc.updateType(stack);
+	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		return this == target;
 	}
 
 }

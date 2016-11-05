@@ -34,4 +34,13 @@ public class ArrayLength extends ExprNode {
 		int[] a = null;
 		int b= a.length;
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(this.array.contains(target))
+			return true;
+		return false;
+	}
 }

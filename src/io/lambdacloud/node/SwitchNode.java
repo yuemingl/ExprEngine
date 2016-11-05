@@ -126,4 +126,23 @@ public class SwitchNode extends ExprNode {
 		
 	}
 
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(this.switchExpr.contains(target))
+			return true;
+		for(ExprNode e : this.caseExprs) {
+			if(e.contains(target))
+				return true;
+		}
+		for(ExprNode e: this.caseBlock) {
+			if(e.contains(target))
+				return true;
+		}
+		if(null !=  this.defaultBlock && this.defaultBlock.contains(target))
+			return true;
+		return false;
+	}
+
 }

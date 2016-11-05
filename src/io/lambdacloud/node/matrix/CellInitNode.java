@@ -166,4 +166,17 @@ public class CellInitNode extends ExprNode {
 		}
 		stack.pop();
 	}
+	
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.initExprList) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
+	}
+	
 }

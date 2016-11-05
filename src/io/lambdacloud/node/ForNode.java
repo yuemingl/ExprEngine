@@ -156,6 +156,29 @@ mv.visitInsn(IRETURN);
 		
 		stack.pop();
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.init) {
+			if(e.contains(target))
+				return true;
+		}
+		if(this.cond.contains(target))
+			return true;
+		
+		for(ExprNode e : this.inc) {
+			if(e.contains(target))
+				return true;
+		}
+		
+		for(ExprNode e : this.block) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
+	}
 }
 
 

@@ -41,4 +41,9 @@ public class StringNode extends ExprNode {
 	@Override
 	public void updateType(Deque<Object> stack) {
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		return this == target;
+	}
 }

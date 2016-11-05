@@ -32,4 +32,15 @@ public class StatementNode extends ExprNode {
 			exprs.get(i).updateType(stack);
 		}
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.exprs) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
+	}
 }

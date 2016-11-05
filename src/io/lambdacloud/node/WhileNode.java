@@ -114,5 +114,17 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 		condition.updateType(stack);
 		stack.pop();
 	}
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(this.condition.contains(target))
+			return true;
+		for(ExprNode e : this.block) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
+	}
 }
 

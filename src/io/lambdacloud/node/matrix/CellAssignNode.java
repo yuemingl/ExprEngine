@@ -263,4 +263,22 @@ public class CellAssignNode extends ExprNode {
 	@Override
 	public void updateType(Deque<Object> stack) {
 	}
+	
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(var.contains(target))
+			return true;
+		for(IndexPair ip : this.indices) {
+			if( (null != ip.idxS && ip.idxS.contains(target)) ||
+				(null != ip.idxE && ip.idxE.contains(target)))
+				return true;
+		}
+		if(this.value.contains(target))
+			return true;
+		return false;
+	}
+	
 }

@@ -178,6 +178,8 @@ public class MatrixInitNode extends ExprNode {
 	@Override
 	public Type getType(Deque<Object> stack) {
 		Type eleType = getElementType();
+		if(null == eleType) return null;
+		
 		if (eleType.getSort() == Type.OBJECT || eleType.getSort() == Type.ARRAY) {
 			if(flag == 0)
 				return Type.getType(Jama.Matrix.class);
@@ -208,5 +210,16 @@ public class MatrixInitNode extends ExprNode {
 	}
 	public void returnAsMatrix() {
 		this.flag = 0;
+	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.initExprList) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
 	}
 }

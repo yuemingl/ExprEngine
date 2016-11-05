@@ -14,6 +14,7 @@ import io.lambdacloud.node.arithmetric.DivAsignNode;
 import io.lambdacloud.node.arithmetric.MulAsignNode;
 import io.lambdacloud.node.arithmetric.SubAsignNode;
 import io.lambdacloud.node.matrix.MatrixAssignNode;
+import io.lambdacloud.node.tool.SimpleAssign;
 
 public class IfNode extends ExprNode {
 	public ExprNode condition;
@@ -43,7 +44,8 @@ public class IfNode extends ExprNode {
 						node instanceof FuncDefNode ||
 						node instanceof MatrixAssignNode ||
 						node instanceof ReturnNode ||
-						node instanceof ForNode
+						node instanceof ForNode ||
+						node instanceof SimpleAssign
 					)) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
@@ -72,7 +74,8 @@ public class IfNode extends ExprNode {
 						node instanceof FuncDefNode ||
 						node instanceof MatrixAssignNode ||
 						node instanceof ReturnNode ||
-						node instanceof ForNode
+						node instanceof ForNode ||
+						node instanceof SimpleAssign
 						)) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
@@ -105,7 +108,8 @@ public class IfNode extends ExprNode {
 						node instanceof FuncDefNode ||
 						node instanceof MatrixAssignNode ||
 						node instanceof ReturnNode ||
-						node instanceof ForNode
+						node instanceof ForNode ||
+						node instanceof SimpleAssign
 						) {
 					if(node instanceof FuncCallNode)
 						((FuncCallNode)node).isPopReturn = true;
@@ -216,5 +220,21 @@ mv.visitInsn(IRETURN);
 			}
 		}
 		stack.pop();
+	}
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target) 
+			return true;
+		else {
+			if(this.condition.contains(target))
+				return true;
+			for(ExprNode e : this.ifBlockExprs)
+				if(e.contains(target))
+					return true;
+			for(ExprNode e: this.elseBlockExprs)
+				if(e.contains(target))
+					return true;
+		}
+		return false;
 	}
 }

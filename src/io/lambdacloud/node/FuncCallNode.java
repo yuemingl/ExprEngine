@@ -283,4 +283,14 @@ public class FuncCallNode extends ExprNode {
 		}
 		stack.pop();
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.args)
+			if(e.contains(target))
+				return true;
+		return false;
+	}
 }

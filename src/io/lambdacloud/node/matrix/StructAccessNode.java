@@ -70,4 +70,15 @@ public class StructAccessNode extends ExprNode {
 	@Override
 	public void updateType(Deque<Object> stack) {
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(this.var.contains(target))
+			return true;
+		return false;
+	}
+	
+	
 }

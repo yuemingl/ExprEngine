@@ -36,4 +36,12 @@ public class UnaryOp extends ExprNode {
 		expr.updateType(stack);
 		stack.pop();
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		else
+			return this.expr.contains(target);
+	}
 }

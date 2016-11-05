@@ -38,4 +38,13 @@ public class ArrayAccess extends ExprNode {
 		return a[5];
 	}
 
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target) 
+			return true;
+		if(this.array.contains(target) || this.index.contains(target))
+			return true;
+		return false;
+	}
+
 }

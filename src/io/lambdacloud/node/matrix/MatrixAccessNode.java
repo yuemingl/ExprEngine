@@ -280,4 +280,19 @@ public class MatrixAccessNode extends ExprNode {
 		n.indices = this.indices;
 		return n;
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(var.contains(target))
+			return true;
+		for(IndexPair ip : this.indices) {
+			if( (null != ip.idxS && ip.idxS.contains(target)) ||
+				(null != ip.idxE && ip.idxE.contains(target)))
+				return true;
+		}
+		return false;
+	}
+	
 }

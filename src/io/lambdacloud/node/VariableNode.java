@@ -215,4 +215,10 @@ public class VariableNode extends ExprNode {
 	private void setActiveType(Type ty) {
 		this.activeType = ty;
 	}
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		return false;
+	}
 }

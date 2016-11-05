@@ -186,7 +186,7 @@ public class MatrixAssignNode extends ExprNode {
 			}
 		}
 		this.value.genCode(mg);
-		if(this.value.getType().getDescriptor().equals(Type.getType(Jama.Matrix.class).getDescriptor())) {
+		if(this.value.getType().equals(Type.getType(Jama.Matrix.class))) {
 			if(type == 0x0)
 				mg.visitMethodInsn(INVOKEVIRTUAL, "Jama/Matrix", "setMatrix", "(IIIILJama/Matrix;)V", false);
 			else if(type == 0x1)
@@ -234,5 +234,23 @@ public class MatrixAssignNode extends ExprNode {
 		CellAssignNode n = new CellAssignNode(this.var, this.value);
 		n.indices = this.indices;
 		return n;
-	}	
+	}
+	
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		if(var.contains(target))
+			return true;
+		for(IndexPair ip : this.indices) {
+			if( (null != ip.idxS && ip.idxS.contains(target)) ||
+				(null != ip.idxE && ip.idxE.contains(target)))
+				return true;
+		}
+		if(this.value.contains(target))
+			return true;
+		return false;
+	}
+	
 }

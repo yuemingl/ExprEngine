@@ -89,4 +89,15 @@ public class ArrayNode extends ExprNode {
 		}
 		stack.pop();
 	}
+
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		for(ExprNode e : this.init) {
+			if(e.contains(target))
+				return true;
+		}
+		return false;
+	}
 }

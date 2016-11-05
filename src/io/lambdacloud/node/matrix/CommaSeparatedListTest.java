@@ -101,4 +101,10 @@ public class CommaSeparatedListTest extends ExprNode {
 		}
 	}
 
+	@Override
+	public boolean contains(ExprNode target) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

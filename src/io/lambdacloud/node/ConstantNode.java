@@ -76,5 +76,10 @@ public class ConstantNode extends ExprNode {
 	@Override
 	public void updateType(Deque<Object> stack) {
 	}
-
+	@Override
+	public boolean contains(ExprNode target) {
+		if(this == target)
+			return true;
+		return false;
+	}
 }
