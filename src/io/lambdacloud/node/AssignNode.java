@@ -4,11 +4,14 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedList;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.node.comparion.EQNode;
+import io.lambdacloud.node.tool.SimpleAssign;
 import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
 
@@ -35,44 +38,74 @@ public class AssignNode extends BinaryOp {
 	}
 
 	public void genCode(MethodGenHelper mg) {
-		VariableNode var = (VariableNode)left;
-		
 		Type myType = this.getType();
 		if(null == myType) return;
-				
-		//move this after mg.updateLVTIndex() to handle the case like sum=0; for cond, sum=sum+0.1 end;
-		//that is to say, update the type of var first then generate code for RHS
-		//right.genCode(mg);
-		
-		/**
-		 *  No need to insert type conversion since the type of var should be the same as the type of right
-		 *  We are 'over writing' the type of left. We need call setType of left to indicate 
-		 *  that left has the type from right
-		 *  for example: "a=1; a=a+1.1;"
-		 *   
-		 */
-		//Tools.insertConversionInsn(mg, right.getType(), left.getType());
-		////var.setType(myType); //don't change the type of var, use var.getLVTIndex(myType.getDescriptor()) instead
-		var.setType(myType); //we still need to change this since a variable could be assigned to many types
-		mg.updateLVTIndex();
-		right.genCode(mg);
-		if(multiAssignVars.size() > 0) {
-		} else {
-			if(isCSList) {
-				mg.visitLdcInsn(0);
-				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(CSList.class), 
-						"get", "(I)"+Type.getType(Object.class), false);
+
+		VariableNode var = (VariableNode)left;
+
+		if(right.contains(left)) {
+			VariableNode flag = mg.newLocalVariable(var.getName()+"_flag_", Type.INT_TYPE);
+			mg.updateLVTIndex();
+			SimpleAssign flag0 = new SimpleAssign(flag, new ConstantNode(0));
+			flag0.genCode(mg);
+			
+			IfNode ifnode = new IfNode();
+			ifnode.condition = new EQNode(flag, new ConstantNode(0));
+			ifnode.ifBlockExprs.add(new SimpleAssign(flag, new ConstantNode(1)));
+			ifnode.ifBlockExprs.add(new SimpleAssign(var, right));
+			if(Tools.canTypeConversion(var.getType(), myType)) { 
+				ifnode.elseBlockExprs.add(new SimpleAssign(var, right, myType));
 			}
+			ifnode.genCode(mg);
+		} else {
+			right.genCode(mg);
+			
+			var.setType(myType);
+			mg.updateLVTIndex();
+			
+			if (right instanceof AssignNode) {
+				AssignNode r = (AssignNode) right;
+				mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), ((VariableNode)(r.left)).getLVTIndex(myType.getDescriptor()));
+			}
+			mg.visitIntInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
 		}
 		
-		//Load right node in case of a=b=c;
-		if (right instanceof AssignNode) {
-			AssignNode r = (AssignNode) right;
-			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), ((VariableNode)(r.left)).getLVTIndex(myType.getDescriptor()));
-		}
-		mg.visitIntInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
-		
-		//Update shadow variables
+//		//move this after mg.updateLVTIndex() to handle the case like sum=0; for cond, sum=sum+0.1 end;
+//		//that is to say, update the type of var first then generate code for RHS
+//		//right.genCode(mg);
+//		
+//		/**
+//		 *  No need to insert type conversion since the type of var should be the same as the type of right
+//		 *  We are 'over writing' the type of left. We need call setType of left to indicate 
+//		 *  that left has the type from right
+//		 *  for example: "a=1; a=a+1.1;"
+//		 *   
+//		 */
+//		//Tools.insertConversionInsn(mg, right.getType(), left.getType());
+//		////var.setType(myType); //don't change the type of var, use var.getLVTIndex(myType.getDescriptor()) instead
+//		var.setType(myType); //we still need to change this since a variable could be assigned to many types
+//		mg.updateLVTIndex();
+//
+//		//Update the type of var first then generate code for RHS
+//		right.genCode(mg);
+//
+//		if(multiAssignVars.size() > 0) {
+//		} else {
+//			if(isCSList) {
+//				mg.visitLdcInsn(0);
+//				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(CSList.class), 
+//						"get", "(I)"+Type.getType(Object.class), false);
+//			}
+//		}
+//		
+//		//Load right node in case of a=b=c;
+//		if (right instanceof AssignNode) {
+//			AssignNode r = (AssignNode) right;
+//			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), ((VariableNode)(r.left)).getLVTIndex(myType.getDescriptor()));
+//		}
+//		mg.visitIntInsn(myType.getOpcode(Opcodes.ISTORE), var.getLVTIndex(myType.getDescriptor()));
+//		
+		//Update shadow variables for initialize purpose
 		ArrayList<String> allTypes = var.getVarTypes();
 		if(allTypes.size() > 1) {
 			for(String type : allTypes) {
@@ -91,7 +124,6 @@ public class AssignNode extends BinaryOp {
 							mg.visitInsn(Opcodes.ICONST_0);
 							Tools.insertConversionInsn(mg, Type.INT_TYPE, ty);
 							mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(type));
-							
 						}
 					}
 				}
