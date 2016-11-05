@@ -34,4 +34,8 @@ public class NArgInNode extends ExprNode {
 		return this == target;
 	}
 
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+	}
+
 }

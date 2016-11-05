@@ -39,4 +39,8 @@ public class StructInitNode extends ExprNode {
 	public boolean contains(ExprNode target) {
 		return this == target;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+	}
 }

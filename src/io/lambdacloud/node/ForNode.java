@@ -179,6 +179,25 @@ mv.visitInsn(IRETURN);
 		}
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		for(int i=0; i<this.init.size(); i++) {
+			if(this.init.get(i) == oldNode)
+				this.init.set(i, newNode);
+		}
+		for(int i=0; i<this.inc.size(); i++) {
+			if(this.inc.get(i) == oldNode)
+				this.inc.set(i, newNode);
+		}
+		for(int i=0; i<this.block.size(); i++) {
+			if(this.block.get(i) == oldNode)
+				this.block.set(i, newNode);
+		}
+		this.cond.replaceChild(oldNode, newNode);
+		if(this.cond == oldNode)
+			this.cond = newNode;
+	}
 }
 
 

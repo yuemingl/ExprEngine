@@ -211,4 +211,15 @@ public class RangeNode extends ExprNode {
 		}
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.start == oldNode)
+			this.start = newNode;
+		if(this.step == oldNode)
+			this.step = newNode;
+		if(this.end == oldNode)
+			this.end = newNode;
+		
+	}
 }

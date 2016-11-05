@@ -43,4 +43,12 @@ public class StatementNode extends ExprNode {
 		}
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		for(int i=0; i<this.exprs.size(); i++) {
+			if(this.exprs.get(i) == oldNode)
+				this.exprs.set(i, newNode);
+		}
+	}
 }

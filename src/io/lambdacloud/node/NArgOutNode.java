@@ -39,4 +39,8 @@ public class NArgOutNode extends ExprNode {
 		return this == target;
 	}
 
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+	}
+
 }

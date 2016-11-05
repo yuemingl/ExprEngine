@@ -44,4 +44,12 @@ public class UnaryOp extends ExprNode {
 		else
 			return this.expr.contains(target);
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.expr == oldNode) {
+			this.expr = newNode;
+		}
+		this.expr.replaceChild(oldNode, newNode);
+	}
 }

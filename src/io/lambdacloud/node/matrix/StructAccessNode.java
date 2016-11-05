@@ -79,6 +79,10 @@ public class StructAccessNode extends ExprNode {
 			return true;
 		return false;
 	}
-	
-	
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.var == oldNode)
+			this.var = (VariableNode)newNode;
+	}
 }

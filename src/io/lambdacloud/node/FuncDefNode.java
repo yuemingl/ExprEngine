@@ -359,10 +359,6 @@ public class FuncDefNode extends ExprNode {
 		//Do nothing
 	}
 	
-	public static void test(int a, int b) {
-		Jama.Matrix m = null;
-	}
-
 	@Override
 	public boolean contains(ExprNode target) {
 		if(this == target)
@@ -372,5 +368,13 @@ public class FuncDefNode extends ExprNode {
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		for(int i=0; i<this.body.size(); i++) {
+			if(this.body.get(i) == oldNode)
+				this.body.set(i, newNode);
+		}
 	}
 }

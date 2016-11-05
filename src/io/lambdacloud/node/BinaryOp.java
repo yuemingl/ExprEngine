@@ -47,4 +47,16 @@ public class BinaryOp extends ExprNode {
 		else 
 			return this.left.contains(target) || this.right.contains(target);
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.left == oldNode) {
+			this.left = newNode;
+		}
+		if(this.right == oldNode) {
+			this.right = newNode;
+		}
+		this.left.replaceChild(oldNode, newNode);
+		this.right.replaceChild(oldNode, newNode);
+	}
 }

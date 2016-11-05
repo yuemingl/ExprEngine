@@ -237,4 +237,17 @@ mv.visitInsn(IRETURN);
 		}
 		return false;
 	}
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.condition == oldNode) 
+			this.condition = newNode;
+		for(int i=0; i<this.ifBlockExprs.size(); i++) {
+			if(this.ifBlockExprs.get(i) == oldNode)
+				this.ifBlockExprs.set(i, newNode);
+		}
+		for(int i=0; i<this.elseBlockExprs.size(); i++) {
+			if(this.elseBlockExprs.get(i) == oldNode)
+				this.elseBlockExprs.set(i, newNode);
+		}
+	}
 }

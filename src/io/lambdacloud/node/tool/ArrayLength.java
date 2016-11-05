@@ -30,11 +30,6 @@ public class ArrayLength extends ExprNode {
 	public void updateType(Deque<Object> stack) {
 	}
 
-	public void test() {
-		int[] a = null;
-		int b= a.length;
-	}
-
 	@Override
 	public boolean contains(ExprNode target) {
 		if(this == target)
@@ -42,5 +37,11 @@ public class ArrayLength extends ExprNode {
 		if(this.array.contains(target))
 			return true;
 		return false;
+	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.array == oldNode)
+			this.array = newNode;
 	}
 }

@@ -145,4 +145,19 @@ public class SwitchNode extends ExprNode {
 		return false;
 	}
 
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.switchExpr == oldNode)
+			this.switchExpr = newNode;
+		for(int i=0; i<this.caseExprs.size(); i++) {
+			if(this.caseExprs.get(i) == oldNode)
+				this.caseExprs.set(i, newNode);
+		}
+		for(int i=0; i<this.caseBlock.size(); i++) {
+			StatementNode s = this.caseBlock.get(i);
+			s.replaceChild(oldNode, newNode);
+		}
+		this.defaultBlock.replaceChild(oldNode, newNode);
+	}
+
 }

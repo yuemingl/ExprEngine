@@ -86,6 +86,14 @@ public class StructAssignNode extends ExprNode {
 			return true;
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.var == oldNode)
+			this.var = (VariableNode)newNode;
+		if(this.value == oldNode)
+			this.value = newNode;
+	}
 	
 
 }

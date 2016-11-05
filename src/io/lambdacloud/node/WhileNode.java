@@ -126,5 +126,14 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 		}
 		return false;
 	}
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.condition == oldNode) 
+			this.condition = newNode;
+		for(int i=0; i<this.block.size(); i++) {
+			if(this.block.get(i) == oldNode)
+				this.block.set(i, newNode);
+		}
+	}
 }
 

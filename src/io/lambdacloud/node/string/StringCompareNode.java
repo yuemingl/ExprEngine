@@ -78,4 +78,12 @@ public class StringCompareNode extends ExprNode {
 			return true;
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.left == oldNode)
+			this.left = newNode;
+		if(this.right == oldNode)
+			this.right = newNode;
+	}
 }

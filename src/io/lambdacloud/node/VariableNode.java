@@ -221,4 +221,7 @@ public class VariableNode extends ExprNode {
 			return true;
 		return false;
 	}
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+	}
 }

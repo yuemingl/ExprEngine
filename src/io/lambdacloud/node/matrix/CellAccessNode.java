@@ -323,4 +323,22 @@ public class CellAccessNode extends ExprNode {
 		return false;
 	}
 
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		if(this.var == oldNode)
+			this.var = newNode;
+		for(int i=0; i<this.indices.size(); i++) {
+			IndexPair idx = this.indices.get(i);
+			if(idx.idxS == oldNode)
+				idx.idxS = newNode;
+			if(idx.idxE == oldNode)
+				idx.idxE = newNode;
+			
+			if(null != idx.idxS)
+				idx.idxS.replaceChild(oldNode, newNode);
+			if(null != idx.idxE)
+				idx.idxE.replaceChild(oldNode, newNode);
+		}
+	}
+
 }

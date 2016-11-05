@@ -100,4 +100,12 @@ public class ArrayNode extends ExprNode {
 		}
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		for(int i=0; i<this.init.size(); i++) {
+			if(this.init.get(i) == oldNode)
+				this.init.set(i, newNode);
+		}
+	}
 }

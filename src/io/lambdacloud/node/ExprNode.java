@@ -99,7 +99,7 @@ public abstract class ExprNode {
 	public abstract boolean contains(ExprNode target);
 	
 	
-	//public abstract void replaceChild(ExprNode oldNode, ExprNode newNode);
+	public abstract void replaceChild(ExprNode oldNode, ExprNode newNode);
 	
 	/**
 	 * Insert an expression before this node

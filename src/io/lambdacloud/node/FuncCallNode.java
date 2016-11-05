@@ -293,4 +293,12 @@ public class FuncCallNode extends ExprNode {
 				return true;
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		for(int i=0; i<this.args.size(); i++) {
+			if(this.args.get(i) == oldNode)
+				this.args.set(i, newNode);
+		}
+	}
 }

@@ -178,5 +178,13 @@ public class CellInitNode extends ExprNode {
 		}
 		return false;
 	}
+
+	@Override
+	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
+		for(int i=0; i<this.initExprList.size(); i++) {
+			if(this.initExprList.get(i) == oldNode)
+				this.initExprList.set(i, newNode);
+		}
+	}
 	
 }
