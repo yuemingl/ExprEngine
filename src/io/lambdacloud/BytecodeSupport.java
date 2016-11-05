@@ -2,12 +2,14 @@ package io.lambdacloud;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
 import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.Tools;
+import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
@@ -338,8 +340,14 @@ public class BytecodeSupport {
 	public static Jama.Matrix zeros(int m, int n) {
 		return new Jama.Matrix(m,n,0.0);
 	}
+	public static Jama.Matrix zeros(int m, int n, String typename) {
+		return new Jama.Matrix(m,n,0.0);
+	}
 	public static Jama.Matrix zeros(int n) {
 		return new Jama.Matrix(n,n,0.0);
+	}
+	public static Jama.Matrix zeros(double a) {
+		return zeros((int)a);
 	}
 	public static Jama.Matrix zeros(Jama.Matrix A) {
 		return new Jama.Matrix(A.getRowDimension(),A.getColumnDimension(),0.0);
@@ -529,9 +537,6 @@ public class BytecodeSupport {
 	}
 	public static Jama.Matrix eye(double a) {
 		return eye((int)a);
-	}
-	public static Jama.Matrix zeros(double a) {
-		return zeros((int)a);
 	}
 	public static Jama.Matrix triu(Jama.Matrix A) {
 		double[][] data = A.getArrayCopy();
@@ -1084,7 +1089,96 @@ public class BytecodeSupport {
 			return true;
 		return false;
 	}
+	public static boolean isscalar(Object o) {
+		if(o instanceof Number || o instanceof String)
+			return true;
+		return false;
+	}
+	public static boolean isscalar(int o) {
+		return true;
+	}
+	public static boolean isscalar(long o) {
+		return true;
+	}
+	public static boolean isscalar(double o) {
+		return true;
+	}
+	public static boolean isscalar(String o) {
+		return true;
+	}
+	
+	public static boolean isvector(Object o) {
+		if(o instanceof Jama.Matrix) {
+			Jama.Matrix m = (Jama.Matrix)o;
+			if(m.getRowDimension()==1 || m.getColumnDimension() == 1)
+				return true;
+		}
+		return false;
+	}
+	public static boolean isvector(Jama.Matrix o) {
+		if(o.getRowDimension()==1 || o.getColumnDimension() == 1)
+			return true;
+		return false;
+	}
+	public static boolean isvector(int o) {
+		return false;
+	}
+	public static boolean isvector(long o) {
+		return false;
+	}
+	public static boolean isvector(double o) {
+		return false;
+	}
+	public static boolean isvector(String o) {
+		return false;
+	}
+	
+	public static boolean isempty(Object o) {
+		if(o instanceof Jama.Matrix) {
+			Jama.Matrix m = (Jama.Matrix)o;
+			if(m.getRowDimension()==0 || m.getColumnDimension() == 0)
+				return true;
+		}
+		return false;
+	}
+	public static boolean isempty(int o) {
+		return false;
+	}
+	public static boolean isempty(long o) {
+		return false;
+	}
+	public static boolean isempty(double o) {
+		return false;
+	}
+	public static boolean isempty(String o) {
+		return false;
+	}
 
+	public static boolean islogical(Object o) {
+		if(o instanceof LogicalArray)
+			return true;
+		return false;
+	}
+	public static boolean islogical(LogicalArray o) {
+		return true;
+	}
+	public static boolean islogical(int o) {
+		return false;
+	}
+	public static boolean islogical(long o) {
+		return false;
+	}
+	public static boolean islogical(double o) {
+		return false;
+	}
+	public static boolean islogical(String o) {
+		return false;
+	}
+	public static boolean islogical(boolean o) {
+		return true;
+	}
+
+	
 	public static Jama.Matrix diag(Jama.Matrix m) {
 		int len = Math.min(m.getRowDimension(), m.getColumnDimension());
 		double[] data = new double[len];
@@ -1393,4 +1487,110 @@ public class BytecodeSupport {
 		return new Jama.Matrix(data, data.length);
 	}
 	
+	
+	public static Jama.Matrix[] find(Jama.Matrix A) {
+		int m = A.getRowDimension();
+		int n = A.getColumnDimension();
+		List<Integer> rows = new ArrayList<Integer>();
+		List<Integer> cols = new ArrayList<Integer>();
+		
+		for(int i=0; i<m; i++) {
+			for(int j=0; j<n; j++) {
+				if(A.get(i, j) != 0) {
+					rows.add(i);
+					cols.add(j);
+				}
+			}
+		}
+		double[] rowAry = new double[rows.size()];
+		double[] colAry = new double[cols.size()];
+		for(int i=0; i<rows.size(); i++)
+			rowAry[i] = rows.get(i)+MatrixAccessNode.INDEX_BASE;
+		for(int i=0; i<cols.size(); i++)
+			colAry[i] = cols.get(i)+MatrixAccessNode.INDEX_BASE;
+		
+		Jama.Matrix[] ret = new Jama.Matrix[2];
+		ret[0] = new Jama.Matrix(rowAry, rowAry.length);
+		ret[1] = new Jama.Matrix(colAry, colAry.length);
+		return ret;
+	}
+	
+	public static Jama.Matrix sort(Jama.Matrix A) {
+		Jama.Matrix m = A.transpose();
+		double[][] data = m.getArray();
+		for(int i=0; i<data.length; i++) {
+			Arrays.sort(data[i]);
+		}
+		return m.transpose();
+	}
+	
+	public static boolean strcmp(String s, String t) {
+		return s.equals(t);
+	}
+	
+	public static Jama.Matrix diff(Jama.Matrix A) {
+		int m = A.getRowDimension();
+		int n = A.getColumnDimension();
+		if(m == 1) {
+			double[] data = new double[n-1];
+			for(int i=0; i<n-1; i++) {
+				data[i] = A.get(0, i+1) - A.get(0, i);
+			}
+			return new Jama.Matrix(data, 1);
+		} else if(m > 1) {
+			double[][] data = A.getArray();
+			double[][] ret = new double[m-1][n];
+			for(int i=0; i<m-1; i++) {
+				for(int j=0; j<n; j++) {
+					ret[i][j] = data[i+1][j] - data[i][j];
+				}
+			}
+			return new Jama.Matrix(ret);
+		} else {
+			return A;
+		}
+	}
+	
+	public static String class1(Object o) {
+		return o.getClass().getName();
+	}
+	public static String class1(Jama.Matrix o) {
+		return o.getClass().getName();
+	}
+	public static String class1(double o) {
+		return "double";
+	}
+	public static String class1(int o) {
+		return "int";
+	}
+	public static String class1(long o) {
+		return "long";
+	}
+	
+	public static Jama.Matrix cumsum(Jama.Matrix A) {
+		int m = A.getRowDimension();
+		int n = A.getColumnDimension();
+		if(m == 1) {
+			double[] data = new double[n];
+			data[0] = A.get(0, 0);
+			for(int i=1; i<n; i++) {
+				data[i] = data[i-1] + A.get(0, i);
+			}
+			return new Jama.Matrix(data, 1);
+		} else if(m > 1) {
+			double[][] data = A.getArray();
+			double[][] ret = new double[m][n];
+			for(int j=0; j<n; j++) {
+				ret[0][j] = data[0][j];
+			}
+			for(int i=1; i<m; i++) {
+				for(int j=0; j<n; j++) {
+					ret[i][j] = ret[i-1][j] + data[i][j];
+				}
+			}
+			return new Jama.Matrix(ret);
+		} else {
+			return A;
+		}
+	}
 }
