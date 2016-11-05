@@ -60,6 +60,8 @@ RCB : '}' ;
 
 END : 'end' ;
 NARGIN : 'nargin' ;
+NARGOUT : 'nargout' ;
+CLASS : 'class' ;
 
 BAND : '&' ;
 BOR  : '|' ;
@@ -157,6 +159,7 @@ arithmetic_expr
  | logical_entity                                     # LogicalExpressionEntity
  | string_entity                                      # StringEntity
  | WS* 'nargin' WS* expr_end?                         # NArgIn
+ | WS* 'nargout' WS* expr_end?                        # NArgOut
  ;
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
@@ -182,7 +185,7 @@ variable_entity
  | WS* special_name WS* LPAREN WS* ( aa_index WS* COMMA WS* )* aa_index? WS* RPAREN # SpecialFuncCall
  ;
 
-special_name : FALSE | TRUE | NARGIN ;
+special_name : FALSE | TRUE | NARGIN | NARGOUT | CLASS;
 
 array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* ('\n')* WS* )* ai_list WS* RBRK WS* ;
 cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
