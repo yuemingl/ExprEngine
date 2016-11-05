@@ -137,6 +137,10 @@ public class Tools {
 			mg.visitInsn(Opcodes.D2I);
 		} else if(f == Type.INT && t == Type.LONG) {
 			mg.visitInsn(Opcodes.I2L);
+		} else if(f == Type.BOOLEAN && t == Type.INT) {
+			//Do nothing
+		} else if(f == Type.INT && t == Type.BOOLEAN) {
+			//Do nothing
 		} else if(f == Type.DOUBLE && t == Type.LONG) {
 			mg.visitInsn(Opcodes.D2L);
 		} else if(f == Type.INT && t == Type.OBJECT) {
