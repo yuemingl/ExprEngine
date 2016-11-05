@@ -33,6 +33,7 @@ import io.lambdacloud.node.FuncCallNode;
 import io.lambdacloud.node.FuncDefNode;
 import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.NArgInNode;
+import io.lambdacloud.node.NArgOutNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.ReturnNode;
 import io.lambdacloud.node.StatementNode;
@@ -1521,6 +1522,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		FuncDefNode refFunc = ExprTreeBuildWalker.funcMap.get(this.currentScope().getName());
 		this.currentScope().stack.push(new NArgInNode(refFunc));
 	}
+	@Override public void enterNArgOut(MatlabGrammarParser.NArgOutContext ctx) {
+		FuncDefNode refFunc = ExprTreeBuildWalker.funcMap.get(this.currentScope().getName());
+		this.currentScope().stack.push(new NArgOutNode(refFunc));
+	}
+
 	@Override public void exitFuncHandle(MatlabGrammarParser.FuncHandleContext ctx) { 
 		String funcName = ctx.IDENTIFIER().getText();
 		StringNode s = new StringNode(funcName);
