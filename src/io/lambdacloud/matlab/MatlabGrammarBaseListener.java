@@ -522,6 +522,18 @@ public class MatlabGrammarBaseListener implements MatlabGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNArgOut(MatlabGrammarParser.NArgOutContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNArgOut(MatlabGrammarParser.NArgOutContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAdd_sub_operator(MatlabGrammarParser.Add_sub_operatorContext ctx) { }
 	/**
 	 * {@inheritDoc}

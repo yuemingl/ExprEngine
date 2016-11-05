@@ -494,6 +494,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitComparisonArithmeticExpression(MatlabGrammarParser.ComparisonArithmeticExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code NArgOut}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterNArgOut(MatlabGrammarParser.NArgOutContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NArgOut}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitNArgOut(MatlabGrammarParser.NArgOutContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#add_sub_operator}.
 	 * @param ctx the parse tree
 	 */
