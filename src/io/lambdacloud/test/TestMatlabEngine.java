@@ -40,13 +40,18 @@ import static org.objectweb.asm.Opcodes.*;
  * [A B;C] = D;
  * 
  * TODO
+ *   ** nargout  nargout(fx)
  *   Finish test for assignment with comma-separated list on right hand side
  *   Multi-variable assignement test
  *   Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
  *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
  *  'end' in expression, e.g. A(end-1)
- *   ***[varargout{1:max(nargout,1)}]=F(varargin{:})
- *
+ *   ***[varargout{1:max(nargout,1)}]=F(varargin{:})  in (function varargout = gallery(matname,varargin))
+ *   **try catch end
+ *   **classdef
+ *   **inf -inf ???
+ *   sparse(m,n)  -  sparse matrix support
+ *   
  *  DONE:
  *   Logical array support
  *   Logical indexing
@@ -54,42 +59,20 @@ import static org.objectweb.asm.Opcodes.*;
  *      A(B) uses logical indexing, whereas A(I) uses linear indexing
  *      A(2<A<9), since it evaluates to A(2<A | A<9).
  *      A(A>5)=100
- *   **try catch end
- *   **classdef
- *   
- *   Implement 'switch case' grammar and code generation
- *   Add operator +,-,*,/ support for Object type (in cell) (DONE)
+
+ *   Implement 'switch...case...otherwise' grammar and code generation (DONE)
+ *   Add operator +,-,*,/ support for Object type (in cell) (DONE) (Autoboxing unboxing?)
  *   Remove value form VariableNode (DONE)
- *   Fix conflict for math.sin(x) and math.sin Struct (DONE) * 
- *   CSList as function arguments
- *   Bootstrap function for object arguments
- *   Special functions, likeL false(), true(), nvararg
+ *   Fix conflict for math.sin(x) and math.sin Struct (DONE)
+ *   CSList as function arguments (DONE)
+ *   Bootstrap function for object arguments (DONE)
+ *   Special functions, likeL false(), true(), nvararg (DONE)
  *   
  * 
  * @author yueming.liu
  *
  */
 public class TestMatlabEngine {
-	public static void test(String s) {
-		switch(s) {
-		case "a123":
-			System.out.println("aa");
-			break;
-		case "b456":
-			System.out.println("bb");
-			break;
-		case "c789":
-			System.out.println("cc");
-			break;
-		default:
-			System.out.println("dd");
-			break;
-			
-		}
-	}
-	
-
-	
 	public static void main(String[] args){
 //		exec("[varargout{1:max(nargout,1)}]");
 //		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
@@ -100,47 +83,92 @@ public class TestMatlabEngine {
 		
 		//TODO delete: new StringConcatNode(v1,v2)
 		//operator precedence
-
+		int aInt = 0;
+		double aDouble = 0.0;
+		
+		int flag = 0;
+		if(flag==0) {
+			aDouble = aInt + 1.5;
+			flag = 1;
+		} else {
+			aDouble = aDouble + 1.5;
+		}
+		
+//		exec("res1=1; for i=1:5, res1 = (res1~=0); end res1"); //res1=1; for i=1:5, res1 = (res1~=0); [res1=0;] end res1
+		exec("a=1; for i=1:5, a=a+1.1; end a"); //=6.5    
+		//aI=1;
+		//aD=1.0
+		//for i=1:5, 
+		//  [flag=0] 
+		//  if(flag==0) aD=aI+1.1; 
+		//  else aD=aD+1.1;
+		//  end
+		//  aI = (int)(aD+1.1);
+		//end a
+		
+//		exec("a=1; a=a+1.1; a");
+////		exec("res1=1;  res1~=0");
+////		exec("res1=1; res2 = (res1~=0); res2");
+//		exec("res1=1; res1 = (res1~=0); res1"); //false???
+		
+//		exec("A = 1:5; B = cumsum(A)");
+//		exec("A=[1 2 3; 4 5 6; 7 8 9]; cumsum(A)");
+//		exec("A=[1 2 0 5 7]; class(A)");
+//		
+//		exec("A=[1 2 0 5 7]; diff(A)");
+//		exec("A=[1 2 0; 3 0 4]; diff(A)");
+//		exec("A=[1 2 0; 3 0 4; 0 5 6]; [i j] = find(A); sort(i-j)");
+//		
+//		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
+//		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx yy zz]=fun(10,20,30); xx\n yy\n zz");
+//		exec("function [x y] = fun(a,b,c), x=a; y=b+c; nargout end fun(1,2,3)");
+//		
+//		exec("a=[10]; a(1,1)=0; a(1)=1; a");
+		
+//		assertEqual(exec("a={1,2,3}; isempty(a{1})"), false);
+	
+		
+		
 //		exec("a='abc'; switch a\n case 'aaa'\n 100\n case 'bbb'\n 200\n case 'abc'\n 300\n otherwise\n 500\n end");
 //
 //		exec("a=1; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
 //		exec("a=2; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
 //		exec("a=3; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
 		
-		assertEqual(exec("a=1; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),100);
-		assertEqual(exec("a=2; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),200);
-		assertEqual(exec("a=3; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),500);
-		
-		assertEqual(exec("a='abc'; b=0; switch a\n case 'aaa'\n b=100\n case 'bbb'\n b=200\n case 'abc'\n b=300\n otherwise\n b=500\n end b"), 300);
-
-		testBasic();
-		testBasic2();
-		testBasic3();
-		testEnd();
-		testLineContinue();
-		testBuildinFunc2();
-		testCellArray();
-		testVariableNode();
-		testPrint();
-		testComment();
-		testEndIndex();
-		testNArgin();
-		testShaddowVariables();
-		testBuildinFunc();
-		testFunction();
-		testMatrixInit();
-		testMatrixAssign();
-		testMatrixAccess();
-		testOptionalParamters();
-		testMisc();
-		testString();
-		testCommaSeparatedList();
-		testCellObjectOperation();
-		testSpecialFunctions();
-		testObjectArgumentFunctionCalls();
-		testLogicalArray();
-		testSingleQuote();
-		testBitOperation();
+//		assertEqual(exec("a=1; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),100);
+//		assertEqual(exec("a=2; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),200);
+//		assertEqual(exec("a=3; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),500);
+//		
+//		assertEqual(exec("a='abc'; b=0; switch a\n case 'aaa'\n b=100\n case 'bbb'\n b=200\n case 'abc'\n b=300\n otherwise\n b=500\n end b"), 300);
+//
+//		testBasic();
+//		testBasic2();
+//		testBasic3();
+//		testEnd();
+//		testLineContinue();
+//		testBuildinFunc2();
+//		testCellArray();
+//		testVariableNode();
+//		testPrint();
+//		testComment();
+//		testEndIndex();
+//		testNArgin();
+//		testShaddowVariables();
+//		testBuildinFunc();
+//		testFunction();
+//		testMatrixInit();
+//		testMatrixAssign();
+//		testMatrixAccess();
+//		testOptionalParamters();
+//		testMisc();
+//		testString();
+//		testCommaSeparatedList();
+//		testCellObjectOperation();
+//		testSpecialFunctions();
+//		testObjectArgumentFunctionCalls();
+//		testLogicalArray();
+//		testSingleQuote();
+//		testBitOperation();
 	}
 	
 	public static void testObjectArgumentFunctionCalls() {
