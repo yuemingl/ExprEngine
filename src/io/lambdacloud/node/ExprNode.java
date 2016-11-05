@@ -17,8 +17,16 @@ public abstract class ExprNode {
 	protected ArrayList<ExprNode> beforeExprs = new ArrayList<ExprNode>();
 	protected ArrayList<ExprNode> afterExprs = new ArrayList<ExprNode>();
 
+	/**
+	 * Subclass needs to implement this method to generate bytecode
+	 * @param mg
+	 */
 	public abstract void _genCode(MethodGenHelper mg);
 
+	/**
+	 * Expressions can inserted before or after any expression 
+	 * @param mg
+	 */
 	public void genCode(MethodGenHelper mg) {
 		for(int i=0; i<beforeExprs.size(); i++) {
 			beforeExprs.get(i)._genCode(mg);
@@ -93,10 +101,18 @@ public abstract class ExprNode {
 	
 	//public abstract void replaceChild(ExprNode oldNode, ExprNode newNode);
 	
+	/**
+	 * Insert an expression before this node
+	 * @param node
+	 */
 	public void insertBefore(ExprNode node) {
 		this.beforeExprs.add(0, node);
 	}
 	
+	/**
+	 * Insert an expression after this node
+	 * @param node
+	 */
 	public void insertAfter(ExprNode node) {
 		this.afterExprs.add(node);
 	}
