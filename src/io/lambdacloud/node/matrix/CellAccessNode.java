@@ -341,4 +341,8 @@ public class CellAccessNode extends ExprNode {
 		}
 	}
 
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
+
 }

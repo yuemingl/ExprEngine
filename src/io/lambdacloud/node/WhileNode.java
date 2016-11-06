@@ -135,5 +135,11 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 				this.block.set(i, newNode);
 		}
 	}
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.block) {
+			e.updateTree(mg);
+		}
+	}
 }
 

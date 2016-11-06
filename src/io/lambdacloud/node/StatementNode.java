@@ -51,4 +51,11 @@ public class StatementNode extends ExprNode {
 				this.exprs.set(i, newNode);
 		}
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.exprs) {
+			e.updateTree(mg);
+		}
+	}
 }

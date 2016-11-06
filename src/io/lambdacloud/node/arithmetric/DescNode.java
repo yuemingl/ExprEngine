@@ -24,7 +24,7 @@ public class DescNode extends UnaryOp {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		VariableNode var = (VariableNode) expr;
 
 		Type myType = this.getType();

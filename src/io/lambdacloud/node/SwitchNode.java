@@ -160,4 +160,11 @@ public class SwitchNode extends ExprNode {
 		this.defaultBlock.replaceChild(oldNode, newNode);
 	}
 
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e: this.caseBlock) {
+			e.updateTree(mg);
+		}
+	}
+
 }

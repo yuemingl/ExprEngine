@@ -24,7 +24,7 @@ public class RemAsignNode extends BinaryOp {
 		return left + " %= " + right;
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		VariableNode var = (VariableNode) left;
 		Type myType = this.getType();
 		Type lt = left.getType();

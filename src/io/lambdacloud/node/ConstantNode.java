@@ -87,4 +87,7 @@ public class ConstantNode extends ExprNode {
 	@Override
 	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
 	}
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

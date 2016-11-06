@@ -10,8 +10,6 @@ import static org.objectweb.asm.Opcodes.T_LONG;
 import static org.objectweb.asm.Opcodes.T_SHORT;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -60,10 +58,6 @@ public class Tools {
 			return T_BOOLEAN;
 		}
 		throw new RuntimeException("Type "+et+" is not a primitive type for NEWARRAY instruction. Use ANEWARRAY instead.");
-	}
-	
-	public static void test() {
-		double[][] oo = new double[100][];
 	}
 	
 	public static Type typeConversion(Type type1, Type type2) {

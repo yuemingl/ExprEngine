@@ -22,9 +22,7 @@ import io.lambdacloud.matlab.MatlabGrammarBaseListener;
 import io.lambdacloud.matlab.MatlabGrammarParser;
 import io.lambdacloud.matlab.MatlabGrammarParser.Case_expr_and_bodyContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.Expr_endContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.ExpressionContext;
 import io.lambdacloud.matlab.MatlabGrammarParser.StatementContext;
-import io.lambdacloud.matlab.MatlabGrammarParser.Statement_blockContext;
 import io.lambdacloud.node.AssignNode;
 import io.lambdacloud.node.ConstantNode;
 import io.lambdacloud.node.ExprNode;
@@ -383,6 +381,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				cgen.startMethod(access, methodName,
 						Type.getMethodDescriptor(retType, paramTypes));
 			}
+			
+
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
@@ -392,6 +392,12 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			MethodGenHelper mg = new MethodGenHelper(mv, sortedVarMap);
 //			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
 			
+			
+			//Update tree before code generation
+			for(ExprNode e : this.currentScope().stack) {
+				e.updateTree(mg);
+			}
+
 //			int index = 1;
 //			if(isStatic) index = 0;
 //			for(Entry<String, VariableNode> e : varMap.entrySet()) {
@@ -1276,11 +1282,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		
 		ForNode forNode = new ForNode();
 		for(int i=ctx.statement_block().statement().size()-1; i>=0; i--) {
-			forNode.block.add(this.currentScope().stack.pop());
+			forNode.block.add(this.currentScope().stack.pop().addParent(forNode));
 		}
 		if(null != ctx.statement_block().expression()) {
-			forNode.block.add(this.currentScope().stack.pop());
-			//this.processExprEnd(ctx.statement_block().expr_end());
+			forNode.block.add(this.currentScope().stack.pop().addParent(forNode));
 		}
 		
 		ExprNode forRange = this.currentScope().stack.pop();

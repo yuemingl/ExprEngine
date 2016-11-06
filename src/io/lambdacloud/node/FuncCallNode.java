@@ -301,4 +301,8 @@ public class FuncCallNode extends ExprNode {
 				this.args.set(i, newNode);
 		}
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

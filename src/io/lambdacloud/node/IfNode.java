@@ -250,4 +250,11 @@ mv.visitInsn(IRETURN);
 				this.elseBlockExprs.set(i, newNode);
 		}
 	}
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.ifBlockExprs)
+			e.updateTree(mg);
+		for(ExprNode e: this.elseBlockExprs)
+			e.updateTree(mg);
+	}
 }

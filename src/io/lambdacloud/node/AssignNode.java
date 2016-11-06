@@ -4,7 +4,6 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.LinkedList;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -37,7 +36,7 @@ public class AssignNode extends BinaryOp {
 		return a.getColumnPackedCopy()[0];
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
 		if(null == myType) return;
 
@@ -56,6 +55,7 @@ public class AssignNode extends BinaryOp {
 			if(Tools.canTypeConversion(var.getType(), myType)) { 
 				ifnode.elseBlockExprs.add(new SimpleAssign(var, right, myType));
 			}
+			
 			ifnode.genCode(mg);
 		} else {
 			right.genCode(mg);
@@ -265,6 +265,30 @@ public class AssignNode extends BinaryOp {
 				}
 			}
 			
+		}
+	}
+	
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		if(right.contains(left) && null != this.parent) {
+			Type myType = this.getType();
+			if(null == myType) return;
+
+			VariableNode var = (VariableNode)left;
+
+			VariableNode flag = mg.newLocalVariable(var.getName()+"_flag_", Type.INT_TYPE);
+			mg.updateLVTIndex();
+			SimpleAssign flag0 = new SimpleAssign(flag, new ConstantNode(0));
+			
+			IfNode ifnode = new IfNode();
+			ifnode.condition = new EQNode(flag, new ConstantNode(0));
+			ifnode.ifBlockExprs.add(new SimpleAssign(flag, new ConstantNode(1)));
+			ifnode.ifBlockExprs.add(new SimpleAssign(var, right));
+			if(Tools.canTypeConversion(var.getType(), myType)) { 
+				ifnode.elseBlockExprs.add(new SimpleAssign(var, right, myType));
+			}
+			this.parent.replaceChild(this, ifnode);
+			this.parent.insertBefore(flag0);
 		}
 	}
 }

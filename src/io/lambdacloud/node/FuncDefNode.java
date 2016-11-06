@@ -2,7 +2,6 @@ package io.lambdacloud.node;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
@@ -198,7 +197,7 @@ public class FuncDefNode extends ExprNode {
 	}
 
 	public String getFuncClassName() {
-		String ret = "FC" + name + this.seq.get();// TODO need better naming way
+		String ret = "FC" + name + seq.get();// TODO need better naming way
 		return ret;
 	}
 
@@ -375,6 +374,13 @@ public class FuncDefNode extends ExprNode {
 		for(int i=0; i<this.body.size(); i++) {
 			if(this.body.get(i) == oldNode)
 				this.body.set(i, newNode);
+		}
+	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.body) {
+			e.updateTree(mg);
 		}
 	}
 }

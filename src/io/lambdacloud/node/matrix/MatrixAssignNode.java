@@ -271,5 +271,9 @@ public class MatrixAssignNode extends ExprNode {
 		}
 
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 	
 }

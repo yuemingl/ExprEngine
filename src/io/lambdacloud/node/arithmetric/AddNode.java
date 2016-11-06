@@ -22,7 +22,12 @@ public class AddNode extends BinaryOp {
 		return left + " + " + right;
 	}
 	
-	public void genCode(MethodGenHelper mg) {
+	/**
+	 * No need to override _genCode(). Override genCode() can have better performance.
+	 * 
+	 * *** We need to override _genCode() to function properly
+	 */
+	public void _genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
 		Type lt = left.getType();
 		Type rt = right.getType();

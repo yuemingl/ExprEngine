@@ -85,4 +85,8 @@ public class StructAccessNode extends ExprNode {
 		if(this.var == oldNode)
 			this.var = (VariableNode)newNode;
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

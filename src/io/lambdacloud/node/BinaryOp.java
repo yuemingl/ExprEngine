@@ -59,4 +59,10 @@ public class BinaryOp extends ExprNode {
 		this.left.replaceChild(oldNode, newNode);
 		this.right.replaceChild(oldNode, newNode);
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		this.left.updateTree(mg);
+		this.right.updateTree(mg);
+	}
 }

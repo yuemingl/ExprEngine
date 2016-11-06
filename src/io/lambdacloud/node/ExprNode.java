@@ -17,6 +17,8 @@ public abstract class ExprNode {
 	protected ArrayList<ExprNode> beforeExprs = new ArrayList<ExprNode>();
 	protected ArrayList<ExprNode> afterExprs = new ArrayList<ExprNode>();
 
+	protected ExprNode parent = null;
+	
 	/**
 	 * Subclass needs to implement this method to generate bytecode
 	 * @param mg
@@ -116,5 +118,17 @@ public abstract class ExprNode {
 	public void insertAfter(ExprNode node) {
 		this.afterExprs.add(node);
 	}
+	
+	public ExprNode addParent(ExprNode p) {
+		this.parent = p;
+		return this;
+	}
+	
+	/**
+	 * Update tree structure (tree transform) if necessary for some expression node
+	 * before code generation
+	 * @param mg TODO
+	 */
+	public abstract void  updateTree(MethodGenHelper mg);
 
 }

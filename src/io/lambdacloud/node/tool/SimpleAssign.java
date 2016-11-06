@@ -25,7 +25,7 @@ public class SimpleAssign extends BinaryOp  {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		VariableNode var = (VariableNode)left;
 		Type myType = this.getType();
 		if(null == myType) return;

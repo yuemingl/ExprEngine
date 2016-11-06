@@ -44,4 +44,8 @@ public class ArrayLength extends ExprNode {
 		if(this.array == oldNode)
 			this.array = newNode;
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

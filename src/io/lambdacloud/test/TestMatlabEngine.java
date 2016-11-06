@@ -141,34 +141,34 @@ public class TestMatlabEngine {
 //		
 //		assertEqual(exec("a='abc'; b=0; switch a\n case 'aaa'\n b=100\n case 'bbb'\n b=200\n case 'abc'\n b=300\n otherwise\n b=500\n end b"), 300);
 //
-		testBasic();
-		testBasic2();
-		testBasic3();
-		testEnd();
-		testLineContinue();
-		testBuildinFunc2();
-		testCellArray();
-		testVariableNode();
-		testPrint();
-		testComment();
-		testEndIndex();
-		testNArgin();
-		//testShaddowVariables();
-		testBuildinFunc();
-		testFunction();
-		testMatrixInit();
-		testMatrixAssign();
-		testMatrixAccess();
-		testOptionalParamters();
-		testMisc();
-		testString();
-		testCommaSeparatedList();
-		testCellObjectOperation();
-		testSpecialFunctions();
-		testObjectArgumentFunctionCalls();
-		testLogicalArray();
-		testSingleQuote();
-		testBitOperation();
+//		testBasic();
+//		testBasic2();
+//		testBasic3();
+//		testEnd();
+//		testLineContinue();
+//		testBuildinFunc2();
+//		testCellArray();
+//		testVariableNode();
+//		testPrint();
+//		testComment();
+//		testEndIndex();
+//		testNArgin();
+//		//testShaddowVariables();
+//		testBuildinFunc();
+//		testFunction();
+//		testMatrixInit();
+//		testMatrixAssign();
+//		testMatrixAccess();
+//		testOptionalParamters();
+//		testMisc();
+//		testString();
+//		testCommaSeparatedList();
+//		testCellObjectOperation();
+//		testSpecialFunctions();
+//		testObjectArgumentFunctionCalls();
+//		testLogicalArray();
+//		testSingleQuote();
+//		testBitOperation();
 	}
 	
 	public static void testObjectArgumentFunctionCalls() {

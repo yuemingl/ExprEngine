@@ -198,6 +198,23 @@ mv.visitInsn(IRETURN);
 		if(this.cond == oldNode)
 			this.cond = newNode;
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.init) {
+			e.updateTree(mg);
+		}
+		
+		this.cond.updateTree(null);
+		
+		for(ExprNode e : this.inc) {
+			e.updateTree(mg);
+		}
+		
+		for(ExprNode e : this.block) {
+			e.updateTree(mg);
+		}
+	}
 }
 
 

@@ -298,5 +298,9 @@ public class CellAssignNode extends ExprNode {
 				idx.idxE.replaceChild(oldNode, newNode);
 		}
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 	
 }

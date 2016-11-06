@@ -53,5 +53,8 @@ public class ArrayAccess extends ExprNode {
 		if(this.index == oldNode)
 			this.index = oldNode;
 	}
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 
 }

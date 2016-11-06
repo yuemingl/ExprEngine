@@ -222,4 +222,8 @@ public class RangeNode extends ExprNode {
 			this.end = newNode;
 		
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

@@ -14,7 +14,6 @@ import org.objectweb.asm.Type;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
-import io.lambdacloud.node.array.ArrayAccessNode.IndexPair;
 
 /**
  * Array initialize, for example: [1,2,3]
@@ -107,5 +106,9 @@ public class ArrayNode extends ExprNode {
 			if(this.init.get(i) == oldNode)
 				this.init.set(i, newNode);
 		}
+	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
 	}
 }

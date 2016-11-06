@@ -94,6 +94,9 @@ public class StructAssignNode extends ExprNode {
 		if(this.value == oldNode)
 			this.value = newNode;
 	}
-	
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 
 }

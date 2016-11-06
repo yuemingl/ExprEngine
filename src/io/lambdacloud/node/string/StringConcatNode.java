@@ -84,4 +84,8 @@ public class StringConcatNode extends ExprNode {
 		if(this.right == oldNode)
 			this.right = newNode;
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

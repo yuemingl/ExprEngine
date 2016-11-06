@@ -24,7 +24,7 @@ public class SubAsignNode extends BinaryOp {
 		return left + " -= " + right;
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type lt = left.getType();
 		Type rt = right.getType();
 		if(null == lt || null == rt)

@@ -52,4 +52,8 @@ public class UnaryOp extends ExprNode {
 		}
 		this.expr.replaceChild(oldNode, newNode);
 	}
+
+	@Override
+	public void updateTree(MethodGenHelper mg) {
+	}
 }

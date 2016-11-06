@@ -18,7 +18,7 @@ public class NegateNode extends UnaryOp {
 		return "-" + expr;
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
 		if(null == myType)
 			return;
