@@ -67,7 +67,8 @@ import static org.objectweb.asm.Opcodes.*;
  *   CSList as function arguments (DONE)
  *   Bootstrap function for object arguments (DONE)
  *   Special functions, likeL false(), true(), nvararg (DONE)
- *   
+ *   Delete: new StringConcatNode(v1,v2)
+ *   Fix operator precedence
  * 
  * @author yueming.liu
  *
@@ -80,33 +81,22 @@ public class TestMatlabEngine {
 //		//nargs = nargin(matname);
 //		//[classname,varargin{1:end-1}] //end-1
 //		exec("a=[2 3]; a(end-1)");
-		
-		//TODO delete: new StringConcatNode(v1,v2)
-		//operator precedence
-		int aInt = 0;
-		double aDouble = 0.0;
-		
-		int flag = 0;
-		if(flag==0) {
-			aDouble = aInt + 1.5;
-			flag = 1;
-		} else {
-			aDouble = aDouble + 1.5;
-		}
-		
+
 //		exec("res1=1; for i=1:5, res1 = (res1~=0); end res1"); //res1=1; for i=1:5, res1 = (res1~=0); [res1=0;] end res1
-		exec("a=1; for i=1:5, a=a+1.1; end a"); //=6.5    
-		//aI=1;
-		//aD=1.0
-		//for i=1:5, 
-		//  [flag=0] 
-		//  if(flag==0) aD=aI+1.1; 
-		//  else aD=aD+1.1;
-		//  end
-		//  aI = (int)(aD+1.1);
-		//end a
+
+		//The following code is generated for this test in updateTree() of AssignNode
+		//The whole logic is replaced by updateTree()
+		//int aI=1;
+		//double aD=1.0 //shadow variable for a with double type
+		//int a_flag_I = 0 //generated flag
+		//for(int i=1; i<=5; i++) {
+		//  if(a_flag_I==0) { aD=aI+1.1; a_flag_I=1; } 
+		//  else { aD=aD+1.1 };
+		//}
+		//assertEqual(exec("a=1; for i=1:5, a=a+1.1; end a"), 6.5);
+		assertEqual(exec("a=1; i=1; while i<= 5, a=a+1.1; i+=1; end a"), 6.5);
 		
-//		exec("a=1; a=a+1.1; a");
+		//exec("a=1; a=a+1.2; a");
 ////		exec("res1=1;  res1~=0");
 ////		exec("res1=1; res2 = (res1~=0); res2");
 //		exec("res1=1; res1 = (res1~=0); res1"); //false???
@@ -153,7 +143,7 @@ public class TestMatlabEngine {
 //		testComment();
 //		testEndIndex();
 //		testNArgin();
-//		//testShaddowVariables();
+//		testShaddowVariables();
 //		testBuildinFunc();
 //		testFunction();
 //		testMatrixInit();

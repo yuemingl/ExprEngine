@@ -1460,12 +1460,12 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitExprWhile(MatlabGrammarParser.ExprWhileContext ctx) {
 		WhileNode wn = new WhileNode();
 		for(int i=ctx.statement_block().statement().size()-1; i>=0; i--) {
-			wn.block.add(currentScope().stack.pop());
+			wn.block.add(currentScope().stack.pop().addParent(wn));
 		}
 		if(null != ctx.statement_block().expression()) {
-			wn.block.add(currentScope().stack.pop());
+			wn.block.add(currentScope().stack.pop().addParent(wn));
 		}
-		wn.condition = currentScope().stack.pop();
+		wn.condition = currentScope().stack.pop().addParent(wn);
 		currentScope().stack.push(wn);
 	}
 	

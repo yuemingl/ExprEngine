@@ -270,7 +270,9 @@ public class AssignNode extends BinaryOp {
 	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
-		if(right.contains(left) && null != this.parent) {
+		if(right.contains(left) && null != this.parent &&
+				(this.parent instanceof ForNode ||
+				 this .parent instanceof WhileNode) ) {
 			Type myType = this.getType();
 			if(null == myType) return;
 
