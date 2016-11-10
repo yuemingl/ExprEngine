@@ -16,6 +16,7 @@ import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
 
@@ -102,10 +103,15 @@ public class MatrixAccessNode extends ExprNode {
 					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
 							"getMatrix", "(LJama/Matrix;LJama/Matrix;)LJama/Matrix;", false);
 				} else if(idxS.getType().equals(Type.getType(LogicalArray.class))) { // Logical indexing
-						var.genCode(mg);
-						idxS.genCode(mg);
-						mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
-							"getMatrix", "(LJama/Matrix;"+Type.getType(LogicalArray.class)+")LJama/Matrix;", false);
+					var.genCode(mg);
+					idxS.genCode(mg);
+					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+						"getMatrix", "(LJama/Matrix;"+Type.getType(LogicalArray.class)+")LJama/Matrix;", false);
+				} else if(idxS.getType().equals(Type.getType(CSList.class))) { // Comma separated list indexing
+					var.genCode(mg);
+					idxS.genCode(mg);
+					mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+						"getMatrix", "(LJama/Matrix;"+Type.getType(CSList.class)+")LJama/Matrix;", false);
 				} else if(idxS.getType().getSort() == Type.INT) {
 					var.genCode(mg);
 					idxS.genCode(mg);
