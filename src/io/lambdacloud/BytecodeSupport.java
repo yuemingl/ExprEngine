@@ -21,7 +21,23 @@ public class BytecodeSupport {
 	}
 	
 	public static void print(Object o) {
-		System.out.print(o);
+		if(o instanceof double[]) {
+			double[] a = (double[])o;
+			System.out.print("[");
+			for(double d : a)
+				System.out.print(d+", ");
+			System.out.print("]");
+		} else if(o instanceof int[]) {
+			int[] a = (int[])o;
+			System.out.print("[");
+			for(int d : a)
+				System.out.print(d+", ");
+			System.out.print("]");
+		} else if(o instanceof Jama.Matrix) {
+			((Jama.Matrix)o).print(8, 2);
+		} else {
+			System.out.print(o);
+		}
 	}
 	public static void print(String o) {
 		System.out.print(o);
@@ -117,7 +133,8 @@ public class BytecodeSupport {
 			System.out.println("{");
 			for(int i=0; i<m; i++) {
 				for(int j=0; j<n; j++) {
-					System.out.print(o.data[i][j]+"  ");
+					print((Object)o.data[i][j]);
+					System.out.print(" ");
 				}
 				System.out.println();
 			}
@@ -772,6 +789,36 @@ public class BytecodeSupport {
 			ret[i] = dataA[(int)dataIdx[i]-1];
 		}
 		return new Jama.Matrix(ret, ret.length);
+	}
+	
+	public static Jama.Matrix getMatrix(Jama.Matrix A, CSList args) {
+		Object[] data = args.getData();
+		if(data.length == 2) {
+			int[] rows = null;
+			int[] cols = null;
+			if(data[0] instanceof String && ":".equalsIgnoreCase((String)data[0])) {
+				rows = Tools.getIndex(0, A.getRowDimension()-1);
+			} else if(data[0] instanceof Number) {
+				Number num = (Number)data[0];
+				rows = new int[] { num.intValue() };
+			} else if(data[0] instanceof Jama.Matrix) {
+				rows = Tools.matrix2index((Jama.Matrix)data[0]);
+			} else {
+				throw new RuntimeException("unknown args: "+data[0]);
+			}
+			if(data[1] instanceof String && ":".equalsIgnoreCase((String)data[1])) {
+				cols = Tools.getIndex(0, A.getColumnDimension()-1);
+			} else if(data[1] instanceof Number) {
+				Number num = (Number)data[1];
+				cols = new int[] { num.intValue() };
+			} else if(data[1] instanceof Jama.Matrix) {
+				cols = Tools.matrix2index((Jama.Matrix)data[1]);
+			} else {
+				throw new RuntimeException("unknown args: "+data[1]);
+			}
+			return A.getMatrix(rows, cols);
+		}
+		return A;
 	}
 	//A(B)=C
 	public static Jama.Matrix setMatrix(Jama.Matrix A, Jama.Matrix Idx, Jama.Matrix C) {
@@ -1592,5 +1639,12 @@ public class BytecodeSupport {
 		} else {
 			return A;
 		}
+	}
+	
+	public static int ndims(Jama.Matrix m) {
+		if(m.getRowDimension() == 1 || m.getColumnDimension() == 1)
+			return 1;
+		else
+			return 2;
 	}
 }

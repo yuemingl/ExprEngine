@@ -40,12 +40,13 @@ import static org.objectweb.asm.Opcodes.*;
  * [A B;C] = D;
  * 
  * TODO
+ *   **Add parent node for each node when it is constructed
  *   ** nargout  nargout(fx)
  *   Finish test for assignment with comma-separated list on right hand side
  *   Multi-variable assignement test
  *   Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
  *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
- *  'end' in expression, e.g. A(end-1)
+ *   Support 'end' in expression, e.g. A(end-1)
  *   ***[varargout{1:max(nargout,1)}]=F(varargin{:})  in (function varargout = gallery(matname,varargin))
  *   **try catch end
  *   **classdef
@@ -75,15 +76,20 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-//		exec("[varargout{1:max(nargout,1)}]");
-//		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
-//		
-//		//nargs = nargin(matname);
-//		//[classname,varargin{1:end-1}] //end-1
-//		exec("a=[2 3]; a(end-1)");
 
-//		exec("res1=1; for i=1:5, res1 = (res1~=0); end res1"); //res1=1; for i=1:5, res1 = (res1~=0); [res1=0;] end res1
-
+//		//flipdim.m
+//	    % Create the index that will transform x.
+//	    v(1:ndims(x)) = {':'};
+//	    % Flip dimension dim.
+//	    v{dim} = dimsize:-1:1;
+//	    % Index with v.
+//	    y = x(v{:});
+		exec("v={0,0}; v(1:2)={':'}; v{:}");
+		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; x(v{:})");
+		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
+		
+	    
+		//Type changing assignment tests:
 		//The following code is generated for this test in updateTree() of AssignNode
 		//The whole logic is replaced by updateTree()
 		//int aI=1;
@@ -97,10 +103,19 @@ public class TestMatlabEngine {
 		assertEqual(exec("a=1; i=1; while i<= 5, a=a+1.1; i+=1; end a"), 6.5);
 		
 		//exec("a=1; a=a+1.2; a");
+
+		//		exec("res1=1; for i=1:5, res1 = (res1~=0); end res1"); //res1=1; for i=1:5, res1 = (res1~=0); [res1=0;] end res1
 ////		exec("res1=1;  res1~=0");
 ////		exec("res1=1; res2 = (res1~=0); res2");
 //		exec("res1=1; res1 = (res1~=0); res1"); //false???
 		
+//		exec("[varargout{1:max(nargout,1)}]");
+//		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
+//		
+//		//nargs = nargin(matname);
+//		//[classname,varargin{1:end-1}] //end-1
+//		exec("a=[2 3]; a(end-1)");
+
 //		exec("A = 1:5; B = cumsum(A)");
 //		exec("A=[1 2 3; 4 5 6; 7 8 9]; cumsum(A)");
 //		exec("A=[1 2 0 5 7]; class(A)");

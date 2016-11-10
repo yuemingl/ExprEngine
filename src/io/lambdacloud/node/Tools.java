@@ -16,6 +16,7 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
+import io.lambdacloud.node.matrix.MatrixAccessNode;
 
 public class Tools {
 	
@@ -372,6 +373,21 @@ public class Tools {
 		for(int i=0; i<params.length; i++) {
 			rlt[i] = Tools.getPrimitiveClass(params[i].getClass());
 		}
+		return rlt;
+	}
+	
+	public static int[] matrix2index(Jama.Matrix m) {
+		double[] data = m.getColumnPackedCopy();
+		int[] rlt = new int[data.length];
+		for(int i=0; i<data.length; i++)
+			rlt[i] = (int)data[i] - MatrixAccessNode.INDEX_BASE;
+		return rlt;
+	}
+	
+	public static int[] getIndex(int start, int end) {
+		int[] rlt = new int[end-start+1];
+		for(int i=start; i<=end; i++)
+			rlt[i-start] = i;
 		return rlt;
 	}
 }
