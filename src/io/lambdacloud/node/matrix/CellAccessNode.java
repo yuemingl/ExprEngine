@@ -80,9 +80,9 @@ public class CellAccessNode extends ExprNode {
 			throw new UnsupportedOperationException("");
 		}
 		
-		//A(:) or A(B)
+		//A{:} or A{B}
 		if(this.indices.size() == 1) {
-			if(null == this.indices.get(0).idxS) {  //A(:)
+			if(null == this.indices.get(0).idxS) {  //A{:}
 				var.genCode(mg);
 				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 						"to1DArray", "()"+Type.getType(ObjectArray.class), false);
@@ -93,9 +93,9 @@ public class CellAccessNode extends ExprNode {
 							"()"+Type.getType(CSList.class), false);
 				}
 				return;
-			} else {   //A(B) or A(5) or A(1:10) or A(1:2:10)
+			} else {   //A{B} or A{5} or A{1:10} or A{1:2:10}
 				ExprNode idxS = this.indices.get(0).idxS;
-				if(idxS.getType().equals(Type.getType(Jama.Matrix.class))) { // A(B) or A(range)
+				if(idxS.getType().equals(Type.getType(Jama.Matrix.class))) { // A{B} or A{range}
 					var.genCode(mg);
 					idxS.genCode(mg);
 					mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
@@ -114,7 +114,7 @@ public class CellAccessNode extends ExprNode {
 						mg.visitInsn(Opcodes.ISUB);
 					}
 					ExprNode idxE = this.indices.get(0).idxE;
-					if(null == idxE) { //A(5)
+					if(null == idxE) { //A{5}
 						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 								"getAsObjectArray", "(I)"+Type.getType(ObjectArray.class), false);
 						if(isAccessObject) {
@@ -123,7 +123,7 @@ public class CellAccessNode extends ExprNode {
 									"(I)"+Type.getType(Object.class), false);
 						}
 
-					} else { //A(1:10) or A(1:end)
+					} else { //A{1:10} or A{1:end}
 						idxE.genCode(mg);
 						Tools.insertConversionInsn(mg, idxE.getType(), Type.INT_TYPE);
 						mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
@@ -145,7 +145,7 @@ public class CellAccessNode extends ExprNode {
 		
 		var.genCode(mg);
 
-		if(isAccessElement()) { //A(1,2)
+		if(isAccessElement()) { //A{1,2}
 			ExprNode idx1S = this.indices.get(1).idxS;
 			ExprNode idx2S = this.indices.get(0).idxS;
 			idx1S.genCode(mg);
@@ -187,7 +187,7 @@ public class CellAccessNode extends ExprNode {
 				else
 					throw new RuntimeException();
 			} else {
-				if(ip.idxS instanceof RangeNode) { //A(1:2:10,end:-1:5)
+				if(ip.idxS instanceof RangeNode) { //A{1:2:10,end:-1:5}
 					if(INDEX_BASE == 1) {
 						((RangeNode)ip.idxS).INDEX_SHIFT=1;
 					}
@@ -225,16 +225,16 @@ public class CellAccessNode extends ExprNode {
 						} else
 							throw new RuntimeException();
 					}
-				} else { //A(1:10, 2:end)
+				} else { //A{1:10, 2:end}
 					ip.idxS.genCode(mg);
 					Tools.insertConversionInsn(mg, ip.idxS.getType(), Type.INT_TYPE);
 					if(INDEX_BASE == 1) {
 						mg.visitInsn(Opcodes.ICONST_1);
 						mg.visitInsn(Opcodes.ISUB);
 					}
-					if(null == ip.idxE) //(A(s:s)
+					if(null == ip.idxE) //A{s:s}
 						mg.visitInsn(Opcodes.DUP);
-					else { //A(s1:e1,s2:e2) where e2=expr or 'end'
+					else { //A{s1:e1,s2:e2} where e2=expr or 'end'
 						ip.idxE.genCode(mg);
 						Tools.insertConversionInsn(mg, ip.idxE.getType(), Type.INT_TYPE);
 						if(INDEX_BASE == 1) {
