@@ -92,6 +92,10 @@ public class ObjectArray {
 		return new ObjectArray(new Object[][]{{get(idx)}});
 	}
 
+	public ObjectArray set(int idx, ObjectArray v) {
+		return set(idx, (Object)v);
+	}
+	
 	public ObjectArray set(int idx, Object v) {
 		int m = data.length;
 		int n = 0;
@@ -263,10 +267,19 @@ public class ObjectArray {
 	
 	public ObjectArray set(Jama.Matrix idx, ObjectArray ary) {
 		int nRow=getRowDimension();
-		for(int i=idx.getRowDimension()-1; i>=0; i--) {
-			for(int j=idx.getColumnDimension()-1; j>=0; j--) {
-				int index = ((int)idx.get(i, j))-1;
-				set(index%nRow, index/nRow, ary.data[i][j]);
+		if(ary.getRowDimension() == 1 && ary.getColumnDimension() == 1) {
+			for(int i=idx.getRowDimension()-1; i>=0; i--) {
+				for(int j=idx.getColumnDimension()-1; j>=0; j--) {
+					int index = ((int)idx.get(i, j))-1;
+					set(index%nRow, index/nRow, ary.data[0][0]);
+				}
+			}
+		} else {
+			for(int i=idx.getRowDimension()-1; i>=0; i--) {
+				for(int j=idx.getColumnDimension()-1; j>=0; j--) {
+					int index = ((int)idx.get(i, j))-1;
+					set(index%nRow, index/nRow, ary.data[i][j]);
+				}
 			}
 		}
 		return this;
