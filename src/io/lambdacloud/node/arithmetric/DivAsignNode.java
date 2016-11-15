@@ -13,10 +13,7 @@ import io.lambdacloud.node.VariableNode;
 
 public class DivAsignNode extends BinaryOp {
 	public DivAsignNode(VariableNode left, ExprNode right) {
-		this.left = left;
-		this.right = right;
-
-////		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
+		super(left, right);
 	}
 
 	public String toString() {

@@ -16,7 +16,7 @@ import io.lambdacloud.node.VariableNode;
 public class DescNode extends UnaryOp {
 
 	public DescNode(VariableNode var) {
-		this.expr = var;
+		super(var);
 	}
 
 	public String toString() {

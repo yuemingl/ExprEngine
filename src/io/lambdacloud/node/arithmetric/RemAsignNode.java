@@ -14,10 +14,7 @@ import io.lambdacloud.node.VariableNode;
 
 public class RemAsignNode extends BinaryOp {
 	public RemAsignNode(VariableNode left, ExprNode right) {
-		this.left = left;
-		this.right = right;
-		
-////		left.addValue(this); // Add value to the variable list to generate the record in LVT for this type
+		super(left, right);
 	}
 
 	public String toString() {

@@ -10,7 +10,7 @@ import io.lambdacloud.node.VariableNode;
 public class IncNode extends UnaryOp {
 
 	public IncNode(VariableNode var) {
-		this.expr = var;
+		super(var);
 	}
 
 	public String toString() {

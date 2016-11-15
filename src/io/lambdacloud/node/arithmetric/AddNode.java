@@ -12,9 +12,9 @@ import io.lambdacloud.node.Tools;
 public class AddNode extends BinaryOp {
 	
 	public AddNode(ExprNode left, ExprNode right) {
-		this.left = left;
+		super(left, right);
+		//TODO put the following in somewhere else?
 		this.left.genLoadInsn(true);
-		this.right = right;
 		this.right.genLoadInsn(true);
 	}
 	

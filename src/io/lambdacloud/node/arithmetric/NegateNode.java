@@ -10,7 +10,7 @@ import io.lambdacloud.node.UnaryOp;
 public class NegateNode extends UnaryOp {
 
 	public NegateNode(ExprNode expr) {
-		this.expr = expr;
+		super(expr);
 		expr.genLoadInsn(true);
 	}
 
