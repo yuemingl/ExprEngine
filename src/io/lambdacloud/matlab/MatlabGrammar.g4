@@ -160,9 +160,16 @@ arithmetic_expr
  | string_entity                                      # StringEntity
  | WS* 'nargin' WS* expr_end?                         # NArgIn
  | WS* 'nargout' WS* expr_end?                        # NArgOut
- | END                                                # EndIndex
  ;
 
+mini_airth_expr 
+ : mini_airth_expr mul_div_operator mini_airth_expr   # MiniArithMulDiv
+ | mini_airth_expr add_sub_operator mini_airth_expr   # MiniArithAddSub
+ | WS* LPAREN mini_airth_expr RPAREN WS*              # MiniArithParens
+ | numeric_entity                                     # MiniArithEntity
+ | END                                                # EndIndex
+ ;
+ 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
 mul_div_operator : SOL | DIV | DLDIV | DRDIV | MUL | DMUL ;
 bit_operator     : BAND | BOR | BXOR | BNOT ;
@@ -193,11 +200,18 @@ cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
 ai_list : ( expression (COMMA|WS|'\n')+ )* expression? ;
 
 //array access index
-aa_index : expression | COLON | func_handle | aa_range | END;
+aa_index 
+ : expression 
+ | COLON 
+ | func_handle 
+ | aa_range 
+ | mini_airth_expr 
+ | END
+ ;
 aa_range : aa_range_start WS* COLON WS* (aa_range_step WS* COLON WS*)? aa_range_end;
-aa_range_start : 'end' | expression;
+aa_range_start : mini_airth_expr | expression;
 aa_range_step : expression ;
-aa_range_end : 'end' | expression;
+aa_range_end : mini_airth_expr | expression;
 
 func_name_args : WS* IDENTIFIER WS* LPAREN ( WS* IDENTIFIER WS* COMMA WS* )* (WS* IDENTIFIER WS*)? RPAREN WS*   # FuncDefNameArgs;
 func_def_return : WS* (variable_entity|array_init) WS* ;
