@@ -143,7 +143,7 @@ arithmetic_expr
  | arithmetic_expr mul_div_operator arithmetic_expr   # ArithmeticExpressionMulDiv
  | arithmetic_expr add_sub_operator arithmetic_expr   # ArithmeticExpressionAddSub
 
- | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange1
+ | arithmetic_expr COLON (arithmetic_expr COLON)? arithmetic_expr   # ExprRange
 
  | arithmetic_expr comp_operator arithmetic_expr      # ComparisonArithmeticExpression
  
@@ -160,6 +160,7 @@ arithmetic_expr
  | string_entity                                      # StringEntity
  | WS* 'nargin' WS* expr_end?                         # NArgIn
  | WS* 'nargout' WS* expr_end?                        # NArgOut
+ | END                                                # EndIndex
  ;
 
 add_sub_operator : SUB | DSUB | ADD | DADD ;
