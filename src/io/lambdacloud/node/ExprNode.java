@@ -119,9 +119,19 @@ public abstract class ExprNode {
 		this.afterExprs.add(node);
 	}
 	
-	public ExprNode addParent(ExprNode p) {
+	/**
+	 * Set parent node of this object
+	 * 
+	 * @param p - parent node
+	 * @return this
+	 */
+	public ExprNode setParent(ExprNode p) {
 		this.parent = p;
 		return this;
+	}
+	
+	public ExprNode getParent() {
+		return this.parent;
 	}
 	
 	/**
@@ -129,6 +139,17 @@ public abstract class ExprNode {
 	 * before code generation
 	 * @param mg TODO
 	 */
-	public abstract void  updateTree(MethodGenHelper mg);
+	public abstract void updateTree(MethodGenHelper mg);
+	
+	/**
+	 * Implement this if a node needs to receive some additional parameters from parent nodes.
+	 * Parent nodes should call this function to tell children the name and value of the 
+	 * parameters.
+	 * Example:
+	 *   EndIndexNode needs to know on which dimension the 'end' should apply.
+	 * @param name
+	 * @param value
+	 */
+	public abstract void updateParam(String name, Object value); 
 
 }
