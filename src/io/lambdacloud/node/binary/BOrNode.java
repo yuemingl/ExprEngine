@@ -8,9 +8,8 @@ import io.lambdacloud.node.ExprNode;
 
 public class BOrNode extends BinaryOp {
 	public BOrNode(ExprNode left, ExprNode right) {
-		this.left = left;
+		super(left, right);
 		this.left.genLoadInsn(true);
-		this.right = right;
 		this.right.genLoadInsn(true);
 	}
 

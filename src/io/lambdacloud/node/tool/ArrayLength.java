@@ -47,5 +47,11 @@ public class ArrayLength extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		this.array.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		this.array.updateParam(name, value);
 	}
 }

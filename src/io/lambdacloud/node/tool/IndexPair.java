@@ -7,9 +7,14 @@ import io.lambdacloud.node.ExprNode;
 public class IndexPair {
 	public ExprNode idxS; //start index
 	public ExprNode idxE; //end index
-	public IndexPair(ExprNode idxS, ExprNode idxE) {
+	public IndexPair(ExprNode owner, ExprNode idxS, ExprNode idxE) {
 		this.idxE = idxE;
 		this.idxS = idxS;
+		if(null != this.idxS)
+			this.idxS.setParent(owner);
+		if(null != this.idxE)
+			this.idxE.setParent(owner);
+		
 	}
 	
 	public String toString() {

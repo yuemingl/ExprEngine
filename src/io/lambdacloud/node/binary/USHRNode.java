@@ -9,9 +9,8 @@ import io.lambdacloud.node.ExprNode;
 public class USHRNode extends BinaryOp {
 
 	public USHRNode(ExprNode left, ExprNode right) {
-		this.left = left;
+		super(left, right);
 		this.left.genLoadInsn(true);
-		this.right = right;
 		this.right.genLoadInsn(true);
 	}
 

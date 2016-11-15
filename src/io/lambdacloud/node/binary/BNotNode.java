@@ -12,7 +12,7 @@ import io.lambdacloud.node.UnaryOp;
 public class BNotNode extends UnaryOp {
 
 	public BNotNode(ExprNode expr) {
-		this.expr = expr;
+		super(expr);
 		this.expr.genLoadInsn(true);
 	}
 

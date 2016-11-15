@@ -15,12 +15,10 @@ public class SimpleAssign extends BinaryOp  {
 	Type activeVarType = null;
 	
 	public SimpleAssign(VariableNode left, ExprNode right) {
-		this.left = left;
-		this.right = right;
+		super(left, right);
 	}
 	public SimpleAssign(VariableNode left, ExprNode right, Type activeVarType) {
-		this.left = left;
-		this.right = right;
+		super(left, right);
 		this.activeVarType = activeVarType;
 	}
 	

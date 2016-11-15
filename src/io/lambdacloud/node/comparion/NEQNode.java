@@ -23,9 +23,8 @@ import io.lambdacloud.util.LogicalArray;
 public class NEQNode extends BinaryOp {
 
 	public NEQNode(ExprNode left, ExprNode right) {
-		this.left = left;
+		super(left, right);
 		this.left.genLoadInsn(true);
-		this.right = right;
 		this.right.genLoadInsn(true);
 	}
 

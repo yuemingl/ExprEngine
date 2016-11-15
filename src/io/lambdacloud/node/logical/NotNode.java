@@ -18,7 +18,8 @@ import io.lambdacloud.node.UnaryOp;
 public class NotNode extends UnaryOp {
 	
 	public NotNode(ExprNode expr) {
-		this.expr = expr;
+		super(expr);
+		expr.genLoadInsn(true);
 	}
 	
 	public String toString() {

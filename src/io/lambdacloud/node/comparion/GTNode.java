@@ -26,9 +26,8 @@ import io.lambdacloud.util.LogicalArray;
 public class GTNode extends BinaryOp {
 
 	public GTNode(ExprNode left, ExprNode right) {
-		this.left = left;
+		super(left, right);
 		this.left.genLoadInsn(true);
-		this.right = right;
 		this.right.genLoadInsn(true);
 	}
 

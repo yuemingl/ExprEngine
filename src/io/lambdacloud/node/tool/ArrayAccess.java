@@ -46,6 +46,7 @@ public class ArrayAccess extends ExprNode {
 			return true;
 		return false;
 	}
+	
 	@Override
 	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
 		if(this.array == oldNode)
@@ -53,8 +54,16 @@ public class ArrayAccess extends ExprNode {
 		if(this.index == oldNode)
 			this.index = oldNode;
 	}
+	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		this.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		this.array.updateParam(name, value);
+		this.index.updateParam(name, value);
 	}
 
 }
