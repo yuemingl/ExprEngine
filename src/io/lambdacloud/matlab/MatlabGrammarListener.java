@@ -302,18 +302,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitLogicalExpressionOr(MatlabGrammarParser.LogicalExpressionOrContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code EndIndex}
-	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterEndIndex(MatlabGrammarParser.EndIndexContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code EndIndex}
-	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitEndIndex(MatlabGrammarParser.EndIndexContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code LogicalExpressionEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -517,6 +505,66 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNArgOut(MatlabGrammarParser.NArgOutContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code EndIndex}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEndIndex(MatlabGrammarParser.EndIndexContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code EndIndex}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEndIndex(MatlabGrammarParser.EndIndexContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MiniArithEntity}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMiniArithEntity(MatlabGrammarParser.MiniArithEntityContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MiniArithEntity}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMiniArithEntity(MatlabGrammarParser.MiniArithEntityContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MiniArithParens}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMiniArithParens(MatlabGrammarParser.MiniArithParensContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MiniArithParens}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMiniArithParens(MatlabGrammarParser.MiniArithParensContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MiniArithAddSub}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMiniArithAddSub(MatlabGrammarParser.MiniArithAddSubContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MiniArithAddSub}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMiniArithAddSub(MatlabGrammarParser.MiniArithAddSubContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MiniArithMulDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMiniArithMulDiv(MatlabGrammarParser.MiniArithMulDivContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MiniArithMulDiv}
+	 * labeled alternative in {@link MatlabGrammarParser#mini_airth_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMiniArithMulDiv(MatlabGrammarParser.MiniArithMulDivContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MatlabGrammarParser#add_sub_operator}.
 	 * @param ctx the parse tree
