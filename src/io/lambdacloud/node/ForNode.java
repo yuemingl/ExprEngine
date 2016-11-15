@@ -204,15 +204,28 @@ mv.visitInsn(IRETURN);
 		for(ExprNode e : this.init) {
 			e.updateTree(mg);
 		}
-		
-		this.cond.updateTree(null);
+		this.cond.updateTree(mg);
 		
 		for(ExprNode e : this.inc) {
 			e.updateTree(mg);
 		}
-		
 		for(ExprNode e : this.block) {
 			e.updateTree(mg);
+		}
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e : this.init) {
+			e.updateParam(name, value);
+		}
+		this.cond.updateParam(name, value);
+		
+		for(ExprNode e : this.inc) {
+			e.updateParam(name, value);
+		}
+		for(ExprNode e : this.block) {
+			e.updateParam(name, value);
 		}
 	}
 }

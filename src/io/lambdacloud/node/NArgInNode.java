@@ -42,4 +42,8 @@ public class NArgInNode extends ExprNode {
 	public void updateTree(MethodGenHelper mg) {
 	}
 
+	@Override
+	public void updateParam(String name, Object value) {
+	}
+
 }

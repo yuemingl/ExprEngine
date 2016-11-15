@@ -12,10 +12,11 @@ public class ReturnNode extends UnaryOp {
 	public FuncDefNode refFunc;
 	
 	public ReturnNode() {
+		super(null);
 	}
 
 	public ReturnNode(ExprNode retExpr, FuncDefNode refFunc) {
-		this.expr = retExpr;
+		super(retExpr);
 		this.refFunc = refFunc;
 	}
 

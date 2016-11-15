@@ -23,8 +23,7 @@ public class AssignNode extends BinaryOp {
 	private boolean isUpdatedType = false;
 
 	public AssignNode(VariableNode left, ExprNode right) {
-		this.left = left;
-		this.right = right;
+		super(left, right);
 	}
 
 	public String toString() {

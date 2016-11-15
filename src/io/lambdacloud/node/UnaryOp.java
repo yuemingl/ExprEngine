@@ -9,6 +9,11 @@ import io.lambdacloud.MethodGenHelper;
 public class UnaryOp extends ExprNode {
 	public ExprNode expr;
 	
+	public UnaryOp(ExprNode node) {
+		if(null != node)
+			this.expr = node.setParent(this);
+	}
+	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
 		throw new UnsupportedOperationException();
@@ -55,5 +60,11 @@ public class UnaryOp extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		this.expr.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		this.expr.updateParam(name, value);
 	}
 }

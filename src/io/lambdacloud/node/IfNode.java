@@ -204,6 +204,7 @@ mv.visitInsn(IRETURN);
 		}
 		throw new RuntimeException("Cannot infer type for if statement: "+this.toString());
 	}
+	
 	@Override
 	public void updateType(Deque<Object> stack) {
 		//circle check
@@ -221,6 +222,7 @@ mv.visitInsn(IRETURN);
 		}
 		stack.pop();
 	}
+	
 	@Override
 	public boolean contains(ExprNode target) {
 		if(this == target) 
@@ -237,6 +239,7 @@ mv.visitInsn(IRETURN);
 		}
 		return false;
 	}
+	
 	@Override
 	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
 		if(this.condition == oldNode) 
@@ -250,11 +253,20 @@ mv.visitInsn(IRETURN);
 				this.elseBlockExprs.set(i, newNode);
 		}
 	}
+	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
 		for(ExprNode e : this.ifBlockExprs)
 			e.updateTree(mg);
 		for(ExprNode e: this.elseBlockExprs)
 			e.updateTree(mg);
+	}
+	
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e : this.ifBlockExprs)
+			e.updateParam(name, value);
+		for(ExprNode e: this.elseBlockExprs)
+			e.updateParam(name, value);
 	}
 }

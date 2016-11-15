@@ -8,7 +8,7 @@ import io.lambdacloud.MethodGenHelper;
 
 public class DupNode extends UnaryOp {
 	public DupNode(ExprNode expr) {
-		this.expr = expr;
+		super(expr);
 	}
 	
 	@Override

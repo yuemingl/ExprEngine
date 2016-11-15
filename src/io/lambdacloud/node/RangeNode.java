@@ -21,16 +21,16 @@ public class RangeNode extends ExprNode {
 	private boolean returnMatrix = true;
 	
 	public RangeNode(ExprNode start, ExprNode end, boolean includeEnd) {
-		this.start = start;
+		this.start = start.setParent(this);
 		this.step = null;
-		this.end = end;
+		this.end = end.setParent(this);
 		this.includeEnd = includeEnd;
 	}
 	
 	public RangeNode(ExprNode start, ExprNode step, ExprNode end, boolean includeEnd) {
-		this.start = start;
-		this.step = step;
-		this.end = end;
+		this.start = start.setParent(this);
+		this.step = step.setParent(this);
+		this.end = end.setParent(this);
 		this.includeEnd = includeEnd;
 	}
 	
@@ -220,10 +220,25 @@ public class RangeNode extends ExprNode {
 			this.step = newNode;
 		if(this.end == oldNode)
 			this.end = newNode;
-		
 	}
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		if(null != this.start)
+			this.start.updateTree(mg);
+		if(null != this.step)
+			this.step.updateTree(mg);
+		if(null != this.end)
+			this.end.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		if(null != this.start)
+			this.start.updateParam(name, value);
+		if(null != this.step)
+			this.step.updateParam(name, value);
+		if(null != this.end)
+			this.end.updateParam(name, value);
 	}
 }

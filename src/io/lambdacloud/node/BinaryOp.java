@@ -10,6 +10,11 @@ public class BinaryOp extends ExprNode {
 	public ExprNode left;
 	public ExprNode right;
 	
+	public BinaryOp(ExprNode left, ExprNode right) {
+		this.left = left.setParent(this);
+		this.right = right.setParent(this);
+	}
+	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
 		throw new UnsupportedOperationException();
@@ -64,5 +69,11 @@ public class BinaryOp extends ExprNode {
 	public void updateTree(MethodGenHelper mg) {
 		this.left.updateTree(mg);
 		this.right.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		left.updateParam(name, value);
+		right.updateParam(name, value);
 	}
 }

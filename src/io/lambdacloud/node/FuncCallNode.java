@@ -304,5 +304,15 @@ public class FuncCallNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e: args) {
+			e.updateTree(mg);
+		}
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e: args) {
+			e.updateParam(name, value);
+		}
 	}
 }

@@ -102,6 +102,7 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 //		}
 //		throw new RuntimeException("Cannot infer return type!");
 	}
+	
 	@Override
 	public void updateType(Deque<Object> stack) {
 		//circle check
@@ -114,6 +115,7 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 		condition.updateType(stack);
 		stack.pop();
 	}
+	
 	@Override
 	public boolean contains(ExprNode target) {
 		if(this == target)
@@ -126,6 +128,7 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 		}
 		return false;
 	}
+	
 	@Override
 	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
 		if(this.condition == oldNode) 
@@ -135,10 +138,18 @@ mv.visitJumpInsn(IF_ICMPLT, l2);
 				this.block.set(i, newNode);
 		}
 	}
+	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
 		for(ExprNode e : this.block) {
 			e.updateTree(mg);
+		}
+	}
+	
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e : this.block) {
+			e.updateParam(name, value);
 		}
 	}
 }

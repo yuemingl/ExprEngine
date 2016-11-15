@@ -167,4 +167,11 @@ public class SwitchNode extends ExprNode {
 		}
 	}
 
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e: this.caseBlock) {
+			e.updateParam(name, value);
+		}
+	}
+
 }

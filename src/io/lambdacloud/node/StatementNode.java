@@ -58,4 +58,11 @@ public class StatementNode extends ExprNode {
 			e.updateTree(mg);
 		}
 	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e : this.exprs) {
+			e.updateParam(name, value);
+		}
+	}
 }
