@@ -365,7 +365,7 @@ public class CellAccessNode extends ExprNode {
 					p.idxS.updateParam(name, value);
 				}
 				if(null != p.idxE) {
-					p.idxS.updateParam(name, value);
+					p.idxE.updateParam(name, value);
 				}
 			}
 		}
@@ -378,7 +378,7 @@ public class CellAccessNode extends ExprNode {
 				p.idxS.updateParam("end_dim", dim-i);
 			}
 			if(null != p.idxE) {
-				p.idxS.updateParam("end_dim", dim-i);
+				p.idxE.updateParam("end_dim", dim-i);
 			}
 		}
 	}

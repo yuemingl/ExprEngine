@@ -313,7 +313,7 @@ public class MatrixAssignNode extends ExprNode {
 					p.idxS.updateParam("end_dim", -1);
 				}
 				if(null != p.idxE) {
-					p.idxS.updateParam("end_dim", -1);
+					p.idxE.updateParam("end_dim", -1);
 				}
 			}
 		} else {
@@ -324,7 +324,7 @@ public class MatrixAssignNode extends ExprNode {
 					p.idxS.updateParam("end_dim", dim-i);
 				}
 				if(null != p.idxE) {
-					p.idxS.updateParam("end_dim", dim-i);
+					p.idxE.updateParam("end_dim", dim-i);
 				}
 			}
 		}

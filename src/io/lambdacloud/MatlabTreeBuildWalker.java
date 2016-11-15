@@ -643,7 +643,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			}
 			if(null != ctx.aa_index(i).aa_range()) {
 				//---end
-				if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_end()) {
 					indices.add(this.currentScope().stack.pop());
 				}
 				//---step
@@ -651,7 +651,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					indices.add(this.currentScope().stack.pop());
 				}
 				//---start
-				if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_start()) {
 					indices.add(this.currentScope().stack.pop());
 				}
 			} else {
@@ -698,7 +698,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						dimMethodName = "getColumnDimension";
 					}
 					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_end())
 						idxE = this.currentScope().stack.pop();
 					else { //end='end'
 						idxE = new FuncCallNode(var, dimMethodName, false);
@@ -708,7 +708,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						idxStep = this.currentScope().stack.pop();
 					}
 					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_start())
 						idxS = this.currentScope().stack.pop();
 					else { //start='end'
 						idxS = new FuncCallNode(var, dimMethodName, false);
@@ -716,7 +716,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				} else {
 					//A(x:x:end)
 					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_end())
 						idxE = this.currentScope().stack.pop();
 					else { //end='end'
 						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
@@ -728,7 +728,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						idxStep = this.currentScope().stack.pop();
 					}
 					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_start())
 						idxS = this.currentScope().stack.pop();
 					else { //start='end'
 						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
@@ -766,7 +766,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			}
 			if(null != ctx.aa_index(i).aa_range()) {
 				//---end
-				if(null != ctx.aa_index(i).aa_range().aa_range_end() && null != ctx.aa_index(i).aa_range().aa_range_end().expression()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_end()) {
 					indices.add(this.currentScope().stack.pop());
 				}
 				//---step
@@ -774,7 +774,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					indices.add(this.currentScope().stack.pop());
 				}
 				//---start
-				if(null != ctx.aa_index(i).aa_range().aa_range_start() && null != ctx.aa_index(i).aa_range().aa_range_start().expression()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_start()) {
 					indices.add(this.currentScope().stack.pop());
 				}
 			} else {
@@ -923,7 +923,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						dimMethodName = "getColumnDimension";
 					}
 					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_end())
 						idxE = this.currentScope().stack.pop();
 					else { //end='end'
 						idxE = new FuncCallNode(var, dimMethodName, false);
@@ -933,7 +933,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						idxStep = this.currentScope().stack.pop();
 					}
 					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_start())
 						idxS = this.currentScope().stack.pop();
 					else { //start='end'
 						idxS = new FuncCallNode(var, dimMethodName, false);
@@ -941,7 +941,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				} else {
 					//A(x:x:end)
 					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_end())
 						idxE = this.currentScope().stack.pop();
 					else { //end='end'
 						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
@@ -953,7 +953,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						idxStep = this.currentScope().stack.pop();
 					}
 					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start().expression())
+					if(null != ctx.aa_index(i).aa_range().aa_range_start())
 						idxS = this.currentScope().stack.pop();
 					else { //start='end'
 						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
@@ -1653,6 +1653,45 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitEndIndex(MatlabGrammarParser.EndIndexContext ctx) {
 		EndIndexNode n = new EndIndexNode();
 		this.currentScope().stack.push(n);
+	}
+
+	
+	@Override public void exitMiniArithEntity(MatlabGrammarParser.MiniArithEntityContext ctx) { }
+	@Override public void exitMiniArithAddSub(MatlabGrammarParser.MiniArithAddSubContext ctx) {
+		String op = ctx.add_sub_operator().getText();
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		if(op.equals("+"))
+			currentScope().stack.push(new AddNode(v1, v2));
+		else if(op.equals(".+"))
+			currentScope().stack.push(new AddNode(v1, v2));
+		else if(op.equals("-"))
+			currentScope().stack.push(new SubNode(v1, v2));
+		else if(op.equals(".-"))
+			currentScope().stack.push(new SubNode(v1, v2));
+		else
+			throw new RuntimeException("Bad operator:"+op );
+		
+	}
+	@Override public void exitMiniArithMulDiv(MatlabGrammarParser.MiniArithMulDivContext ctx) {
+		String op = ctx.mul_div_operator().getText();
+		ExprNode v2 = currentScope().stack.pop();
+		ExprNode v1 = currentScope().stack.pop();
+		if(op.equals("*"))
+			currentScope().stack.push(new MultNode(v1, v2));
+		else if(op.equals(".*"))
+			currentScope().stack.push(new MatrixDMulNode(v1, v2));
+		else if(op.equals("/"))
+			currentScope().stack.push(new DivNode(v1, v2));
+		else if(op.equals("./"))
+			currentScope().stack.push(new MatrixDRDivNode(v1, v2));
+		else if(op.equals("\\"))
+			currentScope().stack.push(new SolveNode(v1, v2));
+		else if(op.equals(".\\"))
+			currentScope().stack.push(new MatrixDLDivNode(v1, v2));
+		else
+			throw new RuntimeException("Bad operator:"+op );
+		
 	}
 
 }
