@@ -8,7 +8,7 @@ import io.lambdacloud.node.UnaryOp;
 
 public class TransposeNode extends UnaryOp {
 	public TransposeNode(ExprNode expr) {
-		this.expr = expr;
+		super(expr);
 	}
 
 	public String toString() {

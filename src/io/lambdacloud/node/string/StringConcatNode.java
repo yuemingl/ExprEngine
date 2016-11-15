@@ -87,5 +87,17 @@ public class StringConcatNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		if(null != this.left)
+			this.left.updateTree(mg);
+		if(null != this.right)
+			this.right.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		if(null != this.left)
+			this.left.updateParam(name, value);
+		if(null != this.right)
+			this.right.updateParam(name, value);
 	}
 }

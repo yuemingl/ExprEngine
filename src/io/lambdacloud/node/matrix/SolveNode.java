@@ -10,9 +10,8 @@ import io.lambdacloud.node.Tools;
 
 public class SolveNode extends BinaryOp {
 	public SolveNode(ExprNode left, ExprNode right) {
-		this.left = left;
+		super(left, right);
 		this.left.genLoadInsn(true);
-		this.right = right;
 		this.right.genLoadInsn(true);
 	}
 	

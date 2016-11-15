@@ -110,5 +110,13 @@ public class ArrayNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.init)
+			e.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e : this.init)
+			e.updateParam(name, value);
 	}
 }

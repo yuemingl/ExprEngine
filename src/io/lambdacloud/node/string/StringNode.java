@@ -54,4 +54,8 @@ public class StringNode extends ExprNode {
 	@Override
 	public void updateTree(MethodGenHelper mg) {
 	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+	}
 }

@@ -33,7 +33,7 @@ public class MatrixAccessNode extends ExprNode {
 	}
 	
 	public void addIndex(ExprNode idxS, ExprNode idxE) {
-		indices.add(new IndexPair(idxS, idxE));
+		indices.add(new IndexPair(this, idxS, idxE));
 	}
 	
 	public String toString() {
@@ -86,7 +86,7 @@ public class MatrixAccessNode extends ExprNode {
 			throw new UnsupportedOperationException("");
 		}
 		
-		//A(:) or A(B)
+		//A(:), A(1:end) or A(B)
 		if(this.indices.size() == 1) {
 			if(null == this.indices.get(0).idxS) {  //A(:)
 				var.genCode(mg);
@@ -321,5 +321,53 @@ public class MatrixAccessNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		for(int i=0; i<this.indices.size(); i++) {
+			IndexPair p = this.indices.get(i);
+			if(null != p.idxS) {
+				p.idxS.updateTree(mg);
+			}
+			if(null != p.idxE) {
+				p.idxS.updateTree(mg);
+			}
+		}
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		//Pass down the update if there is any
+		if(null != name) {
+			for(int i=0; i<this.indices.size(); i++) {
+				IndexPair p = this.indices.get(i);
+				if(null != p.idxS) {
+					p.idxS.updateParam(name, value);
+				}
+				if(null != p.idxE) {
+					p.idxS.updateParam(name, value);
+				}
+			}
+		}
+		//update dim for 'end' index
+		if(this.indices.size() == 1) {
+			for(int i=0; i<this.indices.size(); i++) {
+				IndexPair p = this.indices.get(i);
+				if(null != p.idxS) {
+					p.idxS.updateParam("end_dim", -1);
+				}
+				if(null != p.idxE) {
+					p.idxS.updateParam("end_dim", -1);
+				}
+			}
+		} else {
+			int dim = this.indices.size();
+			for(int i=0; i<this.indices.size(); i++) {
+				IndexPair p = this.indices.get(i);
+				if(null != p.idxS) {
+					p.idxS.updateParam("end_dim", dim-i);
+				}
+				if(null != p.idxE) {
+					p.idxS.updateParam("end_dim", dim-i);
+				}
+			}
+		}
 	}
 }

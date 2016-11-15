@@ -38,7 +38,7 @@ public class CellAccessNode extends ExprNode {
 	}
 	
 	public void addIndex(ExprNode idxS, ExprNode idxE) {
-		indices.add(new IndexPair(idxS, idxE));
+		indices.add(new IndexPair(this, idxS, idxE));
 	}
 	
 	public String toString() {
@@ -341,8 +341,45 @@ public class CellAccessNode extends ExprNode {
 		}
 	}
 
+
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		for(int i=0; i<this.indices.size(); i++) {
+			IndexPair p = this.indices.get(i);
+			if(null != p.idxS) {
+				p.idxS.updateTree(mg);
+			}
+			if(null != p.idxE) {
+				p.idxS.updateTree(mg);
+			}
+		}
 	}
 
+	@Override
+	public void updateParam(String name, Object value) {
+		//Pass down the update if there is any
+		if(null != name) {
+			for(int i=0; i<this.indices.size(); i++) {
+				IndexPair p = this.indices.get(i);
+				if(null != p.idxS) {
+					p.idxS.updateParam(name, value);
+				}
+				if(null != p.idxE) {
+					p.idxS.updateParam(name, value);
+				}
+			}
+		}
+		
+		//update dim for 'end' index
+		int dim = this.indices.size();
+		for(int i=0; i<this.indices.size(); i++) {
+			IndexPair p = this.indices.get(i);
+			if(null != p.idxS) {
+				p.idxS.updateParam("end_dim", dim-i);
+			}
+			if(null != p.idxE) {
+				p.idxS.updateParam("end_dim", dim-i);
+			}
+		}
+	}
 }

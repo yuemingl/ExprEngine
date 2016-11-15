@@ -88,5 +88,11 @@ public class StructAccessNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		var.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		var.updateParam(name, value);
 	}
 }

@@ -189,6 +189,14 @@ public class CellInitNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		for(ExprNode e : this.initExprList)
+			e.updateTree(mg);
+	}
+
+	@Override
+	public void updateParam(String name, Object value) {
+		for(ExprNode e : this.initExprList)
+			e.updateParam(name, value);
 	}
 	
 }

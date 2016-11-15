@@ -95,8 +95,16 @@ public class StructAssignNode extends ExprNode {
 			this.value = newNode;
 	}
 
+
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		this.var.updateTree(mg);
+		this.value.updateTree(mg);
 	}
 
+	@Override
+	public void updateParam(String name, Object value) {
+		this.var.updateParam(name, value);
+		this.value.updateParam(name, value);
+	}
 }
