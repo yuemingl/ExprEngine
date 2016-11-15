@@ -302,6 +302,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitLogicalExpressionOr(MatlabGrammarParser.LogicalExpressionOrContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code EndIndex}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEndIndex(MatlabGrammarParser.EndIndexContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code EndIndex}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEndIndex(MatlabGrammarParser.EndIndexContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code LogicalExpressionEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -410,6 +422,18 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 */
 	void exitLogicalExpressionNot(MatlabGrammarParser.LogicalExpressionNotContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExprRange}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprRange(MatlabGrammarParser.ExprRangeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExprRange}
+	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ArithmeticExpressionEntity}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
 	 * @param ctx the parse tree
@@ -445,18 +469,6 @@ public interface MatlabGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringEntity(MatlabGrammarParser.StringEntityContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ExprRange1}
-	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExprRange1}
-	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExprArrayInit}
 	 * labeled alternative in {@link MatlabGrammarParser#arithmetic_expr}.
