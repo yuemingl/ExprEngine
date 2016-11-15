@@ -65,6 +65,7 @@ import io.lambdacloud.node.logical.OrNode;
 import io.lambdacloud.node.matrix.CellAccessNode;
 import io.lambdacloud.node.matrix.CellAssignNode;
 import io.lambdacloud.node.matrix.CellInitNode;
+import io.lambdacloud.node.matrix.EndIndexNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
 import io.lambdacloud.node.matrix.MatrixAssignNode;
 import io.lambdacloud.node.matrix.MatrixDLDivNode;
@@ -396,6 +397,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			//Update tree before code generation
 			for(ExprNode e : this.currentScope().stack) {
 				e.updateTree(mg);
+			}
+			//Initiate call to updateParam()
+			for(ExprNode e : this.currentScope().stack) {
+				e.updateParam(null, null);
 			}
 
 //			int index = 1;
@@ -801,7 +806,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			if(san.fields.size() > 0)
 				sbNames.append(".").append(Tools.join(san.fields.toArray(new String[0]), "."));
 		} else {
-			throw new RuntimeException();
+			throw new RuntimeException("var ="+var);
 		}
 		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
 		if(null == func) {
@@ -1282,10 +1287,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		
 		ForNode forNode = new ForNode();
 		for(int i=ctx.statement_block().statement().size()-1; i>=0; i--) {
-			forNode.block.add(this.currentScope().stack.pop().addParent(forNode));
+			forNode.block.add(this.currentScope().stack.pop().setParent(forNode));
 		}
 		if(null != ctx.statement_block().expression()) {
-			forNode.block.add(this.currentScope().stack.pop().addParent(forNode));
+			forNode.block.add(this.currentScope().stack.pop().setParent(forNode));
 		}
 		
 		ExprNode forRange = this.currentScope().stack.pop();
@@ -1369,8 +1374,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	
-	@Override public void exitExprRange1(MatlabGrammarParser.ExprRange1Context ctx) { 
-		//System.out.println("exitExprRange1: "+ctx.getText());
+	@Override public void exitExprRange(MatlabGrammarParser.ExprRangeContext ctx) { 
+		//System.out.println("exitExprRange: "+ctx.getText());
 		RangeNode node = null;
 		if(ctx.arithmetic_expr().size() == 2) {
 			ExprNode idxE = this.currentScope().stack.pop();
@@ -1460,12 +1465,12 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitExprWhile(MatlabGrammarParser.ExprWhileContext ctx) {
 		WhileNode wn = new WhileNode();
 		for(int i=ctx.statement_block().statement().size()-1; i>=0; i--) {
-			wn.block.add(currentScope().stack.pop().addParent(wn));
+			wn.block.add(currentScope().stack.pop().setParent(wn));
 		}
 		if(null != ctx.statement_block().expression()) {
-			wn.block.add(currentScope().stack.pop().addParent(wn));
+			wn.block.add(currentScope().stack.pop().setParent(wn));
 		}
-		wn.condition = currentScope().stack.pop().addParent(wn);
+		wn.condition = currentScope().stack.pop().setParent(wn);
 		currentScope().stack.push(wn);
 	}
 	
@@ -1643,6 +1648,11 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		sn.switchExpr = this.currentScope().stack.pop();
 		
 		this.currentScope().stack.push(sn);
+	}
+
+	@Override public void exitEndIndex(MatlabGrammarParser.EndIndexContext ctx) {
+		EndIndexNode n = new EndIndexNode();
+		this.currentScope().stack.push(n);
 	}
 
 }

@@ -146,7 +146,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 	
 	/**
 	 * TODO
-	 * bootstrap for calling a function with Object type parameters
+	 * bootstrap for calling a function with parameter of object array
 	 * 
 	 */
 	static Map<String, Method> mapMethod = new HashMap<String, Method>();
