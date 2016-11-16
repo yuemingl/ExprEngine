@@ -199,14 +199,13 @@ array_init : WS* LBRK WS* ( ai_list WS* SEMI WS* ('\n')* WS* )* ai_list WS* RBRK
 cell_init : WS* LCB WS* ( ai_list WS* SEMI WS* )* ai_list WS* RCB WS* ;
 ai_list : ( expression (COMMA|WS|'\n')+ )* expression? ;
 
-//array access index
+//array access (aa_xxx) index
 aa_index 
- : expression 
- | COLON 
- | func_handle 
- | aa_range 
+ : expression
+ | COLON
+ | func_handle
+ | aa_range
  | mini_airth_expr 
- | END
  ;
 aa_range : aa_range_start WS* COLON WS* (aa_range_step WS* COLON WS*)? aa_range_end;
 aa_range_start : mini_airth_expr | expression;
