@@ -17,7 +17,7 @@ public class BXorNode extends BinaryOp {
 		return left + "^" + right;
 	}
 
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		left.genCode(mg);
 		right.genCode(mg);
 		mg.visitInsn(getType().getOpcode(Opcodes.IXOR));

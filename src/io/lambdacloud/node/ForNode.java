@@ -22,6 +22,7 @@ public class ForNode extends ExprNode {
 	public List<ExprNode>  inc = new ArrayList<ExprNode>();
 	public List<ExprNode> block = new ArrayList<ExprNode>();
 
+	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
 		for(int i=init.size()-1; i>=0; i--) {
@@ -202,14 +203,18 @@ mv.visitInsn(IRETURN);
 	@Override
 	public void updateTree(MethodGenHelper mg) {
 		for(ExprNode e : this.init) {
+			e.setParent(this);
 			e.updateTree(mg);
 		}
+		this.cond.setParent(this);
 		this.cond.updateTree(mg);
 		
 		for(ExprNode e : this.inc) {
+			e.setParent(this);
 			e.updateTree(mg);
 		}
 		for(ExprNode e : this.block) {
+			e.setParent(this);
 			e.updateTree(mg);
 		}
 	}

@@ -6,6 +6,12 @@ import org.objectweb.asm.Type;
 
 import io.lambdacloud.MethodGenHelper;
 
+/**
+ * Generate DUP base on type
+ * 
+ * @author yueming.liu
+ *
+ */
 public class DupNode extends UnaryOp {
 	public DupNode(ExprNode expr) {
 		super(expr);

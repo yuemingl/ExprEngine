@@ -36,7 +36,7 @@ public class GTNode extends BinaryOp {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type lType = left.getType();
 		Type rType = right.getType();
 		if(null == lType || null == rType)

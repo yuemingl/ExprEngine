@@ -269,6 +269,8 @@ public class AssignNode extends BinaryOp {
 	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		//update tree for the case like
+		//aD = aI + 1.5
 		if(right.contains(left) && null != this.parent &&
 				(this.parent instanceof ForNode ||
 				 this .parent instanceof WhileNode) ) {

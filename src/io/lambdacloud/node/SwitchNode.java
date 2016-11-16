@@ -162,15 +162,26 @@ public class SwitchNode extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		this.switchExpr.updateTree(mg);
 		for(ExprNode e: this.caseBlock) {
+			e.setParent(this);
 			e.updateTree(mg);
+		}
+		if(null != this.defaultBlock) {
+			this.defaultBlock.setParent(this);
+			this.defaultBlock.updateTree(mg);
 		}
 	}
 
 	@Override
 	public void updateParam(String name, Object value) {
+		this.switchExpr.updateParam(name, value);
 		for(ExprNode e: this.caseBlock) {
 			e.updateParam(name, value);
+		}
+		if(null != this.defaultBlock) {
+			this.defaultBlock.setParent(this);
+			this.defaultBlock.updateParam(name, value);
 		}
 	}
 

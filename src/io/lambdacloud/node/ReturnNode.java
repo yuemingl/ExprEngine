@@ -11,6 +11,9 @@ import io.lambdacloud.MethodGenHelper;
 public class ReturnNode extends UnaryOp {
 	public FuncDefNode refFunc;
 	
+	/**
+	 * Empty return node
+	 */
 	public ReturnNode() {
 		super(null);
 	}

@@ -26,7 +26,7 @@ public abstract class ExprNode {
 	public abstract void _genCode(MethodGenHelper mg);
 
 	/**
-	 * Expressions can inserted before or after any expression 
+	 * Expressions can be inserted before or after a expression
 	 * @param mg
 	 */
 	public void genCode(MethodGenHelper mg) {

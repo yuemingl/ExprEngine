@@ -67,6 +67,10 @@ public class BinaryOp extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		if( (!(left instanceof VariableNode)  && this != left.getParent()) ||
+			(!(right instanceof VariableNode) && this != right.getParent()) ) {
+			throw new RuntimeException("Parent links of chindren are not set correctly!");
+		}
 		this.left.updateTree(mg);
 		this.right.updateTree(mg);
 	}

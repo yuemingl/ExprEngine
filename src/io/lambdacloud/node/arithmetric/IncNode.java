@@ -7,6 +7,12 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.UnaryOp;
 import io.lambdacloud.node.VariableNode;
 
+/**
+ * Increase node: i++
+ * 
+ * @author yueming.liu
+ *
+ */
 public class IncNode extends UnaryOp {
 
 	public IncNode(VariableNode var) {
@@ -37,15 +43,5 @@ public class IncNode extends UnaryOp {
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex());
 		}
-	}
-
-	public int test(int a) {
-		int c = a++;
-		return c;
-	}
-
-	public long test(long a) {
-		long c = a++;
-		return c;
 	}
 }

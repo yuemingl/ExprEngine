@@ -215,18 +215,22 @@ public class VariableNode extends ExprNode {
 	private void setActiveType(Type ty) {
 		this.activeType = ty;
 	}
+	
 	@Override
 	public boolean contains(ExprNode target) {
 		if(this == target)
 			return true;
 		return false;
 	}
+	
 	@Override
 	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
 	}
+	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
 	}
+	
 	@Override
 	public void updateParam(String name, Object value) {
 	}

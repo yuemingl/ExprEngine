@@ -19,7 +19,7 @@ public class SHRNode extends BinaryOp {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		left.genCode(mg);
 		right.genCode(mg);
 		mg.visitInsn(getType().getOpcode(Opcodes.ISHR));

@@ -21,7 +21,7 @@ public class BNotNode extends UnaryOp {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		Type myType = this.getType();
 		expr.genCode(mg);
 		if (myType.getSort() == Type.LONG)

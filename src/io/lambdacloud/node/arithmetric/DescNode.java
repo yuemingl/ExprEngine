@@ -8,7 +8,7 @@ import io.lambdacloud.node.UnaryOp;
 import io.lambdacloud.node.VariableNode;
 
 /**
- * i--
+ * Decrease node: i--
  * 
  * @author yueming.liu
  *
@@ -42,15 +42,5 @@ public class DescNode extends UnaryOp {
 		if (genLoadInsn) {
 			mg.visitIntInsn(myType.getOpcode(Opcodes.ILOAD), var.getLVTIndex());
 		}
-	}
-
-	public int test(int a) {
-		int c = a--;
-		return c;
-	}
-
-	public long test(long a) {
-		long c = a--;
-		return c;
 	}
 }

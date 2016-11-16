@@ -28,7 +28,7 @@ public class AndNode extends BinaryOp {
 	}
 
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(null == left.getType() || null == right.getType())
 			return;
 		left.genCode(mg);

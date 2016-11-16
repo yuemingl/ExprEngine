@@ -27,7 +27,7 @@ public class NotNode extends UnaryOp {
 	}
 	
 	@Override
-	public void genCode(MethodGenHelper mg) {
+	public void _genCode(MethodGenHelper mg) {
 		if(null == expr.getType())
 			return;
 		expr.genCode(mg);

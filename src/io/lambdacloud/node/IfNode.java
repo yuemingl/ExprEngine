@@ -256,14 +256,23 @@ mv.visitInsn(IRETURN);
 	
 	@Override
 	public void updateTree(MethodGenHelper mg) {
-		for(ExprNode e : this.ifBlockExprs)
+		this.condition.setParent(this);
+		this.condition.updateTree(mg);
+		
+		for(ExprNode e : this.ifBlockExprs) {
+			e.setParent(this);
 			e.updateTree(mg);
-		for(ExprNode e: this.elseBlockExprs)
+		}
+		
+		for(ExprNode e: this.elseBlockExprs) {
+			e.setParent(this);
 			e.updateTree(mg);
+		}
 	}
 	
 	@Override
 	public void updateParam(String name, Object value) {
+		this.condition.updateParam(name, value);
 		for(ExprNode e : this.ifBlockExprs)
 			e.updateParam(name, value);
 		for(ExprNode e: this.elseBlockExprs)
