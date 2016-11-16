@@ -631,118 +631,63 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	@Override public void exitCellAccess(MatlabGrammarParser.CellAccessContext ctx) { 
 		//System.out.println("exitCellAccess: "+ctx.getText());
-		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 		
-		//Pop all the indices from the stack and keep them in a list
+		//Get the variable node in array access (3 steps)
+		//1. Pop all the indices from the stack and keep them in a list
 		List<ExprNode> indices = new ArrayList<ExprNode>();
 		for(int i=0; i<ctx.aa_index().size(); i++) {
 			if(null != ctx.aa_index(i).COLON())
-				continue;
-			if(null != ctx.aa_index(i).END()) {
-				continue;
-			}
+				continue; //nothing to pop for COLON
 			if(null != ctx.aa_index(i).aa_range()) {
-				//---end
-				if(null != ctx.aa_index(i).aa_range().aa_range_end()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_end()) { //pop "end" in a range
 					indices.add(this.currentScope().stack.pop());
 				}
-				//---step
-				if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_step()) { //pop "step" in a range
 					indices.add(this.currentScope().stack.pop());
 				}
-				//---start
-				if(null != ctx.aa_index(i).aa_range().aa_range_start()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_start()) { //pop "start" in a range
 					indices.add(this.currentScope().stack.pop());
 				}
 			} else {
-				indices.add(this.currentScope().stack.pop());
+				indices.add(this.currentScope().stack.pop()); //pop others: expression, function_handle, mimi_arith_expr
 			}
 		}
-		
-
-		//System.out.println("exitArrayAccessOrFuncCall()-indices: "+indices);
-		//Pop the variable 
+		//2. Pop the variable 
 		ExprNode var = this.currentScope().stack.pop();
-		
-		//Push back the indices to the stack for further process
+		//3. Push back the indices to the stack for further process
 		for(int i=indices.size()-1; i>=0; i--) {
 			this.currentScope().stack.push(indices.get(i));
 		}
 		
-		//------Array Access------
-		//System.out.println("exitArrayAccessOrFuncCall()-varMap: "+this.currentScope().varMap);
-
+		//------Construct cell access node, e.g. A{1,2}------
 		CellAccessNode node = new CellAccessNode(var);
 		node.setToAccessObject();
-		//CommaSeparatedList node = new CommaSeparatedList(var);
 		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
 			ExprNode idxS = null;
 			ExprNode idxStep = null;
 			ExprNode idxE = null;
 			if(null != ctx.aa_index(i).COLON()) {
-				//A(:)
-				//Access all rows or columns
-				node.addIndex(null, null);
-			} else if(null != ctx.aa_index(i).END()) {
-				FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-				endNode.args.add(var);
-				idxS = endNode;
-				node.addIndex(idxS, null);
+				//A{:} -- Access all the elements
+				node.addIndex(null, null); //use null to indicate this case
 			} else if(null != ctx.aa_index(i).aa_range()) {
-				//A(1:10), A(1:end), A(end:-1:1)
-				
-				//A(5:end, 2:2:end), A(end:1,end:2:1)
-				if(ctx.aa_index().size() > 1) {
-					String dimMethodName = "getRowDimension";
-					if(i == 1) {
-						dimMethodName = "getColumnDimension";
-					}
-					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end())
-						idxE = this.currentScope().stack.pop();
-					else { //end='end'
-						idxE = new FuncCallNode(var, dimMethodName, false);
-					}
-					//---step
-					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
-						idxStep = this.currentScope().stack.pop();
-					}
-					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start())
-						idxS = this.currentScope().stack.pop();
-					else { //start='end'
-						idxS = new FuncCallNode(var, dimMethodName, false);
-					}
-				} else {
-					//A(x:x:end)
-					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end())
-						idxE = this.currentScope().stack.pop();
-					else { //end='end'
-						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-						endNode.args.add(var);
-						idxE = endNode;
-					}
-					//---step
-					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
-						idxStep = this.currentScope().stack.pop();
-					}
-					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start())
-						idxS = this.currentScope().stack.pop();
-					else { //start='end'
-						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-						endNode.args.add(var);
-						idxS = endNode;
-					}
+				//A{1:10}, A{1:end}, A{end:-1:1}
+				//A{1:5,1:10}, A{5:end, 2:2:end}, A{end:1,end:2:1}
+				if(null != ctx.aa_index(i).aa_range().aa_range_end()) {
+					idxE = this.currentScope().stack.pop();
+				}
+				if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+					idxStep = this.currentScope().stack.pop();
+				}
+				if(null != ctx.aa_index(i).aa_range().aa_range_start()) {
+					idxS = this.currentScope().stack.pop();
 				}
 				if(null == idxStep)
 					node.addIndex(idxS, idxE);
 				else
 					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
 			} else {
-				//aa_index : expression | COLON | func_handle | aa_range;
-				idxS = this.currentScope().stack.pop(); //expression
+				//A{end-1} -- expression, function_handle, mimi_arith_expr
+				idxS = this.currentScope().stack.pop();
 				idxE = null;
 				node.addIndex(idxS, idxE);
 			}
@@ -754,39 +699,29 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitArrayAccessOrFuncCall(MatlabGrammarParser.ArrayAccessOrFuncCallContext ctx) { 
 		//System.out.println("exitArrayAccessOrFuncCall: "+ctx.getText());
 
-		//Pop all the indices from the stack and keep them in a list
+		//Get the variable node in array access (3 steps)
+		//1. Pop all the indices from the stack and keep them in a list
 		List<ExprNode> indices = new ArrayList<ExprNode>();
 		for(int i=0; i<ctx.aa_index().size(); i++) {
 			if(null != ctx.aa_index(i).COLON())
-				continue;
-			if(null != ctx.aa_index(i).END()) {
-				//ExprNode end = this.currentScope().stack.pop();
-				//this.currentScope().varMap.remove("end");
-				continue;
-			}
+				continue; //nothing to pop for COLON
 			if(null != ctx.aa_index(i).aa_range()) {
-				//---end
-				if(null != ctx.aa_index(i).aa_range().aa_range_end()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_end()) { //pop "end" in a range
 					indices.add(this.currentScope().stack.pop());
 				}
-				//---step
-				if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_step()) { //pop "step" in a range
 					indices.add(this.currentScope().stack.pop());
 				}
-				//---start
-				if(null != ctx.aa_index(i).aa_range().aa_range_start()) {
+				if(null != ctx.aa_index(i).aa_range().aa_range_start()) { //pop "start" in a range
 					indices.add(this.currentScope().stack.pop());
 				}
 			} else {
-				indices.add(this.currentScope().stack.pop());
+				indices.add(this.currentScope().stack.pop()); //pop others: expression, function_handle, mimi_arith_expr
 			}
 		}
-
-		//System.out.println("exitArrayAccessOrFuncCall()-indices: "+indices);
-		//Pop the variable 
+		//2. Pop the variable 
 		ExprNode var = this.currentScope().stack.pop();
-		
-		//Push back the indices to the stack for further process
+		//3. Push back the indices to the stack for further process
 		for(int i=indices.size()-1; i>=0; i--) {
 			this.currentScope().stack.push(indices.get(i));
 		}
@@ -896,7 +831,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			return;
 		}
 		
-		//------Array Access------
+		//------Construct array access node, e.g. A(1,2)------
 		//System.out.println("exitArrayAccessOrFuncCall()-varMap: "+this.currentScope().varMap);
 
 		MatrixAccessNode node = new MatrixAccessNode(var);
@@ -905,69 +840,27 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			ExprNode idxStep = null;
 			ExprNode idxE = null;
 			if(null != ctx.aa_index(i).COLON()) {
-				//A(:)
-				//Access all rows or columns
-				node.addIndex(null, null);
-			} else if(null != ctx.aa_index(i).END()) {
-				FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-				endNode.args.add(var);
-				idxS = endNode;
-				node.addIndex(idxS, null);
+				//A(:) -- Access all the elements
+				node.addIndex(null, null); //use null to indicate this case
 			} else if(null != ctx.aa_index(i).aa_range()) {
 				//A(1:10), A(1:end), A(end:-1:1)
-				
-				//A(5:end, 2:2:end), A(end:1,end:2:1)
-				if(ctx.aa_index().size() > 1) {
-					String dimMethodName = "getRowDimension";
-					if(i == 1) {
-						dimMethodName = "getColumnDimension";
-					}
-					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end())
-						idxE = this.currentScope().stack.pop();
-					else { //end='end'
-						idxE = new FuncCallNode(var, dimMethodName, false);
-					}
-					//---step
-					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
-						idxStep = this.currentScope().stack.pop();
-					}
-					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start())
-						idxS = this.currentScope().stack.pop();
-					else { //start='end'
-						idxS = new FuncCallNode(var, dimMethodName, false);
-					}
-				} else {
-					//A(x:x:end)
-					//---end
-					if(null != ctx.aa_index(i).aa_range().aa_range_end())
-						idxE = this.currentScope().stack.pop();
-					else { //end='end'
-						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-						endNode.args.add(var);
-						idxE = endNode;
-					}
-					//---step
-					if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
-						idxStep = this.currentScope().stack.pop();
-					}
-					//---start
-					if(null != ctx.aa_index(i).aa_range().aa_range_start())
-						idxS = this.currentScope().stack.pop();
-					else { //start='end'
-						FuncCallNode endNode = new FuncCallNode(BytecodeSupport.class.getName(), "numel", false);
-						endNode.args.add(var);
-						idxS = endNode;
-					}
+				//A(1:5,1:10), A(5:end, 2:2:end), A(end:1,end:2:1)
+				if(null != ctx.aa_index(i).aa_range().aa_range_end()) {
+					idxE = this.currentScope().stack.pop();
+				}
+				if(null != ctx.aa_index(i).aa_range().aa_range_step()) {
+					idxStep = this.currentScope().stack.pop();
+				}
+				if(null != ctx.aa_index(i).aa_range().aa_range_start()) {
+					idxS = this.currentScope().stack.pop();
 				}
 				if(null == idxStep)
 					node.addIndex(idxS, idxE);
 				else
 					node.addIndex(new RangeNode(idxS, idxStep, idxE, true), null);
 			} else {
-				//aa_index : expression | COLON | func_handle | aa_range;
-				idxS = this.currentScope().stack.pop(); //expression
+				//A(end-1) -- expression, function_handle, mimi_arith_expr
+				idxS = this.currentScope().stack.pop();
 				idxE = null;
 				node.addIndex(idxS, idxE);
 			}

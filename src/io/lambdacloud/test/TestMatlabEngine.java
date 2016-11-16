@@ -76,6 +76,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end-1}");
 		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
 		//exec("1");
 		exec("function A=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");

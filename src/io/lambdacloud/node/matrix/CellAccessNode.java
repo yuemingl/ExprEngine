@@ -371,14 +371,26 @@ public class CellAccessNode extends ExprNode {
 		}
 		
 		//update dim for 'end' index
-		int dim = this.indices.size();
-		for(int i=0; i<this.indices.size(); i++) {
-			IndexPair p = this.indices.get(i);
-			if(null != p.idxS) {
-				p.idxS.updateParam("end_dim", dim-i);
+		if(this.indices.size() == 1) {
+			for(int i=0; i<this.indices.size(); i++) {
+				IndexPair p = this.indices.get(i);
+				if(null != p.idxS) {
+					p.idxS.updateParam("end_dim", -1);
+				}
+				if(null != p.idxE) {
+					p.idxE.updateParam("end_dim", -1);
+				}
 			}
-			if(null != p.idxE) {
-				p.idxE.updateParam("end_dim", dim-i);
+		} else {
+			int dim = this.indices.size();
+			for(int i=0; i<this.indices.size(); i++) {
+				IndexPair p = this.indices.get(i);
+				if(null != p.idxS) {
+					p.idxS.updateParam("end_dim", dim-i);
+				}
+				if(null != p.idxE) {
+					p.idxE.updateParam("end_dim", dim-i);
+				}
 			}
 		}
 	}

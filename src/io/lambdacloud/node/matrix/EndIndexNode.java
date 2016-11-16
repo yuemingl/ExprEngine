@@ -24,8 +24,8 @@ public class EndIndexNode extends ExprNode {
 	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
-		System.out.println(this.parent.getParent());
-		System.out.println(this.dim);
+		//System.out.println(this.parent.getParent());
+		//System.out.println(this.dim);
 		ExprNode p = this.getParent();
 		while(p != null) {
 			if(p instanceof MatrixAccessNode) {
