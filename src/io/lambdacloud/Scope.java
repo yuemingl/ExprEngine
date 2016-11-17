@@ -27,6 +27,10 @@ public class Scope {
 	}
 	
 	public String toString() {
-		return name;
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.name).append(": {\n");
+		sb.append("stack="+stack.toString()).append("\n");
+		sb.append("varMap="+varMap.toString()).append("\n}\n");
+		return sb.toString();
 	}
 }
