@@ -387,73 +387,42 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
-			//bugfix: sort argument names for non-function script
+			//TODO: bugfix - sort argument names for non-function script (???)
+			//use TreeMap to sort variables in varMap
 			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
 			sortedVarMap.putAll(currentScope().varMap);
 			MethodGenHelper mg = new MethodGenHelper(mv, sortedVarMap);
-//			MethodGenHelper mg = new MethodGenHelper(mv, currentScope().varMap);
 			
+			//Construct a StatementNode to contain all the elements in the stack
+			//This StatementNode is the root of expressions. So every expression 
+			//node has a parent with type ExprNode
+			StatementNode stmt = new StatementNode();
+			for(ExprNode e : this.currentScope().stack) {
+				stmt.exprs.add(e);
+			}
 			
 			//Update tree before code generation
-			for(ExprNode e : this.currentScope().stack) {
-				e.updateTree(mg);
-			}
+			stmt.updateTree(mg);
+			
 			//Initiate call to updateParam()
-			for(ExprNode e : this.currentScope().stack) {
-				e.updateParam(null, null);
-			}
+			stmt.updateParam(null, null);
 
-//			int index = 1;
-//			if(isStatic) index = 0;
-//			for(Entry<String, VariableNode> e : varMap.entrySet()) {
-//				if(e.getValue().isLocalVar()) continue;
-//				VariableNode var = e.getValue();
-//				var.idxLVT = index;
-//				if(var.getType().getSort() == Type.DOUBLE)
-//					index += 2;
-//				else
-//					index++;
-//			}
-//			for(Entry<String, VariableNode> e : varMap.entrySet()) {
-//				if(e.getValue().isParameter()) continue;
-//				VariableNode var = e.getValue();
-//				var.idxLVT = index;
-//				if(var.getType().getSort() == Type.DOUBLE)
-//					index += 2;
-//				else
-//					index++;
-//			}
+			//Initialize local variable table (LVT)
 			mg.initLVTIndex(isStatic);
 
+			//Generate code
+			stmt.genCode(mg);
 			
-			//Generate code for all the expressions
-			ExprNode expr = null;
-			while(!currentScope().stack.isEmpty()) {
-				expr = currentScope().stack.pollLast();
-//				if(currentScope().stack.size() == 0) {
-//					//The last expression
-//					if(expr instanceof FuncCallNode) {
-//						((FuncCallNode)expr).isPopReturn = false; //false by default
-//					} else if(expr instanceof AssignNode) {
-//						//expr.genLoadInsn(true);
-//						//see exitProg()
-//					}
-//				}
-				expr.genCode(mg);
-			}
-
+			//Generate return code (return void is supported)
+			mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 			
-//			if(null == retType)
-//				mg.visitInsn(Opcodes.RETURN);
-//			else
-				mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
+			//Generate 'this' in LVT
 			if(!isStatic)
 				mg.visitLocalVariable("this", "L"+className+";", 
 						null, cgen.labelStart, cgen.lableEnd, 0);
 			
+			//Sort variables according the index in LVT
 			List<VariableNode> nodeList = new ArrayList<VariableNode>();
-			
-			//nodeList.addAll(currentScope().varMap.values());
 			nodeList.addAll(sortedVarMap.values());
 			Collections.sort(nodeList, new Comparator<VariableNode>() {
 				@Override
@@ -461,6 +430,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					return o1.getLVTIndex() - o2.getLVTIndex();
 				}
 			});
+			//Generate LVT
 			for(VariableNode var : nodeList) {
 				ArrayList<String> varTypes = var.getVarTypes();
 				for(String typeDesc : varTypes) {
@@ -481,15 +451,13 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			}
 
 			Class<?> c = mcl.defineClassForName(null, bcode);
-//			for (Method m : c.getMethods()) {
-//				System.out.println(m.getName());
-//			}
 			return c;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
+	
 	@Override public void exitEntityVariable(MatlabGrammarParser.EntityVariableContext ctx) {
 		//System.out.println("exitEntityVariable: "+ctx.getText());
 		

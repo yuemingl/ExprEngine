@@ -53,9 +53,11 @@ import static org.objectweb.asm.Opcodes.*;
  *   **inf -inf ???
  *   sparse(m,n)  -  sparse matrix support
  *   
- *   Use a StatementNode to contain all nodes in the stack
+ *   ***Use a StatementNode to contain all nodes in the stack
  *   Use updateTree() to transform MatrixAccessNode to CellAccessNode
  *   Bugfix: Look up function names in BytecodeSupport and Math
+ *   Default type of an undefined variable is funcCall or ArrayAccess in MatlabTreeBuilder?
+ *   
  *   
  *  DONE:
  *   Logical array support
@@ -94,12 +96,13 @@ public class TestMatlabEngine {
 //	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
 	//Use an array without initialization
 //		exec("v(1:2)={':'}");
-		exec("v(2,3)=10");
-		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
+//		exec("v(2,3)=10");
+//		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
+		exec("a=1\n a=2\n a=3");
 	
 	
 	
-		//test();
+		test();
 	}
 	public static void test() {
 		
