@@ -15,6 +15,7 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
+import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.tool.IndexPair;
 import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.LogicalArray;
@@ -27,6 +28,8 @@ public class MatrixAccessNode extends ExprNode {
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
 	private CellAccessNode cellAccessNode;
+	
+	public boolean needInitialize = false;
 	
 	public MatrixAccessNode(ExprNode var) {
 		this.var = var;
@@ -74,10 +77,12 @@ public class MatrixAccessNode extends ExprNode {
 		if(cellAccessNode == null) {
 			if(var.getType().equals(Type.getType(ObjectArray.class))) {
 				cellAccessNode = this.toCellAccessNode();
+				cellAccessNode.needInitialize = this.genLoadInsn;
 				cellAccessNode.genCode(mg);
 				return;
 			}
 		} else {
+			cellAccessNode.needInitialize = this.needInitialize;
 			cellAccessNode.genCode(mg);
 			return;
 		}
@@ -85,6 +90,14 @@ public class MatrixAccessNode extends ExprNode {
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException("");
 		}
+		
+		if(var instanceof VariableNode && needInitialize) {
+			VariableNode varNode = (VariableNode)var;
+			Type ty = this.getType();
+			mg.visitInsn(Opcodes.ACONST_NULL);
+			mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), varNode.getLVTIndex(ty));
+		}
+
 		
 		//A(:), A(1:end) or A(B)
 		if(this.indices.size() == 1) {

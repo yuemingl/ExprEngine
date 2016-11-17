@@ -3,6 +3,10 @@ package io.lambdacloud.util;
 public class ObjectArray {
 	public Object[][] data;
 
+	public ObjectArray() {
+		
+	}
+	
 	public ObjectArray(int m, int n) {
 		data = new Object[m][n];
 	}
@@ -266,6 +270,9 @@ public class ObjectArray {
 	}
 	
 	public ObjectArray set(Jama.Matrix idx, ObjectArray ary) {
+		if(null == data) {
+			data = new Object[idx.getRowDimension()][idx.getColumnDimension()]; //TODO???
+		}
 		int nRow=getRowDimension();
 		if(ary.getRowDimension() == 1 && ary.getColumnDimension() == 1) {
 			for(int i=idx.getRowDimension()-1; i>=0; i--) {

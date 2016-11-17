@@ -15,6 +15,7 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
+import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.tool.IndexPair;
 import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
@@ -33,6 +34,8 @@ public class CellAccessNode extends ExprNode {
 	public ExprNode var;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
+	public boolean needInitialize = false;
+
 	public CellAccessNode(ExprNode var) {
 		this.var = var;
 	}
@@ -78,6 +81,13 @@ public class CellAccessNode extends ExprNode {
 	public void _genCode(MethodGenHelper mg) {
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException("");
+		}
+		
+		if(var instanceof VariableNode && needInitialize) {
+			VariableNode varNode = (VariableNode)var;
+			Type ty = this.getType();
+			mg.visitInsn(Opcodes.ACONST_NULL);
+			mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), varNode.getLVTIndex(ty));
 		}
 		
 		//A{:} or A{B}

@@ -21,6 +21,8 @@ public class CellAssignNode extends ExprNode {
 	public ExprNode value;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
+	public boolean needInitialize = false;
+
 	public CellAssignNode(VariableNode var, ExprNode value) {
 		this.var = var;
 		this.value = value;
@@ -48,6 +50,15 @@ public class CellAssignNode extends ExprNode {
 
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException();
+		}
+
+		if(var instanceof VariableNode && needInitialize) {
+			VariableNode varNode = (VariableNode)var;
+			Type ty = this.getType();
+			mg.visitTypeInsn(Opcodes.NEW, "io/lambdacloud/util/ObjectArray");
+			mg.visitInsn(Opcodes.DUP);
+			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "io/lambdacloud/util/ObjectArray", "<init>", "()V", false);
+			mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), varNode.getLVTIndex(ty));
 		}
 
 		//A(:)=Value

@@ -15,6 +15,7 @@ import io.lambdacloud.node.RangeNode;
 import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.tool.IndexPair;
+import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
 public class MatrixAssignNode extends ExprNode {
 	public VariableNode var;
@@ -23,6 +24,8 @@ public class MatrixAssignNode extends ExprNode {
 	
 	private CellAssignNode cellAssignNode;
 
+	public boolean needInitialize = false;
+	
 	public MatrixAssignNode(VariableNode var, ExprNode value) {
 		this.var = var;
 		this.value = value;
@@ -40,15 +43,20 @@ public class MatrixAssignNode extends ExprNode {
 		return var+sb.toString();
 	}
 
+	public static void test() {
+		Jama.Matrix a = new Jama.Matrix(1,1);
+	}
 	@Override
 	public void _genCode(MethodGenHelper mg) {
 		if(cellAssignNode == null) {
-			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+			if(Type.getType(ObjectArray.class).equals(var.getType())) {
 				cellAssignNode = this.toCellAssignNode();
+				cellAssignNode.needInitialize = this.needInitialize;
 				cellAssignNode.genCode(mg);
 				return;
 			}
 		} else {
+			cellAssignNode.needInitialize = this.needInitialize;
 			cellAssignNode.genCode(mg);
 			return;
 		}
@@ -57,6 +65,17 @@ public class MatrixAssignNode extends ExprNode {
 
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException();
+		}
+
+		if(var instanceof VariableNode && needInitialize) {
+			VariableNode varNode = (VariableNode)var;
+			Type ty = this.getType();
+			mg.visitTypeInsn(Opcodes.NEW, "Jama/Matrix");
+			mg.visitInsn(Opcodes.DUP);
+			mg.visitInsn(Opcodes.ICONST_0);
+			mg.visitInsn(Opcodes.ICONST_0);
+			mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "Jama/Matrix", "<init>", "(II)V", false);
+			mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), varNode.getLVTIndex(ty));
 		}
 
 		//A(:)=Value
@@ -215,7 +234,7 @@ public class MatrixAssignNode extends ExprNode {
 	@Override
 	public Type getType(Deque<Object> stack) {
 		if(cellAssignNode == null) {
-			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+			if(Type.getType(ObjectArray.class).equals(var.getType())) {
 				cellAssignNode = this.toCellAssignNode();
 				return cellAssignNode.getType();
 			}
@@ -227,8 +246,21 @@ public class MatrixAssignNode extends ExprNode {
 
 	@Override
 	public void updateType(Deque<Object> stack) {
+		//circle check
+		if(stack.contains(this)) 
+			return;
+		stack.push(this);
+		
+		value.updateType(stack);
+		stack.pop();
+		
+		Type rType = value.getType(stack);
+		if(Type.getType(ObjectArray.class).equals(rType) ||
+				Type.getType(Jama.Matrix.class).equals(rType) )
+			var.setType(rType);
+		else
+			var.setType(Type.getType(Jama.Matrix.class));
 	}
-	
 	
 	public CellAssignNode toCellAssignNode() {
 		CellAssignNode n = new CellAssignNode(this.var, this.value);
@@ -236,7 +268,6 @@ public class MatrixAssignNode extends ExprNode {
 		return n;
 	}
 	
-
 	@Override
 	public boolean contains(ExprNode target) {
 		if(this == target)

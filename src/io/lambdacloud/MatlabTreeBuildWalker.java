@@ -496,25 +496,25 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		String varName = ctx.IDENTIFIER(0).getText();
 		//If the variable exists in the varMap of current scope
 		//the variable is used directly instead of creating a new one
-		VariableNode val = currentScope().varMap.get(varName);
+		VariableNode var = this.currentScope().varMap.get(varName);
 		boolean isNewVariable = false;
 		boolean isAssign = false;
 		
 		//We see varName for the first time
-		if(null == val) {
+		if(null == var) {
 			isNewVariable = true;
 			
 			//Don't change currentScope().varMap in other functions
 			//It is suggested to change currentScope().varMap here only.
 			
-			val = VariableNode.newParameter(varName, null);
+			var = VariableNode.newParameter(varName, null);
 			//If varName is in the parameter map, this must be a parameter and the type is known. 
 			//Put it in varMap.
 			if(null != this.mapParameterTypes) {
 				Class<?> varCls = this.mapParameterTypes.get(varName);
 				if(null != varCls) {
-					val.setType(Type.getType(varCls));
-					currentScope().varMap.put(varName, val);
+					var.setType(Type.getType(varCls));
+					this.currentScope().varMap.put(varName, var);
 				}
 			}
 			
@@ -524,32 +524,32 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			if(ctx.getParent() instanceof MatlabGrammarParser.ExprAssignContext ||
 					ctx.getParent() instanceof MatlabGrammarParser.ExprMultiAssignContext) {
 				isAssign = true;
-				if(val.getType() == null) {
-					val.setAsLocalVar();
+				if(var.getType() == null) {
+					var.setAsLocalVar();
 				}
-				currentScope().varMap.put(varName, val);
+				this.currentScope().varMap.put(varName, var);
 			}
 			
 			if(ctx.getParent() instanceof MatlabGrammarParser.ArrayAccessOrFuncCallContext) {
 				//Do nothing if it is a ArrayAccessOrFuncCallContext. varName could be a function name
 			} else {
 				if(null!=this.defaultParameterTypeOrInterface){
-					val.setType(Type.getType(this.defaultParameterTypeOrInterface));
+					var.setType(Type.getType(this.defaultParameterTypeOrInterface));
 				}
-				currentScope().varMap.put(varName, val);
+				this.currentScope().varMap.put(varName, var);
 			}
 		}
 		if(ctx.IDENTIFIER().size() <= 1) {
-			currentScope().stack.push(val);
+			this.currentScope().stack.push(var);
 		} else {
 			StructAccessNode san = new StructAccessNode();
-			san.var = val;
+			san.var = var;
 			san.var.setType(Type.getType(Struct.class));
 			for(int i=1; i<ctx.IDENTIFIER().size(); i++)
 				san.fields.add(ctx.IDENTIFIER(i).getText());
 			if(isNewVariable && isAssign)
-				currentScope().stack.push(new AssignNode(san.var, new StructInitNode()));
-			currentScope().stack.push(san);
+				this.currentScope().stack.push(new AssignNode(san.var, new StructInitNode()));
+			this.currentScope().stack.push(san);
 		}
 	}
 	
@@ -726,14 +726,12 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			this.currentScope().stack.push(indices.get(i));
 		}
 		
-		boolean isFuncCall = false;
+		//Check if this is a function call
 		String varName = null;
 		StringBuilder sbNames = new StringBuilder();
-		//Check if this is a function call
 		if(var instanceof VariableNode) {
 			VariableNode varNode = (VariableNode)var;
 			varName = varNode.getName();
-			//System.out.println("exitArrayAccessOrFuncCall()-varName: "+varName);
 		} else if(var instanceof StructAccessNode) {
 			StructAccessNode san = (StructAccessNode)var;
 			var = san.var;
@@ -743,20 +741,41 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		} else {
 			throw new RuntimeException("var ="+var);
 		}
-		FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
-		if(null == func) {
-			//Check if the variable is from external parameter
-			if(null != this.mapParameterTypes && null != this.mapParameterTypes.get(varName)) {
-				isFuncCall = false;
+		
+		//Check if the variable is from external parameter
+		boolean isFuncCall = false;
+		boolean needInitialize = false;
+		if( null == this.mapParameterTypes ||
+			null == this.mapParameterTypes.get(varName)) {
+			//Check if varName is a user defined function name
+			FuncDefNode func = ExprTreeBuildWalker.funcMap.get(varName);
+			if(null != func) {
+				isFuncCall = true;
 			} else {
-				VariableNode localVar = this.currentScope().varMap.get(varName);
-				if(null == localVar)
-					isFuncCall = true;
+				//Check if varName is a function defined in BytecodeSupport
+				Method[] ms = BytecodeSupport.class.getMethods();
+				for(Method m : ms) {
+					if(varName.equals(m.getName())) {
+						isFuncCall = true;
+						break;
+					}
+				}
 			}
-		} else {
-			isFuncCall = true;
+			//default to true 
+//			if(null == this.currentScope().varMap.get(varName)) {
+//				isFuncCall = true;
+//			}
+			if(null == this.currentScope().varMap.get(varName)) {
+				//The variable is referenced without initialization
+				//
+				needInitialize = true;
+				VariableNode localVar = (VariableNode)var;
+				localVar.setAsLocalVar();
+				this.currentScope().varMap.put(varName, localVar);
+				isFuncCall = false;
+			}
 		}
-
+		
 		if(isFuncCall) {
 			String fullName = varName+sbNames.toString();
 //			System.out.println("exitArrayAccessOrFuncCall()-full_var_name="+fullName);
@@ -835,6 +854,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//System.out.println("exitArrayAccessOrFuncCall()-varMap: "+this.currentScope().varMap);
 
 		MatrixAccessNode node = new MatrixAccessNode(var);
+		node.needInitialize = needInitialize;
 		for(int i=ctx.aa_index().size()-1; i>=0; i--) {
 			ExprNode idxS = null;
 			ExprNode idxStep = null;
@@ -924,27 +944,29 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	@Override public void exitExprAssign(MatlabGrammarParser.ExprAssignContext ctx) {
 		//variable_entity = value
 		ExprNode value = this.currentScope().stack.pop();
-		ExprNode variable_entity = this.currentScope().stack.pop();
-		if(variable_entity instanceof VariableNode) {
-			VariableNode var = (VariableNode)variable_entity;
-			this.currentScope().stack.push(new AssignNode(var, value));
-		} else if(variable_entity instanceof MatrixAccessNode) {
-			MatrixAccessNode acc_node = (MatrixAccessNode)variable_entity;
+		ExprNode var = this.currentScope().stack.pop();
+		if(var instanceof VariableNode) {
+			VariableNode varNode = (VariableNode)var;
+			this.currentScope().stack.push(new AssignNode(varNode, value));
+		} else if(var instanceof MatrixAccessNode) {
+			MatrixAccessNode acc_node = (MatrixAccessNode)var;
 			MatrixAssignNode ass_node = new MatrixAssignNode((VariableNode)acc_node.var, value);
 			ass_node.indices = acc_node.indices;
+			ass_node.needInitialize = acc_node.needInitialize;
 			this.currentScope().stack.push(ass_node);
-		} else if(variable_entity instanceof CellAccessNode) {
-			CellAccessNode acc_node = (CellAccessNode)variable_entity;
+		} else if(var instanceof CellAccessNode) {
+			CellAccessNode acc_node = (CellAccessNode)var;
 			CellAssignNode ass_node = new CellAssignNode((VariableNode)acc_node.var, value);
 			ass_node.indices = acc_node.indices;
+			ass_node.needInitialize = acc_node.needInitialize;
 			this.currentScope().stack.push(ass_node);
-		} else if(variable_entity instanceof StructAccessNode) {
-			StructAccessNode acc_node = (StructAccessNode)variable_entity;
+		} else if(var instanceof StructAccessNode) {
+			StructAccessNode acc_node = (StructAccessNode)var;
 			StructAssignNode ass_node = new StructAssignNode(acc_node.var, value);
 			ass_node.fields = acc_node.fields;
 			this.currentScope().stack.push(ass_node);
 		} else {
-			throw new RuntimeException("exitExprAssign: "+variable_entity+"  "+value);
+			throw new RuntimeException("exitExprAssign: "+var+"  "+value);
 		}
 	}
 	

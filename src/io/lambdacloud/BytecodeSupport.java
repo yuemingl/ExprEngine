@@ -20,6 +20,10 @@ public class BytecodeSupport {
 		return BytecodeSupport.class.getName().replaceAll("\\.", "/");
 	}
 	
+	public static double sin(double d) {
+		return Math.sin(d);
+	}
+	
 	public static void print(Object o) {
 		if(o instanceof double[]) {
 			double[] a = (double[])o;
@@ -345,6 +349,12 @@ public class BytecodeSupport {
 		A.setMatrix(i0, i1, c, t);
 	}
 	public static void setMatrix(Jama.Matrix A, int i0, int i1, int j0, int j1, double v) {
+		if(A.getRowDimension() <= i1 || A.getColumnDimension() <= j1) {
+			Jama.Matrix newA = new Jama.Matrix(i1+1,j1+1);
+			if(A.getRowDimension() > 0 && A.getColumnDimension() > 0)
+				newA.setMatrix(0, A.getRowDimension()-1, 0, A.getColumnDimension()-1, A);
+			A.setMatrix(newA);
+		}
 		Jama.Matrix t = new Jama.Matrix(i1-i0+1, j1-j0+1, v);
 		A.setMatrix(i0, i1, j0, j1, t);
 	}

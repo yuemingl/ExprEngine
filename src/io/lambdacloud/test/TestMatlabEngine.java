@@ -53,6 +53,10 @@ import static org.objectweb.asm.Opcodes.*;
  *   **inf -inf ???
  *   sparse(m,n)  -  sparse matrix support
  *   
+ *   Use a StatementNode to contain all nodes in the stack
+ *   Use updateTree() to transform MatrixAccessNode to CellAccessNode
+ *   Bugfix: Look up function names in BytecodeSupport and Math
+ *   
  *  DONE:
  *   Logical array support
  *   Logical indexing
@@ -76,46 +80,29 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end-1}");
-		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
-		//exec("1");
-		exec("function A=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+//		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
 
-		exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end; myZeros(3)");
-		exec("A=[1 2 3; 4 5 6]; A(end)");
-		exec("A=[1 2 3; 4 5 6]; A(end-1)");
-		exec("A=[1 2 3; 4 5 6]; A(end-2)");
-		exec("A=[1 2 3; 4 5 6]; A(end,end)");
-		exec("A=[1 2 3; 4 5 6]; A(end,end-2)");
-		exec("A=[1 2 3; 4 5 6]; A(1:end)");
-		exec("A=[1 2 3; 4 5 6]; A(2,1:end)");
-		exec("A=[1 2 3; 4 5 6]; A(1:end-2+1,1)");
-		
-		test();
+//	//flipdim.m
+//    % Create the index that will transform x.
+//    v(1:ndims(x)) = {':'};
+//    % Flip dimension dim.
+//    v{dim} = dimsize:-1:1;
+//    % Index with v.
+//    y = x(v{:});
+//	exec("v={0,0}; v(1:2)={':'}; v{:}");
+//	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; x(v{:})");
+//	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
+	//Use an array without initialization
+//		exec("v(1:2)={':'}");
+		exec("v(2,3)=10");
+		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
+	
+	
+	
+		//test();
 	}
 	public static void test() {
-//		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
-		assertEqual(exec("A=[10 20 30; 40 50 60]; A(end:-2:1)=[1 3 5];"),
-				getMatrix(new double[][]{{10, 20, 30},{5,3,1}}));
-
-		exec("A=[1 2 3; 4 5 6]; A(1:end,1)");
-		exec("A=[1 2 3; 4 5 6]; A(2,1:end)");
-		exec("A=[1 2 3; 4 5 6]; A(2,1:end-2)");
-		exec("A=[1 2 3; 4 5 6]; A(1:end-2+1,1)");
-		exec("A=[1 2 3; 4 5 6]; A(1:end)");
 		
-
-		
-////		//flipdim.m
-////	    % Create the index that will transform x.
-////	    v(1:ndims(x)) = {':'};
-////	    % Flip dimension dim.
-////	    v{dim} = dimsize:-1:1;
-////	    % Index with v.
-////	    y = x(v{:});
-//		exec("v={0,0}; v(1:2)={':'}; v{:}");
-//		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; x(v{:})");
-//		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
 		
 	    
 		//Type changing assignment tests:
@@ -375,11 +362,31 @@ public class TestMatlabEngine {
 //		exec("a=[2 3]; a(end-1)");
 
 		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{:}={1,2,3,4;5,6,7,8}");
-		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
 
 		exec("a=[2 3]; a(:)");
 		exec("a=[2 3]; a(end)");
 		////exec("a=[2 3]; y = zeros(a(1),a(2))");
+		
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{end-1}");
+		exec("a={10,20,30,'ttt';  1L,3.5,true,false}; a{1:end}={1,2,3,4,5,6,7,8}");
+		//exec("1");
+		exec("function A=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end myfun()");
+
+		exec("function R=myZeros(m, n), if nargin==1, R=zeros(m, m); else R=zeros(m,n); end end; myZeros(3)");
+		exec("A=[1 2 3; 4 5 6]; A(end)");
+		exec("A=[1 2 3; 4 5 6]; A(end-1)");
+		exec("A=[1 2 3; 4 5 6]; A(end-2)");
+		exec("A=[1 2 3; 4 5 6]; A(end,end)");
+		exec("A=[1 2 3; 4 5 6]; A(end,end-2)");
+		exec("A=[1 2 3; 4 5 6]; A(1:end)");
+		exec("A=[1 2 3; 4 5 6]; A(1:end,1)");
+		exec("A=[1 2 3; 4 5 6]; A(2,1:end)");
+		exec("A=[1 2 3; 4 5 6]; A(2,1:end-2)");
+		exec("A=[1 2 3; 4 5 6]; A(1:end-2+1,1)");
+		
+		assertEqual(exec("A=[10 20 30; 40 50 60]; A(end:-2:1)=[1 3 5];"),
+				getMatrix(new double[][]{{10, 20, 30},{5,3,1}}));
+
 	}
 	
 	public static void testLineContinue() {
