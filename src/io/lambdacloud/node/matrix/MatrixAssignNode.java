@@ -22,7 +22,7 @@ public class MatrixAssignNode extends ExprNode {
 	public ExprNode value;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
-	private CellAssignNode cellAssignNode;
+	//private CellAssignNode cellAssignNode;
 
 	public boolean needInitialize = false;
 	
@@ -233,17 +233,21 @@ public class MatrixAssignNode extends ExprNode {
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
-		//If var is of type ObjectArray, we should use CellAssignNode instead of MatrixAssignNode
-		//e.g. A={1,2,3;4,5,6}; A(1,2)=100; %it should be a CellAssignNode
-		if(cellAssignNode == null) {
-			if(Type.getType(ObjectArray.class).equals(var.getType())) {
-				cellAssignNode = this.toCellAssignNode();
-				return cellAssignNode.getType();
-			}
-		} else {
-			return cellAssignNode.getType();
-		}
-		return Type.getType(Jama.Matrix.class);
+//		//If var is of type ObjectArray, we should use CellAssignNode instead of MatrixAssignNode
+//		//e.g. A={1,2,3;4,5,6}; A(1,2)=100; %it should be a CellAssignNode
+//		if(cellAssignNode == null) {
+//			if(Type.getType(ObjectArray.class).equals(var.getType())) {
+//				cellAssignNode = this.toCellAssignNode();
+//				return cellAssignNode.getType();
+//			}
+//		} else {
+//			return cellAssignNode.getType();
+//		}
+		Type ty = var.getType();
+		if(null != ty)
+			return ty;
+		else
+			return Type.getType(Jama.Matrix.class);
 	}
 
 	@Override

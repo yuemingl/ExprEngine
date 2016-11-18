@@ -27,7 +27,7 @@ public class MatrixAccessNode extends ExprNode {
 	public ExprNode var;
 	public ArrayList<IndexPair> indices = new ArrayList<IndexPair>();
 	
-	private CellAccessNode cellAccessNode;
+	//private CellAccessNode cellAccessNode;
 	
 	public boolean needInitialize = false;
 	
@@ -263,14 +263,14 @@ public class MatrixAccessNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		if(cellAccessNode == null) {
-			if(var.getType().equals(Type.getType(ObjectArray.class))) {
-				cellAccessNode = this.toCellAccessNode();
-				return cellAccessNode.getType();
-			}
-		} else {
-			return cellAccessNode.getType();
-		}
+//		if(cellAccessNode == null) {
+//			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+//				cellAccessNode = this.toCellAccessNode();
+//				return cellAccessNode.getType();
+//			}
+//		} else {
+//			return cellAccessNode.getType();
+//		}
 
 		if(this.isAccessElement())
 			return Type.DOUBLE_TYPE;
