@@ -46,20 +46,21 @@ import static org.objectweb.asm.Opcodes.*;
  *   Multi-variable assignement test
  *   Integer matrix: X = randi(imax,classname) returns a pseudorandom integer where classname specifies the data type. 
  *    classname can be 'single', 'double', 'int8', 'uint8', 'int16', 'uint16', 'int32', or 'uint32'.
- *   Support 'end' in expression, e.g. A(end-1)
  *   ***[varargout{1:max(nargout,1)}]=F(varargin{:})  in (function varargout = gallery(matname,varargin))
  *   **try catch end
  *   **classdef
- *   **inf -inf ???
- *   sparse(m,n)  -  sparse matrix support
+ *   **Support inf and -inf
+ *   Support sparse(m,n)  -  sparse matrix
  *   
- *   ***Use a StatementNode to contain all nodes in the stack
- *   Use updateTree() to transform MatrixAccessNode to CellAccessNode
+ *   ***Use updateTree() to transform MatrixAccessNode to CellAccessNode
  *   Bugfix: Look up function names in BytecodeSupport and Math
  *   Default type of an undefined variable is funcCall or ArrayAccess in MatlabTreeBuilder?
  *   
  *   
  *  DONE:
+ *   Use a StatementNode to contain all nodes in the stack
+ *   Support 'end' in expression, e.g. A(end-1)
+
  *   Logical array support
  *   Logical indexing
  *      I = find(A < 9)
@@ -82,6 +83,12 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		
+		//exec("a={1,2,3}");
+		exec("a={1,2,3}; a(1,2)\n a{1,2}");
+		exec("a={1,2,3}; a(1,2)=10");
+
+		
 //		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
 
 //	//flipdim.m
@@ -98,11 +105,11 @@ public class TestMatlabEngine {
 //		exec("v(1:2)={':'}");
 //		exec("v(2,3)=10");
 //		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
-		exec("a=1\n a=2\n a=3");
+//		exec("a=1\n a=2\n a=3");
 	
 	
 	
-		test();
+		//test();
 	}
 	public static void test() {
 		

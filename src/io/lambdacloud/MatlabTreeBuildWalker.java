@@ -399,6 +399,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			StatementNode stmt = new StatementNode();
 			for(ExprNode e : this.currentScope().stack) {
 				stmt.exprs.add(e);
+				e.setParent(stmt);
 			}
 			
 			//Update tree before code generation
@@ -806,6 +807,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				}
 				FuncCallNode funcCall = new FuncCallNode(className, methodName, isDynamicCall);
 				funcCall.args = args;
+				for(ExprNode e : args) {
+					e.setParent(funcCall);
+				}
 				funcCall.refFuncDefNode = funcDef;
 				//Type body of funcDef has not been processed here if it is an recursive call
 				//funcDef.setParamTypes(funcCall.getParameterClassTypes());
@@ -1072,6 +1076,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	//		DupNode dupNode = new DupNode(expr);
 	//		funcCall.args.add(dupNode);
 			funcCall.args.add(expr);
+			expr.setParent(funcCall);
 			this.currentScope().stack.push(funcCall);
 //		}
 		

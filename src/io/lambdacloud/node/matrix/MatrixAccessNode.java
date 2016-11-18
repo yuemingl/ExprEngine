@@ -74,18 +74,18 @@ public class MatrixAccessNode extends ExprNode {
 	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
-		if(cellAccessNode == null) {
-			if(var.getType().equals(Type.getType(ObjectArray.class))) {
-				cellAccessNode = this.toCellAccessNode();
-				cellAccessNode.needInitialize = this.genLoadInsn;
-				cellAccessNode.genCode(mg);
-				return;
-			}
-		} else {
-			cellAccessNode.needInitialize = this.needInitialize;
-			cellAccessNode.genCode(mg);
-			return;
-		}
+//		if(cellAccessNode == null) {
+//			if(var.getType().equals(Type.getType(ObjectArray.class))) {
+//				cellAccessNode = this.toCellAccessNode();
+//				cellAccessNode.needInitialize = this.genLoadInsn;
+//				cellAccessNode.genCode(mg);
+//				return;
+//			}
+//		} else {
+//			cellAccessNode.needInitialize = this.needInitialize;
+//			cellAccessNode.genCode(mg);
+//			return;
+//		}
 		
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException("");
@@ -343,6 +343,10 @@ public class MatrixAccessNode extends ExprNode {
 				p.idxS.updateTree(mg);
 			}
 		}
+		if(var.getType().equals(Type.getType(ObjectArray.class))) {
+			this.getParent().replaceChild(this, this.toCellAccessNode());
+		}
+
 	}
 
 	@Override

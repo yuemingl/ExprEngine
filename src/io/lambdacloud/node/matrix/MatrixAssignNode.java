@@ -48,19 +48,19 @@ public class MatrixAssignNode extends ExprNode {
 	}
 	@Override
 	public void _genCode(MethodGenHelper mg) {
-		if(cellAssignNode == null) {
-			if(Type.getType(ObjectArray.class).equals(var.getType())) {
-				cellAssignNode = this.toCellAssignNode();
-				cellAssignNode.needInitialize = this.needInitialize;
-				cellAssignNode.genCode(mg);
-				return;
-			}
-		} else {
-			cellAssignNode.needInitialize = this.needInitialize;
-			cellAssignNode.genCode(mg);
-			return;
-		}
-
+//		if(cellAssignNode == null) {
+//		if(Type.getType(ObjectArray.class).equals(var.getType())) {
+//			cellAssignNode = this.toCellAssignNode();
+//			cellAssignNode.needInitialize = this.needInitialize;
+//			cellAssignNode.genCode(mg);
+//			return;
+//		}
+//	} else {
+//		cellAssignNode.needInitialize = this.needInitialize;
+//		cellAssignNode.genCode(mg);
+//		return;
+//	}
+		
 		Type myType = this.getType();
 
 		if(this.indices.size() > 2) {
@@ -233,6 +233,8 @@ public class MatrixAssignNode extends ExprNode {
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
+		//If var is of type ObjectArray, we should use CellAssignNode instead of MatrixAssignNode
+		//e.g. A={1,2,3;4,5,6}; A(1,2)=100; %it should be a CellAssignNode
 		if(cellAssignNode == null) {
 			if(Type.getType(ObjectArray.class).equals(var.getType())) {
 				cellAssignNode = this.toCellAssignNode();
@@ -258,13 +260,18 @@ public class MatrixAssignNode extends ExprNode {
 		if(Type.getType(ObjectArray.class).equals(rType) ||
 				Type.getType(Jama.Matrix.class).equals(rType) )
 			var.setType(rType);
-		else
-			var.setType(Type.getType(Jama.Matrix.class));
+		else {
+			//Don't change the type of var of the type is not null
+			//e.g. a={1,2,3}; a(1,2)=10 % the type of a is not changed after the assignment
+			if(null == var.getType())
+				var.setType(Type.getType(Jama.Matrix.class));
+		}
 	}
 	
 	public CellAssignNode toCellAssignNode() {
 		CellAssignNode n = new CellAssignNode(this.var, this.value);
 		n.indices = this.indices;
+		n.needInitialize = this.needInitialize;
 		return n;
 	}
 	
@@ -317,6 +324,11 @@ public class MatrixAssignNode extends ExprNode {
 				p.idxS.updateTree(mg);
 			}
 		}
+		
+		if(Type.getType(ObjectArray.class).equals(var.getType())) {
+			this.getParent().replaceChild(this, this.toCellAssignNode());
+		}
+		
 	}
 
 	@Override
