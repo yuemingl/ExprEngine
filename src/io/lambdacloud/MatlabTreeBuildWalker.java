@@ -698,6 +698,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Check if this is a function call
 		String varName = null;
 		StringBuilder sbNames = new StringBuilder();
+		String funcName = null;
 		if(var instanceof VariableNode) {
 			VariableNode varNode = (VariableNode)var;
 			varName = varNode.getName();
@@ -705,8 +706,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			StructAccessNode san = (StructAccessNode)var;
 			var = san.var;
 			varName = san.var.getName();
-			if(san.fields.size() > 0)
+			if(san.fields.size() > 0) {
 				sbNames.append(".").append(Tools.join(san.fields.toArray(new String[0]), "."));
+				funcName = san.fields.get(san.fields.size()-1);
+			}
 		} else {
 			throw new RuntimeException("var ="+var);
 		}
@@ -723,8 +726,18 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			} else {
 				//Check if varName is a function defined in BytecodeSupport
 				Method[] ms = BytecodeSupport.class.getMethods();
+				String checkName = varName;
+				if(null != funcName)
+					checkName = funcName;
 				for(Method m : ms) {
-					if(varName.equals(m.getName())) {
+					if(checkName.equalsIgnoreCase(m.getName())) {
+						isFuncCall = true;
+						break;
+					}
+				}
+				ms = Math.class.getMethods();
+				for(Method m : ms) {
+					if(checkName.equalsIgnoreCase(m.getName())) {
 						isFuncCall = true;
 						break;
 					}
@@ -734,14 +747,16 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 //			if(null == this.currentScope().varMap.get(varName)) {
 //				isFuncCall = true;
 //			}
-			if(null == this.currentScope().varMap.get(varName)) {
-				//The variable is referenced without initialization
-				//
-				needInitialize = true;
-				VariableNode localVar = (VariableNode)var;
-				localVar.setAsLocalVar();
-				this.currentScope().varMap.put(varName, localVar);
-				isFuncCall = false;
+			if(!isFuncCall) {
+				if(null == this.currentScope().varMap.get(varName)) {
+					//The variable is referenced without initialization
+					//
+					needInitialize = true;
+					VariableNode localVar = (VariableNode)var;
+					localVar.setAsLocalVar();
+					this.currentScope().varMap.put(varName, localVar);
+					isFuncCall = false;
+				}
 			}
 		}
 		

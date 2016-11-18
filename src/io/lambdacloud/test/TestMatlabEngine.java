@@ -53,6 +53,7 @@ import static org.objectweb.asm.Opcodes.*;
  *   Support sparse(m,n)  -  sparse matrix
  *   
  *   ***Use updateTree() to transform MatrixAccessNode to CellAccessNode
+ *   Construct CellAccessNode directly insteaof using updateTree()?? e.g. A={1,2,3}; a(1,2)
  *   Bugfix: Look up function names in BytecodeSupport and Math
  *   Default type of an undefined variable is funcCall or ArrayAccess in MatlabTreeBuilder?
  *   
@@ -83,13 +84,16 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		
-		//exec("a={1,2,3}");
-		exec("a={1,2,3}; a(1,2)\n a{1,2}");
-		exec("a={1,2,3}; a(1,2)=10");
+		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
 
 		
-//		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
+		//exec("a={1,2,3}");
+		//exec("a={1,2,3}; a(1,2)\n a{1,2}");
+		//exec("a={1,2,3}; a(1,2)=10");
+
+		
+		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
+		assertEqual(exec("math.cos(1.0);"), Math.cos(1.0));
 
 //	//flipdim.m
 //    % Create the index that will transform x.
