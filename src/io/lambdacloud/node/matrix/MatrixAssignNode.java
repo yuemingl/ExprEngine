@@ -46,21 +46,9 @@ public class MatrixAssignNode extends ExprNode {
 	public static void test() {
 		Jama.Matrix a = new Jama.Matrix(1,1);
 	}
+	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
-//		if(cellAssignNode == null) {
-//		if(Type.getType(ObjectArray.class).equals(var.getType())) {
-//			cellAssignNode = this.toCellAssignNode();
-//			cellAssignNode.needInitialize = this.needInitialize;
-//			cellAssignNode.genCode(mg);
-//			return;
-//		}
-//	} else {
-//		cellAssignNode.needInitialize = this.needInitialize;
-//		cellAssignNode.genCode(mg);
-//		return;
-//	}
-		
 		Type myType = this.getType();
 
 		if(this.indices.size() > 2) {
@@ -233,16 +221,6 @@ public class MatrixAssignNode extends ExprNode {
 	
 	@Override
 	public Type getType(Deque<Object> stack) {
-//		//If var is of type ObjectArray, we should use CellAssignNode instead of MatrixAssignNode
-//		//e.g. A={1,2,3;4,5,6}; A(1,2)=100; %it should be a CellAssignNode
-//		if(cellAssignNode == null) {
-//			if(Type.getType(ObjectArray.class).equals(var.getType())) {
-//				cellAssignNode = this.toCellAssignNode();
-//				return cellAssignNode.getType();
-//			}
-//		} else {
-//			return cellAssignNode.getType();
-//		}
 		Type ty = var.getType();
 		if(null != ty)
 			return ty;
@@ -329,6 +307,8 @@ public class MatrixAssignNode extends ExprNode {
 			}
 		}
 		
+//		//If var is of type ObjectArray, we should use CellAssignNode instead of MatrixAssignNode
+//		//e.g. A={1,2,3;4,5,6}; A(1,2)=100; %it should be a CellAssignNode
 		if(Type.getType(ObjectArray.class).equals(var.getType())) {
 			this.getParent().replaceChild(this, this.toCellAssignNode());
 		}

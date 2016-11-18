@@ -74,19 +74,6 @@ public class MatrixAccessNode extends ExprNode {
 	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
-//		if(cellAccessNode == null) {
-//			if(var.getType().equals(Type.getType(ObjectArray.class))) {
-//				cellAccessNode = this.toCellAccessNode();
-//				cellAccessNode.needInitialize = this.genLoadInsn;
-//				cellAccessNode.genCode(mg);
-//				return;
-//			}
-//		} else {
-//			cellAccessNode.needInitialize = this.needInitialize;
-//			cellAccessNode.genCode(mg);
-//			return;
-//		}
-		
 		if(this.indices.size() > 2) {
 			throw new UnsupportedOperationException("");
 		}
@@ -98,7 +85,6 @@ public class MatrixAccessNode extends ExprNode {
 			mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), varNode.getLVTIndex(ty));
 		}
 
-		
 		//A(:), A(1:end) or A(B)
 		if(this.indices.size() == 1) {
 			if(null == this.indices.get(0).idxS) {  //A(:)
@@ -263,15 +249,6 @@ public class MatrixAccessNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-//		if(cellAccessNode == null) {
-//			if(var.getType().equals(Type.getType(ObjectArray.class))) {
-//				cellAccessNode = this.toCellAccessNode();
-//				return cellAccessNode.getType();
-//			}
-//		} else {
-//			return cellAccessNode.getType();
-//		}
-
 		if(this.isAccessElement())
 			return Type.DOUBLE_TYPE;
 		else
