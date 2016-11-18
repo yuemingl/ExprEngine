@@ -287,6 +287,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		return genClass(className, writeFile, methodName,  isStatic, null);
 	}
 	
+	/**
+	 * Call updateType() for each expression in the order of execution
+	 */
 	private void updateExprTypes() {
 		
 		Iterator<ExprNode> it = this.currentScope().stack.descendingIterator();
@@ -308,26 +311,37 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	public Class<?> genClass(String className, boolean writeFile, 
 			String methodName, boolean isStatic, Class<?>[] aryParameterTypes) {
 		try {
-			
+
 			if(currentScope().stack.isEmpty()) 
 				return null;
-			
+
 			ExprClassLoader mcl = new ExprClassLoader(CodeGenerator.class.getClassLoader());
 			CodeGenerator cgen = new CodeGenerator();
-			
+
 			//Define class
 			if(null != this.defaultParameterTypeOrInterface && this.defaultParameterTypeOrInterface.isInterface()) {
 				cgen.startClass(className, new String[]{Type.getInternalName(this.defaultParameterTypeOrInterface)});
 			} else {
 				cgen.startClass(className, null);
 			}
+
+			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
+			sortedVarMap.putAll(currentScope().varMap);
+			MethodGenHelper mg = new MethodGenHelper(sortedVarMap);
+
+			StatementNode stmt = new StatementNode();
+			for(ExprNode e : this.currentScope().stack) {
+				stmt.exprs.add(e);
+				e.setParent(stmt);
+			}
 			
+
 			//Define method
 			Type retType = null;
 			Type[] paramTypes = null;
 			int access =  Opcodes.ACC_PUBLIC;
 			if(isStatic) access |= Opcodes.ACC_STATIC;
-			
+
 			//There are two ways to specify parameter types of the generated method
 			if(null == aryParameterTypes) {
 				if(null != this.defaultParameterTypeOrInterface) {
@@ -335,6 +349,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						Method m = this.defaultParameterTypeOrInterface.getDeclaredMethods()[0];
 						paramTypes = getAndFixParameterTypes(m.getParameterTypes());
 						updateExprTypes();
+						//Update tree before code generation
+						stmt.updateTree(mg);
 						//Check m.getReturnType() == retType ? 
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
 						if(null == retType) {
@@ -352,6 +368,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						for(int i=0; i<pTypes.length; i++) pTypes[i] = this.defaultParameterTypeOrInterface; 
 						paramTypes = getAndFixParameterTypes(pTypes);
 						updateExprTypes();
+						//Update tree before code generation
+						stmt.updateTree(mg);
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
 						if(null == retType) {
 							//retType = Type.VOID_TYPE; 
@@ -363,6 +381,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				} else {
 					paramTypes = getAndFixParameterTypes(this.mapParameterTypes);
 					updateExprTypes();
+					//Update tree before code generation
+					stmt.updateTree(mg);
 					retType = currentScope().stack.peek().getType(); //return type of the last expression
 					if(null == retType) {
 						//retType = Type.VOID_TYPE; 
@@ -374,6 +394,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			} else {
 				paramTypes = getAndFixParameterTypes(aryParameterTypes);
 				updateExprTypes();
+				//Update tree before code generation
+				stmt.updateTree(mg);
 				retType = currentScope().stack.peek().getType(); //return type of the last expression
 				if(null == retType) {
 					//retType = Type.VOID_TYPE; 
@@ -382,28 +404,28 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				cgen.startMethod(access, methodName,
 						Type.getMethodDescriptor(retType, paramTypes));
 			}
-			
 
 			cgen.startCode();
 			
 			MethodVisitor mv = cgen.getMV();
 			//TODO: bugfix - sort argument names for non-function script (???)
 			//use TreeMap to sort variables in varMap
-			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
-			sortedVarMap.putAll(currentScope().varMap);
-			MethodGenHelper mg = new MethodGenHelper(mv, sortedVarMap);
+//			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
+//			sortedVarMap.putAll(currentScope().varMap);
+//			MethodGenHelper mg = new MethodGenHelper(mv, sortedVarMap);
+			mg.setMethodVisitor(mv);
 			
-			//Construct a StatementNode to contain all the elements in the stack
-			//This StatementNode is the root of expressions. So every expression 
-			//node has a parent with type ExprNode
-			StatementNode stmt = new StatementNode();
-			for(ExprNode e : this.currentScope().stack) {
-				stmt.exprs.add(e);
-				e.setParent(stmt);
-			}
-			
-			//Update tree before code generation
-			stmt.updateTree(mg);
+//			//Construct a StatementNode to contain all the elements in the stack
+//			//This StatementNode is the root of expressions. So every expression 
+//			//node has a parent with type ExprNode
+//			StatementNode stmt = new StatementNode();
+//			for(ExprNode e : this.currentScope().stack) {
+//				stmt.exprs.add(e);
+//				e.setParent(stmt);
+//			}
+//			
+//			//Update tree before code generation
+//			stmt.updateTree(mg);
 			
 			//Initiate call to updateParam()
 			stmt.updateParam(null, null);

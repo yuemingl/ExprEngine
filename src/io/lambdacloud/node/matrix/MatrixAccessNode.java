@@ -251,8 +251,12 @@ public class MatrixAccessNode extends ExprNode {
 	public Type getType(Deque<Object> stack) {
 		if(this.isAccessElement())
 			return Type.DOUBLE_TYPE;
-		else
-			return Type.getType(Jama.Matrix.class);
+		else {
+			if(null != var.getType(stack)) 
+				return var.getType(stack);
+			else
+				return Type.getType(Jama.Matrix.class);
+		}
 	}
 
 	@Override
@@ -261,6 +265,7 @@ public class MatrixAccessNode extends ExprNode {
 		if(stack.contains(this)) 
 			return;
 		stack.push(this);
+		
 		for(int i=this.indices.size()-1; i>=0; i--) {
 			IndexPair p = this.indices.get(i);
 			ExprNode idxS = p.idxS;

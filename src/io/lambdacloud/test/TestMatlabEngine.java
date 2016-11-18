@@ -84,7 +84,10 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		//exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
+		//bugfix: Return type is changed after calling updateTree() 
+		//Make sure getType() return the correct type even after calling updateTree()
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
+		assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), 4.0);
 
 		
 		//exec("a={1,2,3}");
@@ -113,7 +116,7 @@ public class TestMatlabEngine {
 	
 	
 	
-		//test();
+		test();
 	}
 	public static void test() {
 		

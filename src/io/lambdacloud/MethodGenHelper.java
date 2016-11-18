@@ -23,10 +23,17 @@ public class MethodGenHelper {
 	public Stack<Label> labelForIncStackTag = new Stack<Label>();
 	public VariableNode retNodeTag;
 	
+	public MethodGenHelper(Map<String, VariableNode> varMap) {
+		this.varMap = varMap;
+	}
 
 	public MethodGenHelper(MethodVisitor mv, Map<String, VariableNode> varMap) {
 		this.mv = mv;
 		this.varMap = varMap;
+	}
+	
+	public void setMethodVisitor(MethodVisitor mv) {
+		this.mv = mv;
 	}
 
 	public void updateLVTIndex() {
