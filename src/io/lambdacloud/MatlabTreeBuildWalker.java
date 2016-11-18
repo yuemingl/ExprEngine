@@ -288,18 +288,6 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	/**
-	 * Call updateType() for each expression in the order of execution
-	 */
-	private void updateExprTypes() {
-		
-		Iterator<ExprNode> it = this.currentScope().stack.descendingIterator();
-		while(it.hasNext()) {
-			ExprNode n = it.next();
-			Deque<Object> stack = new LinkedList<Object>();
-			n.updateType(stack);
-		}
-	}
-	/**
 	 * Use defaultParameterTypesOrInterface to generate class
 	 * @param className
 	 * @param writeFile
@@ -325,6 +313,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				cgen.startClass(className, null);
 			}
 
+			//
 			Map<String, VariableNode> sortedVarMap = new TreeMap<String, VariableNode>();
 			sortedVarMap.putAll(currentScope().varMap);
 			MethodGenHelper mg = new MethodGenHelper(sortedVarMap);
@@ -341,6 +330,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			Type[] paramTypes = null;
 			int access =  Opcodes.ACC_PUBLIC;
 			if(isStatic) access |= Opcodes.ACC_STATIC;
+			Deque<Object> stack = new LinkedList<Object>();
 
 			//There are two ways to specify parameter types of the generated method
 			if(null == aryParameterTypes) {
@@ -348,7 +338,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					if(this.defaultParameterTypeOrInterface.isInterface()) {
 						Method m = this.defaultParameterTypeOrInterface.getDeclaredMethods()[0];
 						paramTypes = getAndFixParameterTypes(m.getParameterTypes());
-						updateExprTypes();
+						//updateType before updateType()
+						stmt.updateType(stack);
 						//Update tree before code generation
 						stmt.updateTree(mg);
 						//Check m.getReturnType() == retType ? 
@@ -367,7 +358,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 						Class<?>[] pTypes = new Class<?>[nParam];
 						for(int i=0; i<pTypes.length; i++) pTypes[i] = this.defaultParameterTypeOrInterface; 
 						paramTypes = getAndFixParameterTypes(pTypes);
-						updateExprTypes();
+						//updateType before updateType()
+						stmt.updateType(stack);
 						//Update tree before code generation
 						stmt.updateTree(mg);
 						retType = currentScope().stack.peek().getType(); //return type of the last expression
@@ -380,7 +372,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					}
 				} else {
 					paramTypes = getAndFixParameterTypes(this.mapParameterTypes);
-					updateExprTypes();
+					//updateType before updateType()
+					stmt.updateType(stack);
 					//Update tree before code generation
 					stmt.updateTree(mg);
 					retType = currentScope().stack.peek().getType(); //return type of the last expression
@@ -393,7 +386,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				}
 			} else {
 				paramTypes = getAndFixParameterTypes(aryParameterTypes);
-				updateExprTypes();
+				//updateType before updateType()
+				stmt.updateType(stack);
 				//Update tree before code generation
 				stmt.updateTree(mg);
 				retType = currentScope().stack.peek().getType(); //return type of the last expression
