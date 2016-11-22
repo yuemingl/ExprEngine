@@ -727,7 +727,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				funcName = san.fields.get(san.fields.size()-1);
 			}
 		} else {
-			throw new RuntimeException("var ="+var);
+			throw new RuntimeException("var = "+var);
 		}
 		
 		//Check if the variable is from external parameter
@@ -1025,6 +1025,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			
 			//put the return expression at the end of function body
 			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
+			//
 			if(retNode instanceof MatrixInitNode) {
 				((MatrixInitNode)retNode).returnAsArray();
 			}
