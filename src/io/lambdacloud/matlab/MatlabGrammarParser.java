@@ -2364,6 +2364,7 @@ public class MatlabGrammarParser extends Parser {
 		}
 	}
 	public static class NArgInContext extends Arithmetic_exprContext {
+		public TerminalNode NARGIN() { return getToken(MatlabGrammarParser.NARGIN, 0); }
 		public List<TerminalNode> WS() { return getTokens(MatlabGrammarParser.WS); }
 		public TerminalNode WS(int i) {
 			return getToken(MatlabGrammarParser.WS, i);
@@ -2382,6 +2383,7 @@ public class MatlabGrammarParser extends Parser {
 		}
 	}
 	public static class NArgOutContext extends Arithmetic_exprContext {
+		public TerminalNode NARGOUT() { return getToken(MatlabGrammarParser.NARGOUT, 0); }
 		public List<TerminalNode> WS() { return getTokens(MatlabGrammarParser.WS); }
 		public TerminalNode WS(int i) {
 			return getToken(MatlabGrammarParser.WS, i);
