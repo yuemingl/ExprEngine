@@ -1,5 +1,7 @@
 package io.lambdacloud.util;
 
+import io.lambdacloud.BytecodeSupport;
+
 public class ObjectArray {
 	public Object[][] data;
 
@@ -432,5 +434,26 @@ public class ObjectArray {
 	public CSList getCSList() {
 		return new CSList(this.getColumnPackedCopy());
 	}
-
+	
+	public static ObjectArray newObjectArray(Object[] objects) {
+		ObjectArray ary = new ObjectArray(1, objects.length);
+		ary.data = new Object[1][];
+		ary.data[0] = objects;
+		return ary;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		int  m = this.getRowDimension();
+		int n = this.getColumnDimension();
+		sb.append("{\n");
+		for(int i=0; i<m; i++) {
+			for(int j=0; j<n; j++) {
+				sb.append(data[i][j].toString()).append(" ");
+			}
+			sb.append("\n");
+		}
+		sb.append("}");
+		return sb.toString();
+	}
 }
