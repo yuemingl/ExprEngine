@@ -233,20 +233,22 @@ public class MatrixAssignNode extends ExprNode {
 		//circle check
 		if(stack.contains(this)) 
 			return;
-		stack.push(this);
 		
+		stack.push(this);
 		value.updateType(stack);
 		stack.pop();
 		
-		Type rType = value.getType(stack);
-		if(Type.getType(ObjectArray.class).equals(rType) ||
-				Type.getType(Jama.Matrix.class).equals(rType) )
-			var.setType(rType);
-		else {
-			//Don't change the type of var of the type is not null
-			//e.g. a={1,2,3}; a(1,2)=10 % the type of a is not changed after the assignment
-			if(null == var.getType())
+		//Don't change the type of var of the type is not null
+		//e.g. a={1,2,3}; a(1,2)=10 % the type of a is not changed after the assignment
+		if(null == var.getType()) {
+			Type rType = value.getType(stack);
+			if(Type.getType(ObjectArray.class).equals(rType) ||
+					Type.getType(Jama.Matrix.class).equals(rType) )
+				var.setType(rType);
+			else
 				var.setType(Type.getType(Jama.Matrix.class));
+		} else {
+			//Do nothing
 		}
 	}
 	
