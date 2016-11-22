@@ -28,6 +28,7 @@ import io.lambdacloud.node.arithmetric.DivAsignNode;
 import io.lambdacloud.node.arithmetric.IncNode;
 import io.lambdacloud.node.arithmetric.MulAsignNode;
 import io.lambdacloud.node.arithmetric.SubAsignNode;
+import io.lambdacloud.util.ObjectArray;
 
 public class FuncDefNode extends ExprNode {
 	public String name;
@@ -35,8 +36,9 @@ public class FuncDefNode extends ExprNode {
 	public Map<String, VariableNode> funcVarMap = new LinkedHashMap<String, VariableNode>();
 
 	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
+	
 	/**
-	 * Keep the return expression in the declaration of a function
+	 * This is used to keep the return expression declared in the definition of a function
 	 * function R = fun(x)
 	 * ...
 	 * end
@@ -55,27 +57,57 @@ public class FuncDefNode extends ExprNode {
 		seq.getAndIncrement();
 	}
 
-	public Map<String, Type> setParamTypes(Deque<Object> stack, Type[] paramTypes) {
-		if (this.paramNames.size() < paramTypes.length) {
-			throw new RuntimeException("Too many parameters for function "+this.name+"!");
+	public boolean hasVarargin() {
+		if(this.paramNames.size() > 0) {
+			String lastName = this.paramNames.get(this.paramNames.size()-1);
+			if(!lastName.equalsIgnoreCase("varargin")) {
+				return false;
+			}
+		} else {
+			return false;
 		}
+		return true;
+	}
+	
+	public Map<String, Type> setParamTypes(Deque<Object> stack, Type[] newTypes) {
+		if(this.paramNames.size() > 0) {
+			String lastName = this.paramNames.get(this.paramNames.size()-1);
+			if(!lastName.equalsIgnoreCase("varargin")) {
+				if (this.paramNames.size() < newTypes.length) {
+					throw new RuntimeException("Too many parameters for function "+this.name+"!");
+				}
+			}
+		} else {
+			if (0 < newTypes.length) {
+				throw new RuntimeException("Too many parameters for function "+this.name+"!");
+			}
+		}
+		
+		//Set all to optional first
 		for (String paramName : this.paramNames) {
 			VariableNode paramNode = this.funcVarMap.get(paramName);
 			if (paramNode.isParameter()) {
 				paramNode.setOptional(true);
 			}
 		}
-		Map<String, Type> oldType = new TreeMap<String, Type>();
-		for (int i = 0; i < paramTypes.length; i++) {
-			String paramName = this.paramNames.get(i);
-			VariableNode paramNode = this.funcVarMap.get(paramName);
-			if (paramNode.isParameter()) {
-				oldType.put(paramName, paramNode.getType());
-				paramNode.setType(paramTypes[i]);
-				paramNode.setOptional(false);
-			} else {
-				throw new RuntimeException(
-						"Parameter " + paramNode.toString() + " of " + this.name + " is not marked as parameter type!");
+		//Set parameters in the new types list to non-optional,
+		//that is to say, others if exist beyond the list are set to optional
+		Map<String, Type> mapOldTypes = new TreeMap<String, Type>();
+		for (int i = 0; i < newTypes.length; i++) {
+			if(this.paramNames.size() > i) {
+	 			String paramName = this.paramNames.get(i);
+				VariableNode paramNode = this.funcVarMap.get(paramName);
+				if (paramNode.isParameter()) {
+					mapOldTypes.put(paramName, paramNode.getType());
+					if(paramName.equalsIgnoreCase("varargin")) //Force varargin to be type ObjectArray
+						paramNode.setType(Type.getType(ObjectArray.class));
+					else
+						paramNode.setType(newTypes[i]);
+					paramNode.setOptional(false);
+				} else {
+					throw new RuntimeException("Parameter " + paramNode.toString() + " of " + this.name + 
+							" is not marked as parameter type!");
+				}
 			}
 		}
 		
@@ -83,8 +115,8 @@ public class FuncDefNode extends ExprNode {
 			stack = new LinkedList<Object>();
 		}
 		fixBodyExprTypes(stack);
-		return oldType;
-
+		
+		return mapOldTypes;
 	}
 
 	/**
@@ -287,7 +319,7 @@ public class FuncDefNode extends ExprNode {
 				mg.visitInsn(Opcodes.RETURN);
 			}
 			
-			//Generate local variabel table
+			//Generate local variable table
 			List<VariableNode> nodeList = new ArrayList<VariableNode>();
 			nodeList.addAll(funcVarMap.values());
 			//Sort variables by LVT index

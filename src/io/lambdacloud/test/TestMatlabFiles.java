@@ -10,7 +10,9 @@ public class TestMatlabFiles {
 
 	public static void main(String[] args) {
 		//compile("./test_matlab/spdiags.m");
-		compile("./test_matlab/matlab/elmat/flipdim.m");
+		//compile("./test_matlab/matlab/elmat/flipdim.m");
+		compile("./test_matlab/matlab/elmat/ndgrid.m");
+		//compile("./test_matlab/matlab/elmat/gallery.m");
 		//compile("./test_matlab/matlab/elmat");
 	}
 	

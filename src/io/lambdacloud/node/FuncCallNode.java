@@ -8,6 +8,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.objectweb.asm.Handle;
@@ -18,6 +19,7 @@ import io.lambdacloud.ExprTreeBuildWalker;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.array.ArrayNode;
 import io.lambdacloud.util.CSList;
+import io.lambdacloud.util.ObjectArray;
 
 public class FuncCallNode extends ExprNode {
 	String fullClassName;
@@ -81,12 +83,22 @@ public class FuncCallNode extends ExprNode {
 		return ret.toArray(new Class<?>[0]);
 	}
 
+	/**
+	 * Return the types of the arguments of the function call node
+	 * @return
+	 */
 	public Type[] getParameterTypes() {
 		Type[] ret = new Type[args.size()];
 		for (int i = args.size() - 1; i >= 0; i--) {
 			ret[args.size() - 1 - i] = args.get(i).getType();
 		}
 		return ret;
+	}
+	
+	public static void test() {
+		Object[] a = new Object[5];
+		a[0] = 1;
+		ObjectArray.newObjectArray(a);
 	}
 
 	public void _genCode(MethodGenHelper mg) {
@@ -133,12 +145,41 @@ public class FuncCallNode extends ExprNode {
 			Handle bootstrapHandle = new Handle(Opcodes.H_INVOKESTATIC, 
 					Type.getType(ExprTreeBuildWalker.class).getInternalName(), //"io/lambdacloud/ExprTreeBuildWalker"
 					"bootstrap", mt.toMethodDescriptorString());
+			
+			//Get the types of arguments declared in the function
+			Deque<Object> stack = new LinkedList<Object>();
+			this.refFuncDefNode.setParamTypes(stack, paramTypes);
+			Type[] declaredTypes = this.refFuncDefNode.getParameterTypes(false);
+			//Generate arguments for the function call
+			//All the arguments after explicitly declared will be put in an Object array
+			//in order to generate an ObjectArray object for the 'varargin'
+			int counter = 1;
+			int idx = 0;
 			for (int i = args.size() - 1; i >= 0; i--) {
+				if(this.refFuncDefNode.hasVarargin() && counter == declaredTypes.length) {
+					mg.visitLdcInsn(args.size()-declaredTypes.length+1);
+					mg.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
+					mg.visitInsn(Opcodes.DUP);
+				}
+				if(this.refFuncDefNode.hasVarargin() && counter >= declaredTypes.length) {
+					mg.visitLdcInsn(idx++);
+				}
 				args.get(i).genCode(mg);
+				if(this.refFuncDefNode.hasVarargin() && counter >= declaredTypes.length) {
+					Tools.insertConversionInsn(mg, args.get(i).getType(), Type.getType(Object.class));
+					mg.visitInsn(Opcodes.AASTORE);
+					if(i != 0)
+						mg.visitInsn(Opcodes.DUP);
+				}
+				counter++;
 			}
+			if(this.refFuncDefNode.hasVarargin() && args.size() >= declaredTypes.length)
+				mg.visitMethodInsn(INVOKESTATIC, "io/lambdacloud/util/ObjectArray", 
+						"newObjectArray", "([Ljava/lang/Object;)Lio/lambdacloud/util/ObjectArray;", false);
+
 			Type retType = this.getType();
 			mg.visitInvokeDynamicInsn(this.methodName,
-					Type.getMethodDescriptor(retType, paramTypes), bootstrapHandle, new Object[0]);
+					Type.getMethodDescriptor(retType, declaredTypes), bootstrapHandle, new Object[0]);
 			if(retType.getSort() != Type.VOID && this.isPopReturn) {
 				if(retType.getSort()==Type.DOUBLE || retType.getSort() == Type.LONG)
 					mg.visitInsn(Opcodes.POP2);
@@ -213,7 +254,10 @@ public class FuncCallNode extends ExprNode {
 //			return ret;
 //		}
 		
+		//Get the types of the arguments of the function call
 		Type[] paramTypes = this.getParameterTypes();
+		
+		//Check if the arguments are all of type Object
 		boolean isAllObjectTypes = true;
 		for(int i=0; i<paramTypes.length; i++) {
 			if(!paramTypes[i].equals(Type.getType(Object.class))) {
@@ -227,7 +271,8 @@ public class FuncCallNode extends ExprNode {
 
 		if (isDynamicCall) {
 			FuncDefNode fnode = ExprTreeBuildWalker.funcMap.get(this.methodName);
-			//We need specify parameter types before inferring return type
+			//Apply the types in function call to the function definition
+			//We need specify the parameter types before inferring the returning type
 			fnode.setParamTypes(stack, paramTypes);
 			Type retType = fnode.inferRetType(stack);
 			

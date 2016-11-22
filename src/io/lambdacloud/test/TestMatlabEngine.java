@@ -53,12 +53,12 @@ import static org.objectweb.asm.Opcodes.*;
  *   Support sparse(m,n)  -  sparse matrix
  *   
  *   ***Use updateTree() to transform MatrixAccessNode to CellAccessNode
- *   Construct CellAccessNode directly insteaof using updateTree()?? e.g. A={1,2,3}; a(1,2)
- *   Bugfix: Look up function names in BytecodeSupport and Math
+ *   Construct CellAccessNode directly instead of using updateTree()?? e.g. A={1,2,3}; a(1,2)
  *   Default type of an undefined variable is funcCall or ArrayAccess in MatlabTreeBuilder?
  *   
  *   
  *  DONE:
+ *   Bugfix: Look up function names in BytecodeSupport and Math
  *   Use a StatementNode to contain all nodes in the stack
  *   Support 'end' in expression, e.g. A(end-1)
 
@@ -84,39 +84,49 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		//bugfix: Return type is changed after calling updateTree() 
-		//Make sure getType() return the correct type even after calling updateTree()
-		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
-		assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), 4.0);
-
+		exec("[a,b,c]=[1,2,3]; a\nb\nc");
 		
-		//exec("a={1,2,3}");
-		//exec("a={1,2,3}; a(1,2)\n a{1,2}");
-		//exec("a={1,2,3}; a(1,2)=10");
+		//exec("v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
+		//exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
 
+//		exec("function fun(a,b,varargin), varargin{:}\n size(varargin) end fun(1,2,{3,4},5);");
+//		exec("function fun(a,b,varargin), varargin{:}\n size(varargin) end fun(1,2,{3,4});");
+//		exec("function fun(a,b,varargin), varargin{:}\n end fun(1,2,3,4);");
+//		exec("function fun(a,b,c), c\n end fun(1,2,3);");
 		
-		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
-		assertEqual(exec("math.cos(1.0);"), Math.cos(1.0));
-
-//	//flipdim.m
-//    % Create the index that will transform x.
-//    v(1:ndims(x)) = {':'};
-//    % Flip dimension dim.
-//    v{dim} = dimsize:-1:1;
-//    % Index with v.
-//    y = x(v{:});
+//		//bugfix: Return type is changed after calling updateTree() 
+//		//Make sure getType() return the correct type even after calling updateTree()
+//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
+//		assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), 4.0);
+//
+//		
+//		exec("a={1,2,3}");
+//		exec("a={1,2,3}; a(1,2)\n a{1,2}");
+//		exec("a={1,2,3}; a(1,2)=10");
+//
+//		
+//		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
+//		assertEqual(exec("math.cos(1.0);"), Math.cos(1.0));
+//
+////	//flipdim.m
+////    % Create the index that will transform x.
+////    v(1:ndims(x)) = {':'};
+////    % Flip dimension dim.
+////    v{dim} = dimsize:-1:1;
+////    % Index with v.
+////    y = x(v{:});
 //	exec("v={0,0}; v(1:2)={':'}; v{:}");
 //	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; x(v{:})");
-//	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
-	//Use an array without initialization
+////	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
+//	//Use an array without initialization
 //		exec("v(1:2)={':'}");
 //		exec("v(2,3)=10");
 //		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
 //		exec("a=1\n a=2\n a=3");
-	
-	
-	
-		test();
+//	
+//	
+//	
+		//test();
 	}
 	public static void test() {
 		
@@ -132,8 +142,8 @@ public class TestMatlabEngine {
 		//  if(a_flag_I==0) { aD=aI+1.1; a_flag_I=1; } 
 		//  else { aD=aD+1.1 };
 		//}
-		//assertEqual(exec("a=1; for i=1:5, a=a+1.1; end a"), 6.5);
-		//assertEqual(exec("a=1; i=1; while i<= 5, a=a+1.1; i+=1; end a"), 6.5);
+		assertEqual(exec("a=1; for i=1:5, a=a+1.1; end a"), 6.5);
+		assertEqual(exec("a=1; i=1; while i<= 5, a=a+1.1; i+=1; end a"), 6.5);
 		
 		//exec("a=1; a=a+1.2; a");
 
@@ -144,41 +154,41 @@ public class TestMatlabEngine {
 		
 //		exec("[varargout{1:max(nargout,1)}]");
 //		exec("[varargout{1:max(nargout,1)}]=F(varargin{:});");
-//		
-//		//nargs = nargin(matname);
-//		//[classname,varargin{1:end-1}] //end-1
-//		exec("a=[2 3]; a(end-1)");
-
-//		exec("A = 1:5; B = cumsum(A)");
-//		exec("A=[1 2 3; 4 5 6; 7 8 9]; cumsum(A)");
-//		exec("A=[1 2 0 5 7]; class(A)");
-//		
-//		exec("A=[1 2 0 5 7]; diff(A)");
-//		exec("A=[1 2 0; 3 0 4]; diff(A)");
-//		exec("A=[1 2 0; 3 0 4; 0 5 6]; [i j] = find(A); sort(i-j)");
-//		
-//		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
-//		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx yy zz]=fun(10,20,30); xx\n yy\n zz");
-//		exec("function [x y] = fun(a,b,c), x=a; y=b+c; nargout end fun(1,2,3)");
-//		
-//		exec("a=[10]; a(1,1)=0; a(1)=1; a");
 		
-//		assertEqual(exec("a={1,2,3}; isempty(a{1})"), false);
+		//nargs = nargin(matname);
+		//[classname,varargin{1:end-1}] //end-1
+		exec("a=[2 3]; a(end-1)");
+
+		exec("A = 1:5; B = cumsum(A)");
+		exec("A=[1 2 3; 4 5 6; 7 8 9]; cumsum(A)");
+		exec("A=[1 2 0 5 7]; class(A)");
+		
+		exec("A=[1 2 0 5 7]; diff(A)");
+		exec("A=[1 2 0; 3 0 4]; diff(A)");
+		exec("A=[1 2 0; 3 0 4; 0 5 6]; [i j] = find(A); sort(i-j)");
+		
+		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
+		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx yy zz]=fun(10,20,30); xx\n yy\n zz");
+		exec("function [x y] = fun(a,b,c), x=a; y=b+c; nargout end fun(1,2,3)");
+		
+		exec("a=[10]; a(1,1)=0; a(1)=1; a");
+		
+		assertEqual(exec("a={1,2,3}; isempty(a{1})"), false);
 	
 		
 		
-//		exec("a='abc'; switch a\n case 'aaa'\n 100\n case 'bbb'\n 200\n case 'abc'\n 300\n otherwise\n 500\n end");
-//
-//		exec("a=1; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
-//		exec("a=2; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
-//		exec("a=3; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
+		exec("a='abc'; switch a\n case 'aaa'\n 100\n case 'bbb'\n 200\n case 'abc'\n 300\n otherwise\n 500\n end");
+
+		exec("a=1; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
+		exec("a=2; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
+		exec("a=3; switch a, case 1\n 1+2; 100\n case 2\n 200; 4+5\n otherwise\n 300; 2+3\n end");
 		
-//		assertEqual(exec("a=1; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),100);
-//		assertEqual(exec("a=2; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),200);
-//		assertEqual(exec("a=3; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),500);
-//		
-//		assertEqual(exec("a='abc'; b=0; switch a\n case 'aaa'\n b=100\n case 'bbb'\n b=200\n case 'abc'\n b=300\n otherwise\n b=500\n end b"), 300);
-//
+		assertEqual(exec("a=1; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),100);
+		assertEqual(exec("a=2; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),200);
+		assertEqual(exec("a=3; b=0; switch a, case 2, b=200; case 1, b=100; otherwise b=500; end b"),500);
+		
+		assertEqual(exec("a='abc'; b=0; switch a\n case 'aaa'\n b=100\n case 'bbb'\n b=200\n case 'abc'\n b=300\n otherwise\n b=500\n end b"), 300);
+
 		testBasic();
 		testBasic2();
 		testBasic3();
