@@ -158,8 +158,8 @@ arithmetic_expr
  | numeric_entity                                     # ArithmeticExpressionEntity
  | logical_entity                                     # LogicalExpressionEntity
  | string_entity                                      # StringEntity
- | WS* 'nargin' WS* expr_end?                         # NArgIn
- | WS* 'nargout' WS* expr_end?                        # NArgOut
+ | WS* NARGIN WS* expr_end?                           # NArgIn
+ | WS* NARGOUT WS* expr_end?                          # NArgOut
  ;
 
 mini_airth_expr 
