@@ -33,6 +33,7 @@ import io.lambdacloud.node.IfNode;
 import io.lambdacloud.node.NArgInNode;
 import io.lambdacloud.node.NArgOutNode;
 import io.lambdacloud.node.RangeNode;
+import io.lambdacloud.node.ReturnListNode;
 import io.lambdacloud.node.ReturnNode;
 import io.lambdacloud.node.StatementNode;
 import io.lambdacloud.node.SwitchNode;
@@ -80,6 +81,7 @@ import io.lambdacloud.node.matrix.TransposeNode;
 import io.lambdacloud.node.string.StringNode;
 import io.lambdacloud.node.tool.ArrayAccess;
 import io.lambdacloud.node.tool.ArrayLength;
+import io.lambdacloud.util.ObjectArray;
 import io.lambdacloud.util.Struct;
 
 public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
@@ -523,6 +525,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				}
 				this.currentScope().varMap.put(varName, var);
 			}
+			
+			if(varName.equalsIgnoreCase("varargout"))
+				var.setType(Type.getType(ObjectArray.class));
+
 		}
 		if(ctx.IDENTIFIER().size() <= 1) {
 			this.currentScope().stack.push(var);
@@ -1023,15 +1029,22 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Determine the return expression
 		if(null != ctx.func_def_return()) { //It has return variable specified
 			
-			//put the return expression at the end of function body
+			//Remove the return expression from body list
 			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
-			//
-			if(retNode instanceof MatrixInitNode) {
-				((MatrixInitNode)retNode).returnAsArray();
-			}
-			fNode.body.add(0, retNode);
 			
-			fNode.retExpr = retNode; //Keep the retExpression used in ReturnNode
+			//Transform it to ReturnListNode
+			if(retNode instanceof MatrixInitNode) {
+				ReturnListNode retList = new ReturnListNode();
+				retList.initExprList = ((MatrixInitNode)retNode).initExprList;
+				retNode = retList;
+				//((MatrixInitNode)retNode).returnAsArray(); //no longer used
+			}
+			//Don't put the return expression to the end of the function body
+			//fNode.body.add(0, retNode);
+			
+			//Keep the the return expr in retExpr which will be used 
+			//in Generating code, NArgOutNode and ReturnNode (early return)
+			fNode.retExpr = retNode; 
 			
 		} else { //The last expression is the return value
 			ExprNode lastExpr = fNode.body.get(0);

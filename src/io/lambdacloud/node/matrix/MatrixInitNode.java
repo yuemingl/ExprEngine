@@ -18,6 +18,17 @@ import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;
 import io.lambdacloud.node.Tools;
 
+/**
+ * Initialize a matrix
+ * [1 2 3; 4 5 6]
+ * [A B C]
+ * or
+ * Return an array of matrix
+ * [A B C] => new Jama.Matrix[]{A, B, C}
+ * 
+ * @author yueming.liu
+ *
+ */
 public class MatrixInitNode extends ExprNode {
 	public List<ExprNode> initExprList = new ArrayList<ExprNode>();
 	public List<Integer> colLenList = new ArrayList<Integer>();
@@ -28,10 +39,12 @@ public class MatrixInitNode extends ExprNode {
 	 * function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end 
 	 * When calling myfun(), we want to return two matrices A and B
 	 * instead of a big matrix that is the same as vertcat(A,B) 
-	 * if flag is set to 1, a array of matrix is returned. A and B can be assigned by the returned array of matrices
-	 * if flag is set to 2, a single concatenated matrix is returned.
 	 * 
-	 * Note: an array of matrix cannot be constructed using Matlab gramma so far
+	 * if flag is set to 0, a single concatenated matrix is returned.
+	 * if flag is set to 1, an array of matrix is returned. A and B can 
+	 * be assigned by the returned array of matrices
+	 * 
+	 * Note: an array of matrix cannot be constructed using Matlab grammar so far
 	 */
 	private int flag = 0; //0: return Jama.Matrix; 1 return an array
 	
@@ -123,7 +136,8 @@ public class MatrixInitNode extends ExprNode {
 					mg.visitLdcInsn(this.colLenList.get(i));
 					mg.visitInsn(IASTORE);
 				}
-				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), "getMatrix", "([LJama/Matrix;[I)LJama/Matrix;", false);
+				mg.visitMethodInsn(Opcodes.INVOKESTATIC, BytecodeSupport.getMyName(), 
+						"getMatrix", "([LJama/Matrix;[I)LJama/Matrix;", false);
 			} else {
 				//return an array
 				//Do nothing. 

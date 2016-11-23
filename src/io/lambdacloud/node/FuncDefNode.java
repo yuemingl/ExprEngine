@@ -191,6 +191,13 @@ public class FuncDefNode extends ExprNode {
 			return null;
 		stack.push(this);
 
+		if(null != this.retExpr) {
+			Type retType = this.retExpr.getType();
+			if(null != retType) {
+				stack.pop();
+				return retType;
+			}
+		}
 		for (int i = 0; i < this.body.size(); i++) {
 			ExprNode node = this.body.get(i);
 			Type retType = node.getType(stack);
@@ -242,6 +249,9 @@ public class FuncDefNode extends ExprNode {
 			String className = getFuncClassName();
 			cgen.startClass(className, null);
 
+			MethodGenHelper mg = new MethodGenHelper(funcVarMap);
+			this.updateTree(mg);
+			
 			// Define method
 			int access = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 
@@ -251,7 +261,7 @@ public class FuncDefNode extends ExprNode {
 			String methodDesc = Type.getMethodDescriptor(retType, paramTypes);
 			cgen.startMethod(access, name, methodDesc);
 			MethodVisitor mv = cgen.getMV();
-			MethodGenHelper mg = new MethodGenHelper(mv, funcVarMap);
+			mg.setMethodVisitor(mv);
 			mg.initLVTIndex(true);
 			cgen.startCode();
 			this.generatedClasses.put(methodDesc, className);
@@ -293,26 +303,34 @@ public class FuncDefNode extends ExprNode {
 			}
 			
 			// Generate code for all the expressions
-			for (int i = this.body.size() - 1; i >= 1; i--) {
+			int lowBound = 0;
+			if(null == this.retExpr) {
+				if(this.body.size() > 0)
+					this.retExpr = this.body.get(0);
+				lowBound = 1;
+			}
+			for (int i = this.body.size() - 1; i >= lowBound; i--) {
 				ExprNode expr = this.body.get(i);
 				expr.genCode(mg);
 			}
-			if(this.body.size() > 0) {
-				ExprNode lastExpr = this.body.get(0);
-				if(lastExpr instanceof ReturnNode) {
-					lastExpr.genCode(mg);
+			
+			//Generate return expression from the last expression
+			if(null != this.retExpr) {
+				ExprNode retExpr = this.retExpr;
+				if(retExpr instanceof ReturnNode) {
+					retExpr.genCode(mg);
 				} else {
-					if(lastExpr instanceof AddAsignNode ||
-							lastExpr instanceof SubAsignNode ||
-							lastExpr instanceof MulAsignNode ||
-							lastExpr instanceof DivAsignNode ||
-							lastExpr instanceof IncNode ||
-							lastExpr instanceof DescNode ||
-							lastExpr instanceof AssignNode
+					if(retExpr instanceof AddAsignNode ||
+							retExpr instanceof SubAsignNode ||
+							retExpr instanceof MulAsignNode ||
+							retExpr instanceof DivAsignNode ||
+							retExpr instanceof IncNode ||
+							retExpr instanceof DescNode ||
+							retExpr instanceof AssignNode
 							) {
-						lastExpr.genLoadInsn(true);
+						retExpr.genLoadInsn(true);
 					}
-					lastExpr.genCode(mg);
+					retExpr.genCode(mg);
 					mg.visitInsn(retType.getOpcode(Opcodes.IRETURN));
 				}
 			} else {
@@ -370,6 +388,8 @@ public class FuncDefNode extends ExprNode {
 		sb.append(") {\n");
 		for (int i = body.size() - 1; i >= 0; i--)
 			sb.append(body.get(i).toString()).append("\n");
+		if(null != this.retExpr)
+			sb.append(this.retExpr).append("\n");
 		sb.append("}");
 		return sb.toString();
 	}
@@ -413,6 +433,9 @@ public class FuncDefNode extends ExprNode {
 	public void updateTree(MethodGenHelper mg) {
 		for(ExprNode e : this.body) {
 			e.updateTree(mg);
+		}
+		if(null != this.retExpr) {
+			this.retExpr.updateTree(mg);
 		}
 	}
 

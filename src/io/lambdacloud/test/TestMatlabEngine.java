@@ -84,7 +84,14 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		exec("[a,b,c]=[1,2,3]; a\nb\nc");
+		
+		exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout={c,100,'aaa'}; varargout end [xx yy zz aa bb]=fun(10,20,30); xx\nyy\nzz\naa\nbb"); 
+		//TODO function def body need StatementNode
+		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout(0)=c; varargout end [xx yy zz]=fun(10,20,30); xx"); 
+		//exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
+		//exec("function [x y z] = fun(a,b,c), x=a; y=b; z=c; end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
+//		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
+//		exec("[a,b,c]=[1,2,3]; a\nb\nc");
 		
 		//exec("v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
 		//exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");

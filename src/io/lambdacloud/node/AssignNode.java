@@ -135,6 +135,7 @@ public class AssignNode extends BinaryOp {
 		//[a b c] = [1 2 3]
 		if(multiAssignVars.size() > 0) {
 			Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
+			//If RHS is an array of Jama.Matrix, assign each element to the variables on the LHS
 			if(myType.getDescriptor().equals("[LJama/Matrix;")) {
 				for(int i=0; i<this.multiAssignVars.size(); i++) {
 					VariableNode v =  this.multiAssignVars.get(i);
@@ -244,6 +245,7 @@ public class AssignNode extends BinaryOp {
 			
 			if(multiAssignVars.size() > 0) {
 				Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
+				//If RHS is an array of Jama.Matrix, set each variable on LHS to type of Jama.Matrix
 				if(rType.equals(Type.getType(Jama.Matrix[].class))) {
 					for(int i=0; i<this.multiAssignVars.size(); i++) {
 						VariableNode v =  this.multiAssignVars.get(i);
