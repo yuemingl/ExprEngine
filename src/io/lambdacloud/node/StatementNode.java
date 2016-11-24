@@ -19,7 +19,9 @@ public class StatementNode extends ExprNode {
 
 	@Override
 	public Type getType(Deque<Object> stack) {
-		for(int i=exprs.size()-1; i>=0; i--) {
+		//bugfix type
+		for(int i=0; i<exprs.size(); i++) {
+		//	for(int i=exprs.size()-1; i>=0; i--) {
 			Type ty = exprs.get(i).getType(stack);
 			if(null != ty) return ty;
 		}
