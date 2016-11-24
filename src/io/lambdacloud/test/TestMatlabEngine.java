@@ -55,9 +55,11 @@ import static org.objectweb.asm.Opcodes.*;
  *   ***Use updateTree() to transform MatrixAccessNode to CellAccessNode
  *   Construct CellAccessNode directly instead of using updateTree()?? e.g. A={1,2,3}; a(1,2)
  *   Default type of an undefined variable is funcCall or ArrayAccess in MatlabTreeBuilder?
+ *   Support auto increment of ObjectArray and Jama.Matrix???
  *   
  *   
  *  DONE:
+ *   Function def body need StatementNode
  *   Bugfix: Look up function names in BytecodeSupport and Math
  *   Use a StatementNode to contain all nodes in the stack
  *   Support 'end' in expression, e.g. A(end-1)
@@ -84,10 +86,21 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
+		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
+				getVector(110,-90).transpose());
+
 		
-		exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout={c,100,'aaa'}; varargout end [xx yy zz aa bb]=fun(10,20,30); xx\nyy\nzz\naa\nbb"); 
-		//TODO function def body need StatementNode
-		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout(0)=c; varargout end [xx yy zz]=fun(10,20,30); xx"); 
+		//assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
+		//		getVector(110,-90).transpose());
+
+		//assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
+
+		//assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
+
+		
+		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout={c,100,'aaa'}; varargout end [xx yy zz aa bb]=fun(10,20,30); xx\nyy\nzz\naa\nbb"); 
+		
+		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout(1)=c; varargout end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
 		//exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
 		//exec("function [x y z] = fun(a,b,c), x=a; y=b; z=c; end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
 //		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
@@ -1060,7 +1073,6 @@ public class TestMatlabEngine {
 		
 		//TODO:type of return value ('r')? 
 		// assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
-		assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
 
 		//Two possible ways to 
 		//1. Set the default value of optional parameter to 0/null
