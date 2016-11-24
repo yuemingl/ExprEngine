@@ -87,16 +87,15 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
-				new CSList(new Object[]{110,-90}));
-
-		
-		//assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
-		//		getVector(110,-90).transpose());
-
-		//assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
-
-		//assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
+//		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
+//				new CSList(new Object[]{110,-90}));
+//
+//		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
+//				getVector(110,-90).transpose());
+//
+//		assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
+//
+		assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
 
 		
 		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout={c,100,'aaa'}; varargout end [xx yy zz aa bb]=fun(10,20,30); xx\nyy\nzz\naa\nbb"); 
@@ -1203,11 +1202,11 @@ public class TestMatlabEngine {
 		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
 				getVector(110,-90).transpose());
 		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
-				getVector(110,-90).transpose());
+				new CSList(new Object[]{110,-90}));
 		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10.,100.)"), 
-				getVector(110,-90).transpose());
+				new CSList(new Object[]{110.0,-90.0}));
 		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10.,100.)"), 
-				getVector(110,-90).transpose());
+				getVector(110.0,-90.0).transpose());
 		
 		assertEqual(exec("function myfun(a)\n a+1\n a+2; end\n myfun(1)"), 3);
 		assertEqual(exec("function myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 3);
@@ -1215,9 +1214,9 @@ public class TestMatlabEngine {
 		assertEqual(exec("function a=myfun(a)\n a+1\n a+2\n end\n myfun(1)"), 1);
 		
 		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;a;b;a+1\nend\nmyfun(10,100)"), 
-				getVector(110,-90).transpose());
+				new CSList(new Object[]{110,-90}));
 		assertEqual(exec("function [c d] = myfun(a, b)\nc=a+b; d=a-b;\nend\nmyfun(10,100)"), 
-				getVector(110,-90).transpose());
+				new CSList(new Object[]{110,-90}));
 		assertEqual(exec("function c = myfun(a, b)\nc=a+b\nend\nmyfun(10,100)"),110);
 		
 
