@@ -298,7 +298,9 @@ public class FuncDefNode extends ExprNode {
 					mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(typeDesc));
 				}
 			}
+			
 			//initialize varargout
+			
 			VariableNode varargout = this.funcVarMap.get("varargout");
 			if(null != varargout) {
 				Type ty = varargout.getType();
