@@ -103,6 +103,18 @@ public class ObjectArray {
 	}
 	
 	public ObjectArray set(int idx, Object v) {
+		if(data == null) {
+			Object[] newData = new Object[idx+1];
+			newData[idx] = v;
+			ObjectArray newAry = ObjectArray.newObjectArray(newData);
+			data = newAry.data;
+		} else if(this.getRowDimension()*this.getColumnDimension() <= idx) {
+			Object[] newData = new Object[idx+1];
+			System.arraycopy(this.getColumnPackedCopy(), 0, newData, 0, data.length);
+			newData[idx] = v;
+			ObjectArray newAry = ObjectArray.newObjectArray(newData);
+			data = newAry.data;
+		}
 		int m = data.length;
 		int n = 0;
 		if (data.length > 0)
@@ -272,6 +284,7 @@ public class ObjectArray {
 	}
 	
 	public ObjectArray set(Jama.Matrix idx, ObjectArray ary) {
+		//auto increment of the size of the array
 		if(null == data) {
 			data = new Object[idx.getRowDimension()][idx.getColumnDimension()]; //TODO???
 		}
