@@ -1021,7 +1021,8 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		FuncDefNode fNode = ExprTreeBuildWalker.funcMap.get(funcName);
 		while(!this.currentScope().stack.isEmpty()) {
 			ExprNode node = this.currentScope().stack.pop();
-			fNode.body.add(node);
+			node.setParent(fNode.body);
+			fNode.body.exprs.add(node);
 		}
 		//Bugfix: Don't forget to put vars in local funcVarMap
 		fNode.funcVarMap.putAll(currentScope().varMap);
@@ -1030,7 +1031,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		if(null != ctx.func_def_return()) { //It has return variable specified
 			
 			//Remove the return expression from body list
-			ExprNode retNode = fNode.body.remove(fNode.body.size()-1);
+			ExprNode retNode = fNode.body.exprs.remove(fNode.body.exprs.size()-1);
 			
 			//Transform it to ReturnListNode
 			if(retNode instanceof MatrixInitNode) {
@@ -1047,7 +1048,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 			fNode.retExpr = retNode; 
 			
 		} else { //The last expression is the return value
-			ExprNode lastExpr = fNode.body.get(0);
+			ExprNode lastExpr = fNode.body.exprs.get(0);
 			if(lastExpr instanceof FuncCallNode) {
 				FuncCallNode funcCallNode = (FuncCallNode)lastExpr;
 				//this is handled in exitExprWithExprEnd()
