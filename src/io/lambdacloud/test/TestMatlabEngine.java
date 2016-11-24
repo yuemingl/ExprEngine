@@ -95,58 +95,59 @@ public class TestMatlabEngine {
 //
 //		assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
 //
+		//r has type null, the code will not be generated for r
 		assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
 
 		
-		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout={c,100,'aaa'}; varargout end [xx yy zz aa bb]=fun(10,20,30); xx\nyy\nzz\naa\nbb"); 
+		exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout={c,100,'aaa'}; varargout end [xx yy zz aa bb]=fun(10,20,30); xx\nyy\nzz\naa\nbb"); 
 		
-		//exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout(1)=c; varargout end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
-		//exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
-		//exec("function [x y z] = fun(a,b,c), x=a; y=b; z=c; end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
-//		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
-//		exec("[a,b,c]=[1,2,3]; a\nb\nc");
+		exec("function [x y varargout] = fun(a,b,c), x=a; y=b; varargout(1)=c; varargout end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
+		exec("function [A B]=myfun(), A=[1 2; 3 4]; B=[5 6; 7 8]; end [A B]=myfun()\n A\n B\n");
+		exec("function [x y z] = fun(a,b,c), x=a; y=b; z=c; end [xx yy zz]=fun(10,20,30); xx\nyy\nzz"); 
+		exec("function [x y z] = fun(a,b,c), x=a; y=b+c; z=nargout end [xx]=fun(10,20,30); xx"); //nargout should be 1
+		exec("[a,b,c]=[1,2,3]; a\nb\nc");
 		
-		//exec("v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
-		//exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
+		exec("v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
+		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v\n v(2)=3:-1:1; x(v{:})");
 
-//		exec("function fun(a,b,varargin), varargin{:}\n size(varargin) end fun(1,2,{3,4},5);");
-//		exec("function fun(a,b,varargin), varargin{:}\n size(varargin) end fun(1,2,{3,4});");
-//		exec("function fun(a,b,varargin), varargin{:}\n end fun(1,2,3,4);");
-//		exec("function fun(a,b,c), c\n end fun(1,2,3);");
+		exec("function fun(a,b,varargin), varargin{:}\n size(varargin) end fun(1,2,{3,4},5);");
+		exec("function fun(a,b,varargin), varargin{:}\n size(varargin) end fun(1,2,{3,4});");
+		exec("function fun(a,b,varargin), varargin{:}\n end fun(1,2,3,4);");
+		exec("function fun(a,b,c), c\n end fun(1,2,3);");
 		
-//		//bugfix: Return type is changed after calling updateTree() 
-//		//Make sure getType() return the correct type even after calling updateTree()
-//		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
-//		assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), 4.0);
-//
-//		
-//		exec("a={1,2,3}");
-//		exec("a={1,2,3}; a(1,2)\n a{1,2}");
-//		exec("a={1,2,3}; a(1,2)=10");
-//
-//		
-//		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
-//		assertEqual(exec("math.cos(1.0);"), Math.cos(1.0));
-//
-////	//flipdim.m
-////    % Create the index that will transform x.
-////    v(1:ndims(x)) = {':'};
-////    % Flip dimension dim.
-////    v{dim} = dimsize:-1:1;
-////    % Index with v.
-////    y = x(v{:});
-//	exec("v={0,0}; v(1:2)={':'}; v{:}");
-//	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; x(v{:})");
-////	exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
-//	//Use an array without initialization
-//		exec("v(1:2)={':'}");
-//		exec("v(2,3)=10");
-//		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
-//		exec("a=1\n a=2\n a=3");
-//	
-//	
-//	
-		//test();
+		//bugfix: Return type is changed after calling updateTree() 
+		//Make sure getType() return the correct type even after calling updateTree()
+		exec("C = {'one', 'two', 'three'; 1, 2, 3}; C(1:2,1:2)");
+		assertEqual(exec("a=[1, 2; 3, 4];  a(2, 2)"), 4.0);
+
+		
+		exec("a={1,2,3}");
+		exec("a={1,2,3}; a(1,2)\n a{1,2}");
+		exec("a={1,2,3}; a(1,2)=10");
+
+		
+		assertEqual(exec("math.sin(1.0);"), Math.sin(1.0));
+		assertEqual(exec("math.cos(1.0);"), Math.cos(1.0));
+
+//	//flipdim.m
+//    % Create the index that will transform x.
+//    v(1:ndims(x)) = {':'};
+//    % Flip dimension dim.
+//    v{dim} = dimsize:-1:1;
+//    % Index with v.
+//    y = x(v{:});
+		exec("v={0,0}; v(1:2)={':'}; v{:}");
+		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; x(v{:})");
+		exec("v={0,0}; v(1:2)={':'}; x=[1 2 3; 4 5 6]; v(2)=3:-1:1; x(v{:})");
+		//Use an array without initialization
+		exec("v(1:2)={':'}");
+		exec("v(2,3)=10");
+		exec("v(2,3)=10; v(1,1)=5; v(3,3)=9");
+		exec("a=1\n a=2\n a=3");
+	
+	
+	
+		test();
 	}
 	public static void test() {
 		
