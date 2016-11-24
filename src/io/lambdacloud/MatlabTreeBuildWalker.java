@@ -732,6 +732,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 				sbNames.append(".").append(Tools.join(san.fields.toArray(new String[0]), "."));
 				funcName = san.fields.get(san.fields.size()-1);
 			}
+		} else if(var instanceof CellAccessNode) {
+			//Do nothing
+			//e.g. varargin{1}(:)
 		} else {
 			throw new RuntimeException("var = "+var);
 		}
@@ -739,6 +742,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		//Check if the variable is from external parameter
 		boolean isFuncCall = false;
 		boolean needInitialize = false;
+		if(null != varName) {
 		if( null == this.mapParameterTypes ||
 			null == this.mapParameterTypes.get(varName)) {
 			//Check if varName is a user defined function name
@@ -780,6 +784,9 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 					isFuncCall = false;
 				}
 			}
+		}
+		} else {
+			isFuncCall = false;
 		}
 		
 		if(isFuncCall) {
@@ -1423,7 +1430,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	
 	private int multi_assign_seq = 0;
 	@Override public void exitExprMultiAssign(MatlabGrammarParser.ExprMultiAssignContext ctx) {
-		//System.out.println("exitExprMulAssign: "+ctx.getText());
+		try {
 		ExprNode value = this.currentScope().stack.pop();
 		String tmpVarName = "";
 		ArrayList<VariableNode> multiAssignVars = new ArrayList<VariableNode>();
@@ -1439,6 +1446,10 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 		AssignNode an = new AssignNode(tmpVar, value);
 		an.multiAssignVars.addAll(multiAssignVars);
 		this.currentScope().stack.push(an);
+		} catch (Exception e) {
+			System.out.println("exitExprMulAssign: "+ctx.getText());
+			e.printStackTrace();
+		}
 	}
 	
 	@Override public void exitStringConst(MatlabGrammarParser.StringConstContext ctx) {
