@@ -71,8 +71,9 @@ public class BytecodeSupport {
 		System.out.println(o);
 	}
 	
-	public static void println(CSList o) {
+	public static CSList println(CSList o) {
 		System.out.println(o.toString());
+		return o;
 	}
 	
 	public static LogicalArray println(LogicalArray o) {

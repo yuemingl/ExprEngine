@@ -16,6 +16,7 @@ import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MatlabEngine;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.matrix.MatrixAccessNode;
+import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.LogicalArray;
 import io.lambdacloud.util.ObjectArray;
 import io.lambdacloud.util.Struct;
@@ -87,7 +88,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class TestMatlabEngine {
 	public static void main(String[] args){
 		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
-				getVector(110,-90).transpose());
+				new CSList(new Object[]{110,-90}));
 
 		
 		//assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
@@ -1686,6 +1687,16 @@ public class TestMatlabEngine {
 					if(!m1.data[i][j].equals(m2.data[i][j])) {
 						throw new RuntimeException("Assert fail!");
 					}
+			return;
+		}
+		else if (o1 instanceof CSList && o2 instanceof CSList) {
+			CSList m1 = (CSList) o1;
+			CSList m2 = (CSList) o2;
+			int m = m1.data.length;
+			for (int i = 0; i < m; i++)
+				if (!m1.data[i].equals(m2.data[i])) {
+					throw new RuntimeException("Assert fail!");
+				}
 			return;
 		}
 		if(!o1.equals(o2)) {

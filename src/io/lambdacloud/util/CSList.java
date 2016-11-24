@@ -7,7 +7,7 @@ package io.lambdacloud.util;
  *
  */
 public class CSList {
-	Object[] data;
+	public Object[] data;
 	public CSList(Object[] data) {
 		this.data = data;
 	}
@@ -29,4 +29,6 @@ public class CSList {
 	public Object[] getData() {
 		return this.data;
 	}
+	
+	
 }
