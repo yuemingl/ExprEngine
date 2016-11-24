@@ -35,7 +35,7 @@ public class FuncDefNode extends ExprNode {
 	//public Map<String, VariableNode> funcVarMap = new TreeMap<String, VariableNode>();
 	public Map<String, VariableNode> funcVarMap = new LinkedHashMap<String, VariableNode>();
 
-	public ArrayList<ExprNode> body = new ArrayList<ExprNode>();
+	public StatementNode body = new StatementNode();
 	
 	/**
 	 * This is used to keep the return expression declared in the definition of a function
@@ -198,13 +198,10 @@ public class FuncDefNode extends ExprNode {
 				return retType;
 			}
 		}
-		for (int i = 0; i < this.body.size(); i++) {
-			ExprNode node = this.body.get(i);
-			Type retType = node.getType(stack);
-			if (null != retType) {
-				stack.pop();
-				return retType;
-			}
+		Type retType = body.getType(stack);
+		if (null != retType) {
+			stack.pop();
+			return retType;
 		}
 		//null indicate that we cannot infer return type
 		//changed to void type. null indicate the type of an expression is not specified
@@ -212,14 +209,14 @@ public class FuncDefNode extends ExprNode {
 		return Type.VOID_TYPE; 
 	}
 
+	//TODO clear the comments
 	//this is introduced by fixing AssignNode 
 	public void fixBodyExprTypes(Deque<Object> stack) {
-		//
 		// The type fix is based on localVarMap
 		// for AssignNode
-		for (int j = this.body.size() - 1; j >= 0; j--) {
-			this.body.get(j).updateType(stack);
-		}
+		this.body.updateType(stack);
+		if(null != this.retExpr)
+			this.retExpr.updateType(stack);
 	}
 
 	public Type[] getParameterTypes(boolean includeOptional) {
@@ -301,16 +298,26 @@ public class FuncDefNode extends ExprNode {
 					mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), var.getLVTIndex(typeDesc));
 				}
 			}
+			//initialize varargout
+			VariableNode varargout = this.funcVarMap.get("varargout");
+			if(null != varargout) {
+				Type ty = varargout.getType();
+				mg.visitTypeInsn(Opcodes.NEW, "io/lambdacloud/util/ObjectArray");
+				mg.visitInsn(Opcodes.DUP);
+				mg.visitMethodInsn(Opcodes.INVOKESPECIAL, "io/lambdacloud/util/ObjectArray", "<init>", "()V", false);
+				mg.visitIntInsn(ty.getOpcode(Opcodes.ISTORE), varargout.getLVTIndex(ty));
+			}
+
 			
 			// Generate code for all the expressions
 			int lowBound = 0;
 			if(null == this.retExpr) {
-				if(this.body.size() > 0)
-					this.retExpr = this.body.get(0);
+				if(this.body.exprs.size() > 0)
+					this.retExpr = this.body.exprs.get(0);
 				lowBound = 1;
 			}
-			for (int i = this.body.size() - 1; i >= lowBound; i--) {
-				ExprNode expr = this.body.get(i);
+			for (int i = this.body.exprs.size() - 1; i >= lowBound; i--) {
+				ExprNode expr = this.body.exprs.get(i);
 				expr.genCode(mg);
 			}
 			
@@ -386,8 +393,8 @@ public class FuncDefNode extends ExprNode {
 			sb.append(e.getValue()).append(", ");
 		}
 		sb.append(") {\n");
-		for (int i = body.size() - 1; i >= 0; i--)
-			sb.append(body.get(i).toString()).append("\n");
+		for (int i = this.body.exprs.size() - 1; i >= 0; i--)
+			sb.append(this.body.exprs.get(i).toString()).append("\n");
 		if(null != this.retExpr)
 			sb.append(this.retExpr).append("\n");
 		sb.append("}");
@@ -414,26 +421,24 @@ public class FuncDefNode extends ExprNode {
 	public boolean contains(ExprNode target) {
 		if(this == target)
 			return true;
-		for(ExprNode e : this.body) {
-			if(e.contains(target))
+		if(this.body.contains(target))
+			return true;
+		if(null != this.retExpr)
+			if(this.retExpr.contains(target))
 				return true;
-		}
 		return false;
 	}
 
 	@Override
 	public void replaceChild(ExprNode oldNode, ExprNode newNode) {
-		for(int i=0; i<this.body.size(); i++) {
-			if(this.body.get(i) == oldNode)
-				this.body.set(i, newNode);
-		}
+		this.body.replaceChild(oldNode, newNode);
+		if(null != this.retExpr)
+			this.retExpr.replaceChild(oldNode, newNode);
 	}
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
-		for(ExprNode e : this.body) {
-			e.updateTree(mg);
-		}
+		this.body.updateTree(mg);
 		if(null != this.retExpr) {
 			this.retExpr.updateTree(mg);
 		}
@@ -441,8 +446,8 @@ public class FuncDefNode extends ExprNode {
 
 	@Override
 	public void updateParam(String name, Object value) {
-		for(ExprNode e : this.body) {
-			e.updateParam(name, value);
-		}
+		this.body.updateParam(name, value);
+		if(null != this.retExpr)
+			this.retExpr.updateParam(name, value);
 	}
 }
