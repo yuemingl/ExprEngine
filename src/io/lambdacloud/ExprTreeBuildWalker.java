@@ -135,11 +135,16 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 		//tt = tt.replaceAll("\\(|\\)", "_");
 		Class<?> cls = fnode.genFuncCode(true);
 		
-		Method[] ms = cls.getDeclaredMethods();
-		MethodHandle mh = MethodHandles.lookup().findStatic(cls, name,
-		//MethodType.methodType(type.returnType(),type.parameterArray()));
-		MethodType.methodType(ms[0].getReturnType(), ms[0].getParameterTypes()));
-
+		MethodHandle mh = null;
+		try {
+			Method[] ms = cls.getDeclaredMethods();
+			mh = MethodHandles.lookup().findStatic(cls, name,
+			//MethodType.methodType(type.returnType(),type.parameterArray()));
+			MethodType.methodType(ms[0].getReturnType(), ms[0].getParameterTypes()));
+		} catch (Exception e) {
+			System.out.println(fnode);
+			e.printStackTrace();
+		}
 		return new ConstantCallSite(mh);
 	}
 	
