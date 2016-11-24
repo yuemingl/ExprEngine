@@ -60,6 +60,8 @@ public class UnaryOp extends ExprNode {
 
 	@Override
 	public void updateTree(MethodGenHelper mg) {
+		if(null == this.expr) //ReturnNode: return;
+			return;
 		if(!(this.expr instanceof VariableNode) && this != this.expr.getParent()) {
 			throw new RuntimeException("Parent link of chind is not set correctly!");
 		}
