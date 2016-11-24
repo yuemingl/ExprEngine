@@ -1204,7 +1204,7 @@ public class ExprTreeBuildWalker extends ExprGrammarBaseListener {
 			if("S".equals(node.getTag())) { 
 				break;
 			} else {
-				fNode.body.add(node);
+				fNode.body.exprs.add(node);
 			}
 		}
 		
