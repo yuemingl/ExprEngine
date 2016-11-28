@@ -87,26 +87,29 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-		assertEqual(exec("if( any([0 0 1]) ), 1 else 2 end"), 1);
+		exec("function r=fib(n)\n if n<=1\n r=1L; else r=fib(n-1)+fib(n-2); end\n end\n tic; fib(46)\n toc");
 
-		assertEqual(exec("any(1)"), true);
-		assertEqual(exec("any(1L)"), true);
-		assertEqual(exec("any(1.0)"), true);
-		assertEqual(exec("any([1 2 3; 4 5 6])"), getVector(new double[]{1,1,1}).transpose());
-		assertEqual(exec("any([0 1 0; 1 0 0])"), getVector(new double[]{1,1,0}).transpose());
-		assertEqual(exec("any([0 1 0])"), getVector(new double[]{1}).transpose());
-		assertEqual(exec("any([0 0 0])"), getVector(new double[]{0}).transpose());
-
-		//Need better test case
-		//exec("[a b]=cellfun(@sum, {1, 2.0, [0 1 2; 3 4 5]}, {[1 2; 3 4],[1 2], 3L}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
-
-		exec("a=cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
-		exec("[a]=cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
-		exec("cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]})"); 
-
-		testCellfun();
 		
-		test2();
+//		assertEqual(exec("if( any([0 0 1]) ), 1 else 2 end"), 1);
+//
+//		assertEqual(exec("any(1)"), true);
+//		assertEqual(exec("any(1L)"), true);
+//		assertEqual(exec("any(1.0)"), true);
+//		assertEqual(exec("any([1 2 3; 4 5 6])"), getVector(new double[]{1,1,1}).transpose());
+//		assertEqual(exec("any([0 1 0; 1 0 0])"), getVector(new double[]{1,1,0}).transpose());
+//		assertEqual(exec("any([0 1 0])"), getVector(new double[]{1}).transpose());
+//		assertEqual(exec("any([0 0 0])"), getVector(new double[]{0}).transpose());
+//
+//		//Need better test case
+//		//exec("[a b]=cellfun(@sum, {1, 2.0, [0 1 2; 3 4 5]}, {[1 2; 3 4],[1 2], 3L}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
+//
+//		exec("a=cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
+//		exec("[a]=cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
+//		exec("cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]})"); 
+//
+//		testCellfun();
+//		
+//		test2();
 	}
 	
 	public static void testCellfun() {
