@@ -77,6 +77,11 @@ public class CellAccessNode extends ExprNode {
 		return false;
 	}
 	
+	public static void test2() {
+		Object m = new ObjectArray();
+		ObjectArray o = (ObjectArray)m;
+		System.out.println(o);
+	}
 	@Override
 	public void _genCode(MethodGenHelper mg) {
 		if(this.indices.size() > 2) {
@@ -94,6 +99,9 @@ public class CellAccessNode extends ExprNode {
 		if(this.indices.size() == 1) {
 			if(null == this.indices.get(0).idxS) {  //A{:}
 				var.genCode(mg);
+				//TODO
+				mg.visitTypeInsn(Opcodes.CHECKCAST, "io/lambdacloud/util/ObjectArray");
+
 				mg.visitMethodInsn(INVOKEVIRTUAL, Tools.getClassNameForASM(ObjectArray.class), 
 						"to1DArray", "()"+Type.getType(ObjectArray.class), false);
 				if(isAccessObject) {
