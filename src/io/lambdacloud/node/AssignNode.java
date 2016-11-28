@@ -243,6 +243,14 @@ public class AssignNode extends BinaryOp {
 				((VariableNode)left).setType(rType);
 			}
 			
+			//TODO Better way?
+			//fix 
+			// a  = CSList
+			//[a] = CSList
+			if(isCSList && this.multiAssignVars.size() == 0) {
+				this.multiAssignVars.add((VariableNode)left);
+			}
+			
 			if(multiAssignVars.size() > 0) {
 				Type typeJamaMatrix =  Type.getType(Jama.Matrix.class);
 				//If RHS is an array of Jama.Matrix, set each variable on LHS to type of Jama.Matrix
