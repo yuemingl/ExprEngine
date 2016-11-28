@@ -1,5 +1,6 @@
 package io.lambdacloud;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -421,7 +422,15 @@ public class BytecodeSupport {
 		return r;
 	}
 	public static Jama.Matrix size(double a) {
-		Jama.Matrix r = new Jama.Matrix(new double[]{1},1).transpose();
+		Jama.Matrix r = new Jama.Matrix(new double[][]{{1},{1}}).transpose();
+		return r;
+	}
+	public static Jama.Matrix size(int a) {
+		Jama.Matrix r = new Jama.Matrix(new double[][]{{1},{1}}).transpose();
+		return r;
+	}
+	public static Jama.Matrix size(long a) {
+		Jama.Matrix r = new Jama.Matrix(new double[][]{{1},{1}}).transpose();
 		return r;
 	}
 	public static int length(Jama.Matrix m) {
@@ -1657,5 +1666,120 @@ public class BytecodeSupport {
 			return 1;
 		else
 			return 2;
+	}
+	
+	public static boolean any(int i) {
+		return i>0;
+	}
+	public static boolean any(long i) {
+		return i>0;
+	}
+	public static boolean any(double i) {
+		return i>0;
+	}
+	public static Jama.Matrix any(Jama.Matrix m) {
+		Jama.Matrix ret = null;
+		if(m.getRowDimension() == 1) {
+			ret = new Jama.Matrix(1,1);
+			for(int i=0; i<m.getColumnDimension(); i++) {
+				if(m.get(0, i) > 0.0) {
+					ret.set(0, 0, 1.0);
+					return ret;
+				}
+			}
+		} else {
+			ret = new Jama.Matrix(1, m.getColumnDimension());
+			for(int i=0; i<m.getColumnDimension(); i++) {
+				for(int j=0; j<m.getRowDimension(); j++) {
+					if(m.get(j, i) > 0.0) {
+						ret.set(0, i, 1.0);
+						break;
+					}
+				}
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * %      C = {1:10, [2; 4; 6], []};
+%      Cmeans = cellfun(@mean, C);
+%      [Cnrows,Cncols] = cellfun(@size, C);
+%      Csize = cellfun(@size, C, 'UniformOutput', false);
+%
+%      % Find the positive values in several datasets.
+%      C = {randn(10,1), randn(20,1), randn(30,1)};
+%      Cpositives = cellfun(@(x) x(x>0), C, 'UniformOutput',false);
+%
+%      % Compute the covariance between several pairs of datasets.
+%      C = {randn(10,1), randn(20,1), randn(30,1)};
+%      D = {randn(10,1), randn(20,1), randn(30,1)};
+%      CDcovs = cellfun(@cov, C, D, 'UniformOutput', false);
+
+	 */
+	public static CSList cellfun(String funName, ObjectArray o) {
+		return cellfun(funName, new ObjectArray[]{o});
+	}
+	public static CSList cellfun(String funName, ObjectArray o1, ObjectArray o2) {
+		return cellfun(funName, new ObjectArray[]{o1, o2});
+	}
+	public static CSList cellfun(String funName, ObjectArray[] o) {
+		Object[] args = new Object[o.length];
+		int N = BytecodeSupport.numel(o[0]);
+		CSList rlt = null;
+		Method m = null;
+		for(int i=0; i<N; i++) {
+			for(int j=0; j<args.length; j++) {
+				args[j] = o[j].get(i);
+			}
+			m = findMethod(funName, args);
+			try {
+				Object ret = m.invoke(null, args);
+				if(null == rlt) { //initialize the return value
+					if(ret instanceof CSList) {
+						CSList retList = (CSList)ret;
+						rlt = new CSList(retList.size());
+						for(int k=0; k<retList.size(); k++) {
+							rlt.data[k] = new ObjectArray(N,1);
+						}
+					} else {
+						rlt = new CSList(1);
+						rlt.data[0] = new ObjectArray(N,1);
+					}
+				}
+				
+				if(ret instanceof CSList) {
+					CSList retList = (CSList)ret;
+					for(int k=0; k<retList.size(); k++) {
+						((ObjectArray)rlt.data[k]).set(i, retList.get(k));
+					}
+				} else {
+					((ObjectArray)rlt.data[0]).set(i, ret);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	
+		return rlt;
+	}
+	
+	public static Method findMethod(String funName, Object[] o) {
+		Method m = null;
+		try {
+			m = BytecodeSupport.class.getMethod(funName, Tools.getParameterArray(o));
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		return m;
+	}
+	
+	public static boolean matrix2boolean(Jama.Matrix m) {
+		if(m.getRowDimension() > 0 && m.getColumnDimension() > 0) {
+			if(m.get(0, 0) > 0) return true;
+		}
+		return false;
 	}
 }
