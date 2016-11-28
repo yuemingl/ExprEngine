@@ -11,6 +11,9 @@ public class CSList {
 	public CSList(Object[] data) {
 		this.data = data;
 	}
+	public CSList(int sz) {
+		this.data = new Object[sz];
+	}
 	
 	public Object get(int i) {
 		return data[i];
@@ -30,5 +33,7 @@ public class CSList {
 		return this.data;
 	}
 	
-	
+	public int size() {
+		return data.length;
+	}
 }
