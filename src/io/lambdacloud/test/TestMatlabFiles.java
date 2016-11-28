@@ -12,8 +12,9 @@ public class TestMatlabFiles {
 		//compile("./test_matlab/spdiags.m");
 		//compile("./test_matlab/matlab/elmat/flipdim.m");
 		//compile("./test_matlab/matlab/elmat/ndgrid.m");
-		compile("./test_matlab/matlab/elmat/gallery.m");
+		//TODO compile("./test_matlab/matlab/elmat/gallery.m");
 		//compile("./test_matlab/matlab/elmat");
+		compile("./test_matlab/matlab/elmat-test/blkdiag.m");
 	}
 	
 	/**

@@ -87,14 +87,48 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class TestMatlabEngine {
 	public static void main(String[] args){
-//		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
-//				new CSList(new Object[]{110,-90}));
-//
-//		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
-//				getVector(110,-90).transpose());
-//
-//		assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
-//
+		assertEqual(exec("if( any([0 0 1]) ), 1 else 2 end"), 1);
+
+		assertEqual(exec("any(1)"), true);
+		assertEqual(exec("any(1L)"), true);
+		assertEqual(exec("any(1.0)"), true);
+		assertEqual(exec("any([1 2 3; 4 5 6])"), getVector(new double[]{1,1,1}).transpose());
+		assertEqual(exec("any([0 1 0; 1 0 0])"), getVector(new double[]{1,1,0}).transpose());
+		assertEqual(exec("any([0 1 0])"), getVector(new double[]{1}).transpose());
+		assertEqual(exec("any([0 0 0])"), getVector(new double[]{0}).transpose());
+
+		//Need better test case
+		//exec("[a b]=cellfun(@sum, {1, 2.0, [0 1 2; 3 4 5]}, {[1 2; 3 4],[1 2], 3L}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
+
+		exec("a=cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
+		exec("[a]=cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]}); [x1 x2 x3]=a{:}; x1\nx2\nx3");
+		exec("cellfun(@size, {1, 2.0, [0 1 2; 3 4 5]})"); 
+
+		testCellfun();
+		
+		test2();
+	}
+	
+	public static void testCellfun() {
+		ObjectArray o = new ObjectArray(3,1);
+		o.set(0, 1);
+		o.set(1, 2.0);
+		o.set(2, getMatrix(new double[][]{{0,1,2},{3,4,5}}));
+		
+		CSList ret = BytecodeSupport.cellfun("size", new ObjectArray[]{o});
+		BytecodeSupport.println(ret);
+	}
+	
+	
+	public static void test2() {
+		assertEqual(exec("function [c d]=myfun(a, b)\n c=a+b\n d=a-b\n end\n myfun(10,100)"), 
+				new CSList(new Object[]{110,-90}));
+
+		assertEqual(exec("function myfun(a, b)\n c=a+b\n d=a-b\n [c d]\n end\n myfun(10,100)"), 
+				getVector(110,-90).transpose());
+
+		assertEqual(exec("function a=fun(x), if x<0, return end a=x*x; end fun(1)"), 1);
+
 		//r has type null, the code will not be generated for r
 		assertEqual(exec("function r=fun(a), if a<0, return 0 end a+1; end fun(-1)"), 0);
 
