@@ -8,6 +8,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.arithmetric.AddAsignNode;
 import io.lambdacloud.node.arithmetric.DivAsignNode;
@@ -21,9 +22,18 @@ public class IfNode extends ExprNode {
 	public List<ExprNode> ifBlockExprs = new ArrayList<ExprNode>();
 	public List<ExprNode> elseBlockExprs = new ArrayList<ExprNode>();
 
+	public static void test() {
+		Jama.Matrix m = new Jama.Matrix(1,1);
+		BytecodeSupport.matrix2boolean(m);
+	}
+	
 	@Override
 	public void _genCode(MethodGenHelper mg) {
 		this.condition.genCode(mg);
+		if(this.condition.getType().equals(Type.getType(Jama.Matrix.class))) {
+			mg.visitMethodInsn(Opcodes.INVOKESTATIC, "io/lambdacloud/BytecodeSupport", 
+					"matrix2boolean", "(LJama/Matrix;)Z", false);
+		}
 		//if(...){...} else{...}
 		if(this.elseBlockExprs.size() > 0) {
 			Label elseBranch = new Label();
