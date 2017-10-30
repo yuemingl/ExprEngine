@@ -987,7 +987,7 @@ public class MatlabTreeBuildWalker extends MatlabGrammarBaseListener {
 	}
 	
 	/**
-	 * Extract function name and arguments (parameter names)
+	 * Extract function name and arguments (parameter names) before calling exitFuncDef
 	 */
 	@Override public void exitFuncDefNameArgs(MatlabGrammarParser.FuncDefNameArgsContext ctx) {
 		
