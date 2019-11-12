@@ -5,9 +5,8 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import java.util.ArrayList;
 import java.util.Deque;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import Jama.Matrix;
 import io.lambdacloud.BytecodeSupport;

@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.CodeGenerator;
 import io.lambdacloud.ExprClassLoader;

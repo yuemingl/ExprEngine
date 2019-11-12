@@ -7,9 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.util.ObjectArray;

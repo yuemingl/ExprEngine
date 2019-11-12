@@ -25,11 +25,12 @@ import static org.objectweb.asm.Opcodes.*;
 public class TestInvokeDynamic {
 	// Method I want to dynamically invoke
 	public static int plus(int a, int b) { 
+		System.out.println("----");
 		return a + b;
 	}
 
 	public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws Exception {
-		System.out.println("bootstrap");
+		System.out.println("bootstrap for "+type);
 		String tt = type.toMethodDescriptorString();
 		tt = tt.replaceAll("\\(|\\)", "_");
 		ExprTreeBuildWalker ew = parse("x+y", type.parameterArray()[0]);
@@ -44,7 +45,7 @@ public class TestInvokeDynamic {
 		MethodHandle mh = MethodHandles.lookup().findStatic(cls, "plus2",
 		MethodType.methodType(type.returnType(),type.parameterArray()));
 
-		System.out.println(type.toMethodDescriptorString());
+//		System.out.println(type.toMethodDescriptorString());
 		return new ConstantCallSite(mh);
 	}
 
@@ -89,12 +90,16 @@ public class TestInvokeDynamic {
 			mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 			mv.visitIntInsn(BIPUSH, 42);
 			mv.visitIntInsn(BIPUSH, 24);
+			// call function: int plus(int, int)  //42+24=66
+			// which will trigger a call to method bootstrap
 			mv.visitInvokeDynamicInsn("plus", "(II)I", bootstrapHandle, new Object[0]);
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
 
 			mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 			mv.visitLdcInsn(10.0);
-			mv.visitLdcInsn(10.0);
+			mv.visitLdcInsn(12.0);
+			// call function: double plus(double, double) //10.0+12.0
+			// which will trigger a call to method bootstrap
 			mv.visitInvokeDynamicInsn("plus", "(DD)D", bootstrapHandle, new Object[0]);
 			mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
 
@@ -129,3 +134,13 @@ public class TestInvokeDynamic {
 	}
 
 }
+/*
+output:
+bootstrap for (int,int)int
+bootstrap for (double,double)double
+22.0
+66
+22.0
+66
+22.0
+*/

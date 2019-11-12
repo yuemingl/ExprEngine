@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.MethodGenHelper;
 import io.lambdacloud.node.ExprNode;

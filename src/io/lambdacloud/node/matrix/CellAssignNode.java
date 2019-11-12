@@ -6,7 +6,7 @@ import java.util.Deque;
 
 import org.objectweb.asm.Type;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
@@ -16,6 +16,7 @@ import io.lambdacloud.node.Tools;
 import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.tool.IndexPair;
 import io.lambdacloud.util.ObjectArray;
+
 public class CellAssignNode extends ExprNode {
 	public VariableNode var;
 	public ExprNode value;

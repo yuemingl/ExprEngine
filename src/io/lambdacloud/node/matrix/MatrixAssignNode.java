@@ -4,9 +4,9 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import java.util.ArrayList;
 import java.util.Deque;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
 import io.lambdacloud.BytecodeSupport;
 import io.lambdacloud.MethodGenHelper;
@@ -17,6 +17,7 @@ import io.lambdacloud.node.VariableNode;
 import io.lambdacloud.node.tool.IndexPair;
 import io.lambdacloud.util.CSList;
 import io.lambdacloud.util.ObjectArray;
+
 public class MatrixAssignNode extends ExprNode {
 	public VariableNode var;
 	public ExprNode value;
